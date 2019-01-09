@@ -4,6 +4,7 @@
 .include   "fcntl.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
+.include    "include/ch376.inc"
 
 ;.include  "src/include/orix.h"
 ;.include  "src/include/6522_1.h"
@@ -13,7 +14,17 @@
 ;.include  "src/include/ch376.h"
 ;.include  "src/include/macro.h"
 
-NEXT_STACK_BANK:= $0418
+NEXT_STACK_BANK := $0418
+ORIX_ROUTINES   := $FFE0
+
+
+; [IN] RES the string of the path 
+; [OUT] A contains the ID of the file ptr. IF A = 0 then there is an error
+; [OUT] X contains the ID of the error
+
+ORIX_REGISTER_FILEHANDLE = $00
+ORIX_MALLOC_MEMORY       = $03
+ORIX_FREE_MEMORY         = $04
 
 .macro  BRK_ORIX   value
 	.byte $00,value
@@ -4050,21 +4061,18 @@ Action:Ces quatres routines permettent un d?placement extr?mement rapide du
                                                                                 
                     DEPLACE LE CURSEUR HIRES VERS LE BAS                      
 */
-XHRSCB_ROUTINE
-  
-  CLC       ;     on ajoute 40                                      
-  LDA ADHRS    ;    ? ADHRS                                           
+XHRSCB_ROUTINE:
+  CLC           ;     on ajoute 40                                      
+  LDA ADHRS     ;    à ADHRS
   ADC #$28                                                         
   STA ADHRS                                                          
   BCC Le7c0                                                     
   INC ADHRS+1                                                          
   RTS     
-/*  
-                   DEPLACE LE CURSEUR HIRES VERS LE HAUT                    
-*/
 
-XHRSCH_ROUTINE
- 
+;                   DEPLACE LE CURSEUR HIRES VERS LE HAUT                    
+
+XHRSCH_ROUTINE:
   SEC      ;      on soustrait 40                                   
   LDA ADHRS   ;     ? ADHRS                                           
   SBC #$28                                                         
@@ -4072,17 +4080,15 @@ XHRSCH_ROUTINE
   BCS     Le7c0                                                     
   DEC ADHRS+1                                                          
   RTS        
-/*  
 
-                     DEPLACE LE CURSEUR VERS LA DROITE (hires)
-*/
-XHRSCD_ROUTINE  
+;                      DEPLACE LE CURSEUR VERS LA DROITE (hires)
+XHRSCD_ROUTINE:
 
-  LDX HRSX6  ;      on d?place d'un pixel                             
+  LDX HRSX6      ;      on déplace d'un pixel                             
   INX                                                              
-  CPX #$06  ;     si on est ? la fin                                
+  CPX #$06       ;     si on est à la fin
   BNE @skip
-  LDX #$00   ;    on revient au d?but                               
+  LDX #$00       ;    on revient au début
   INC HRSX40     ;   et ajoute une colonne 
 @skip:
   STX HRSX6                                                          
@@ -4217,7 +4223,7 @@ Le862
 Action:on calcule dX et dY les d?placements dans HRS1 et HRS2 et on trace en    
        relatif. En entr?e, comme ADRAW dans HRSx.                               
 */
-XDRAWA_ROUTINE
+XDRAWA_ROUTINE:
   LDX HRS1     ;   X=colonne                                         
   LDY HRS2     ;   Y=ligne du curseur                                
   JSR Le7f3   ;   on place le curseur en X,Y                         
@@ -4779,7 +4785,7 @@ write_caracter_in_output_serial_buffer
   jmp LDB79
 
 ;Minitel  
-send_a_to_minitel_output:
+send_a_to_minitel:
 
 Lec21
   bit INDRS
@@ -5174,9 +5180,9 @@ _cd_to_current_realpath_new:
 @loop:
   
   lda     ORIX_PATH_CURRENT,x
-  beq     send_set_filename_and_fileopen
+  beq     @send_set_filename_and_fileopen
   cmp     #"/"
-  beq     send_set_filename_and_fileopen
+  beq     @send_set_filename_and_fileopen
   sta     BUFNOM,y
   iny
   inx
@@ -5189,7 +5195,7 @@ _cd_to_current_realpath_new:
   jmp     @loop
 .endif  
 
-send_set_filename_and_fileopen:
+@send_set_filename_and_fileopen:
 
   lda     #$00
   sta     BUFNOM,y ; FIXME can be done in 65C02 with X register instead of Y
@@ -5304,7 +5310,7 @@ XOPEN_ROUTINE:
   jmp     @loop
 .endif
   
-not_slash_first_param:
+; not_slash_first_param
   ; Call here setfilename
   ldx     #$00 ; Flush param in order to send parameter
   iny
@@ -5312,33 +5318,33 @@ not_slash_first_param:
 @end:
   sta     BUFNOM,x
   cpy     #$00
-reset_labels_g1:  
-  beq     @skip
+; reset_labels_g1
+  beq     longskip1
  
   ; Optimize, it's crap
   lda     TR4 ; Get flags
   AND     #O_RDONLY
   cmp     #O_RDONLY
-  beq     read_only
+  beq     @read_only
   lda     TR4
   AND     #O_WRONLY
   cmp     #O_WRONLY
-  beq     write_only
+  beq     @write_only
 
   ; In all others keys, readonly read :!
 .IFPC02
 .pc02
-  bra     read_only
+  bra     @read_only
 .p02  
 .else  
-  jmp     read_only ; FIXME : replace jmp by bne to earn one byte
+  jmp     @read_only ; FIXME : replace jmp by bne to earn one byte
 .endif  
-write_only:
+@write_only:
   jsr     _ch376_set_file_name
   jsr     _ch376_file_create
   rts
 
-read_only:
+@read_only:
   jsr     _ch376_set_file_name
   jsr     _ch376_file_open  
   cmp     #CH376_ERR_MISS_FILE
@@ -5361,7 +5367,7 @@ read_only:
   rts
 
 
-@skip:
+longskip1:
   ldx     #$ff
   txa
   rts
@@ -5473,7 +5479,7 @@ LEFC2:
   sec
   sbc     ACC1E
   beq     next802  
-  bcc     next801 
+  bcc     @next801 
   sty     ACC1E
   ldy     $6D
   sty     ACC1S
@@ -5484,7 +5490,7 @@ LEFC2:
   sty     $7F
   ldx     #$60
   bne     @L2
-next801: 
+@next801:
   ldy     #$00
   sty $66
 @L2:
