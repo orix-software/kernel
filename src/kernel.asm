@@ -4,7 +4,7 @@
 .include   "fcntl.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
-.include    "include/ch376.inc"
+.include    "libs/ch376-lib/include/ch376.inc"
 
 ;.include  "src/include/orix.h"
 ;.include  "src/include/6522_1.h"
@@ -14,8 +14,39 @@
 ;.include  "src/include/ch376.h"
 ;.include  "src/include/macro.h"
 
+
+
 NEXT_STACK_BANK := $0418
 ORIX_ROUTINES   := $FFE0
+MOUSE_JOYSTICK_MANAGEMENT := $291 ; 12 bytes ?
+i_o_counter     := $1A ; 1 byte
+i_o_save        := $1B ; 3 bytes ?
+TRANSITION_RS232:= $1E;  3 bytes
+MEMTOTAL        := $513 ; FIXME CRAP
+KEYBOARD_COUNTER:=$02A6 ; 4 bytes
+work_channel  :=$19     ; 1 byte
+
+TELEMON_KEYBOARD_BUFFER_BEGIN    = $C5C4
+TELEMON_KEYBOARD_BUFFER_END      = $C680  
+TELEMON_ACIA_BUFFER_INPUT_BEGIN  = $C680
+TELEMON_ACIA_BUFFER_INPUT_END    = $C800
+
+TELEMON_ACIA_BUFFER_OUTPUT_BEGIN = $C800
+TELEMON_ACIA_BUFFER_OUTPUT_END   = $CA00
+  
+TELEMON_PRINTER_BUFFER_BEGIN     = $CA00
+TELEMON_PRINTER_BUFFER_END       = $D200
+
+HISTORY_BUFFER_BEGIN             =  TELEMON_PRINTER_BUFFER_END+1
+HISTORY_BUFFER_END               =  TELEMON_PRINTER_BUFFER_END+200
+
+
+;#define FILE_OPEN_TABLE $D000 
+
+; #define BUF1   $C100 ; Stratsed buffer
+
+;#define BUFBUF $C080 ; buffers definition
+BUFROU:= $C500 ; Routines for buffers gestion
 
 
 ; [IN] RES the string of the path 
@@ -1644,7 +1675,7 @@ vectors_telemon_second_table:
   .byt <XEXPLO_ROUTINE,>XEXPLO_ROUTINE ; $9c
   .byt <XPING_ROUTINE,>XPING_ROUTINE ; $9d
 
-.include  "include/libs/xa65/ch376.s"
+.include  "libs/ch376-lib/src/ch376.s"
 XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "include/libs/xa65/ch376_verify.s"
 
@@ -3529,13 +3560,13 @@ Le1b7
 
 
 
-data_for_hard_copy
+data_for_hard_copy:
   .byt $18,$33,$1b,$0a,$0d,$00,$f0,$4b,$1b,$0d,$0a,$40,$1b,$0a,$0a
 
-XHCHRS_ROUTINE
+XHCHRS_ROUTINE:
 
-execute_hard_copy_hires
-  jmp (HARD_COPY_HIRES_VECTOR)
+execute_hard_copy_hires:
+  jmp (HARD_COPY_HIRES)
 hard_copy_hires
 
 LE25E  
@@ -7200,7 +7231,7 @@ charset_text
         .byt    %00000000
         .byt    %00000000
         .byt    %00000000
-/****** END OF CHARSET ********************/  
+;  END OF CHARSET 
   
 XLOADCHARSET_ROUTINE:
     ldx     #$00

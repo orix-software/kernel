@@ -2,19 +2,19 @@ XWR0_ROUTINE
 	PHA                     ; Push byte to write
 	LDA     #$00
 
-	BEQ     @skip2
+	BEQ     skip2_XWR0_ROUTINE
 XWR1_ROUTINE	
 	PHA
 	LDA     #$04
-	BNE     @skip2
+	BNE     skip2_XWR0_ROUTINE
 XWR2_ROUTINE
 	PHA
 	LDA     #$08
-	BNE     @skip2
+	BNE     skip2_XWR0_ROUTINE
 XWR3_ROUTINE	
 	PHA
 	LDA     #$0C
-@skip2:
+skip2_XWR0_ROUTINE:
 
 	STA     work_channel
 	PLA                      ; Get byte to write
