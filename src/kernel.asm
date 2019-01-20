@@ -536,18 +536,18 @@ next5:
   JSR     init_rs232 ; $DB54 
 .endif  
   lda     #XKBD ; Setup keyboard on channel 0
-  BRK_TELEMON(XOP0)
+  BRK_TELEMON XOP0
   
   lda     #XSCR ; Setup screen !  on channel 0
-  BRK_TELEMON(XOP0) 
+  BRK_TELEMON XOP0 
 
-  BRK_TELEMON(XRECLK)  ; Don't know this vector
+  BRK_TELEMON XRECLK  ; Don't know this vector
   
   BIT     FLGRST ; COLD RESET ?
   bpl     telemon_hot_reset  ; no
   
   ; display telestrat at the first line
-  PRINT(str_telestrat)
+  PRINT str_telestrat
 
   ; it's similar to lda #10 brk xwr0 lda #13 brk XWR0
   RETURN_LINE
@@ -555,12 +555,12 @@ next5:
   lda     KORAM
   jsr     telemon_convert_to_decimal ; convert in decimal accumulator A
   ; display KORAM
-  PRINT(str_KORAM)
+  PRINT str_KORAM
 
 
   LDA     KOROM
   JSR     telemon_convert_to_decimal
-  PRINT(str_KOROM)
+  PRINT str_KOROM
 
 
 telemon_hot_reset
@@ -569,7 +569,7 @@ telemon_hot_reset
 don_t_display_telemon_signature:
   lda     #<str_tofix
   ldy     #>str_tofix
-  BRK_TELEMON(XWSTR0)
+  BRK_TELEMON XWSTR0
 
   ;JSR $0600 ; CORRECTME
     
@@ -580,7 +580,7 @@ don_t_display_signature:
 display_cursor:
 
   LDX     #$00
-  BRK_TELEMON(XCSSCR) ; display cursors
+  BRK_TELEMON XCSSCR ; display cursors
 
   
   ldx     #ORIX_ID_BANK
@@ -608,7 +608,7 @@ routine_to_define_19:
 .endif
   
   LDX     #$0C
-  BRK_TELEMON(XVIDBU)              ; Flush buffers
+  BRK_TELEMON XVIDBU              ; Flush buffers
 
 .ifdef WITH_ACIA
   LDA     ACIACR
@@ -618,7 +618,7 @@ routine_to_define_19:
 .endif
 
   rts
-.include  "functions/sound/sounds.asm"
+
 
 telemon_convert_to_decimal:
 ; FIXME macro
@@ -999,7 +999,7 @@ LC639:
 
   bne     @skip
   dec     BUFBUF+9,x
-@skip
+@skip:
 
   dec     BUFBUF+8,x
   ; 65C02 FIXME
@@ -1408,11 +1408,11 @@ next110:
   JSR     _manage_keyboard 
   JSR     routine_to_define_12
   BIT     KBDFLG_KEY 
-  BPL     next114 
+  BPL     @next114 
   LDA     #$14 
   STA     KEYBOARD_COUNTER+1
   BNE     @L5
-next114:
+@next114:
   LDA     KEYBOARD_COUNTER+2 
   BIT     KEYBOARD_COUNTER+1 
   BMI     @skip
@@ -1849,20 +1849,16 @@ XDECAL_ROUTINE
 .include  "functions/xdecal.asm"
 
 data_for_decimal_conversion
-const_10_decimal_low  
-LCDDD
+const_10_decimal_low
   .byt $0a ; 19
 const_100_decimal_low
-LCDDE
+
   .byt $64 ; 100 
 const_1000_decimal_low  ; $3e8=1000
-LCDDF
   .byt $e8
 const_10000_decimal_low  ; $3e8=1000  
-LCDE0
   .byt $10
 const_10_decimal_high
-LCDE1
   .byt $00
   .byt $00
   .byt $03
@@ -2375,7 +2371,9 @@ init_keyboard:
   LDA     #$00
   STA     KBDCTC
   RTS
-  
+
+
+
 send_14_paramaters_to_psg  
   CLC
   .byt    $24
