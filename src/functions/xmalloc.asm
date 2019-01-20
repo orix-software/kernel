@@ -1,5 +1,5 @@
 
-XMALLOC_ROUTINE
+XMALLOC_ROUTINE:
 
  ; [A & Y ] the length requested
     ; Verify is there is enough memory

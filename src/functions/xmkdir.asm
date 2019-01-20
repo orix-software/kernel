@@ -22,7 +22,7 @@ XMKDIR_ROUTINE:
    
 @loop:
     lda     (ptr1),y
-    beq     end2
+    beq     @end2
     sta     BUFNOM,y
     iny
     bne     @loop
@@ -43,7 +43,7 @@ XMKDIR_ROUTINE:
 @next_char:
     iny
     lda     (ptr1),y
-    beq     end
+    beq     @end
     cmp     #"/"
     beq     @create_dir
     sta     BUFNOM,x

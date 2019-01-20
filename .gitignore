@@ -1,4 +1,5 @@
 build/
 a.o65
 error.txt
+*.rom
 

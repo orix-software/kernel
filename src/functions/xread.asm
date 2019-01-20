@@ -21,7 +21,7 @@
   tax
   rts
 @readme:
-  jsr     we_read
+  jsr     @we_read
 
   lda     #CH376_BYTE_RD_GO
   sta     CH376_COMMAND

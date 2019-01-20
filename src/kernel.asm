@@ -2,19 +2,10 @@
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
+.include   "stdio.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
 .include    "libs/ch376-lib/include/ch376.inc"
-
-;.include  "src/include/orix.h"
-;.include  "src/include/6522_1.h"
-;.include  "src/include/6522_2.h"
-;.include  "src/include/6551.h"
-;.include  "src/include/fdc1793.h"
-;.include  "src/include/ch376.h"
-;.include  "src/include/macro.h"
-
-
 
 NEXT_STACK_BANK := $0418
 ORIX_ROUTINES   := $FFE0
@@ -25,6 +16,11 @@ TRANSITION_RS232:= $1E;  3 bytes
 MEMTOTAL        := $513 ; FIXME CRAP
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
 work_channel  :=$19     ; 1 byte
+KBD_UNKNOWN:=$271  ;FIXME
+ERRNO:=$0509 ;ERRNO
+ORIX_PATH_CURRENT:=$0525  ;FIXME
+FUFTRV=$0100; working Buffer 
+
 
 TELEMON_KEYBOARD_BUFFER_BEGIN    = $C5C4
 TELEMON_KEYBOARD_BUFFER_END      = $C680  
@@ -560,7 +556,7 @@ routine_to_define_19:
 .endif
 
   rts
-
+.include  "functions/sound/sounds.asm"
 
 telemon_convert_to_decimal:
 ; FIXME macro
@@ -702,10 +698,10 @@ XTSTBU_ROUTINE:
   JMP     ORIX_MEMORY_DRIVER_ADDRESS+9
 XLISBU_ROUTINE:
   bit     XLISBU_ROUTINE
-  BVC     @skip
+  BVC     skipme2002
 XECRBU_ROUTINE: 
   bit     loading_vectors_page_4
-@skip:
+skipme2002:
   CLC
   JMP     ORIX_MEMORY_DRIVER_ADDRESS+9
 
@@ -1683,13 +1679,7 @@ XCLOSE_ROUTINE:
   jmp     _ch376_file_close
 
 
-XFREAD_ROUTINE:
-XREADBYTES_ROUTINE:
-.include  "functions/xread.asm"
-XWRITEBYTES_ROUTINE:
-.include  "functions/xwrite.asm"
-XFSEEK_ROUTINE:
-.include  "functions/xfseek.asm"
+
 
 
 display_bar_in_inverted_video_mode:
@@ -1964,12 +1954,12 @@ XEXEC_ROUTINE
 
 ; This primitive will get the address of variables built in telemon and orix.  
 
-XVARS_ROUTINE
+XVARS_ROUTINE:
   lda     XVARS_TABLE_LOW,x
   ldy     XVARS_TABLE_HIGH,x
   rts
-XVARS_TABLE
-XVARS_TABLE_LOW
+XVARS_TABLE:
+XVARS_TABLE_LOW;
   .byt     <ORIX_PATH_CURRENT ; pwd
   
 XVARS_TABLE_HIGH
@@ -2204,15 +2194,15 @@ loop20  ; d921
   LDA     #$08
 
   AND     VIA::PRB
-  BNE     @skip
-loop23  
+  BNE     skipme2001
+loop23:  
   CPX     $1F ; FIXME
   bne     loop20
   
-d930
+d930:
   beq     next22
 
-@skip:
+skipme2001:
   DEX
   TXA
   PHA
@@ -2536,22 +2526,22 @@ output_window0
   PHA             ;   Save A & P
   PHP                                                              
   LDA     #$00    ;   window 0                                         
-  BEQ     @skip    ;   inconditionnel                                    
+  BEQ     skipme2000    ;   inconditionnel                                    
 output_window1  
   PHA                                                              
   PHP                                                              
   LDA     #$01    ;   fen?tre 1
-  BNE     @skip    ;                                                 
+  BNE     skipme2000    ;                                                 
 output_window2
   PHA                                                              
   PHP                                                              
   LDA     #$02    ;  fen?tre 2
-  BNE     @skip
-output_window3
+  BNE     skipme2000
+output_window3:
   PHA                                                              
   PHP                                                              
   LDA     #$03     ; fen?tre 3
-@skip:
+skipme2000:
 
   STA     SCRNB       ; stocke la fen?tre dans SCRNB                      
   PLP          ;  on lit la commande                                
@@ -4718,7 +4708,7 @@ Lea81
 Lea92  
   rts
   
-XSCHAR_ROUTINE
+XSCHAR_ROUTINE:
   sta HRS3
   sty HRS3+1
   stx HRS2
@@ -4736,8 +4726,6 @@ Lea9f
   bne Lea9f
 
 XCHAR_ROUTINE
-LEAAF
-
   LDA HRS1
   ASL
   LSR HRS2
@@ -4800,9 +4788,15 @@ Leaf3
   JMP Le7f3 
   
 .include  "functions/sound/sounds.asm"
-  
+XFREAD_ROUTINE:
+XREADBYTES_ROUTINE:
+.include  "functions/xread.asm"
+XWRITEBYTES_ROUTINE:
+.include  "functions/xwrite.asm"
+XFSEEK_ROUTINE:
+.include  "functions/xfseek.asm"
+
 READ_A_SERIAL_BUFFER_CODE_INPUT
-Lec10
   ldx #$0c
   jmp LDB5D 
 wait_code_on_SERIAL_BUFFER_INPUT:
@@ -4817,8 +4811,6 @@ write_caracter_in_output_serial_buffer
 
 ;Minitel  
 send_a_to_minitel:
-
-Lec21
   bit INDRS
   bvs Lec49 
   tax
@@ -4866,9 +4858,9 @@ LEC61
   eor TR2
   sta TR2
   ldx TR0
-  ldy TR1
-  
+  ldy TR1 
   rts
+
 Lec6b
   STX TR0
   STY TR1
@@ -4956,7 +4948,6 @@ LECD9
   jmp Ldb12 
 
 compute_file_size
-Lecdf
   SEC
   LDA $052F ; FIXME
   SBC $052D ; FIXME
@@ -4971,7 +4962,6 @@ Lecdf
   rts
 
 send_serial_header_file
-Lecfd
   LDX #$32
 LECFF  
   LDA #$16
@@ -4994,11 +4984,8 @@ LED12
   
   LDX #$00
 LED24  
-  LDA $052C,X
+  LDA $052C,X ; FIXME
   JSR send_A_to_serial_output_with_check
-  
-  
-  
   INX
   CPX #$07
   BNE LED24 
@@ -5006,12 +4993,11 @@ LED24
   JMP send_A_to_serial_output_with_check 
 
 
-read_header_file
+read_header_file:
  
   JMP Ldbb5
 
-XCONSO_ROUTINE  
-Led77  
+XCONSO_ROUTINE: 
   JSR LECC1
   JSR LECC9
 LED7D  
@@ -5029,9 +5015,6 @@ LED94
   JSR Lecbf 
   JMP LECC7 
   
-
-
-Led9a
 XSDUMP_ROUTINE
   JSR LECC1
 LED9D  
@@ -5059,16 +5042,15 @@ LEDC1
 LEDC7  
   JMP Lecbf 
 
-XSSAVE_ROUTINE
-Ledca
-  ror $5b
-  lsr $5b
+XSSAVE_ROUTINE:
+  ror $5b  ;  FIXME
+  lsr $5b  ; FIXME
   jsr LECC9
   jsr Lee0a 
   jmp LECC7 
 
 XMSAVE_ROUTINE
-Ledd7
+
   ror $5b
   sec
   ror $5b
@@ -5077,7 +5059,7 @@ Ledd7
   jmp LECD7 
 
 XSLOAD_ROUTINE 
-Lede5
+
   ROR $5B
   LSR $5B
   LDA #$40
@@ -5089,7 +5071,7 @@ Lede5
   JMP Lecbf 
   
   
-XMLOAD_ROUTINE  
+XMLOAD_ROUTINE:
   ROR $5B
   SEC
   ROR $5B
@@ -5098,7 +5080,7 @@ XMLOAD_ROUTINE
   jmp LECCF 
 
 ;;;;;;;;;;;;;;;;;;  
-save_file_rs232_minitel
+save_file_rs232_minitel:
 Lee0a
   BIT $5B
   BVS LEE11 
@@ -5114,13 +5096,13 @@ LEE18
   LDY #$00
   LDA (RES),Y
   JSR send_A_to_serial_output_with_check 
-  DEC $052A
+  DEC $052A ; FIXME
   INC RES
   BNE LEE18
   INC RES+1
   BNE LEE18 
 LEE2F  
-  LDA $052B
+  LDA $052B   ; FIXME
   BEQ LEE51 
   LDY #$00
 LEE36  
@@ -5128,52 +5110,51 @@ LEE36
   JSR send_A_to_serial_output_with_check 
   INY
   BNE LEE36 
-  DEC $052B
+  DEC $052B ; FIXME
   INC RES+1
-  BIT $5B
+  BIT $5B ; FIXME
   BPL LEE2F 
   LDA #$30 
-  STA $44
+  STA $44 ; FIXME
 LEE4B  
-  LDA $44
+  LDA $44; FIXME
   BNE LEE4B 
   BEQ LEE2F
 LEE51  
   LDA TR2
   JMP send_A_to_serial_output_with_check 
   
-read_a_file_rs232_minitel
-Lee56
-  BIT $5B
-  BVS LEE5D  
+read_a_file_rs232_minitel:
+  BIT $5B ; FIXME
+  BVS @skip  
   JSR read_header_file  
-LEE5D  
+@skip: 
   JSR compute_file_size 
   BIT $5B
   BVC LEE6C  
   LDA #$FF
-  STA $052A
-  STA $052B
+  STA $052A  ;FIXME
+  STA $052B  ;FIXME
 LEE6C  
   LDY #$00
   STY TR2
 LEE70  
-  LDA $052A
+  LDA $052A ; FIXME
   BEQ LEE86  
   JSR Lec6b 
   STA (RES),Y
-  DEC $052A
+  DEC $052A   ; FIXME
   INC RES
   BNE LEE70  
   INC RES+1
   JMP LEE70 
 LEE86  
   LDA     $052B
-  BEQ LEE9D  
-  LDY #$00
+  BEQ     LEE9D  
+  LDY     #$00
 LEE8D  
-  JSR Lec6b 
-  STA (RES),Y
+  JSR     Lec6b 
+  STA     (RES),Y
   INY
   BNE     LEE8D  
   INC     RES+1
@@ -5199,13 +5180,11 @@ _strcpy:
   rts
   
 XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE:
-
-_cd_to_current_realpath_new:
   jsr     _open_root_and_enter
   
   ldx     #$01
   lda     ORIX_PATH_CURRENT,x
-  beq     end ; Because ORIX_PATH_CURRENT= /,0 no need to continue
+  beq     end2000 ; Because ORIX_PATH_CURRENT= /,0 no need to continue
 @restart:  
   ldy     #$00
 @loop:
@@ -5251,18 +5230,18 @@ _cd_to_current_realpath_new:
 .pc02
   plx
   lda     ORIX_PATH_CURRENT,x
-  beq     @end
+  beq     end2000
   inx
   bra     @restart
 .p02  
 .else
   ldx     TR6
   lda     ORIX_PATH_CURRENT,x
-  beq     @end
+  beq     end2000
   inx
   jmp     @restart
 .endif  
-@end:
+end2000:
   rts
 
   
@@ -5297,7 +5276,7 @@ XOPEN_ROUTINE:
   ldy     #$00
   ldx     #$00
   jmp     @read_file
-;  rts
+
   
 @it_is_absolute:
 
@@ -5773,7 +5752,7 @@ LF149:  jsr     LF3BD
 LF184:  jsr     LF1EC 
         beq     LF140
         bne     LF190
-XA1MA2_ROUTINE    
+XA1MA2_ROUTINE: 
         beq     LF140
 LF18D    
         tsx
@@ -5942,7 +5921,7 @@ XA2DA1_ROUTINE:
   LDX #$FC
   LDA #$01
 LF2A4  
-  LDY $69
+  LDY $69 ; FIXME
   CPY ACC1M
   BNE LF2BA 
   LDY $6A
@@ -6029,7 +6008,7 @@ Lf31f
   lda #<const_pi_radians 
   ldy #>const_pi_radians
 
-XAYA1_ROUTINE  
+XAYA1_ROUTINE:
 Lf323
   STA $7D
   STY $7E
@@ -6099,7 +6078,7 @@ LF37D
   rts
 
 
-XA1A2_ROUTINE
+XA1A2_ROUTINE:
   ; arrondi ACC1 in ACC2_ACC1
   jsr XAA1_ROUTINE
   
@@ -6120,8 +6099,7 @@ LF396:
     bne     LF395
     jmp     LF083
 
-XA1IAY_ROUTINE  
-LF3A6  
+XA1IAY_ROUTINE:  
     lda     ACC1S
     bmi     LF3B8 
     lda     ACC1E
@@ -6279,13 +6257,13 @@ LF491
   sec
   jmp LF3DE
 
-XA1AFF_ROUTINE  
+XA1AFF_ROUTINE: 
   jsr XA1DEC_ROUTINE   
   lda #$00
   ldy #$01
   jmp XWSTR0_ROUTINE 
 
-XA1DEC_ROUTINE  
+XA1DEC_ROUTINE:
   LDY #$00
   LDA #$20
   BIT ACC1S
@@ -6473,7 +6451,7 @@ LF5D0
   RTS
 
   
-const_for_decimal_convert
+const_for_decimal_convert:
 const_one_billion  
   .byt $9e,$6e,$6b,$28,$00 ; 1 000 000 000  float
 const_999_999_999
@@ -6506,8 +6484,7 @@ XSQR_ROUTINE
   ldy #>const_zero_dot_half  
   jsr XAYA1_ROUTINE 
 
-XA2EA1_ROUTINE
-LF61A
+XA2EA1_ROUTINE:
   BEQ XEXP_ROUTINE  
   TSX
   STX $89
@@ -6538,7 +6515,7 @@ LF63D
   LSR
   BCC LF65D  
 
-XNA1_ROUTINE  
+XNA1_ROUTINE:
 
   ; negative number
   lda ACC1E
@@ -6561,7 +6538,7 @@ coef_polynome
   .byt $7e,$75,$fd,$e7,$c6
   .byt $80,$31,$72,$18,$10
   .byt $81,$00,$00,$00,$00 ; 1
-XEXP_ROUTINE
+XEXP_ROUTINE:
 
   TSX
   STX $89
@@ -6702,8 +6679,7 @@ LF753
   LDY #$02 ; FIXME
   JMP XA1XY_ROUTINE
 
-XRAND_ROUTINE
-
+XRAND_ROUTINE:
   JSR LF348
   JSR XRND_ROUTINE 
   LDA #$73
@@ -6711,7 +6687,7 @@ XRAND_ROUTINE
   JSR LF184 
   JMP XINT_ROUTINE 
 
-XCOS_ROUTINE
+XCOS_ROUTINE:
 
   JSR LF8B1 
   LDA #<CONST_PI_DIVIDED_BY_TWO
@@ -6719,7 +6695,7 @@ XCOS_ROUTINE
   JSR AY_add_acc1
   JMP LF791
 
-XSIN_ROUTINE
+XSIN_ROUTINE:
 
   JSR LF8B1
 LF791  

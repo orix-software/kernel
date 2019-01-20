@@ -39,7 +39,7 @@ XFREE_ROUTINE
 @compare_high:
   lda ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
   cpy #$01
-  bne @don_t_inc_carry
+  bne don_t_inc_carry
   sec
   sbc #$01
 don_t_inc_carry:
