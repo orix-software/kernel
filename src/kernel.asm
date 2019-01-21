@@ -14,7 +14,19 @@ i_o_counter     := $1A ; 1 byte
 i_o_save        := $1B ; 3 bytes ?
 TRANSITION_RS232:= $1E;  3 bytes
 MEMTOTAL        := $513 ; FIXME CRAP
+ORIX_CURRENT_PROCESS_FOREGROUND:=$512
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
+VIA_UNKNOWN:=$028f ; seems tobe a backup of timer  2 bytesTELEMON_ID_BANK   		= $07
+ATMOS_ID_BANK     		= $06
+ORIX_ID_BANK      		= $05
+MONITOR_ID_BANK   		= $04
+TELEFORTH_ID_BANK     	= $03
+ORIX_MEMORY_DRIVER_ADDRESS:=$400
+SWITCH_TO_BANK_ID              :=     $040C
+;NEXT_STACK_BANK:=$418
+FIXME_PAGE0_0:=$25
+ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
+
 work_channel  :=$19     ; 1 byte
 KBD_UNKNOWN:=$271  ;FIXME
 ERRNO:=$0509 ;ERRNO
@@ -114,9 +126,9 @@ ORIX_FREE_MEMORY         = $04
 .endmacro    
 
 .macro REGISTER_PROCESS str_name_process 
-    lda #<str_name_process
-    ldy #>str_name_process
-    jsr _orix_register_process  
+  lda #<str_name_process
+  ldy #>str_name_process
+  jsr _orix_register_process  
 .endmacro
 
 ;FIXME   
@@ -125,7 +137,7 @@ ORIX_FREE_MEMORY         = $04
 	lda (zpaddress),y
 .endmacro    
 
-.macro PUT8_FROM_STRUCT offset,zpaddress
+.macro PUT8_FROM_STRUCT offset, zpaddress
 	ldy #offset
 	sta (zpaddress),y
 .endmacro    
@@ -332,7 +344,7 @@ ORIX_FREE_MEMORY         = $04
 .endmacro    
 
 PATH_CURRENT_MAX_LEVEL = 4 ; Only in telemon 3.0 number of level, if we add more, we should have to many RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
-MAX_LENGTH_OF_FILES = 9 ;  We say 8 chars for directory and end of string
+MAX_LENGTH_OF_FILES    = 9 ;  We say 8 chars for directory and end of string
 
 MAX_LENGTH_OF_A_COMMAND = 9
 
@@ -351,6 +363,26 @@ ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
 ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
 
 ORIX_MALLOC_MAX_MEM_ADRESS = $B3FF
+
+SIZE_OF_STACK_BANK = 1
+
+BNKOLD:=$40F 
+
+ADDRESS_READ_BETWEEN_BANK:=$15
+ADDRESS_VECTOR_FOR_ADIOB:=$17
+BNK_TO_SWITCH:=$410
+
+tmp1:=$34
+ptr1:=$32
+
+.bss
+.org $4c7
+FIXME_DUNNO
+.res 1
+STACK_BANK
+.res SIZE_OF_STACK_BANK
+READ_BYTE_FROM_OVERLAY_RAM
+.res 1
 
 .bss
 .org BUFNOM
@@ -409,6 +441,9 @@ telemon:
   CLD
   LDX     #$FF
   TXS                         ; init stack
+
+
+
 .IFPC02
 .pc02
   stz     NEXT_STACK_BANK
@@ -418,12 +453,18 @@ telemon:
   stx     NEXT_STACK_BANK               ; Store in BNKCIB ?? ok but already init with label data_adress_418, when loading_vectors_telemon is executed
 .endif
 
+
+
   jsr     init_screens
   jsr     init_via
   jsr     XLOADCHARSET_ROUTINE
   jsr     init_printer 
   jsr     XALLKB_ROUTINE
  
+  ; lda   #$11
+  ;sta $bb80
+
+
   LDX     #$0F
 @loop:
   LSR     IOTAB0,X ; init channels (0 to 3)
@@ -745,7 +786,7 @@ XDEFBU_ROUTINE:
 
 XINIBU_ROUTINE:
   BIT     XLISBU_ROUTINE
-  BVC     @skip
+  BVC     skip2003
 
 XVIDBU_ROUTINE: 
   LDA     #$00
@@ -754,7 +795,7 @@ XTSTBU_ROUTINE:
   lda     #$01
   bit     code_adress_400
 
-@skip:
+skip2003:
   SEC
   
   JMP     ORIX_MEMORY_DRIVER_ADDRESS+9
@@ -1348,10 +1389,11 @@ skipme12:
   INC     TIMEM
   LDA     TIMEM
   SBC     #$3C
-  BCC     @L2
+  BCC     Lc973
   STA     TIMEM
   INC     TIMEH
-@L2:
+Lc973:
+
   DEC     FLGCUR
   BNE     @L3
   LDA     #$0A
@@ -1524,7 +1566,7 @@ XWRCLK_ROUTINE:
   plp
   rts
   
-Lca75m:
+Lca75:
   LDY     #$00
   LDA     TIMEH
   JSR     telemon_display_clock_chars
@@ -2224,8 +2266,6 @@ Ld8fb
 Ld900:
   jmp     (KBDFCT) ; Jump into function key vector
 
-
-
 XALLKB_ROUTINE:
   LDY     #$07
   LDA     #$7F
@@ -2298,7 +2338,7 @@ out1:
 
 
 manage_I_O_keyboard:
-  bmi     @skip2
+  bmi     skip2005
   lda     #$01
   sta     KEYBOARD_COUNTER+2
   sta     KEYBOARD_COUNTER 
@@ -2306,22 +2346,22 @@ manage_I_O_keyboard:
   sei
   ldx     #$00
   jsr     XLISBU_ROUTINE ; Read if we have data in keyboard buffer
-  bcs     @skip 
+  bcs     skip2004
   sta     KBDKEY ; A contains a key, we store it on KBDKEY
   ldx     #$00
   jsr     XLISBU_ROUTINE 
-  bcs     skip
+  bcs     skip2004
   sta     KBDSHT
   lda     KBDKEY
   plp
   clc
   rts
-@skip:
+skip2004:
   ; at this step, there is no keyboard key in the buffer
   plp
   sec
   rts
-@skip2:
+skip2005:
   bcc     @skip3
   lda     #$40
   sta     VIA::IER
@@ -2612,11 +2652,13 @@ LDBA4:
   STA     SCRNB+1      ;  que l'on sauve
 
 Ldbb5:
+
   STA     SCRNB+1 ; store the char to display
-  PHA
-  TXA
-  PHA
-  TYA
+
+  PHA              ; Save A
+  TXA              ; save X
+  PHA              ; 
+  TYA              ; Save Y
   PHA
   
   LDX     SCRNB     ; Get the id of the window
@@ -2628,11 +2670,14 @@ Ldbb5:
   LDA     SCRNB+1
   CMP     #" "       ; is it space ?
   BCS     Ldc4c      ; No it's a char
+
 Ldbce  
   LDA     FLGSCR,X
   PHA
   
-  JSR     XCOSCR_ROUTINE ; switch of cursor
+
+  JSR     XCOSCR_ROUTINE ; switch off cursor
+
   LDA     #>LDC2B-1 ; FIXME ?
   PHA
   LDA     #<LDC2B-1 ; FIXME ?
@@ -2646,6 +2691,8 @@ Ldbce
   PHA
   LDA     #$00
   SEC
+
+
   RTS
 
 
@@ -2708,7 +2755,10 @@ LDC46
   rts
 Ldc4c
 
-  LDA     FLGSCR,X
+
+
+
+   LDA     FLGSCR,X
   AND     #%00001100 
   BNE     Ldc9a
   LDA     SCRNB+1
@@ -3227,6 +3277,8 @@ XSCRSE_ROUTINE
 ldefd  
 ROUTINE_TO_DEFINE_7
 
+
+
   CLC
   PHP
   STA ADDRESS_READ_BETWEEN_BANK ; CORRECTME
@@ -3236,12 +3288,13 @@ ROUTINE_TO_DEFINE_7
   ADC #$18
   TAX
   LDY #$05
-  
+
 next18
   PLP
 
   PHP
   BCS @skip
+
   LDA     (ADDRESS_READ_BETWEEN_BANK),Y
   BCC next17
 @skip:
@@ -3249,13 +3302,19 @@ next18
   JSR ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
 next17
+
+
   STA SCRY,X
+
+
+
   TXA
   SEC
   SBC #$04
   TAX
   DEY
   BPL next18
+
 
 ; loop 4 times to set color ink/paper and flags on the 4 possibles screens  
   LDA #$07
@@ -3279,7 +3338,9 @@ next17
   STX SCRNB 
 
   LDA     #$0C
+
   JSR Ldbb5 
+
   PLA 
   
   STA SCRNB
@@ -3310,7 +3371,7 @@ next17
 
   LDX     #$00
 
-  JMP ROUTINE_TO_DEFINE_7 ; $DEFD
+  JMP     ROUTINE_TO_DEFINE_7 ; $DEFD
 .endproc
 
 Ldf90
@@ -4846,8 +4907,9 @@ Leaf3
   TAX
   LDY HRSY
   JMP Le7f3 
-  
-.include  "functions/sound/sounds.asm"
+
+.include  "functions/sound/sounds.asm"  
+
 XFREAD_ROUTINE:
 XREADBYTES_ROUTINE:
 .include  "functions/xread.asm"
