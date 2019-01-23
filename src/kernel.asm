@@ -2261,9 +2261,9 @@ Ldbce   ; $d27e
   PHA
 
   JSR     XCOSCR_ROUTINE ; switch off cursor
-  LDA     #>LDC2B-1 ; FIXME ?
+  LDA     #>(LDC2B-1) ; FIXME ?
   PHA
-  LDA     #<LDC2B-1 ; FIXME ?
+  LDA     #<(LDC2B-1) ; FIXME ?
   PHA
   LDA     SCRNB+1
   ASL     ; MULT2 in order to get vector 
