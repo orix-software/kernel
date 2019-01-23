@@ -330,9 +330,10 @@ str_telestrat:
   
   
 str_KORAM:
-  .ASCIIZ     " Ko RAM,"
+  .ASCIIZ  " Ko RAM,"
+
 str_KOROM:
-  .byte     " Ko ROM"," - "
+  .byt     " Ko ROM"," - "
   .byt    __DATE__
   .byt      $00
 
@@ -391,7 +392,7 @@ skipme2002:
 ;*********************************************************************************  
 ; CODE INSERTED IN PAGE 4  
 ;*********************************************************************************  
-begin_of_copy_page4:
+
 loading_vectors_page_4:
 code_adress_400:
   JMP     $0493 ;code_adress_493
@@ -673,7 +674,6 @@ LC697:
   
   sta     IRQSVP ; FIXME
 
-
 routine_to_define_16
   tya
   SBC     BUFBUF+3,X 
@@ -688,33 +688,24 @@ next36
 
   
 orix_buffer_table  
-  .byt     <TELEMON_KEYBOARD_BUFFER_BEGIN,>TELEMON_KEYBOARD_BUFFER_BEGIN        ; Keyboard buffer begin $c5c4
+  .byt    <TELEMON_KEYBOARD_BUFFER_BEGIN,>TELEMON_KEYBOARD_BUFFER_BEGIN        ; Keyboard buffer begin $c5c4
 end_keyboard_buffer  
-  .byt     <TELEMON_KEYBOARD_BUFFER_END,>TELEMON_KEYBOARD_BUFFER_END            ; keyboard buffer end $c680
-  .byt     <TELEMON_ACIA_BUFFER_INPUT_BEGIN,>TELEMON_ACIA_BUFFER_INPUT_BEGIN    ; buffer acia input begin
-  .byt     <TELEMON_ACIA_BUFFER_INPUT_END,>TELEMON_ACIA_BUFFER_INPUT_END        ; buffer acia input end
-  .byt     <TELEMON_ACIA_BUFFER_OUTPUT_BEGIN,>TELEMON_ACIA_BUFFER_OUTPUT_BEGIN  ; buffer acia output begin
-  .byt     <TELEMON_ACIA_BUFFER_OUTPUT_END,>TELEMON_ACIA_BUFFER_OUTPUT_END      ; buffer acia output end
-  .byt     <TELEMON_PRINTER_BUFFER_BEGIN,>TELEMON_PRINTER_BUFFER_BEGIN          ; buffer printer output begin
-  .byt     <TELEMON_PRINTER_BUFFER_END,>TELEMON_PRINTER_BUFFER_END              ; buffer printer output end
+  .byt    <TELEMON_KEYBOARD_BUFFER_END,>TELEMON_KEYBOARD_BUFFER_END            ; keyboard buffer end $c680
+  .byt    <TELEMON_ACIA_BUFFER_INPUT_BEGIN,>TELEMON_ACIA_BUFFER_INPUT_BEGIN    ; buffer acia input begin
+  .byt    <TELEMON_ACIA_BUFFER_INPUT_END,>TELEMON_ACIA_BUFFER_INPUT_END        ; buffer acia input end
+  .byt    <TELEMON_ACIA_BUFFER_OUTPUT_BEGIN,>TELEMON_ACIA_BUFFER_OUTPUT_BEGIN  ; buffer acia output begin
+  .byt    <TELEMON_ACIA_BUFFER_OUTPUT_END,>TELEMON_ACIA_BUFFER_OUTPUT_END      ; buffer acia output end
+  .byt    <TELEMON_PRINTER_BUFFER_BEGIN,>TELEMON_PRINTER_BUFFER_BEGIN          ; buffer printer output begin
+  .byt    <TELEMON_PRINTER_BUFFER_END,>TELEMON_PRINTER_BUFFER_END              ; buffer printer output end
 
-
-.include  "functions/XOP.asm"
-.include  "functions/XCL.asm"
-
-XCRLF_ROUTINE
-  lda     #$0A
-  jsr     XWR0_ROUTINE 
-  lda     #$0D
-
-Lc75d  
-; NOERROR
-
+.include  "functions/xcrlf.asm"
 .include  "functions/XWRx.asm"
 .include  "functions/XWSTRx.asm"
 .include  "functions/XRDW.asm"
 .include  "functions/XWRD.asm"  
 .include  "functions/xmalloc.asm"
+.include  "functions/XOP.asm"
+.include  "functions/XCL.asm"
 
 send_command_A:
   STY     ADDRESS_VECTOR_FOR_ADIOB
@@ -6383,7 +6374,6 @@ LF8B1
   jsr     test_if_degree_mode  
   beq     LF8CC    
 XRAD_ROUTINE
-LF8B
   lda     #<const_pi_divided_by_180   
   ldy     #>const_pi_divided_by_180  
   jmp     LF184
@@ -6448,7 +6438,6 @@ LF915:  ldx     #$90
 
 ;;;;;;;;;;;;;;; 
 XDECA1_ROUTINE
-LF91E
         sta     RES
         sty     RES+1
         tsx
@@ -6581,7 +6570,6 @@ LFA10:  sec
         rts
 
 XINTEG_ROUTINE    
-    
         jsr     XA1A2_ROUTINE
         lda     $68
         beq     LFA32
@@ -6624,8 +6612,8 @@ table_chars_qwerty
   .byt $58
 
   .byt $51,$40,$7c,$0a,$7d,$53,$00,$23,$44,$43,$22,$09,$7b,$57,$2b
-LFAAF
-table_chars_azerty
+
+table_chars_azerty:
   .byt $37
 
   .byt $6a,$3b,$6b,$20,$75,$79,$38,$6e,$74,$36,$39,$2c,$69,$68,$6c,$35
@@ -6640,11 +6628,7 @@ table_chars_azerty
   
   .byt $58
   .byt $41,$40,$7c,$0a,$7d,$53,$00,$23,$44,$43,$22,$09,$7b,$5a,$2b
-LFB1F    
-table_chars_french_table
-
-LFB8F
-charset_text
+charset_text:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $08,$08,$08,$08,$08,$00,$08,$00
         .byte   $14,$14,$14,$00,$00,$00,$00,$00
@@ -6751,25 +6735,12 @@ charset_text
         .byt    %00000000
         .byt    %00000000
 ;  END OF CHARSET 
-  
-XLOADCHARSET_ROUTINE:
-    ldx     #$00
-@loop:
-    lda     charset_text,x
-    sta     $B400+8*32,x
-    
-    lda     charset_text+256,x
-    sta     $B500+8*32,x
-    lda     charset_text+512,x
-    sta     $B600+8*32,x
-    inx
-    bne     @loop
-    rts
-  
+.include "functions/xloadcharset.asm"  
+
 codes_for_calc_alternates:
   .byt     $00,$38,$07,$3f
 
-routine_to_define_22:
+XGOKBD_ROUTINE
   LDA     #$B9 ;  index of alternate chars
 .ifdef WITH_TWILIGHTE_BOARD
 .else
@@ -6939,27 +6910,9 @@ read_a_code_in_15_and_y:
 @skip:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
   
-ZADCHA_ROUTINE: 
-  ldx     #$13
-  stx     RESB+1
-  asl
-  rol     RESB+1
-  asl
-  rol     RESB+1
-  asl
-  rol     RESB+1
-  sta     RESB
-  bit     FLGTEL
-  bmi     Lff4b
-  lda     RESB+1
-  adc     #$1c
-  sta     RESB+1
-Lff4b:
-  rts
+.include "functions/zadcha.asm"
 
-XGOKBD_ROUTINE:
-  jsr     routine_to_define_22 
-  rts
+
 
 ;$fff8-9 : copyright address
 ;$fffa : software version BCD : 1.4 -> $14
@@ -6971,20 +6924,20 @@ XGOKBD_ROUTINE:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .byte     "Kernel-"
-  .byt __DATE__
+  .byt     "Kernel-"
+  .byt     __DATE__
 .IFPC02
 .pc02
-  .byte     " 65C02"
+  .byt     " 65C02"
 .p02  
 .else
-  .byte     " 6502"
+  .byt     " 6502"
 .endif  
-  .byt 		$00
+  .byt     $00
   
 free_bytes: ; 26 bytes
-  .res    $FFF8-*
-  .org    $FFF8
+  .res     $FFF8-*
+  .org     $FFF8
 
   .byt     <signature
   .byt     >signature
