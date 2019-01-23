@@ -18,6 +18,7 @@ MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 PATH_PACKAGE_ROM=build/usr/share/$(KERNEL_ROM)-$(ORIX_VERSION)/
 
+#--verbose -s -ttelestrat --include-dir %CC65%\asminc\ src/%ROM%.asm -o %ROM%.ld65 --debug-info
 init:
 	mkdir -p $(PATH_PACKAGE_ROM)/6502/
 	mkdir -p $(PATH_PACKAGE_ROM)/65c02/	
@@ -28,7 +29,10 @@ init:
 	mkdir -p build/usr/src/orix-source-1.0/src/
   
 kernel: $(SOURCE_BANK7)
-	$(AS) -o $(PATH_PACKAGE_ROM)/6502/kernel.rom $(SOURCE_BANK7) $(ASFLAGS)
+	$(AS) --verbose -s -tnone --debug-info -o kernel.ld65 $(SOURCE_BANK7) $(ASFLAGS) 
+	ld65 -tnone kernel.ld65 -o kernel.rom -Ln kernel.ca.sym
+	sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernel.ca.sym | sort >  kernel.sym	
+	rm kernel.ca.sym
 	echo Generating Kernel for 32 banks ROM name kernela
 
 test:

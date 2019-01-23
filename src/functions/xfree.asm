@@ -78,8 +78,8 @@ don_t_inc_carry:
    inx 
    cpx ORIX_MALLOC_BUSY_TABLE_NUMBER
    beq @no_need_to_merge
- 
-@no_need_to_merge
+@no_need_to_merge:
+   rts ; FIXME remove
+out
    rts
-
 

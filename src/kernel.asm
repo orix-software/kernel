@@ -5,434 +5,16 @@
 .include   "stdio.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
-.include    "libs/ch376-lib/include/ch376.inc"
-
-NEXT_STACK_BANK := $0418
-ORIX_ROUTINES   := $FFE0
-MOUSE_JOYSTICK_MANAGEMENT := $291 ; 12 bytes ?
-i_o_counter     := $1A ; 1 byte
-i_o_save        := $1B ; 3 bytes ?
-TRANSITION_RS232:= $1E;  3 bytes
-MEMTOTAL        := $513 ; FIXME CRAP
-ORIX_CURRENT_PROCESS_FOREGROUND:=$512
-KEYBOARD_COUNTER:=$02A6 ; 4 bytes
-VIA_UNKNOWN:=$028f ; seems tobe a backup of timer  2 bytesTELEMON_ID_BANK   		= $07
-ATMOS_ID_BANK     		= $06
-ORIX_ID_BANK      		= $05
-MONITOR_ID_BANK   		= $04
-TELEFORTH_ID_BANK     	= $03
-ORIX_MEMORY_DRIVER_ADDRESS:=$400
-SWITCH_TO_BANK_ID              :=     $040C
-;NEXT_STACK_BANK:=$418
-FIXME_PAGE0_0:=$25
-ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
-
-work_channel  :=$19     ; 1 byte
-KBD_UNKNOWN:=$271  ;FIXME
-ERRNO:=$0509 ;ERRNO
-; ORIX_PATH_CURRENT:=$0525  ;FIXME
-FUFTRV=$0100; working Buffer 
+.include   "libs/ch376-lib/include/ch376.inc"
+.include   "orix.mac"
+.include   "orix.inc"
 
 
-TELEMON_KEYBOARD_BUFFER_BEGIN    = $C5C4
-TELEMON_KEYBOARD_BUFFER_END      = $C680  
-TELEMON_ACIA_BUFFER_INPUT_BEGIN  = $C680
-TELEMON_ACIA_BUFFER_INPUT_END    = $C800
+ACIADR := $031C ; DATA REGISTER
+ACIASR := $031D ; STATUS REGISTER
+ACIACR := $031E ; command register
+ACIACT := $031F ; control register
 
-TELEMON_ACIA_BUFFER_OUTPUT_BEGIN = $C800
-TELEMON_ACIA_BUFFER_OUTPUT_END   = $CA00
-  
-TELEMON_PRINTER_BUFFER_BEGIN     = $CA00
-TELEMON_PRINTER_BUFFER_END       = $D200
-
-HISTORY_BUFFER_BEGIN             =  TELEMON_PRINTER_BUFFER_END+1
-HISTORY_BUFFER_END               =  TELEMON_PRINTER_BUFFER_END+200
-
-NULL = 0
-;#define FILE_OPEN_TABLE $D000 
-
-; #define BUF1   $C100 ; Stratsed buffer
-
-;#define BUFBUF $C080 ; buffers definition
-BUFROU:= $C500 ; Routines for buffers gestion
-
-
-; [IN] RES the string of the path 
-; [OUT] A contains the ID of the file ptr. IF A = 0 then there is an error
-; [OUT] X contains the ID of the error
-
-ORIX_REGISTER_FILEHANDLE = $00
-ORIX_MALLOC_MEMORY       = $03
-ORIX_FREE_MEMORY         = $04
-
-.macro  BRK_ORIX   value
-	.byte $00,value
-.endmacro
- 
-.macro RETURNVAL value
-  lda #value
-  sta ERRNO
-.endmacro
-  
-.macro RETURN0
-    lda #$00
-    sta ERRNO  
-.endmacro
-
-.macro PRINT_BINARY_TO_DECIMAL_16BITS justif
-    LDX #$20
-    STX DEFAFF
-    LDX #justif
-    BRK_ORIX XDECIM
-    ;.byte $00,XDECIM
-.endmacro
-
-.macro CLS
-  lda     #<SCREEN
-  ldy     #>SCREEN
-  sta     RES
-  sty     RES+1
-  ldy     #<(SCREEN+40+27*40)
-  ldx     #>(SCREEN+40+27*40)
-  lda     #' '
-  BRK_ORIX XFILLM
-.endmacro
-  
-.macro UNREGISTER_PROCESS
-  lda   ORIX_CURRENT_PROCESS_FOREGROUND
-  beq   @skip_UNREGISTER_PROCESS
-  jsr   _orix_unregister_process
-@skip_UNREGISTER_PROCESS:
-.endmacro
-
-.macro UNREGISTER_PROCESS_BY_PID_IN_ACCUMULATOR
-  beq @skip_UNREGISTER_PROCESS
-  jsr _orix_unregister_process
-@skip_UNREGISTER_PROCESS:
-.endmacro
- 
-.macro SWITCH_ON_CURSOR
-  ldx #$00
-  BRK_ORIX XCSSCR
-.endmacro  
-
-.macro SWITCH_OFF_CURSOR
-	ldx #$00
-	BRK_ORIX XCOSCR
-.endmacro    
-
-.macro HIRES
-	BRK_ORIX XHIRES
-.endmacro    
-
-.macro REGISTER_PROCESS str_name_process 
-  lda #<str_name_process
-  ldy #>str_name_process
-  jsr _orix_register_process  
-.endmacro
-
-;FIXME   
-.macro GET8_FROM_STRUCT offset, zpaddress
-	ldy #offset
-	lda (zpaddress),y
-.endmacro    
-
-.macro PUT8_FROM_STRUCT offset, zpaddress
-	ldy #offset
-	sta (zpaddress),y
-.endmacro    
-  
-; O_WRONLY
-; O_RDONLY   
-.macro FOPEN file, mode
-  lda   #<file
-  ldx   #>file
-  ldy   #mode
-  .byte $00,XOPEN
-.endmacro  
- 
-.macro FOPEN_INTO_BANK7 file, mode
-  lda   #<file
-  ldx   #>file
-  ldy   #mode
-  jsr   XOPEN_ROUTINE
-.endmacro
- 
-.macro MKDIR PATH 
-  lda   #<PATH
-  ldx   #>PATH
-  .byte $00,XMKDIR
-.endmacro  
-  
-; size_t fread ( void * ptr, size_t size, FILE * stream);  
-.macro FREAD ptr, size, count, fp
-    lda #<fp
-    lda #>fp
-    lda #<ptr
-    sta PTR_READ_DEST
-    lda #>ptr
-    sta PTR_READ_DEST+1
-    lda #<size
-    ldy #>size
-    BRK_ORIX XFREAD
-.endmacro
-
-; This macro must be placed after MALLOC call
-.macro TEST_OOM_AND_MAX_MALLOC
-    ; Test if we reached the max number of malloc chunk
-    cpx     #ORIX_NUMBER_OF_MALLOC
-    bne     @check_for_oom_TEST_OOM_AND_MAX_MALLOC
-    ; We reachead max malloc available
-    PRINT   str_max_malloc_reached
-    RETURN_LINE
-    rts
-    ; check if malloc is null, if it's equal, displays Out of Memory
-@check_for_oom_TEST_OOM_AND_MAX_MALLOC:
-    cmp     #NULL
-    bne     @TEST_OOM_AND_MAX_MALLOC
-    cpy     #NULL
-    bne     @TEST_OOM_AND_MAX_MALLOC
-    PRINT   str_out_of_memory
-    RETURN_LINE
-    ; We reached OOM
-    rts
-@TEST_OOM_AND_MAX_MALLOC: 
-.endmacro
-
-.macro  CGETC
-    BRK_ORIX XRDW0 
-.endmacro    
-    
-.macro MALLOC size 
-  lda #<size
-  ldy #>size
-  BRK_ORIX XMALLOC
-.endmacro
-
-.macro FREE ptr 
-  lda #<ptr
-  ldy #>ptr
-  BRK_ORIX XFREE
-.endmacro 
-
-.macro CPUTC char
-  lda #char
-  BRK_ORIX XWR0
-.endmacro
-  
-.macro  PRINT_CHAR str
-  pha
-  sta TR6
-  txa
-  pha
-  tya
-  pha
-  lda TR6
-  BRK_TELEMON XWR0
-  pla
-  tay
-  pla
-  txa
-  pla
-.endmacro	
-
-.macro PRINT str
-	pha
-	txa
-	pha
-	tya
-	pha
-	lda #<str
-	ldy #>str
-	BRK_TELEMON XWSTR0
-  pla
-	tay
-	pla
-	txa
-  pla
-.endmacro
-
-.macro PRINT_NOSAVE_REGISTER str
-	lda #<str
-	ldy #>str
-	BRK_TELEMON XWSTR0
-.endmacro
-
-.macro RETURN_LINE_INTO_TELEMON
-	pha
-	txa
-	pha
-	tya
-	pha
-	lda RES
-	pha
-	lda RES+1
-	pha
-	jsr XCRLF_ROUTINE 
-	pla
-	sta RES+1
-	pla
-	sta RES
-	pla
-	tay
-	pla
-	txa
-	pla
-.endmacro    
-	
-.macro PRINT_INTO_TELEMON str
-	pha
-	txa
-	pha
-	tya
-	pha
-	lda RES
-	pha
-	lda RES+1
-	pha
-	lda #<str
-	ldy #>str
-	jsr XWSTR0_ROUTINE 
-	pla
-	sta RES+1
-	pla
-	sta RES
-	pla
-	tay
-	pla
-	txa
-	pla
-.endmacro
-
-.macro RETURN_LINE
-  BRK_ORIX XCRLF
-.endmacro  
-	
-.macro STRCPY str1, str2
-	lda #<str1
-	sta RES
-	lda #>str1
-	sta RES+1
-	lda #<str2
-	sta RESB
-	lda #>str2
-	sta RESB+1
-	jsr _strcpy
-.endmacro    
-
-.macro STRCAT str1, str2
-	lda #<str1
-	sta RES
-	lda #>str1
-	sta RES+1
-	lda #<str2
-	sta RESB
-	lda #>str2
-	sta RESB+1
-	jsr _strcat 
-.endmacro     
-	
-; This macro copy AY address to str
-.macro STRCPY_BY_AY_SRC str
-	sta RES
-	sty RES+1
-	lda #<str
-	sta RESB
-	lda #>str
-	sta RESB+1
-	jsr _strcpy
-.endmacro    
-
-PATH_CURRENT_MAX_LEVEL = 4 ; Only in telemon 3.0 number of level, if we add more, we should have to many RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
-MAX_LENGTH_OF_FILES    = 9 ;  We say 8 chars for directory and end of string
-
-MAX_LENGTH_OF_A_COMMAND = 9
-
-MAX_ARGS = 3              ;  Number of possible args in the command line
-
-ORIX_MAX_PATH_LENGTH = MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
-; ORIX_MAX_OPEN_FILES    = 2
-
-MAX_LENGTH_BUFEDT     =  ORIX_MAX_PATH_LENGTH+9
-
-ORIX_NUMBER_OF_MALLOC  = 3
-
-ORIX_MALLOC_FREE_FRAGMENT_MAX = 6
-
-ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
-
-ORIX_MALLOC_MAX_MEM_ADRESS = $B3FF
-
-SIZE_OF_STACK_BANK = 1
-
-BNKOLD:=$40F 
-
-ADDRESS_READ_BETWEEN_BANK:=$15
-ADDRESS_VECTOR_FOR_ADIOB:=$17
-BNK_TO_SWITCH:=$410
-
-tmp1:=$34
-ptr1:=$32
-
-.bss
-.org $4c7
-FIXME_DUNNO
-.res 1
-STACK_BANK
-.res SIZE_OF_STACK_BANK
-READ_BYTE_FROM_OVERLAY_RAM
-.res 1
-
-.bss
-.org BUFNOM
-ORIX_PATH_CURRENT
-.res ORIX_MAX_PATH_LENGTH,0
-
-ORIX_MALLOC_FREE_TABLE
-; (adress begin) (adress_end) (size of chunk 16 bit)
-ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-
-ORIX_MALLOC_FREE_END_LOW_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_FREE_END_HIGH_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-
-MEMFREE
-ORIX_MALLOC_FREE_SIZE_LOW_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-.res 2 ; For 32 bits management
-
-ORIX_MALLOC_FREE_TABLE_NUMBER
-; it contains the number of free chuncks
-.res 1
-
-; Busy table
-ORIX_MALLOC_BUSY_TABLE
-ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW
-.res ORIX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH
-.res ORIX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_END_LOW
-.res ORIX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_END_HIGH
-.res ORIX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_SIZE_LOW
-.res ORIX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH
-.res ORIX_NUMBER_OF_MALLOC
-
-; We store the PID of the malloc
-ORIX_MALLOC_BUSY_TABLE_PID
-.res ORIX_NUMBER_OF_MALLOC
-
-ORIX_MALLOC_BUSY_TABLE_NUMBER
-.res 1
 
 .org $C000
 .code
@@ -441,9 +23,6 @@ telemon:
   CLD
   LDX     #$FF
   TXS                         ; init stack
-
-
-
 .IFPC02
 .pc02
   stz     NEXT_STACK_BANK
@@ -453,9 +32,8 @@ telemon:
   stx     NEXT_STACK_BANK               ; Store in BNKCIB ?? ok but already init with label data_adress_418, when loading_vectors_telemon is executed
 .endif
 
-
-
   jsr     init_screens
+  
   jsr     init_via
   jsr     XLOADCHARSET_ROUTINE
   jsr     init_printer 
@@ -570,6 +148,9 @@ next5:
   ORA     #$40
   STA     FLGTEL
 @skip:
+
+  lda #$11
+  sta $bb80+40
 
 ;  JSR     init_joystick ; $DFAB
   
@@ -736,7 +317,7 @@ IRQVECTOR_CODE:
   .byt    $00 ; will be stored in $2FF
 
 
-/**************************** END LOOP ON DEVELOPPR NAME !*/
+; **************************** END LOOP ON DEVELOPPR NAME !*/
 
 str_telestrat:  
   .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX 1.0",$90,$91,$92,$93,$94,$95,$96,$97,$90
@@ -754,7 +335,7 @@ str_telestrat:
 str_KORAM:
   .ASCIIZ     " Ko RAM,"
 str_KOROM:
-  .byte     " Ko ROM"," - __DATEBUILT__",$00
+  .byte     " Ko ROM"," - 2018-11-08 22:49",$00
 
 str_tofix:
   .byt     $0D,$18,$00
@@ -1782,7 +1363,13 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 XCLOSE_ROUTINE:
   jmp     _ch376_file_close
 
-
+XFREAD_ROUTINE:
+XREADBYTES_ROUTINE:
+.include  "functions/xread.asm"
+XWRITEBYTES_ROUTINE:
+.include  "functions/xwrite.asm"
+XFSEEK_ROUTINE:
+.include  "functions/xfseek.asm"
 
 
 
@@ -1987,9 +1574,8 @@ XTEXT_ROUTINE
 
 
 .include  "functions/xfree.asm"
-XMAINARGS_ROUTINE:
-  rts
-; .include  "functions/mainargs.asm"
+
+.include  "functions/mainargs.asm"
 
 
 _multitasking:
@@ -2654,7 +2240,6 @@ LDBA4:
 Ldbb5:
 
   STA     SCRNB+1 ; store the char to display
-
   PHA              ; Save A
   TXA              ; save X
   PHA              ; 
@@ -2670,14 +2255,12 @@ Ldbb5:
   LDA     SCRNB+1
   CMP     #" "       ; is it space ?
   BCS     Ldc4c      ; No it's a char
-
-Ldbce  
+Ldbce   ; $d27e
   LDA     FLGSCR,X
+
   PHA
-  
 
   JSR     XCOSCR_ROUTINE ; switch off cursor
-
   LDA     #>LDC2B-1 ; FIXME ?
   PHA
   LDA     #<LDC2B-1 ; FIXME ?
@@ -2691,48 +2274,47 @@ Ldbce
   PHA
   LDA     #$00
   SEC
-
-
   RTS
 
 
 
 TABLE_OF_SHORTCUT_KEYBOARD  
 Ldbeb
-  .byt     <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1  ; Nothing
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1)  ; Nothing
 LDBED  
-  .byt <CTRL_A_START-1,>CTRL_A_START-1 ; CTRL A tabulation 
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1 
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1; Already managed  
-  .byt <CTRL_D_START-1,>CTRL_D_START-1 
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1; E
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1 ; F Already managed 
-  .byt <CTRL_G_START-1,>CTRL_G_START-1 ;G
-  .byt <CTRL_H_START-1,>CTRL_H_START-1 ;  H
-  .byt <CTRL_I_START-1,>CTRL_I_START-1 ; I
-  .byt <CTRL_J_START-1,>CTRL_J_START-1 ;
-  .byt <CTRL_K_START-1,>CTRL_K_START-1 ; 
-  .byt <CTRL_L_START-1,>CTRL_L_START-1 ;
-  .byt <CTRL_M_START-1,>CTRL_M_START-1 ; M
-  .byt <CTRL_N_START-1,>CTRL_N_START-1 ;  N
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1;  O
-  .byt <CTRL_P_START-1,>CTRL_P_START-1 ;P
-  .byt <CTRL_Q_START-1,>CTRL_Q_START-1 ;
-  .byt <CTRL_R_START-1,>CTRL_R_START-1 ;  R
-  .byt <CTRL_S_START-1,>CTRL_S_START-1 ;S 
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1 ;  T
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1; U 
-  .byt <CTRL_V_START-1   ,>CTRL_V_START-1  ; V 
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1 ; W
-  .byt <CTRL_X_START-1,>CTRL_X_START-1 ; X
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1; Y
-  .byt <KEYBOARD_NO_SHORTCUT-1,>KEYBOARD_NO_SHORTCUT-1;  Z 
-  .byt <CTRL_ESC_START-1,>CTRL_ESC_START-1 ;  ESC
-  .byt <CTRL_ESC_START-1,>CTRL_ESC_START-1 ; ??? Like ESC
-  .byt <CTRL_CROCHET_START-1,>CTRL_CROCHET_START-1 ;  CTRL ]
-  .byt <CTRL_HOME_START-1  ,>CTRL_HOME_START  -1 ;  HOME
-  .byt <CTRL_US_START-1,>CTRL_US_START-1 ;  US 
+  .byt <(CTRL_A_START-1),>(CTRL_A_START-1) ; CTRL A tabulation 
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1)
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1); Already managed  
+  .byt <(CTRL_D_START-1),>(CTRL_D_START-1)
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1); E
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1) ; F Already managed 
+  .byt <(CTRL_G_START-1),>(CTRL_G_START-1) ;G
+  .byt <(CTRL_H_START-1),>(CTRL_H_START-1) ;  H
+  .byt <(CTRL_I_START-1),>(CTRL_I_START-1) ; I
+  .byt <(CTRL_J_START-1),>(CTRL_J_START-1) ;
+  .byt <(CTRL_K_START-1),>(CTRL_K_START-1) ; 
+  .byt <(CTRL_L_START-1),>(CTRL_L_START-1) ;
+  .byt <(CTRL_M_START-1),>(CTRL_M_START-1) ; M
+  .byt <(CTRL_N_START-1),>(CTRL_N_START-1) ;  N
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1);  O
+  .byt <(CTRL_P_START-1),>(CTRL_P_START-1) ;P
+  .byt <(CTRL_Q_START-1),>(CTRL_Q_START-1) ;
+  .byt <(CTRL_R_START-1),>(CTRL_R_START-1) ;  R
+  .byt <(CTRL_S_START-1),>(CTRL_S_START-1) ;S 
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1) ;  T
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1); U 
+  .byt <(CTRL_V_START-1)   ,>(CTRL_V_START-1)  ; V 
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1) ; W
+  .byt <(CTRL_X_START-1),>(CTRL_X_START-1) ; X
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1); Y
+  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1);  Z 
+  .byt <(CTRL_ESC_START-1),>(CTRL_ESC_START-1) ;  ESC
+  .byt <(CTRL_ESC_START-1),>(CTRL_ESC_START-1) ; ??? Like ESC
+  .byt <(CTRL_CROCHET_START-1),>(CTRL_CROCHET_START-1) ;  CTRL ]
+  .byt <(CTRL_HOME_START-1)  ,>(CTRL_HOME_START-1) ;  HOME
+  .byt <(CTRL_US_START-1),>(CTRL_US_START-1) ;  US 
     
+
 LDC2B
   
   ldx     SCRNB
@@ -2746,6 +2328,7 @@ LDC2B
   pla
   sta     FLGSCR,x
   jsr     LDE2D 
+; Here ? debug jede
 LDC46  
   pla
   tay
@@ -2755,10 +2338,7 @@ LDC46
   rts
 Ldc4c
 
-
-
-
-   LDA     FLGSCR,X
+  LDA     FLGSCR,X
   AND     #%00001100 
   BNE     Ldc9a
   LDA     SCRNB+1
@@ -2767,7 +2347,7 @@ Ldc4c
   BCS     Ldc5d ; is it a normal code ?
   ; yes don't display
   AND     #$7F  ; yes let's write code
-Ldc5d
+Ldc5d:
   
   STA     SCRNB+1
   JSR     display_char 
@@ -2913,12 +2493,12 @@ LDD14:
   TAY           ; dans Y                                            
   TSX           ;  on indexe FLGSCR dans la pile                     
   EOR $0103,X   ;  on inverse le bit correspondant au code (bascule) 
-  STA $0103,X   ;   et on replace                                     
+  STA $0103,X   ;  et on replace                                     
   STA RES       ;  et dans $00                                       
   TYA                                                              
-  AND #$10      ;   mode 38/40 colonne ?                              
-  BNE @skip     ;     oui ----------------------------------------------
-  RTS           ;   non on sort                                      I
+  AND #$10      ;  mode 38/40 colonne ?                              
+  BNE @skip     ;  oui ----------------------------------------------
+  RTS           ;  non on sort                                      I
 @skip:
   LDX SCRNB     ;   on prend le num?ro de fen?tre <-------------------
   AND RES       ;  mode monochrome (ou 40 colonnes) ?                
@@ -2936,7 +2516,7 @@ LDD3C
   DEC SCRDX,X                                                      
   RTS       
 LDD43  
-  DEC SCRX,X  ;  on ram?ne le curseur un cran ? gauche  <----------
+  DEC SCRX,X  ;  on ramène le curseur un cran ? gauche  <----------
   RTS  ;                                                           I
 
  ;                             CODE 8 - CTRL H                              I
@@ -2955,7 +2535,7 @@ CTRL_H_START
 CTRL_K_START
   LDA SCRY,X            ;   et si on est pas                                  
   CMP SCRDY,X           ; au sommet de la fen?tre,                          
-  BNE LDD6E    ;   on remonte d'une ligne ---------------------------
+  BNE LDD6E             ;   on remonte d'une ligne ---------------------------
   LDA SCRDY,X  ;   X et Y contiennent le d?but et la                I
   LDY SCRFY,X  ;  fin de la fen?tre X                              I
   TAX          ;                                                   I
@@ -3031,7 +2611,6 @@ LDDB2
 
 ;Action:Efface la fen?tre                                                     
 CTRL_L_START
-LDDB8                                                                               
   JSR LDDFB    ;  on remet le curseur en haut de la fen?tre         
 LDDBB
   JSR LDD74    ;  on efface la ligne courante                       
@@ -3049,13 +2628,11 @@ CTRL_R_START
     RTS        
   
 XOUPS_ROUTINE
-LDDD8  
-/*                             CODE 7 - CTRL G                               
+;                             CODE 7 - CTRL G                               
+;
+;Action:émet un OUPS
 
-Action:?met un OUPS                                                             
- */
-CTRL_G_START 
- 
+CTRL_G_START:
   LDX #<XOUPS_DATA     ;   on indexe les 14 donn?es du OUPS                  
   LDY #>XOUPS_DATA                                                         
   JSR send_14_paramaters_to_psg   ;   et on envoie au PSG                               
@@ -3069,15 +2646,16 @@ LDDE3
   LDA #$07      ;  un JMP init_printer suffisait ...                        
   LDX #$3F                                                         
   JMP XEPSG_ROUTINE
+
 XOUPS_DATA
 LDDF0                                                                               
-  .byt $46,00,00,00,00,00;  p?riode 1,12 ms, fr?quence 880 Hz (LA 4) 
+  .byt $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4) 
 LDDF6
   .byt  00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
-/*
-                           INITIALISE UNE FENETRE                           
-Action:on place le curseur en (0,0) et on calcule son adresse                   
-*/
+
+;                           INITIALISE UNE FENETRE
+;Action:on place le curseur en (0,0) et on calcule son adresse                   
+;
 CTRL_HOME_START  
 LDDFB
   LDA SCRDX,X  ;  on prend la premi?re colonne                      
@@ -3109,7 +2687,6 @@ XCOSCR_ROUTINE
   CLC
   .byt $24
 XCSSCR_ROUTINE  
-LDE20  
   sec
   PHP
   ASL FLGSCR,X
@@ -3126,6 +2703,7 @@ LDE2D
   PHA
   LDA     FLGSCR,X
   AND     #$02
+
   beq     @skip
   LDA     SCRY,X
   CMP     SCRFY,X
@@ -3232,17 +2810,17 @@ LDEC8
 LDECD
   RTS            ;  <-------------------------------------------------
  
-/*
-Action:inconnue... ne semble pas ?tre appel?e et utilise des variables          
-       IRQ dont on ne sait rien.      
 
-Note de Jede : oui :  utilisée chercher le label LDECE     
-*/
+; Action:inconnue... ne semble pas ?tre appel?e et utilise des variables          
+;       IRQ dont on ne sait rien.      
+
+;Note de Jede : oui :  utilisée chercher le label LDECE     
+
 LDECE 
-  BCC LDED7    ;  si C=0 on passe ------------                      
-  LDX SCRNB      ;                             I                      
-  JSR XCOSCR_ROUTINE    ;  on ?teint le curseur       I                      
-  PLA         ;   et on sort A de la pile    I                      
+  BCC LDED7             ;  si C=0 on passe ------------                      
+  LDX SCRNB             ;                             I                      
+  JSR XCOSCR_ROUTINE    ;  on éteint le curseur       I                      
+  PLA                   ;  et on sort A de la pile    I                      
   RTS          ;                             I    
 LDED7
   LDA #$01     ;  on met 1 en $216 <----------                      
@@ -3271,13 +2849,16 @@ data_videotex_window ; minitel FIXME REMOVE
   .byt $00,$27 ; 0 to 39
   .byt $01,$18 ; 1 to 24
   .byt $80,$BB
-XSCRSE_ROUTINE
+XSCRSE_ROUTINE ; init window
   sec
   .byt $24
+
 ldefd  
 ROUTINE_TO_DEFINE_7
+;  LDA     #<SCRTXT
+  ;LDY     #>SCRTXT
 
-
+;  LDX     #$00
 
   CLC
   PHP
@@ -3293,7 +2874,7 @@ next18
   PLP
 
   PHP
-  BCS @skip
+  BCS     @skip
 
   LDA     (ADDRESS_READ_BETWEEN_BANK),Y
   BCC next17
@@ -3302,11 +2883,7 @@ next18
   JSR ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
 next17
-
-
   STA SCRY,X
-
-
 
   TXA
   SEC
@@ -3346,12 +2923,19 @@ next17
   STA SCRNB
   PLP
   rts
-
+  ; $d3fd DEBUGGER
+  ; d411 ?
+  ; cc3a
+  ; d4dc
+  ; $d1b6
+  ; d3e6
+  ; cycle : 1549 (d24C) tay,pla tax pla)
+  
 .proc init_screens
   LDA     #$1A
-  STA     $BFDF ; Switch to text mode
+  STA     $BFDF    ; Switch to text mode
   ; fill the first line with space characters
-  LDX     #$27 ; loop on #$28 caracters
+  LDX     #$27     ; loop on #$28 caracters
   LDA     #$20
 
 @loop:
@@ -3359,7 +2943,7 @@ next17
   DEX
   BPL     @loop
   
-  LDY     #$11 ; loop with $12 to fill text definitions and Hires
+  LDY     #$11     ; loop with $12 to fill text definitions and Hires
 @L1:
   LDA     data_text_window,Y ; data_to_define_2
   STA     SCRTXT,Y ; thise fill also  SCRHIR
@@ -3906,7 +3490,7 @@ display_bufedt_content
   LDY SCRX,X
 
 Le3e3
-  LDX $64
+  LDX $64 ; fixme
   LDA BUFEDT,X
   BEQ Le41c 
   LDA #$20
@@ -4910,13 +4494,7 @@ Leaf3
 
 .include  "functions/sound/sounds.asm"  
 
-XFREAD_ROUTINE:
-XREADBYTES_ROUTINE:
-.include  "functions/xread.asm"
-XWRITEBYTES_ROUTINE:
-.include  "functions/xwrite.asm"
-XFSEEK_ROUTINE:
-.include  "functions/xfseek.asm"
+
 
 READ_A_SERIAL_BUFFER_CODE_INPUT
   ldx #$0c
@@ -7550,7 +7128,7 @@ XGOKBD_ROUTINE:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .byte     "Kernel-__DATEBUILT__"
+  .byte     "Kernel-xx/xx/xxxx xx/xx"
 .IFPC02
 .pc02
   .byte     " 65C02"

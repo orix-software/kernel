@@ -2,4 +2,5 @@ build/
 a.o65
 error.txt
 *.rom
+kernel.ld65
 

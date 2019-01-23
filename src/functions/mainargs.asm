@@ -1,5 +1,6 @@
-XMAINARGS_ROUTINE
-.(
+
+FNAME_LEN_BIS=$0D
+XMAINARGS_ROUTINE:
 	;	MALLOC()
         ldx     #$00      ; Limit the length
 L0:     lda     BUFEDT,x
@@ -11,7 +12,7 @@ L0:     lda     BUFEDT,x
 L1: 
 		;sta     name,x
         inx
-        cpx     #FNAME_LEN
+        cpx     #FNAME_LEN_BIS ; not the same than FNAME_LEN FIXME
         bne     L0
         lda     #0
 L3:		
@@ -102,5 +103,5 @@ argv:
 */ 
 
 	rts
-.)
+
 
