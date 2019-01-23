@@ -1889,7 +1889,7 @@ next22  ;$D946
   DEY
   bpl     loop21 ; D94A
 
-  LDY #$08
+  LDY     #$08
 loop22  
   LDA     SCRTRA+5,Y
   BNE     out1
@@ -2806,7 +2806,6 @@ LDED7
 
   ; text mode  Text mode bytes it will  fill SCRTXT
 data_text_window
-  
   .byt $00,$27 ; 0 to 39
   .byt $01,$1B ; 1 to 27
   .byt $80,$BB ; adress of text mode (first byte)
@@ -3061,14 +3060,14 @@ Le084
 
 le085
 
-/*                                                                             
-                            GESTION DE LA SOURIS                            
 
-Action:G?re la souris comme pr?c?demment le joystick gauche, ? ceci pr?s qu'il  
-       ne s'agit plus avec la souris de g?rer un d?lai de r?p?tition (sauf pour 
-       les boutons), mais plutot une vitesse de r?p?tition. Dans le buffer      
-       clavier, l'octet KBDSHT ajout? au codes ASCII souris est 8, soit b3 ? 1. 
-*/                                                                              
+;                            GESTION DE LA SOURIS                            
+
+;Action:G?re la souris comme pr?c?demment le joystick gauche, à ceci pr?s qu'il  
+;       ne s'agit plus avec la souris de g?rer un d?lai de r?p?tition (sauf pour 
+;       les boutons), mais plutot une vitesse de r?p?tition. Dans le buffer      
+;       clavier, l'octet KBDSHT ajout? au codes ASCII souris est 8, soit b3 ? 1. 
+
                                                                                 
   JSR Ldf99      ;  on lit la valeur souris                         
   AND #$1B       ;   on isole les directions                           
@@ -3584,9 +3583,6 @@ Le624
   JSR Le648 
   JMP Le45a 
 
-
-
-
 /*
 POSITIONNE LE CURSEUR EN X,Y                        
 
@@ -3649,59 +3645,8 @@ LE66B
 .include "functions/xecrpr.asm"
 
 
+.include "functions/xdecay.asm"
 
-;                        CONVERSION ASCII -> BINAIRE                         
-
-;Principe:On lit un ? un les chiffres de la chaine stock?e en AY jusqu'? ce      
-;qu'on ait plus de chiffres. On multiplie au fur et ? mesure le resultat
-;par 10 avant d'ajouter le chiffre trouv?. Le principe est ais? ?       
-; assimiler et la routine compacte. Un bon exemple d'optimisation.       
-;En sortie, AY et RESB contient le nombre, AY l'adresse de la chaine,   
-; et X le nombre de caract?res d?cod?s.
-
-XDECAY_ROUTINE 
-                                                                                
-  STA RES      ;   on sauve l'adresse du nombre                      
-  STY RES+1    ;    dans RES                                          
-  LDY #$00     ;    et on met RESB ? 0                                
-  STY RESB
-  STY RESB+1                                                          
-LE753
-  LDA (RES),Y  ;   on lit le code <------------------------------    
-  CMP #$30     ;   inf?rieur ? 0 ?                              I    
-  BCC LE785    ;   oui -----------------------------------------+---- 
-  CMP #$3A     ;   sup?rieur ? 9 ?                              I   I
-  BCS LE785    ;   oui -----------------------------------------+---O 
-  AND #$0F     ;   on isole le chiffre                          I   I
-  PHA          ;    dans la pile                                I   I
-  ASL RESB     ;    RESB*2                                      I   I
-  ROL RESB+1   ;                                                I   I
-  LDA RESB     ;    AX=RESB*2                                   I   I
-  LDX RESB+1   ;                                                I   I
-  ASL RESB     ;   *4                                           I   I
-  ROL RESB+1   ;                                                I   I
-  ASL RESB     ;   *8                                           I   I
-  ROL RESB+1   ;                                                I   I
-  ADC RESB     ;   +RESB*2                                      I   I
-  STA RESB     ;                                                I   I
-  TXA          ;                                                I   I
-  ADC RESB+1   ;                                                I   I
-  STA RESB+1   ;   = RESB*10                                    I   I
-  PLA          ;   plus chiffre lu                              I   I
-  ADC RESB     ;                                                I   I
-  STA RESB     ;                                                I   I
-  BCC LE782    ;                                                I   I
-  INC RESB+1   ;                                                I   I
-LE782
-  INY          ;   on ajoute un chiffre lu                      I   I
-  BNE LE753    ;     et on recommence  ----------------------------   I
-LE785
-  TYA       ;     nombre de chiffres lus <--------------------------
-  TAX       ;     dans X                                            
-  LDA RESB   ;     nombre dans AY et RESB                            
-  LDY RESB+1    ;                                                      
-  RTS
-  
 data_for_hires_display
   .byt $20,$10,$08,$04
   .byt $02,$01
@@ -3710,9 +3655,9 @@ data_for_hires_display
 XHRSSE_ROUTINE  
   CLC          ;     C=0                                               
   BIT HRS5+1   ;  on fait tourner HRS5+1 sur lui-même               
-  BPL LE798    ;   afin de conserver le pattern                     
+  BPL @skip    ;   afin de conserver le pattern                     
   SEC 
-LE798  
+@skip:
   ROL HRS5+1                                                          
   BCC Le7c0      ;    si b7 de $56   ? 0, on saute <-------------------- 
 LE79C
@@ -3739,66 +3684,11 @@ LE7BA
   STA (ADHRS),Y  ;    et on sort       a                               I
 Le7c0
   RTS  
-/*
-                                                                               
-                    DEPLACEMENT RELATIF DU CURSEUR HIRES                    
-                                                                                
-Action:Ces quatres routines permettent un d?placement extr?mement rapide du     
-       curseur HIRES d'apr?s l'adresse de la ligne ou il se trouve (ADHRS),     
-       la colonne dans laquelle il se trouve (HRSX40) et sa position dans       
-       l'octet point? (HRSX6).                                                  
-       Attention:Les coordonn?es HRSX et HRSY ne sont pas modifi?es ni v?rifi?es
-                 avant le d?placement, ? vous de g?rer cela.                    
-                                                                                
-                    DEPLACE LE CURSEUR HIRES VERS LE BAS                      
-*/
-XHRSCB_ROUTINE:
-  CLC           ;     on ajoute 40                                      
-  LDA ADHRS     ;    à ADHRS
-  ADC #$28                                                         
-  STA ADHRS                                                          
-  BCC Le7c0                                                     
-  INC ADHRS+1                                                          
-  RTS     
 
-;                   DEPLACE LE CURSEUR HIRES VERS LE HAUT                    
-
-XHRSCH_ROUTINE:
-  SEC      ;      on soustrait 40                                   
-  LDA ADHRS   ;     ? ADHRS                                           
-  SBC #$28                                                         
-  STA ADHRS                                                          
-  BCS     Le7c0                                                     
-  DEC ADHRS+1                                                          
-  RTS        
-
-;                      DEPLACE LE CURSEUR VERS LA DROITE (hires)
-XHRSCD_ROUTINE:
-
-  LDX HRSX6      ;      on déplace d'un pixel                             
-  INX                                                              
-  CPX #$06       ;     si on est à la fin
-  BNE @skip
-  LDX #$00       ;    on revient au début
-  INC HRSX40     ;   et ajoute une colonne 
-@skip:
-  STX HRSX6                                                          
-  RTS    
-
-
-;                     DEPLACE LE CURSEUR VERS LA GAUCHE (hires)
-
-XHRSCG_ROUTINE:
-  LDX HRSX6                                                          
-  DEX         ;   on d?place ? gauche                               
-  BPL @skip   ;   si on sort                                        
-  LDX #$05    ;   on se place ? droite                              
-  DEC HRSX40     ;   et on enl?ve une colonne 
-@skip:
-  STX HRSX6                                                          
-  RTS        
-
-
+.include "functions/xhrscb.asm"
+.include "functions/xhrsch.asm"
+.include "functions/xhrscd.asm"
+.include "functions/xhrscg.asm"
 
 ;                         PLACE LE CURSEUR EN X,Y                           
 
@@ -3809,8 +3699,7 @@ XHRSCG_ROUTINE:
        ;En sortie, HSRX,Y,X40,X6 et ADHRS sont ajust?s en fonction de X et Y.    
 ;
 
-hires_put_coordinate
-Le7f3                                                                                
+hires_put_coordinate:
   STY HRSY            ;     Y dans HRSY                                       
   STX HRSX            ;     X dans HRSX                                       
   TYA                 ;     et Y dans A                                       
@@ -3831,16 +3720,14 @@ Le7f3
   LDA RESB            ;      et le reste dans HRSX6                            
   STA HRSX6           ;                                                        
   RTS                 ;      I
- /*                                                                               
+ 
 
-                       TRACE UN RECTANGLE EN RELATIF                        
+;                       TRACE UN RECTANGLE EN RELATIF                        
 
-
-Principe:On calcule les coordonn?es absolues des 4 coins et on trace en absolu. 
-         Pas tr?s optimis? en temps tout cela, il aurait ?t? plus simple de     
-         de tracer directement en relatif !!!                                   
-         Le rectangle est trac? comme ABOX avec les param?tres dans HRSx.       
-*/
+;Principe:On calcule les coordonnées absolues des 4 coins et on trace en absolu. 
+;         Pas tr?s optimis? en temps tout cela, il aurait ?t? plus simple de     
+;         de tracer directement en relatif !!!                                   
+;         Le rectangle est trac? comme ABOX avec les param?tres dans HRSx.       
 XBOX_ROUTINE
                                                                                 
   CLC              ;   C=0                                               
@@ -3868,9 +3755,8 @@ Principe:Par un proc?d? tr?s astucieux, on va tracer les 4 traits (en absolu)
          Notez ?galement l'utilisation de l'absolu,X plutot que du page 0,X en  
          $E850... tss tss !                                                     
  */
-XABOX_ROUTINE 
-Le82c 
-  LDY #$06    ;   on place les 4 param?tres (poids faible seulement)
+XABOX_ROUTINE
+  LDY #$06    ;   on place les 4 paramètres (poids faible seulement)
   LDX #$03 
 LE830
   LDA $004D,Y  ;  de HRSx                                           
@@ -3907,17 +3793,16 @@ LE845
 table_for_rect
 Le862
   .byt $26,$67,$73,$32
-/*
-                         TRACE DE TRAIT EN ABSOLU                          
-                                                                                
-                                                                                
-Action:on calcule dX et dY les d?placements dans HRS1 et HRS2 et on trace en    
-       relatif. En entr?e, comme ADRAW dans HRSx.                               
-*/
+
+;                         TRACE DE TRAIT EN ABSOLU                          
+                                                                               
+; Action:on calcule dX et dY les d?placements dans HRS1 et HRS2 et on trace en    
+; relatif. En entr?e, comme ADRAW dans HRSx.                               
+
 XDRAWA_ROUTINE:
   LDX HRS1     ;   X=colonne                                         
   LDY HRS2     ;   Y=ligne du curseur                                
-  JSR Le7f3   ;   on place le curseur en X,Y                         
+  JSR hires_put_coordinate   ;   on place le curseur en X,Y                         
   LDX #$FF    ;   on met -1 dans X pour un changement de signe      
   SEC         ;   ?ventuel dans les param?tres                      
   LDA HRS3     ;   on prend X2                                       
@@ -3957,7 +3842,6 @@ Principe:Le principe du trac? des droites est en fait assez complexe. On aurait
 ; NOERROR
    
 XDRAWR_ROUTINE
-Le885                                                                             
   LDA HRSPAT  ;    sauve le pattern                                  
   STA $56    ;    dans HRS1+1                                       
   JSR Le942  ;    v?rifie la validit? de dX et dY                  
@@ -4065,22 +3949,20 @@ XCURSE_ROUTINE
   LDY HRS2     ;   Y=HRSY                FIXME
   JSR hires_verify_position    ;  on v?rifie les coordonn?es                   
 LE936
-  JSR Le7f3    ;  on place le curseur en X,Y                        
+  JSR hires_put_coordinate    ;  on place le curseur en X,Y                        
 
   JMP LE79C    ;  et on affiche sans g?rer pattern      
   
      ;                          ROUTINE CURMOV
 XCURMO_ROUTINE
-Le93c
   JSR Le942    ;  on v?rifie les param?tres                        
   JMP LE936   ;   et on d?place      
 
-/*
-                VERIFIE LA VALIDITE DES PARAMETRES RELATIFS                 
+
+                ;VERIFIE LA VALIDITE DES PARAMETRES RELATIFS                 
                                                                                 
-Action:V?rifie si l'adressage relatif du curseur est dans les limites de l'?cran
-       HIRES, soit si 0<=X+dX<240 et 0<=Y+dY<200.                               
-*/
+;Action:V?rifie si l'adressage relatif du curseur est dans les limites de l'?cran
+;       HIRES, soit si 0<=X+dX<240 et 0<=Y+dY<200.                               
 Le942  
   CLC                                                              
   LDA HRSX     ;   on prend HRSX                                     
@@ -4089,7 +3971,7 @@ Le942
   CLC                                                              
   LDA HRSY     ;   HRSY                                              
   ADC HRS2     ;   plus le d?placement vertical                      
-  TAY         ;   dans Y           
+  TAY          ;   dans Y           
 
 /*
                         TESTE SI X ET Y SONT VALIDES                        
@@ -4241,13 +4123,12 @@ Principe:Pour tracer une ellipsoide en g?n?ral, on utilise la formule :
          enti?re d'un des termes au moins change, on affiche le point. Et on    
          continue jusqu'? ce que Xn et Yn soit revenus ? leur position initiale.
                                                                                 
-Remarque:La routine est bugg?e, en effet si le rayon est 0, la boucle de calcul 
+Remarque:La routine est buggée, en effet si le rayon est 0, la boucle de calcul 
          de la puissance de 2 > au rayon est infinie, idem si le rayon est 128. 
          Il aurait suffit d'incr?menter le rayon avant le calcul...             
  */
 XCIRCL_ROUTINE
-Le9cb
-                                                                               
+                                                                            
   LDA HRSX       ; on sauve HRSX                                     
   PHA                                                              
   LDA HRSY      ;  et HRSY                                           
@@ -4259,7 +4140,7 @@ Le9cb
   SBC HRS1     ;   -rayon                                            
   TAY          ;  dans Y                                            
   LDX HRSX     ;   on prend HRSX                                     
-  JSR Le7f3    ;  et on place le premier point du cercle (X,Y-R)      
+  JSR hires_put_coordinate    ;  et on place le premier point du cercle (X,Y-R)      
   LDX #$08    ;   X=7+1 pour calculer N tel que Rayon<2^N.          
   LDA HRS1     ;   on prend le rayon                                 
 LE9E5
@@ -4288,7 +4169,7 @@ LE9F8
   LDA TR3                                                          
   STA TR6                                                          
   ADC TR7                                                          
-  STA TR3      ;  la partie enti?re seX a boug? ?                   
+  STA TR3      ;  la partie entière seX a boug? ?                   
   CMP TR6                                                          
   BEQ Lea22   ;  non ----------------------------------------------    
   BCS Lea1d    ;  elle a augment? ----------------------------     I    
@@ -4334,7 +4215,7 @@ Lea51
   TAY        ;    on reprend les coordonn?es du curseur sauv?es     
   PLA        ;    dans X et Y                                       
   TAX                                                              
-  JMP Le7f3    ;  et on replace le curseur                           
+  JMP hires_put_coordinate    ;  et on replace le curseur                           
   
 /*
                        CALCUL LE DEPLACEMENT sX ou sY                       
@@ -4356,27 +4237,27 @@ Lea68
   RTS         
 
 XFILL_ROUTINE
-LEA73
   lda ADHRS
   ldy ADHRS+1
   sta RES 
   sty RES+1
-Lea7b
+@loop2:
   ldx HRS2
   ldy HRSX40
   lda HRS3
-Lea81  
+@loop:
   sta (RES),y
   iny
   dex
-  bne Lea81 
+  bne @loop
   lda #$28
-  ldy #0
+  ldy #00
   jsr XADRES_ROUTINE 
   dec HRS1
-  bne Lea7b 
+  bne @loop2
 Lea92  
   rts
+  
   
 XSCHAR_ROUTINE:
   sta HRS3
@@ -4418,7 +4299,7 @@ LEAB5
 Leacf  
   TAY
 Lead0  
-  JSR Le7f3
+  JSR hires_put_coordinate
 Lead3  
   PLA
   JSR ZADCHA_ROUTINE 
@@ -4455,7 +4336,7 @@ Leaf3
   ADC #$05
   TAX
   LDY HRSY
-  JMP Le7f3 
+  JMP hires_put_coordinate 
 
 .include  "functions/sound/sounds.asm"  
 
@@ -5755,41 +5636,44 @@ LF38C:  lda     $5F,x
         stx     $66
 LF395:  rts
 XAA1_ROUTINE
-LF396:
   lda     ACC1E
-    beq     LF395
-    asl     $66
-    bcc     LF395
-    jsr     LF0B8 
-    bne     LF395
-    jmp     LF083
+  beq     LF395
+  asl     $66
+  bcc     LF395
+  jsr     LF0B8 
+  bne     LF395
+  jmp     LF083
 
 XA1IAY_ROUTINE:  
-    lda     ACC1S
-    bmi     LF3B8 
-    lda     ACC1E
-    cmp     #$91
-    bcs     LF3B8
-    jsr     LF439
-    lda     $64
-    ldy     $63
-    rts  
+  lda     ACC1S
+  bmi     LF3B8 
+  lda     ACC1E
+  cmp     #$91
+  bcs     LF3B8
+  jsr     LF439
+  lda     $64
+  ldy     $63
+  rts  
 
 LF3B8  
-  lda #$0a
-  jmp LF0C9  
+  lda     #$0A
+  jmp     LF0C9  
 
-LF3BD:  lda     ACC1E
-        beq     LF3CA
-LF3C1:  lda     ACC1S
-LF3C3:  rol   
-        lda     #$FF
-        bcs     LF3CA
-        lda     #$01
-LF3CA:  rts
+LF3BD:
+  lda     ACC1E
+  beq     LF3CA
+LF3C1:
+  lda     ACC1S
+LF3C3:
+  rol   
+  lda     #$FF
+  bcs     LF3CA
+  lda     #$01
+LF3CA:
+rts
 
-  jsr LF3BD
-  .byt $2c
+  jsr     LF3BD
+  .byt     $2c
 
 LF3CD
 ;  ACC=-
@@ -5945,7 +5829,7 @@ LF4AF
   
   JMP LF5C8
 LF4C0  
-  LDA #$00
+  LDA     #$00
   CPX #$80
   BEQ LF4C8
   BCS LF4D1 
@@ -6047,7 +5931,7 @@ LF55F
   INY
   INY
   INY
-  STY $76
+  STY     $76
   LDY $77
   INY
   TAX
@@ -6136,7 +6020,7 @@ LF5ED
   .byt $ff,$f0,$bd,$c0 ; -1 000 000
 
 
-  .byt $00,$01,$86,$a0,$ff,$ff,$d8,$f0,$00,$00,$03
+  .byt     $00,$01,$86,$a0,$ff,$ff,$d8,$f0,$00,$00,$03
   .byt $e8,$ff,$ff,$ff,$9c,$00,$00,$00,$0a
 LF609  
   .byt $ff,$ff,$ff,$ff
@@ -6192,9 +6076,8 @@ LF65D
   rts
 const_1_divide_ln_2 ; 1/ln(2)  
   .byt $81,$38,$aa,$3b,$29
-coef_polynome
-
-  .byt $07 ; for 8 coef
+coef_polynome:
+  .byt     $07 ; for 8 coef
   .byt $71,$34,$58,$3e,$56
   .byt $74,$16,$7e,$b3,$1b
   .byt $77,$2f,$ee,$e3,$85
@@ -6204,9 +6087,8 @@ coef_polynome
   .byt $80,$31,$72,$18,$10
   .byt $81,$00,$00,$00,$00 ; 1
 XEXP_ROUTINE:
-
   TSX
-  STX $89
+  STX     $89
 LF68F  
   LDA #<const_1_divide_ln_2
   LDY #>const_1_divide_ln_2
@@ -6304,17 +6186,13 @@ LF72A
   rts
   
 
-values_rnd
-
 const_11879546_for_rnd
-  .byt $98,$35,$44,$7a,$6b ; 11879546,42
+  .byt $98,$35,$44,$7A,$6B ; 11879546,42
 const_3_dot_92_for_rnd_etc
-LF730
-  .byt $68,$28,$b1,$46,$20 ;3.927678 E-08
+  .byt $68,$28,$B1,$46,$20 ;3.927678 E-08
   
 XRND_ROUTINE
-
-  JSR LF3BD
+  JSR     LF3BD
   TAX
   BMI LF753 
   LDA #$EF
@@ -6423,9 +6301,9 @@ coef_polynome_sin
   .byt $83,$49,$0f,$da,$a2
 
 XTAN_ROUTINE
-  JSR LF8B1 
-  JSR LF348
-  LDA #$00
+  JSR     LF8B1 
+  JSR     LF348
+  LDA     #$00
   STA $8A
   JSR LF791 
   LDX #$80

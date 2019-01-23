@@ -3,7 +3,7 @@
 	ldy #$ff
 	sty HRSPAT ; pattern
 	iny
-	jsr Le7f3 
+	jsr hires_put_coordinate                                                                                
 	lda FLGTEL ; we are already in Hires ?
 	bmi XEFFHI_ROUTINE 
 	ora #$80
