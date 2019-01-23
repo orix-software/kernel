@@ -1,4 +1,4 @@
-	
+.proc XREADBYTES_ROUTINE
 ; [IN] AY contains the length to read
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [IN] TR0 contains the fd id 
@@ -64,5 +64,5 @@
 @next:
   sta     PTR_READ_DEST
   rts
-
+.endproc
 

@@ -1,3 +1,4 @@
+.proc XDECIM_ROUTINE
 	PHA
 	LDA #$00 ; 65c02
 	STA TR5
@@ -13,4 +14,4 @@
 	CPY TR4
 	BNE @loop
 	RTS
-
+.endproc

@@ -18,7 +18,7 @@ copy %ROM%.rom %ORICUTRON%\roms\ > NUL
 
 cd %ORICUTRON%
 
-oricutron -b -mt  
+oricutron -mt  
 
 :End
 cd %ORIGIN_PATH%

@@ -1,3 +1,4 @@
-XEXEC_ROUTINE:
+.proc XEXEC_ROUTINE
     rts
+.endproc    
 

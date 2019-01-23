@@ -1,3 +1,4 @@
+.proc XEPSG_ROUTINE
 	PHA
 	STA VIA::PRA2
 	CMP #$07
@@ -30,4 +31,4 @@
 	TAY
 	PLA
 	rts
-
+.endproc

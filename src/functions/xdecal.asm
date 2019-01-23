@@ -1,4 +1,4 @@
-
+.proc XDECAL_ROUTINE
 ; This routine could be replace with a simple routine in 65C816 mode
 	pha
 	txa
@@ -81,3 +81,4 @@ Lcdcc
 	dex
 	bne Lcdcc
 	beq Lcdb8
+.endproc

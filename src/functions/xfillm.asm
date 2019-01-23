@@ -1,4 +1,4 @@
-
+.proc XFILLM_ROUTINE
 	pha
 	sec
 	tya
@@ -10,29 +10,29 @@
 	sty RESB
 	pla
 	ldy #0
-Lcf23	
+loop:	
 	cpy RESB
-	bcs Lcf2c
+	bcs @skip2
 	sta (RES),y
 	iny
-	bne Lcf23
-Lcf2c	
+	bne loop
+@skip2:
 	pha
 	tya
 	
-	ldy #0
+	ldy #$00
 	jsr XADRES_ROUTINE
 	pla
-	cpx #0
-	beq Lcf44 
-	ldy #0
-Lcf3a	
+	cpx #$00
+	beq @skip
+	ldy #$00
+@L1:	
 	sta (RES),y
 	iny
-	bne Lcf3a
+	bne @L1
 	inc RES+1
 	dex
-	bne Lcf3a
-Lcf44	
+	bne @L1
+@skip:
 	rts
-
+.endproc

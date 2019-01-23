@@ -34,15 +34,11 @@ telemon:
 .endif
 
   jsr     init_screens
-  
   jsr     init_via
   jsr     XLOADCHARSET_ROUTINE
   jsr     init_printer 
   jsr     XALLKB_ROUTINE
  
-  ; lda   #$11
-  ;sta $bb80
-
 
   LDX     #$0F
 @loop:
@@ -1258,47 +1254,43 @@ vectors_telemon:
   .byt     <XCLCL_ROUTINE,>XCLCL_ROUTINE ; $3d
   .byt     <XWRCLK_ROUTINE,>XWRCLK_ROUTINE ; $3e
   .byt     <XFSEEK_ROUTINE,>XFSEEK_ROUTINE ; fseek $3f
-  
-  
   .byt     <XSONPS_ROUTINE,>XSONPS_ROUTINE ; $40
   .byt     <XEPSG_ROUTINE,>XEPSG_ROUTINE ; $41
   .byt     <XOUPS_ROUTINE,>XOUPS_ROUTINE ; $42 XOUPS ddd8
   .byt     <XPLAY_ROUTINE,>XPLAY_ROUTINE ;XPLAY $43
   .byt     <XSOUND_ROUTINE,>XSOUND_ROUTINE ; $44
-  .byt <XMUSIC_ROUTINE,>XMUSIC_ROUTINE ; $45
-  .byt <XZAP_ROUTINE,>XZAP_ROUTINE ; $46
-  .byt <XSHOOT_ROUTINE,>XSHOOT_ROUTINE ; 47
-  .byt $00,$00 ; $48
-  .byt $00,$00 ; $49
-  .byt $00,$00 ; $4a
-  .byt <XMKDIR_ROUTINE,>XMKDIR_ROUTINE       ; $4b
-  .byt <XHCHRS_ROUTINE,>XHCHRS_ROUTINE ; $4c
-  .byt <XRM_ROUTINE,>XRM_ROUTINE       ; $4D
-  ;.byt $00,$00 ; $4d
-  .byt $00,$00 ; $4e
-  .byt $00,$00 ; $4f
-  .byt <XALLKB_ROUTINE,>XALLKB_ROUTINE ; $50
-  .byt <XKBDAS_ROUTINE,>XKBDAS_ROUTINE ; $51
-  .byt $00,$00 ; $52
-  .byt $00,$00 ; $53
-  .byt <XECRBU_ROUTINE,>XECRBU_ROUTINE ; $54
-  .byt <XLISBU_ROUTINE,>XLISBU_ROUTINE ; $55
-  .byt <XTSTBU_ROUTINE,>XTSTBU_ROUTINE ; $56
-  .byt <XVIDBU_ROUTINE,>XVIDBU_ROUTINE ; $57
-  .byt <XINIBU_ROUTINE,>XINIBU_ROUTINE ; $58
-  .byt <XDEFBU_ROUTINE,>XDEFBU_ROUTINE ; $59
-  .byt <XBUSY_ROUTINE,>XBUSY_ROUTINE   ; $5a
-
-  .byt <XMALLOC_ROUTINE,>XMALLOC_ROUTINE                         ; $5b
-  .byt <XSDUMP_ROUTINE,>XSDUMP_ROUTINE ; $5c
-  .byt <XCONSO_ROUTINE,>XCONSO_ROUTINE ; $5d
-  .byt <XSLOAD_ROUTINE,>XSLOAD_ROUTINE ; $5e
-  .byt <XSSAVE_ROUTINE,>XSSAVE_ROUTINE ; $5f
-  .byt <XMLOAD_ROUTINE,>XMLOAD_ROUTINE ; $60 
-  .byt <XMSAVE_ROUTINE,>XMSAVE_ROUTINE ; $61
-  .byt <XFREE_ROUTINE,>XFREE_ROUTINE   ; $62
-  .byt <XEXEC_ROUTINE,>XEXEC_ROUTINE
-  .byt $00,$00
+  .byt     <XMUSIC_ROUTINE,>XMUSIC_ROUTINE ; $45
+  .byt     <XZAP_ROUTINE,>XZAP_ROUTINE ; $46
+  .byt     <XSHOOT_ROUTINE,>XSHOOT_ROUTINE ; 47
+  .byt     $00,$00 ; $48
+  .byt     $00,$00 ; $49
+  .byt     $00,$00 ; $4a
+  .byt     <XMKDIR_ROUTINE,>XMKDIR_ROUTINE       ; $4b
+  .byt     <XHCHRS_ROUTINE,>XHCHRS_ROUTINE ; $4c
+  .byt     <XRM_ROUTINE,>XRM_ROUTINE       ; $4D
+  .byt     $00,$00 ; $4e
+  .byt     $00,$00 ; $4f
+  .byt     <XALLKB_ROUTINE,>XALLKB_ROUTINE ; $50
+  .byt     <XKBDAS_ROUTINE,>XKBDAS_ROUTINE ; $51
+  .byt     $00,$00 ; $52
+  .byt     $00,$00 ; $53
+  .byt     <XECRBU_ROUTINE,>XECRBU_ROUTINE ; $54
+  .byt     <XLISBU_ROUTINE,>XLISBU_ROUTINE ; $55
+  .byt     <XTSTBU_ROUTINE,>XTSTBU_ROUTINE ; $56
+  .byt     <XVIDBU_ROUTINE,>XVIDBU_ROUTINE ; $57
+  .byt     <XINIBU_ROUTINE,>XINIBU_ROUTINE ; $58
+  .byt     <XDEFBU_ROUTINE,>XDEFBU_ROUTINE ; $59
+  .byt     <XBUSY_ROUTINE,>XBUSY_ROUTINE   ; $5a
+  .byt     <XMALLOC_ROUTINE,>XMALLOC_ROUTINE                         ; $5b
+  .byt     <XSDUMP_ROUTINE,>XSDUMP_ROUTINE ; $5c
+  .byt     <XCONSO_ROUTINE,>XCONSO_ROUTINE ; $5d
+  .byt     <XSLOAD_ROUTINE,>XSLOAD_ROUTINE ; $5e
+  .byt     <XSSAVE_ROUTINE,>XSSAVE_ROUTINE ; $5f
+  .byt     <XMLOAD_ROUTINE,>XMLOAD_ROUTINE ; $60 
+  .byt     <XMSAVE_ROUTINE,>XMSAVE_ROUTINE ; $61
+  .byt     <XFREE_ROUTINE,>XFREE_ROUTINE   ; $62
+  .byt     <XEXEC_ROUTINE,>XEXEC_ROUTINE
+  .byt     $00,$00
   .byt $00,$00
   .byt $00,$00
   .byt <XSOUT_ROUTINE,>XSOUT_ROUTINE
@@ -1365,13 +1357,8 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 
 XCLOSE_ROUTINE:
   jmp     _ch376_file_close
-
-XFREAD_ROUTINE:
-XREADBYTES_ROUTINE:
 .include  "functions/xread.asm"
-XWRITEBYTES_ROUTINE:
 .include  "functions/xwrite.asm"
-XFSEEK_ROUTINE:
 .include  "functions/xfseek.asm"
 
 
@@ -1467,8 +1454,8 @@ Lcd51
   rts
 
 put_cursor_in_61_x  
-  lda #$1f
-  jsr XWR0_ROUTINE
+  lda     #$1F
+  jsr     XWR0_ROUTINE
   tya
   ora #$40
   jsr XWR0_ROUTINE 
@@ -1477,12 +1464,11 @@ put_cursor_in_61_x
   jmp XWR0_ROUTINE 
 
   
-XDECAL_ROUTINE  
 .include  "functions/xdecal.asm"
 
 data_for_decimal_conversion
 const_10_decimal_low
-  .byt $0a ; 19
+  .byt     $0a ; 19
 const_100_decimal_low
 
   .byt $64 ; 100 
@@ -1518,7 +1504,6 @@ XBINDX_ROUTINE
 
 ; and here because code above needs to go to xbindx routine
 
-XDECIM_ROUTINE
 .include  "functions/xdecim.asm"
   
 XHEXA_ROUTINE
@@ -1555,7 +1540,9 @@ _open_root_and_enter:
 
   
 .include  "functions/xmkdir.asm"  
-.include  "functions/xrm.asm"  
+.include  "functions/xrm.asm"
+.include  "functions/xexec.asm"
+.include  "functions/sound/xepsg.asm"
 
 XEFFHI_ROUTINE:
   lda #<$A000
@@ -1565,19 +1552,13 @@ XEFFHI_ROUTINE:
   ldy #<$BF68
   ldx #>$BF68
   lda #$40
+  jmp XFILLM_ROUTINE
 
-XFILLM_ROUTINE
+
 .include  "functions/xfillm.asm"  
-  
-XHIRES_ROUTINE
 .include  "functions/xhires.asm"  
-  
-XTEXT_ROUTINE
 .include  "functions/xtext.asm"
-
-
 .include  "functions/xfree.asm"
-
 .include  "functions/mainargs.asm"
 
 
@@ -1637,8 +1618,7 @@ table_to_define_prompt_charset
 table_to_define_prompt_charset_empty  
   .byt     $7f,$00,$00,$08,$34,$32,$34,$08,$00,$00
 
-XEXEC_ROUTINE
-    rts
+
 
 
 ; This primitive will get the address of variables built in telemon and orix.  
@@ -2044,14 +2024,12 @@ lda04
   PLP
   RTS
   
-  
-XEPSG_ROUTINE:
-.include  "functions/sound/xepsg.asm"  
+
 
 init_printer:
-  LDA #$07
-  LDX #$7F
-  JMP XEPSG_ROUTINE
+  LDA     #$07
+  LDX     #$7F
+  JMP     XEPSG_ROUTINE
 
 Lda70:
   bmi LDAD2  
@@ -2281,9 +2259,8 @@ Ldbce   ; $d27e
 
 
 
-TABLE_OF_SHORTCUT_KEYBOARD  
-Ldbeb
-  .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1)  ; Nothing
+TABLE_OF_SHORTCUT_KEYBOARD:
+  .byt     <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1)  ; Nothing
 LDBED  
   .byt <(CTRL_A_START-1),>(CTRL_A_START-1) ; CTRL A tabulation 
   .byt <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1)
@@ -2612,16 +2589,16 @@ LDDB2
 
 ;                         CODE 12 - CTRL L                              
 
-;Action:Efface la fen?tre                                                     
+;Action:Efface la fenêtre
 CTRL_L_START
-  JSR LDDFB    ;  on remet le curseur en haut de la fen?tre         
+  JSR CTRL_HOME_START     ;  on remet le curseur en haut de la fen?tre         
 LDDBB
-  JSR LDD74    ;  on efface la ligne courante                       
-  LDA SCRY,X   ; on est ? la fin de la fen?tre ?                   
-  CMP SCRFY,X  ;                                                     
-  BEQ LDDFB    ;  oui, on sort en repla?ant le curseur en haut     
-  JSR LDD9D    ;  non, on déplace le curseur vers le bas            
-  JMP LDDBB    ; et on boucle  (Et BPL, non ?!?!)                  
+  JSR LDD74               ;  on efface la ligne courante                       
+  LDA SCRY,X              ; on est à la fin de la fen?tre ?                   
+  CMP SCRFY,X             ;                                                     
+  BEQ CTRL_HOME_START     ;  oui, on sort en repla?ant le curseur en haut     
+  JSR LDD9D               ;  non, on déplace le curseur vers le bas            
+  JMP LDDBB               ; et on boucle  (Et BPL, non ?!?!)                  
 
 ;  CODE 19 - CTRL S                              
 CTRL_S_START
@@ -2651,16 +2628,14 @@ LDDE3
   JMP XEPSG_ROUTINE
 
 XOUPS_DATA
-LDDF0                                                                               
   .byt $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4) 
 LDDF6
-  .byt  00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
+  .byt 00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
 
 ;                           INITIALISE UNE FENETRE
 ;Action:on place le curseur en (0,0) et on calcule son adresse                   
 ;
-CTRL_HOME_START  
-LDDFB
+CTRL_HOME_START:
   LDA SCRDX,X  ;  on prend la premi?re colonne                      
   STA SCRX,X   ;  dans SCRX                                         
   LDA SCRDY,X  ;  la premi?re ligne dans                            
@@ -2673,20 +2648,18 @@ LDE07
 
   RTS      
 
-/*
-  CALCULE L'ADRESSE DE LA LIGNE A                       
 
-Action:En entrée, A contient le num?ro de la ligne et en sortie, RES contient   
-       l'adresse ? l'?cran de cette ligne.                                      
-*/
+;  CALCULE L'ADRESSE DE LA LIGNE A                       
+;Action:En entrée, A contient le numèro de la ligne et en sortie, RES contient   
+;       l'adresse à l'écran de cette ligne.                                      
+
 LDE12
   JSR XMUL40_ROUTINE    ;  RES=A*40                                          
   LDA SCRBAL,X          ;  AY=adresse de la fen?tre                          
   LDY SCRBAH,X                                                      
   JMP XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne   
   
-XCOSCR_ROUTINE
-
+XCOSCR_ROUTINE:
   CLC
   .byt $24
 XCSSCR_ROUTINE  
@@ -2725,44 +2698,42 @@ lde53
   
 
 XSCROH_ROUTINE
-/*                                                                             
-                      SCROLLE UNE FENETRE VERS LE BAS                       
+;                     SCROLLE UNE FENETRE VERS LE BAS                       
+;Action:scrolle vers le bas de la ligne X à la ligne Y la fenêtre courante.
 
-Action:scrolle vers le bas de la ligne X ? la ligne Y la fen?tre courante.      
-*/                                                                            
   LDA #$00     ;  on prend $0028, soit 40                           
   STA DECFIN+1                                                          
   LDA #$28                                                         
   BNE LDE62    ;  inconditionnel                                    
 
-/*                                                                               
-                      SCROLLE UNE FENETRE VERS LE HAUT                      
-Action:scrolle vers le haut de la ligne X ? la ligne Y la fen?tre courante.     
-*/
+
+;                      SCROLLE UNE FENETRE VERS LE HAUT                      
+;Action:scrolle vers le haut de la ligne X ? la ligne Y la fen?tre courante.     
+
 
 XSCROB_ROUTINE:
   LDA     #$FF       ;    on prend $FFD8, soit -40 en compl?ment ? 2        fixme 
-  STA DECFIN+1                                                          
-  LDA #$D8                                                         
-LDE62                                  
-  STA DECFIN     ;   $06-07 contiennent le d?placement                 
-  STX RES        ;    on met la ligne de d?part en RES                  
+  STA     DECFIN+1                                                          
+  LDA     #$D8                                                         
+LDE62:
+  STA     DECFIN     ;   $06-07 contiennent le d?placement                 
+  STX     RES        ;    on met la ligne de d?part en RES                  
   TYA                                                              
   SEC                                                              
-  SBC RES        ;   on calcule le nombre de lignes                    
+  SBC     RES        ;   on calcule le nombre de lignes                    
   PHA            ;    on sauve le nombre de lignes                      
   TXA            ;    ligne de d?but dans A                             
-  BIT DECFIN                                                          
-  BPL LDE71      ;    d?placement n?gatif ?                             
+  BIT     DECFIN                                                          
+  BPL     @skip      ;    d?placement n?gatif ?                             
   TYA            ;    oui, ligne de fin dans A
-LDE71  
-  LDX SCRNB                                                          
-  JSR LDE12      ;   on calcule l'adresse de la ligne                 
+@skip:
+  LDX     SCRNB                                                          
+  JSR     LDE12      ;   on calcule l'adresse de la ligne                 
   CLC                                                              
   ADC SCRDX,X    ;   l'adresse exacte de la ligne dans la fen?tre      
-  BCC LDE7D                                                       
+  BCC @skip2                                                       
   INY
-LDE7D  
+@skip2:
   STA DECCIB     ;  est dans $08-09                                   
   STY DECCIB+1                                                          
   CLC            ; on ajoute le d?placement                          
@@ -2812,7 +2783,7 @@ LDEC8
   BPL LDEC8      ;                                                   I
 LDECD
   RTS            ;  <-------------------------------------------------
- 
+
 
 ; Action:inconnue... ne semble pas ?tre appel?e et utilise des variables          
 ;       IRQ dont on ne sait rien.      
@@ -3374,8 +3345,7 @@ Le302
   STY ACC1E
 Le306  
   RTS
-put_cursor_on_beginning_of_the_line  
-Le322  
+put_cursor_on_beginning_of_the_line:
   LDX SCRNB
   LDA SCRY,X
   STA $63
@@ -3413,7 +3383,7 @@ LE355
   LDA SCRY,X
   STA ACC1M
 LE361  
-  JSR Le322
+  JSR put_cursor_on_beginning_of_the_line
     
   LDA ACC1M
   STA ACC1S
@@ -3480,8 +3450,7 @@ Le3c5
   INC ACC1S
   BNE Le37e
   
-display_bufedt_content  
-
+display_bufedt_content:
   ROR $66
   LDA #$00
   STA $64
@@ -3491,8 +3460,7 @@ display_bufedt_content
   STY RES+1
   LDX SCRNB
   LDY SCRX,X
-
-Le3e3
+Le3e3:
   LDX $64 ; fixme
   LDA BUFEDT,X
   BEQ Le41c 
@@ -3572,7 +3540,7 @@ Le5d5
   LDA KBDSHT
   LSR
   BCC Le5c4
-  JSR Le322 
+  JSR put_cursor_on_beginning_of_the_line
   LDX $62
   LDY $63
 LE5E7  
@@ -3675,28 +3643,22 @@ LE656
   BCS LE656            ;  si l'envoi s'est mal pass?, on recommence --------
 LE66B
   RTS                     
-/*                                      
-                             AFFICHE LE PROMPT
-*/  
-
-XECRPR_ROUTINE 
-  LDA #"#"    ;    on affiche un prompt <----------------------------
-  JMP Ldbb5   ;   ? l'écran               
-                                        
 
 
 
-/*
+.include "functions/xecrpr.asm"
 
-                        CONVERSION ASCII -> BINAIRE                         
 
-Principe:On lit un ? un les chiffres de la chaine stock?e en AY jusqu'? ce      
-         qu'on ait plus de chiffres. On multiplie au fur et ? mesure le resultat
-         par 10 avant d'ajouter le chiffre trouv?. Le principe est ais? ?       
-         assimiler et la routine compacte. Un bon exemple d'optimisation.       
-         En sortie, AY et RESB contient le nombre, AY l'adresse de la chaine,   
-         et X le nombre de caract?res d?cod?s.                                  
-*/ 
+
+;                        CONVERSION ASCII -> BINAIRE                         
+
+;Principe:On lit un ? un les chiffres de la chaine stock?e en AY jusqu'? ce      
+;qu'on ait plus de chiffres. On multiplie au fur et ? mesure le resultat
+;par 10 avant d'ajouter le chiffre trouv?. Le principe est ais? ?       
+; assimiler et la routine compacte. Un bon exemple d'optimisation.       
+;En sortie, AY et RESB contient le nombre, AY l'adresse de la chaine,   
+; et X le nombre de caract?res d?cod?s.
+
 XDECAY_ROUTINE 
                                                                                 
   STA RES      ;   on sauve l'adresse du nombre                      

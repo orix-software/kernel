@@ -1,3 +1,4 @@
+.proc XHIRES_ROUTINE
 	ldx #$00
 	ldy #$ff
 	sty HRSPAT ; pattern
@@ -20,4 +21,4 @@
 	jsr XEFFHI_ROUTINE 
 	plp
 	rts
-
+.endproc

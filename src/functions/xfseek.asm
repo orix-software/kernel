@@ -1,3 +1,4 @@
+.proc XFSEEK_ROUTINE
 ; [IN] X whence
 ; [IN] AY position 
 ; [IN] RES fd
@@ -12,5 +13,5 @@
 @move:
   jsr      _ch376_seek_file
   rts
-
+.endproc
 

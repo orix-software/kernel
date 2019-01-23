@@ -1,3 +1,4 @@
+.proc XTEXT_ROUTINE
 	lda FLGTEL
 	bpl @skip ; already in text mode
 	php 
@@ -25,4 +26,5 @@
 	plp
 @skip:
 	rts
+.endproc	
 
