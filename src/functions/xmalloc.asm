@@ -1,5 +1,5 @@
 
-XMALLOC_ROUTINE:
+.proc XMALLOC_ROUTINE
 
  ; [A & Y ] the length requested
     ; Verify is there is enough memory
@@ -88,4 +88,5 @@ XMALLOC_ROUTINE:
     ldy ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x
     
     rts
+.endproc
 

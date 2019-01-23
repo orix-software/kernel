@@ -8,6 +8,7 @@
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "orix.mac"
 .include   "orix.inc"
+.include   "build.inc"
 
 
 ACIADR := $031C ; DATA REGISTER
@@ -335,7 +336,9 @@ str_telestrat:
 str_KORAM:
   .ASCIIZ     " Ko RAM,"
 str_KOROM:
-  .byte     " Ko ROM"," - 2018-11-08 22:49",$00
+  .byte     " Ko ROM"," - "
+  .byt    __DATE__
+  .byt      $00
 
 str_tofix:
   .byt     $0D,$18,$00
@@ -7128,7 +7131,8 @@ XGOKBD_ROUTINE:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .byte     "Kernel-xx/xx/xxxx xx/xx"
+  .byte     "Kernel-"
+  .byt __DATE__
 .IFPC02
 .pc02
   .byte     " 65C02"
