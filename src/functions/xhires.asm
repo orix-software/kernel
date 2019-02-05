@@ -1,24 +1,24 @@
 .proc XHIRES_ROUTINE
-	ldx #$00
-	ldy #$ff
-	sty HRSPAT ; pattern
+	ldx     #$00
+	ldy     #$ff
+	sty     HRSPAT ; pattern
 	iny
-	jsr hires_put_coordinate                                                                                
-	lda FLGTEL ; we are already in Hires ?
-	bmi XEFFHI_ROUTINE 
-	ora #$80
-	sta FLGTEL ; Set to Hires flag
+	jsr     hires_put_coordinate                                                                                
+	lda     FLGTEL ; we are already in Hires ?
+	bmi     _xeffhi 
+	ora     #$80
+	sta     FLGTEL ; Set to Hires flag
 	php 
 	sei
-	lda #$1f
-	sta $bf67 
-	jsr wait_0_3_seconds 
-	jsr move_chars_text_to_hires 
-	lda #$5c
-	ldy #$02
-	ldx #0
-	jsr ldefd 
-	jsr XEFFHI_ROUTINE 
+	lda     #$1F
+	sta     $BF67 
+	jsr     wait_0_3_seconds 
+	jsr     move_chars_text_to_hires 
+	lda     #$5C
+	ldy     #$02
+	ldx     #$00
+	jsr     ldefd 
+	jsr     _xeffhi
 	plp
 	rts
 .endproc
