@@ -20,7 +20,7 @@ ACIACT := $031F ; control register
 
 .org $C000
 .code
-telemon:
+start_rom:
   SEI
   CLD
   LDX     #$FF
@@ -707,6 +707,7 @@ end_keyboard_buffer
 .include  "functions/xmalloc.asm"
 .include  "functions/XOP.asm"
 .include  "functions/XCL.asm"
+.include  "functions/zadcha.asm"
 
 send_command_A:
   STY     ADDRESS_VECTOR_FOR_ADIOB
@@ -1112,22 +1113,10 @@ XDIVIDE_INTEGER32_BY_1024_ROUTINE:
   ror     RES
   rts
 
-XRECLK_ROUTINE:
-  lda     #$00
-  ldx     #$04
-@loop:
-  sta     TIMED,x
-  dex
-  bpl     @loop
-  lda     #$01
-  sta     FLGCLK_FLAG
-  rts
-  
-XCLCL_ROUTINE:
-  lsr     FLGCLK
-  rts
 
-XWRCLK_ROUTINE:
+
+
+XWRCLK_ROUTINE
   php
   sei
   sta     ADCLK
@@ -1241,8 +1230,8 @@ vectors_telemon:
   .byt     <XSCRNE_ROUTINE,>XSCRNE_ROUTINE ; $39
   .byt     <XCLOSE_ROUTINE,>XCLOSE_ROUTINE ; $3a 
   .byt     <XWRITEBYTES_ROUTINE,>XWRITEBYTES_ROUTINE ; nothing  $3b
-  .byt     <XRECLK_ROUTINE,>XRECLK_ROUTINE ; $3c
-  .byt     <XCLCL_ROUTINE,>XCLCL_ROUTINE ; $3d
+  .byt     <_xreclk,>_xreclk ; $3c
+  .byt     <_xclcl,>_xclcl ; $3d
   .byt     <XWRCLK_ROUTINE,>XWRCLK_ROUTINE ; $3e
   .byt     <XFSEEK_ROUTINE,>XFSEEK_ROUTINE ; fseek $3f
   .byt     <XSONPS_ROUTINE,>XSONPS_ROUTINE ; $40
@@ -1341,16 +1330,7 @@ vectors_telemon_second_table:
   .byt     <XEXPLO_ROUTINE,>XEXPLO_ROUTINE ; $9c
   .byt     <XPING_ROUTINE,>XPING_ROUTINE ; $9d
 
-.include  "libs/ch376-lib/src/ch376.s"
-XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
-.include  "include/libs/xa65/ch376_verify.s"
 
-XCLOSE_ROUTINE:
-  jmp     _ch376_file_close
-.include  "functions/xread.asm"
-.include  "functions/xwrite.asm"
-.include  "functions/xfseek.asm"
-.include  "functions/xdecal.asm"
 
 
 display_bar_in_inverted_video_mode:
@@ -1525,12 +1505,25 @@ _open_root_and_enter:
     jsr     _ch376_file_open
     rts
 
-  
+
+.include  "libs/ch376-lib/src/ch376.s"
+XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
+.include  "include/libs/xa65/ch376_verify.s"
+
+XCLOSE_ROUTINE:
+  jmp     _ch376_file_close
+.include  "functions/xread.asm"
+.include  "functions/xwrite.asm"
+.include  "functions/xfseek.asm"
+.include  "functions/xdecal.asm"
+
 .include  "functions/xmkdir.asm"  
 .include  "functions/xrm.asm"
 .include  "functions/xexec.asm"
 .include  "functions/sound/xepsg.asm"
 .include  "functions/graphics/_xeffhi.asm"
+.include  "functions/clock/_xclcl.asm"
+.include  "functions/clock/_xreclk.asm"
 .include  "functions/xfillm.asm"  
 .include  "functions/xhires.asm"  
 .include  "functions/xtext.asm"
@@ -1940,8 +1933,8 @@ init_keyboard:
   STA     KEYBOARD_COUNTER
   LDA     #$0E
   STA     KBDVRR
-  LDA     #<LFA3F
-  LDY     #>LFA3F
+  LDA     #<table_chars_qwerty
+  LDY     #>table_chars_qwerty
   STA     ADKBD
   STY     ADKBD+1 ; FIXME
   LSR     KBDFLG_KEY
@@ -6383,20 +6376,22 @@ LF8E7:
   asl   
   asl    
   asl    
-        asl    
-        ldx     #$04
-LF8F3:  asl    
-        rol     $62
-        rol     ACC1M
-        bcs     LF912
-        dex
-        bne     LF8F3
-        beq     LF8DB
-LF8FF:  jsr     LF9FC
-        bcs     LF915
-        cmp     #$32
-        bcs     LF915
-        cmp     #$31
+  asl    
+  ldx     #$04
+LF8F3:
+  asl    
+  rol     $62
+  rol     ACC1M
+  bcs     LF912
+  dex
+  bne     LF8F3
+  beq     LF8DB
+LF8FF:
+  jsr     LF9FC
+  bcs     LF915
+  cmp     #$32
+  bcs     LF915
+  cmp     #$31
         rol     $62
         rol     ACC1M
         bcs     LF912
@@ -6435,12 +6430,16 @@ LF92F:  sta     ACC1E,x
         cmp     #$2B
         bne     LF953
         .byte   $2C
-LF94C:  stx     RESB+1
-LF94E:  jsr     LF9FC
-LF951:  bcc     LF9CD
-LF953:  cmp     #$2E
-        beq     LF9A6
-        cmp     #$45
+LF94C:
+  stx     RESB+1
+LF94E:
+  jsr     LF9FC
+LF951:
+  bcc     LF9CD
+LF953:
+  cmp     #$2E
+  beq     LF9A6
+  cmp     #$45
         beq     LF95F
         cmp     #$65
         bne     LF9AC
@@ -6572,8 +6571,8 @@ LFA3C:  lda     #$00
         rts
 
 
-/****** BEGIN CHARSET ********************/
-LFA3F
+; ****** BEGIN CHARSET ********************
+
 table_chars_qwerty
   .byt $37,$6a,$6d,$6b,$20,$75,$79,$38,$6e,$74,$36,$39,$2c,$69,$68,$6c,$35
   .byt $72,$62,$3b,$2e,$6f,$67,$30,$76,$66,$34,$2d,$0b,$70,$65,$2f,$31
@@ -6595,7 +6594,7 @@ table_chars_azerty:
   .byt $58
   .byt $41,$40,$7c,$0a,$7d,$53,$00,$23,$44,$43,$22,$09,$7b,$5a,$2b
 charset_text:
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $08,$08,$08,$08,$08,$00,$08,$00
         .byte   $14,$14,$14,$00,$00,$00,$00,$00
         .byte   $14,$14,$3E,$14,$3E,$14,$14,$00
@@ -6876,7 +6875,7 @@ read_a_code_in_15_and_y:
 @skip:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
   
-.include "functions/zadcha.asm"
+
 
 
 
@@ -6911,10 +6910,10 @@ free_bytes: ; 26 bytes
 END_ROM:
 ; fffa
 NMI:
-  .byt     $00,$C0
+  .byt     <start_rom,>start_rom
 ; fffc
 RESET:
-  .byt     $00,$c0
+  .byt     <start_rom,>start_rom
 ; fffe
 BRK_IRQ:  
   .byt     <IRQVECTOR,>IRQVECTOR
