@@ -10,8 +10,6 @@
 .include   "orix.inc"
 .include   "build.inc"
 
-WITH_SDCARD_FOR_ROOT = 1
-
 PARSE_VECTOR:=$fff1
 
 ACIADR := $031C ; DATA REGISTER
@@ -710,6 +708,8 @@ end_keyboard_buffer
 .include  "functions/XOP.asm"
 .include  "functions/XCL.asm"
 .include  "functions/zadcha.asm"
+.include  "functions/xecrpr.asm"
+.include  "functions/xdecay.asm"
 
 send_command_A:
   STY     ADDRESS_VECTOR_FOR_ADIOB
@@ -2047,7 +2047,7 @@ Ldb12:
 ;                        GESTION DE LA SORTIE MINITEL                           I
 ;                                                                               I
 ;                                                                               I
-;Principe:N'?tant gu?re familiaris? avec les modes de fonctionnement de l'ACIA, I
+;Principe:N'étant guère familiarisé avec les modes de fonctionnement de l'ACIA, I
 ;         je vous donne le source mais je serais bien incapable d'expliciter    I
 ;         les modifications d'ACIACR et d'ACIACT, registres de controle et de   I
 ;         commande de l'ACIA 6551.                                              I
@@ -2383,18 +2383,18 @@ CTRL_A_START:
   LDA     SCRX,X        ; ->on lit ala colonne                                
   AND     #$F8          ;  I on la met à 0                                     
   ADC     #$07          ;  I on place sur une tabulation 8 (C=1)               
-  CMP SCRFX,X       ;  I est-on en fin de ligne ?                          
-  BEQ LDD09         ;  I non                                               
-  BCC LDD09         ;  I --------------------------------------------------
+  CMP     SCRFX,X       ;  I est-on en fin de ligne ?                          
+  BEQ     LDD09         ;  I non                                               
+  BCC     LDD09         ;  I --------------------------------------------------
 
-  JSR CTRL_M_START         ;  I oui, on ram?ne le curseur en d?but de ligne      I
+  JSR     CTRL_M_START         ;  I oui, on ramène le curseur en début de ligne      I
 
-  JSR LDD9D         ;  I et on passe une ligne                            I
-  LDX SCRNB         ;  I                                                  I
+  JSR     CTRL_J_START         ;  I et on passe une ligne                            I
+  LDX     SCRNB         ;  I                                                  I
 
-  LDA SCRX,X        ;  I on prend la colonne                              I
-  AND #$07          ;  I est-on sur une tabulation                        I
-  BNE CTRL_A_START  ;  --non, on tabule...                                I
+  LDA     SCRX,X        ;  I on prend la colonne                              I
+  AND     #$07          ;  I est-on sur une tabulation                        I
+  BNE     CTRL_A_START  ;  --non, on tabule...                                I
   RTS               ;                                                     I
 LDD09:
   STA     SCRX,X        ;   on sauve la colonne <-----------------------------
@@ -2435,61 +2435,61 @@ LDD13:
 LDD14:
   TAY           ; dans Y                                            
   TSX           ;  on indexe FLGSCR dans la pile                     
-  EOR $0103,X   ;  on inverse le bit correspondant au code (bascule) 
-  STA $0103,X   ;  et on replace                                     
-  STA RES       ;  et dans $00                                       
+  EOR     $0103,X   ;  on inverse le bit correspondant au code (bascule) 
+  STA     $0103,X   ;  et on replace                                     
+  STA     RES       ;  et dans $00                                       
   TYA                                                              
-  AND #$10      ;  mode 38/40 colonne ?                              
-  BNE @skip     ;  oui ----------------------------------------------
+  AND     #$10      ;  mode 38/40 colonne ?                              
+  BNE     @skip     ;  oui ----------------------------------------------
   RTS           ;  non on sort                                      I
 @skip:
-  LDX SCRNB     ;   on prend le num?ro de fen?tre <-------------------
-  AND RES       ;  mode monochrome (ou 40 colonnes) ?                
-  BEQ LDD3C     ;   oui ----------------------------------------------
-  INC     SCRDX,X   ;  non, on interdit la premi?re colonne             I
-  INC SCRDX,X   ;  et la deuxi?me                                   I
-  LDA SCRX,X    ;  est-on dans une colonne                          I
-  CMP SCRDX,X   ;  interdite ?                                      I
-  BCS LDD3B     ;  non                                               I
-  JMP CTRL_M_START     ;  I  oui,on en sort                                    I
+  LDX     SCRNB     ;   on prend le num?ro de fen?tre <-------------------
+  AND     RES       ;  mode monochrome (ou 40 colonnes) ?                
+  BEQ     LDD3C     ;   oui ----------------------------------------------
+  INC     SCRDX,X   ;  non, on interdit la première colonne             I
+  INC     SCRDX,X   ;  et la deuxième                                   I
+  LDA     SCRX,X    ;  est-on dans une colonne                          I
+  CMP     SCRDX,X   ;  interdite ?                                      I
+  BCS     LDD3B     ;  non                                               I
+  JMP     CTRL_M_START     ;  I  oui,on en sort                                    I
 LDD3B
   RTS   ;  <---                                                    I
 LDD3C
-  DEC SCRDX,X ;   on autorise colonne 0 et 1 <----------------------
-  DEC SCRDX,X                                                      
+  DEC     SCRDX,X ;   on autorise colonne 0 et 1 <----------------------
+  DEC     SCRDX,X                                                      
   RTS       
 LDD43  
-  DEC SCRX,X  ;  on ramène le curseur un cran ? gauche  <----------
+  DEC     SCRX,X  ;  on ramène le curseur un cran à gauche  <----------
   RTS  ;                                                           I
 
  ;                             CODE 8 - CTRL H                              I
  ;                                                                              I
-;Action:d?place le curseur vers la gauche                                       I
+;Action:déplace le curseur vers la gauche                                       I
 CTRL_H_START
-  LDA SCRX,X   ; est-on d?ja au d?but de la fen?tre ?             I
-  CMP SCRDX,X  ;                                                  I
-  BNE     LDD43    ; non, on ram?ne ? gauche --------------------------
-  LDA SCRFX,X  ; oui, on se place ? la fin de la fen?tre           
-  STA SCRX,X                                                      
+  LDA     SCRX,X   ; est-on déja au début de la fenêtre ?             I
+  CMP     SCRDX,X  ;                                                  I
+  BNE     LDD43    ; non, on ramène à gauche --------------------------
+  LDA     SCRFX,X  ; oui, on se place à la fin de la fenètre
+  STA     SCRX,X                                                      
 
 ;                              CODE 11 - CTRL K                               
 
-;Action:d?place le curseur vers le haut                                          
+;Action:déplace le curseur vers le haut                                          
 CTRL_K_START
   LDA     SCRY,X            ;   et si on est pas                                  
-  CMP SCRDY,X           ; au sommet de la fen?tre,                          
-  BNE LDD6E             ;   on remonte d'une ligne ---------------------------
-  LDA SCRDY,X  ;   X et Y contiennent le d?but et la                I
-  LDY SCRFY,X  ;  fin de la fen?tre X                              I
+  CMP     SCRDY,X           ; au sommet de la fenêtre,                          
+  BNE     LDD6E             ;   on remonte d'une ligne ---------------------------
+  LDA     SCRDY,X  ;   X et Y contiennent le début et la                I
+  LDY     SCRFY,X  ;  fin de la fentre X                              I
   TAX          ;                                                   I
-  JSR XSCROB_ROUTINE    ;  on scrolle l'?cran vers le bas ligne X ? Y       I
+  JSR     XSCROB_ROUTINE    ;  on scrolle l'écran vers le bas ligne X ? Y       I
 CTRL_M_START
-  LDA SCRDX,X  ;  on place d?but de la fen?tre dans X              I
-  STA SCRX,X   ;                                                   I
+  LDA     SCRDX,X  ;  on place début de la fenêtre dans X              I
+  STA     SCRX,X   ;                                                   I
   RTS          ;                                                   I
 LDD6E
-  DEC SCRY,X   ; on remontre le curseur <--------------------------
-  JMP LDE07    ;  et on ajuste ADSCR       
+  DEC     SCRY,X   ; on remontre le curseur <--------------------------
+  JMP     LDE07    ;  et on ajuste ADSCR       
   
   
   
@@ -2497,69 +2497,66 @@ LDD6E
                                                                                 
 ;Action:efface la ligne courante                                                 
 CTRL_N_START:
-  LDY SCRDX,X ;    on prend la premi?re colonne de la fenetre        
-  JMP LDD7D   ;    et on efface ce qui suit (BPL aurait ?t? mieux...)
-                       
-                                                                          
+  LDY     SCRDX,X ;    on prend la premi?re colonne de la fenetre        
+  JMP     LDD7D   ;    et on efface ce qui suit (BPL aurait été mieux...)
+
 ;                             CODE 24 - CTRL X                              
 ;Action:efface la fin de la ligne courante                                       
 CTRL_X_START
-LDD7A                                                                                
-  LDY SCRX,X    ;  on prend la colonne du curseur                    
+  LDY     SCRX,X    ;  on prend la colonne du curseur                    
 LDD7D
-  LDA SCRFX,X   ;  et la derni?re colonne de la fen?tre              
-  STA SCRNB+1       ;  dans $29 
+  LDA     SCRFX,X   ;  et la dernière colonne de la fen?tre              
+  STA     SCRNB+1       ;  dans $29 
 
-  LDA #$20      ;  on envoie un espace                               
-LDD84
-  STA (ADSCR),Y                                                      
-  INY           ; jusqu'? la fin de la ligne                        
-  CPY SCRNB+1                                                          
-  BCC LDD84                                                       
-  STA (ADSCR),Y ; et ? la derni?re position aussi                   
-  RTS           ; (INC $29 avant la boucle aurait ?t? mieux !)      
+  LDA     #$20      ;  on envoie un espace                               
+@loop:
+  STA     (ADSCR),Y                                                      
+  INY           ; jusqu'à la fin de la ligne                        
+  CPY     SCRNB+1                                                          
+  BCC     @loop                                                       
+  STA     (ADSCR),Y ; et à la dernière position aussi                   
+  RTS           ; (INC $29 avant la boucle aurait été mieux !)
 LDD8E
-  INC SCRX,X                                                      
+  INC     SCRX,X                                                      
   RTS                                                              
   
 ;                             CODE 9 - CTRL I                               
 
 ;Action:déplace le curseur à droite
 CTRL_I_START
-  LDA SCRX,X    ;  on lit la colonne du curseur                      
-  CMP SCRFX,X   ; dernière colonne ?                                
-  BNE LDD8E     ;   non, on déplace le curseur                        
-  JSR CTRL_M_START     ;    oui, on revient à la première colonne     
+  LDA     SCRX,X    ;  on lit la colonne du curseur                      
+  CMP     SCRFX,X   ; dernière colonne ?                                
+  BNE     LDD8E     ;   non, on déplace le curseur                        
+  JSR     CTRL_M_START     ;    oui, on revient à la première colonne     
 
 ;        CODE 10 - CTRL J                              
                                                                                 
 ;Action:d?place le curseur vers la droite                                        
 CTRL_J_START
-LDD9D                                                                               
-  LDA SCRY,X   ;  on est en bas de la fen?tre ?                     
-  CMP SCRFY,X  ;                                                    
-  BNE LDDB2    ;  non ----------------------------------------------
-  LDA SCRDY,X  ;  oui, X et Y contiennent d?but et fin de fen?tre  I
-  LDY SCRFY,X  ;                                                   I
+  LDA     SCRY,X   ;  on est en bas de la fen?tre ?                     
+  CMP     SCRFY,X  ;                                                    
+  BNE     @skip    ;  non ----------------------------------------------
+  LDA     SCRDY,X  ;  oui, X et Y contiennent d?but et fin de fen?tre  I
+  LDY     SCRFY,X  ;                                                   I
   TAX          ;                                                   I
-  JSR XSCROH_ROUTINE    ;  on scrolle la fen?tre                            I
-  JMP CTRL_M_START    ;  on revient en d?but de ligne                     I
-LDDB2  
-  INC SCRY,X   ;  on incr?mente la ligne <-------------------------I 
-  JMP LDE07    ;  et on ajuste ADSCR                      
+  JSR     XSCROH_ROUTINE    ;  on scrolle la fen?tre                            I
+  JMP     CTRL_M_START    ;  on revient en d?but de ligne                     I
+@skip:
+  INC     SCRY,X   ;  on incr?mente la ligne <-------------------------I 
+  JMP     LDE07    ;  et on ajuste ADSCR                      
 
 ;                         CODE 12 - CTRL L                              
 
 ;Action:Efface la fenêtre
 CTRL_L_START
-  JSR CTRL_HOME_START     ;  on remet le curseur en haut de la fen?tre         
-LDDBB
-  JSR CTRL_N_START               ;  on efface la ligne courante                       
-  LDA SCRY,X              ; on est à la fin de la fen?tre ?                   
-  CMP SCRFY,X             ;                                                     
-  BEQ CTRL_HOME_START     ;  oui, on sort en repla?ant le curseur en haut     
-  JSR LDD9D               ;  non, on déplace le curseur vers le bas            
-  JMP LDDBB               ; et on boucle  (Et BPL, non ?!?!)                  
+  JSR     CTRL_HOME_START     ;  on remet le curseur en haut de la fen?tre         
+@loop:
+  JSR     CTRL_N_START               ;  on efface la ligne courante                       
+  LDA     SCRY,X              ; on est à la fin de la fen?tre ?                   
+  CMP     SCRFY,X             ;                                                     
+  BEQ     CTRL_HOME_START     ;  oui, on sort en repla?ant le curseur en haut     
+  JSR     CTRL_J_START               ;  non, on déplace le curseur vers le bas            
+  JMP     @loop               ; et on boucle  (Et BPL, non ?!?!)                  
 
 ;  CODE 19 - CTRL S                              
 CTRL_S_START
@@ -2574,39 +2571,38 @@ XOUPS_ROUTINE
 ;Action:émet un OUPS
 
 CTRL_G_START:
-  LDX #<XOUPS_DATA     ;   on indexe les 14 donn?es du OUPS                  
-  LDY #>XOUPS_DATA                                                         
-  JSR send_14_paramaters_to_psg   ;   et on envoie au PSG                               
-  LDY #$60     ;   I                                                 
-  LDX #$00     ;   I                                                
-LDDE3
+  LDX     #<XOUPS_DATA     ;   on indexe les 14 donn?es du OUPS                  
+  LDY     #>XOUPS_DATA                                                         
+  JSR     send_14_paramaters_to_psg   ;   et on envoie au PSG                               
+  LDY     #$60     ;   I                                                 
+  LDX     #$00     ;   I                                                
+@loop:
   DEX         ;    I D?lai d'une seconde                             
-  BNE LDDE3     ;  I                                                 
+  BNE     @loop     ;  I                                                 
   DEY           ;  I                                                 
-  BNE LDDE3     ;  I                                                 
-  LDA #$07      ;  un JMP init_printer suffisait ...                        
-  LDX #$3F                                                         
-  JMP XEPSG_ROUTINE
+  BNE     @loop     ;  I                                                 
+  LDA     #$07      ;  un JMP init_printer suffisait ...                        
+  LDX     #$3F                                                         
+  JMP     XEPSG_ROUTINE
 
 XOUPS_DATA
-  .byt $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4) 
+  .byt    $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4) 
 LDDF6
-  .byt 00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
+  .byt    00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
 
 ;                           INITIALISE UNE FENETRE
 ;Action:on place le curseur en (0,0) et on calcule son adresse                   
 ;
 CTRL_HOME_START:
-  LDA SCRDX,X  ;  on prend la premi?re colonne                      
-  STA SCRX,X   ;  dans SCRX                                         
-  LDA SCRDY,X  ;  la premi?re ligne dans                            
-  STA SCRY,X   ;  SCRY                                              
+  LDA     SCRDX,X  ;  on prend la premi?re colonne                      
+  STA     SCRX,X   ;  dans SCRX                                         
+  LDA     SCRDY,X  ;  la premi?re ligne dans                            
+  STA     SCRY,X   ;  SCRY                                              
 LDE07
-  LDA SCRY,X   ;  et on calcule l'adresse                           
-  JSR LDE12    ;  de la ligne                                       
-  STA ADSCR    ;  dans ADSCR                                        
-  STY ADSCR+1  ;
-
+  LDA     SCRY,X   ;  et on calcule l'adresse                           
+  JSR     LDE12    ;  de la ligne                                       
+  STA     ADSCR    ;  dans ADSCR                                        
+  STY     ADSCR+1  ;
   RTS      
 
 
@@ -2615,10 +2611,10 @@ LDE07
 ;       l'adresse à l'écran de cette ligne.                                      
 
 LDE12
-  JSR XMUL40_ROUTINE    ;  RES=A*40                                          
-  LDA SCRBAL,X          ;  AY=adresse de la fen?tre                          
-  LDY SCRBAH,X                                                      
-  JMP XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne   
+  JSR     XMUL40_ROUTINE    ;  RES=A*40                                          
+  LDA     SCRBAL,X          ;  AY=adresse de la fen?tre                          
+  LDY     SCRBAH,X                                                      
+  JMP     XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne   
   
 XCOSCR_ROUTINE:
   CLC
@@ -2626,11 +2622,11 @@ XCOSCR_ROUTINE:
 XCSSCR_ROUTINE  
   sec
   PHP
-  ASL FLGSCR,X
+  ASL     FLGSCR,X
   PLP
-  ROR FLGSCR,X
-  bmi lde53
-  LDA #$80
+  ROR     FLGSCR,X
+  bmi     lde53
+  LDA     #$80
 LDE2D  
   AND     FLGSCR,X
   AND     #$80
@@ -2662,15 +2658,14 @@ XSCROH_ROUTINE
 ;                     SCROLLE UNE FENETRE VERS LE BAS                       
 ;Action:scrolle vers le bas de la ligne X à la ligne Y la fenêtre courante.
 
-  LDA #$00     ;  on prend $0028, soit 40                           
-  STA DECFIN+1                                                          
-  LDA #$28                                                         
-  BNE LDE62    ;  inconditionnel                                    
+  LDA     #$00     ;  on prend $0028, soit 40                           
+  STA     DECFIN+1                                                          
+  LDA     #$28                                                         
+  BNE     LDE62    ;  inconditionnel                                    
 
 
 ;                      SCROLLE UNE FENETRE VERS LE HAUT                      
-;Action:scrolle vers le haut de la ligne X ? la ligne Y la fen?tre courante.     
-
+;Action:scrolle vers le haut de la ligne X à la ligne Y la fen?tre courante.     
 
 XSCROB_ROUTINE:
   LDA     #$FF       ;    on prend $FFD8, soit -40 en compl?ment ? 2        fixme 
@@ -2691,57 +2686,57 @@ LDE62:
   LDX     SCRNB                                                          
   JSR     LDE12      ;   on calcule l'adresse de la ligne                 
   CLC                                                              
-  ADC SCRDX,X    ;   l'adresse exacte de la ligne dans la fen?tre      
-  BCC @skip2                                                       
+  ADC     SCRDX,X    ;   l'adresse exacte de la ligne dans la fen?tre      
+  BCC     @skip2                                                       
   INY
 @skip2:
-  STA DECCIB     ;  est dans $08-09                                   
-  STY DECCIB+1                                                          
+  STA     DECCIB     ;  est dans $08-09                                   
+  STY     DECCIB+1                                                          
   CLC            ; on ajoute le d?placement                          
-  ADC DECFIN                                                          
-  STA DECDEB
+  ADC     DECFIN                                                          
+  STA     DECDEB
   TYA                                                              
-  ADC DECFIN+1                                                          
-  STA DECDEB+1   ;   dans $04-05                                       
+  ADC     DECFIN+1                                                          
+  STA     DECDEB+1   ;   dans $04-05                                       
   PLA            ;   on sort le nombre de lignes                       
-  STA RES        ;   dans RES                                          
-  BEQ LDEC4      ;   si nul on fait n'importe quoi ! on devrait sortir!
-  BMI LDECD      ;  si n?gatif, on sort ------------------------------
+  STA     RES        ;   dans RES                                          
+  BEQ     LDEC4      ;   si nul on fait n'importe quoi ! on devrait sortir!
+  BMI     LDECD      ;  si négatif, on sort ------------------------------
   SEC            ;  on calcule                                       I
-  LDX SCRNB      ;                                                   I
-  LDA SCRFX,X    ; la largeur de la fen?tre                          I
-  SBC SCRDX,X    ;                                                   I
-  STA RES+1      ;  dans RES+1                                       I
+  LDX     SCRNB      ;                                                   I
+  LDA     SCRFX,X    ; la largeur de la fen?tre                          I
+  SBC     SCRDX,X    ;                                                   I
+  STA     RES+1      ;  dans RES+1                                       I
 LDE9D
-  LDY RES+1 
+  LDY     RES+1 
 LDE9F            ;                                                   I
-  LDA (DECDEB),Y ;   on transf?re une ligne                          I
-  STA (DECCIB),Y ;                                                   I
+  LDA     (DECDEB),Y ;   on transf?re une ligne                          I
+  STA     (DECCIB),Y ;                                                   I
   DEY            ;                                                   I
-  BPL LDE9F      ;                                                   I
+  BPL     LDE9F      ;                                                   I
   CLC            ;                                                   I
-  LDA DECDEB     ;   on ajoute le d?placement                        I
-  ADC DECFIN     ;   à l'adresse de base                             I
-  STA DECDEB     ;                                                   I
-  LDA DECDEB+1   ;                                                   I
-  ADC DECFIN+1   ;                                                   I
-  STA DECDEB+1   ;                                                   I
+  LDA     DECDEB     ;   on ajoute le déplacement                        I
+  ADC     DECFIN     ;   à l'adresse de base                             I
+  STA     DECDEB     ;                                                   I
+  LDA     DECDEB+1   ;                                                   I
+  ADC     DECFIN+1   ;                                                   I
+  STA     DECDEB+1   ;                                                   I
   CLC            ;                                                   I
-  LDA DECCIB     ;   et à l'adresse d'arriv?e                        I
-  ADC DECFIN     ;                                                   I
-  STA DECCIB     ;                                                   I
-  LDA DECCIB+1   ;                                                   I
-  ADC DECFIN+1   ;                                                   I
-  STA DECCIB+1   ;                                                   I
-  DEC RES        ;  on décompte une ligne de faite                   I
-  BNE LDE9D      ;  et on fait toutes les lignes                     I
+  LDA     DECCIB     ;   et à l'adresse d'arriv?e                        I
+  ADC     DECFIN     ;                                                   I
+  STA     DECCIB     ;                                                   I
+  LDA     DECCIB+1   ;                                                   I
+  ADC     DECFIN+1   ;                                                   I
+  STA     DECCIB+1   ;                                                   I
+  DEC     RES        ;  on décompte une ligne de faite                   I
+  BNE     LDE9D      ;  et on fait toutes les lignes                     I
 LDEC4
-  LDY RES+1      ;  on remplit la derni?re ligne                     I
-  LDA #$20       ;                                                   I
+  LDY     RES+1      ;  on remplit la derni?re ligne                     I
+  LDA     #$20       ;                                                   I
 LDEC8
-  STA (DECCIB),Y ;  avec de espaces                                  I
+  STA     (DECCIB),Y ;  avec de espaces                                  I
   DEY            ;                                                   I
-  BPL LDEC8      ;                                                   I
+  BPL     LDEC8      ;                                                   I
 LDECD
   RTS            ;  <-------------------------------------------------
 
@@ -3024,7 +3019,7 @@ le085
 
 ;                            GESTION DE LA SOURIS                            
 
-;Action:G?re la souris comme pr?c?demment le joystick gauche, à ceci pr?s qu'il  
+;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il  
 ;       ne s'agit plus avec la souris de g?rer un d?lai de r?p?tition (sauf pour 
 ;       les boutons), mais plutot une vitesse de r?p?tition. Dans le buffer      
 ;       clavier, l'octet KBDSHT ajout? au codes ASCII souris est 8, soit b3 ? 1. 
@@ -3272,10 +3267,10 @@ LE2E2
 test_if_prompt_is_on_beginning_of_the_line
 
   cmp #$7f
-  bne Le2f8
+  bne     @skip
   tya
   cmp SCRDX,x
-Le2f8  
+@skip:
   rts
 Le2f9
   LDY SCRDX,X
@@ -3283,7 +3278,6 @@ Le2f9
   CMP #$7F
   RTS
 LE301
-Le2e6
   LDX SCRNB
   LDA SCRY,X
   STA ACC1M
@@ -3335,8 +3329,8 @@ Le34e
 LE34F
   JSR LE301 
   JMP LE361
+
 send_the_end_of_line_in_bufedt  
-LE355  
   LDX SCRNB
   LDA SCRX,X
   STA ACC1E
@@ -3474,9 +3468,6 @@ manage_normal_char
  
   
 manage_code_control
-Le5b9
-  
-
   CMP #$08
   BNE Le5d5
   PHA
@@ -3544,12 +3535,12 @@ Le624
   JSR Le648 
   JMP Le45a 
 
-/*
-POSITIONNE LE CURSEUR EN X,Y                        
 
-Action:positionne le curseur ? l'?cran et sur le minitel s'il est actif en tant 
-       que sortie vid?o.                           
-*/
+;POSITIONNE LE CURSEUR EN X,Y                        
+
+; Action:positionne le curseur ? l'écran et sur le minitel s'il est actif en tant 
+; que sortie vidéo.
+
 Le62a
   LDA #$1F      ; on envoie un US                                   
   JSR Le648                                                     
@@ -3571,14 +3562,14 @@ Le62a
 ;                   ENVOIE UN CODE SUR LE TERMINAL VIDEO                    
                                                                                 
 ;Action:envoie un code sur l'écran et éventuellement sur le minitel s'il est     
-;       actif comme sortie vidéo. Seule la fen?tre 0 est gérée, ce qui ote       
+;       actif comme sortie vidéo. Seule la fenêtre 0 est gérée, ce qui ote       
 ;       définitivement tout espoir de gestion d'entr?e de commande sur une autre 
 ;       fenêtre.                                                                 
 
 Le648                                                                        
 LE650
-  BIT LE650    ;  V=0 et N=0 pour ?criture <------------------------ 
-  JMP output_window0    ;  dans la fen?tre 0                               
+  BIT LE650    ;  V=0 et N=0 pour écriture <------------------------ 
+  JMP output_window0    ;  dans la fenêtre 0                               
                                                                                 
 
 ;                 ENVOIE UN CODE AU BUFFER SERIE SORTIE                    
@@ -3602,11 +3593,6 @@ LE66B
   RTS                     
 
 
-
-.include "functions/xecrpr.asm"
-
-
-.include "functions/xdecay.asm"
 
 data_for_hires_display
   .byt $20,$10,$08,$04
@@ -5157,7 +5143,7 @@ LF0C9:  sta     $8B
 
   
 justify__to_the_right_with_A_and_X
-LF0CF:  ldx     #$6E
+        ldx     #$6E
 LF0D1:  ldy     $04,x
         sty     $66
         ldy     RESB+1,x
@@ -5219,9 +5205,10 @@ LF141
   jmp LF0C9 
 
 XLN_ROUTINE:
-        tsx
-        stx     $89
-LF149:  jsr     LF3BD  
+  tsx
+  stx     $89
+LF149:
+  jsr     LF3BD  
         beq     LF141
         bmi     LF141
         lda     ACC1E
@@ -5249,15 +5236,17 @@ LF149:  jsr     LF3BD
         lda     #<const_ln_2   
         ldy     #>const_ln_2   
    
-LF184:  jsr     LF1EC 
-        beq     LF140
-        bne     LF190
+LF184:
+  jsr     LF1EC 
+  beq     LF140
+  bne     LF190
 XA1MA2_ROUTINE: 
         beq     LF140
 LF18D    
         tsx
         stx     $89
-LF190:  jsr     LF217 
+LF190:
+  jsr     LF217 
         lda     #$00
         sta     $6F
         sta     $70
@@ -5275,12 +5264,15 @@ LF190:  jsr     LF217
         jsr     LF1BE  
         jmp     Lf301  
 
-LF1B9:  bne     LF1BE
-        jmp     LF0CF  
+LF1B9:
+  bne     LF1BE
+        jmp     justify__to_the_right_with_A_and_X
 
-LF1BE:  lsr
+LF1BE:
+  lsr
         ora     #$80
-LF1C1:  tay
+LF1C1:
+  tay
         bcc     LF1DD
         clc
         lda     $72
@@ -5295,7 +5287,8 @@ LF1C1:  tay
         lda     $6F
         adc     $69
         sta     $6F
-LF1DD:  ror     $6F
+LF1DD:
+  ror     $6F
         ror     $70
         ror     $71
         ror     $72
