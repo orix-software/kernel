@@ -9,8 +9,8 @@ SET ORIGIN_PATH=%CD%
 
 SET ROM=kernel
 
-%CC65%\ca65.exe  --verbose -s -ttelestrat --include-dir %CC65%\asminc\ src/%ROM%.asm -o %ROM%.ld65 --debug-info
-%CC65%\ld65.exe -tnone  %ROM%.ld65 -o %ROM%.rom -Ln kernel.sym
+%CC65%\ca65.exe  -DWITH_SDCARD_FOR_ROOT=1  --verbose -s -ttelestrat --include-dir %CC65%\asminc\ src/%ROM%.asm -o %ROM%.ld65 --debug-info
+%CC65%\ld65.exe -tnone -DWITH_SDCARD_FOR_ROOT=1 %ROM%.ld65 -o %ROM%.rom -Ln kernel.sym
 
 IF "%1"=="NORUN" GOTO End
 

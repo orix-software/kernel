@@ -18,6 +18,10 @@ You need at least "shell" bank to use this kernel
 
 ## Build option
 
+### Root file on sdcard 
+Pass to ca65 command line : -DWITH_SDCARD_FOR_ROOT=1
+or else it will reads en usb key
+
 here is the list of available "compile option" 
 
 * CPU_65C02

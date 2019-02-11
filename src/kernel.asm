@@ -10,6 +10,8 @@
 .include   "orix.inc"
 .include   "build.inc"
 
+WITH_SDCARD_FOR_ROOT = 1
+
 PARSE_VECTOR:=$fff1
 
 ACIADR := $031C ; DATA REGISTER
@@ -1516,7 +1518,6 @@ XCLOSE_ROUTINE:
 .include  "functions/xwrite.asm"
 .include  "functions/xfseek.asm"
 .include  "functions/xdecal.asm"
-
 .include  "functions/xmkdir.asm"  
 .include  "functions/xrm.asm"
 .include  "functions/xexec.asm"
@@ -1536,7 +1537,7 @@ _multitasking:
   ;ORIX_CURRENT_PROCESS_FOREGROUND
   rts
   
-wait_0_3_seconds: ; Wait 0,3333 seconds 
+.proc wait_0_3_seconds ; Wait 0,3333 seconds 
   ldy     #$1F
   ldx     #$00
 @loop:
@@ -1545,7 +1546,8 @@ wait_0_3_seconds: ; Wait 0,3333 seconds
   dey
   bne     @loop
   rts
- 
+.endproc
+
 test_if_all_buffers_are_empty:
 
   sec

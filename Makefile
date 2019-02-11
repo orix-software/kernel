@@ -32,6 +32,7 @@ kernel: $(SOURCE_BANK7)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@$(AS) --verbose -s -tnone --debug-info -o kernel.ld65 $(SOURCE_BANK7) $(ASFLAGS) 
 	@ld65 -tnone kernel.ld65 -o kernel.rom -Ln kernel.ca.sym
+	@ld65 -tnone kernel.ld65 -DWITH_SDCARD_FOR_ROOT=1 -o kernelsd.rom -Ln kernelsd.ca.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernel.ca.sym | sort >  kernel.sym	
 	@rm kernel.ca.sym
 	@echo Generating Kernel for 32 banks ROM name kernela
