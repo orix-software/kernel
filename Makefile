@@ -49,9 +49,9 @@ test:
 	export ORIX_PATH=`pwd`
 	sh tools/builddocs.sh
 	cd build && tar -c * > ../$(KERNEL_ROM).tar &&	cd ..
-	filepack  $(ORIX_ROM).tar $(KERNEL_ROM).pkg
-	gzip $(ORIX_ROM).tar
-	mv $(ORIX_ROM).tar.gz $(KERNEL_ROM).tgz
+	filepack  $(KERNEL_ROM).tar $(KERNEL_ROM).pkg
+	gzip $(KERNEL_ROM).tar
+	mv $(KERNEL_ROM).tar.gz $(KERNEL_ROM).tgz
 	php buildTestAndRelease/publish/publish2repo.php $(KERNEL_ROM).pkg ${hash} 6502 pkg alpha
 	php buildTestAndRelease/publish/publish2repo.php $(KERNEL_ROM).tgz ${hash} 6502 tgz alpha
 	php buildTestAndRelease/publish/publish2repo.php $(KERNEL_ROM).pkg ${hash} 65c02 pkg alpha
