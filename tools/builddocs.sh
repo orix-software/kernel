@@ -1,7 +1,7 @@
 #! /bin/sh
 HOMEDIR=/home/travis/bin/
 HOMEDIR_ORIX=/home/travis/build/oric-software/orix
-LIST_COMMAND='bank basic11 cat cd clear cp date echo env help ioports lscpu ls meminfo monitor lsmem mkdir mount mv orix ps pwd reboot pwd rm touch uname viewhrs'
+LIST_COMMAND='orix'
 
 echo Generate hlp
 
