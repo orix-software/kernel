@@ -3030,36 +3030,36 @@ le085
   STA VABKP1     ;   dans VABKP1                                          
   CMP #$1B       ;   la souris bouge ?                                 
   BNE LE095      ;   non ---------------------------------------------- 
-  DEC JCKTAB+7   ;   on d?place ?                                     I
+  DEC JCKTAB+7   ;   on déplace ?                                     I
   BNE Le084      ;   non, on sort.                                    I 
 LE095  
-  LDA JCKTAB+8    ;  on place vitesse d?placement dans  <--------------
-  STA JCKTAB+7    ;  $2A4                                              
-  LDA VABKP1      ;   on lit le code                                    
-  CMP #$1B        ;   souris fixe ?                                     
-  BEQ LE0B5       ;  oui ----------------------------------------------
-  AND #$1B                         ;    non, on isole les valeurs direction              I
-  EOR JCDVAL                       ;    et on retourne les bits de JCDVAL                I
+  LDA     JCKTAB+8    ;  on place vitesse d?placement dans  <--------------
+  STA     JCKTAB+7    ;  $2A4                                              
+  LDA     VABKP1      ;   on lit le code                                    
+  CMP     #$1B        ;   souris fixe ?                                     
+  BEQ     LE0B5       ;  oui ----------------------------------------------
+  AND     #$1B                         ;    non, on isole les valeurs direction              I
+  EOR     JCDVAL                       ;    et on retourne les bits de JCDVAL                I
   AND     #$1B                         ;    en isolant les bits direction                    I
   BNE     LE0B5                        ;    ce ne sont pas les m?mes exactement -------------O 
   DEC     MOUSE_JOYSTICK_MANAGEMENT+1  ;    on r?p?te ?                                      I
   BNE     LE0E0  ;    non                                              I 
-  LDX     MOUSE_JOYSTICK_MANAGEMENT+8  ;     oui, on met le diviseur r?p?tition               I
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+8  ;     oui, on met le diviseur répétition               I
   JMP     LE0BB ;  ---dans le compteur                                 I 
 LE0B5
   JSR     Ldf99  ; I  on lit la souris <-------------------------------- 
-  LDX     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant r?p?tition   
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant répétition   
 LE0BB
-  STX     MOUSE_JOYSTICK_MANAGEMENT+1 ;  -->dans le d?compteur                                
+  STX     MOUSE_JOYSTICK_MANAGEMENT+1 ;  -->dans le décompteur
   AND     #$1B  ;     on isole les bits de direction                    
-  STA VABKP1  ;      dans VABKP1                                          
-  LDA JCDVAL ;     on prend JDCVAL                                   
-  AND #$64 ;      %01100100, on isole les bits de Feu               
-  ORA VABKP1   ;     on ajoute les bits de direction                   
-  STA JCDVAL  ;    dans JDCVAL                                       
-  LDA VABKP1   ;                                                       
-  ORA #$04  ;     on ?teint le feu principal                        
-  LDX #$04  ;  
+  STA     VABKP1  ;      dans VABKP1                                          
+  LDA     JCDVAL ;     on prend JDCVAL                                   
+  AND     #$64 ;      %01100100, on isole les bits de Feu               
+  ORA     VABKP1   ;     on ajoute les bits de direction                   
+  STA     JCDVAL  ;    dans JDCVAL                                       
+  LDA     VABKP1   ;                                                       
+  ORA     #$04  ;     on éteint le feu principal
+  LDX     #$04  ;  
 Le0d2
   LSR                                                              
   PHA                                                              
