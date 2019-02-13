@@ -38,9 +38,9 @@ kernel: $(SOURCE_BANK7)
 	@echo Generating Kernel for 32 banks ROM name kernela
 
 test:
-	xa tests/xrm.asm -o xrm
-	xa tests/xmkdir.asm -o xmkdir
-	cp src/include/orix.h build/usr/include/orix/
+	#xa tests/xrm.asm -o xrm
+	#xa tests/xmkdir.asm -o xmkdir
+	#cp src/include/orix.h build/usr/include/orix/
 	cp Makefile build/usr/src/orix-source-1.0/
 	cp README.md build/usr/src/orix-source-1.0/
 	cp src/* build/usr/src/orix-source-1.0/src/ -adpR
