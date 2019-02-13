@@ -1,6 +1,6 @@
 #! /bin/sh
 HOMEDIR=/home/travis/bin/
-HOMEDIR_ORIX=/home/travis/build/oric-software/orix
+HOMEDIR_ORIX=/home/travis/build/orix-software/kernel
 LIST_COMMAND='orix'
 
 echo Generate hlp
