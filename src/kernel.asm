@@ -18,7 +18,7 @@ ACIACR := $031E ; command register
 ACIACT := $031F ; control register
 
 
-.org $C000
+.org     $C000
 .code
 start_rom:
   SEI
@@ -2973,44 +2973,44 @@ Le01e
   JSR Le19f 
 Le037
   LDA     JCGVAL
-  AND #$1B
-  EOR #$1B
-  BEQ Le05b
-  JSR Ldf90 
-  AND #$1B
-  STA VABKP1 ; CORRECTME
-  LDA JCGVAL
-  AND #$1B
-  EOR VABKP1
-  BNE Le062
-  DEC MOUSE_JOYSTICK_MANAGEMENT
-  BNE Le084
-  LDX MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  JMP Le065
+  AND     #$1B
+  EOR     #$1B
+  BEQ     Le05b
+  JSR     Ldf90 
+  AND     #$1B
+  STA     VABKP1 ; CORRECTME
+  LDA     JCGVAL
+  AND     #$1B
+  EOR     VABKP1
+  BNE     Le062
+  DEC     MOUSE_JOYSTICK_MANAGEMENT
+  BNE     Le084
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
+  JMP     Le065
 Le05b
-  JSR Ldf90 
-  AND #$1B
-  STA VABKP1 ; CORRECTME
+  JSR     Ldf90 
+  AND     #$1B
+  STA     VABKP1 ; CORRECTME
 Le062
-  LDX MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
 Le065
-  STX MOUSE_JOYSTICK_MANAGEMENT ; CORRECTME
-  LDA JCGVAL
-  AND #$04
-  ORA VABKP1 ; CORRECTME
-  STA JCGVAL
+  STX     MOUSE_JOYSTICK_MANAGEMENT ; CORRECTME
+  LDA     JCGVAL
+  AND     #$04
+  ORA     VABKP1 ; CORRECTME
+  STA     JCGVAL
   LDX     #$04
-  ORA #$04
+  ORA     #$04
 Le076
   LSR
   PHA
-  BCS Le080
-  LDA JCKTAB,X
-  JSR Le19f 
-Le080
+  BCS     Le080
+  LDA     JCKTAB,X
+  JSR     Le19f 
+Le080:
   PLA
   DEX
-  BPL Le076
+  BPL     Le076
 Le084
   RTS
 
@@ -3020,18 +3020,18 @@ le085
 ;                            GESTION DE LA SOURIS                            
 
 ;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il  
-;       ne s'agit plus avec la souris de g?rer un d?lai de r?p?tition (sauf pour 
-;       les boutons), mais plutot une vitesse de r?p?tition. Dans le buffer      
-;       clavier, l'octet KBDSHT ajout? au codes ASCII souris est 8, soit b3 ? 1. 
+;       ne s'agit plus avec la souris de g?rer un délai de répétition (sauf pour 
+;       les boutons), mais plutot une vitesse de répétition. Dans le buffer      
+;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1. 
 
                                                                                 
-  JSR Ldf99      ;  on lit la valeur souris                         
-  AND #$1B       ;   on isole les directions                           
-  STA VABKP1     ;   dans VABKP1                                          
-  CMP #$1B       ;   la souris bouge ?                                 
-  BNE LE095      ;   non ---------------------------------------------- 
-  DEC JCKTAB+7   ;   on déplace ?                                     I
-  BNE Le084      ;   non, on sort.                                    I 
+  JSR     Ldf99      ;  on lit la valeur souris                         
+  AND     #$1B       ;   on isole les directions                           
+  STA     VABKP1     ;   dans VABKP1                                          
+  CMP     #$1B       ;   la souris bouge ?                                 
+  BNE     LE095      ;   non ---------------------------------------------- 
+  DEC     JCKTAB+7   ;   on déplace ?                                     I
+  BNE     Le084      ;   non, on sort.                                    I 
 LE095  
   LDA     JCKTAB+8    ;  on place vitesse d?placement dans  <--------------
   STA     JCKTAB+7    ;  $2A4                                              
@@ -3161,7 +3161,7 @@ Le19c
   RTS
 Le19d
   
-  .byt $38,$24
+  .byt    $38,$24
 Le19f
 
   CLC
@@ -3169,19 +3169,18 @@ Le19f
   STX     VABKP1 
   LDX     #$00
   JSR     XECRBU_ROUTINE 
-  LDA #$08
+  LDA     #$08
   PLP
-  BCS Le1af
-  LDA #$20
-Le1af
-  LDX #$00
-  JSR XECRBU_ROUTINE 
-  LDX VABKP1   
+  BCS     Le1af
+  LDA     #$20
+Le1af:
+  LDX     #$00
+  JSR     XECRBU_ROUTINE 
+  LDX     VABKP1   
   RTS
 Le1b7  
   sec
   rts
-
 
 
 data_for_hard_copy:
@@ -3190,29 +3189,30 @@ data_for_hard_copy:
 XHCHRS_ROUTINE:
 
 execute_hard_copy_hires:
-  jmp (HARD_COPY_HIRES)
-hard_copy_hires
+  jmp     (HARD_COPY_HIRES)
+
+hard_copy_hires:
 
 LE25E  
   
   DEX
-  BNE LE25E 
-  STX TR0
+  BNE     LE25E
+  STX     TR0
 LE269  
-  LDX #$06
+  LDX     #$06
 LE26B  
 
   
 LE276  
-  LDA #$05
-  STA TR2
+  LDA     #$05
+  STA     TR2
 LE27A  
-  LDA TR0
+  LDA     TR0
   ASL
   ASL
   ASL
-  JSR XMUL40_ROUTINE 
-  STA TR5
+  JSR     XMUL40_ROUTINE 
+  STA     TR5
   TYA
   CLC
   ADC #$A0
@@ -3877,12 +3877,12 @@ LE919
   ;   CALCUL LA TANGENTE (*256) D'UN TRAIT                    
 Le921
 
-  STX RES+1     ;   dX (ou dY)*256 dans RES+1                         
-  LDY #$00    ;   dY (ou dX) dans AY                                
-  STY RES                                                          
-  JSR XDIVIS_ROUTINE    ;  calcul dX*256/dY (ou dY/dX)                    
-  LDA #$FF     ;  reste =-1                                         
-  STA RESB    ;    resultat dans RES                                 
+  STX     RES+1     ;   dX (ou dY)*256 dans RES+1                         
+  LDY     #$00    ;   dY (ou dX) dans AY                                
+  STY     RES                                                          
+  JSR     XDIVIS_ROUTINE    ;  calcul dX*256/dY (ou dY/dX)                    
+  LDA     #$FF     ;  reste =-1                                         
+  STA     RESB    ;    resultat dans RES                                 
   RTS   
 
            ;                    ROUTINE CURSET                               
@@ -3919,14 +3919,14 @@ Le942
 ; Principe:Si X>239 ou Y>199 alors on ne retourne pas au programme appelant, mais son appelant, en indiquant l'erreur dans HRSERR.                     
 
 hires_verify_position:
-  CPX #$F0     ;  X>=240 ?                                          
-  BCS @skip     ;   oui ---------------------------------------------- 
-  CPY #$C8     ;   Y>=200 ?                                         I
-  BCS @skip     ;   oui ---------------------------------------------O
+  CPX     #$F0     ;  X>=240 ?                                          
+  BCS     @skip     ;   oui ---------------------------------------------- 
+  CPY     #$C8     ;   Y>=200 ?                                         I
+  BCS     @skip     ;   oui ---------------------------------------------O
   RTS          ;   coordonnées ok, on sort.                         I
 @skip:
   PLA          ;  on d?pile poids fort (>0) <-----------------------
-  STA HRSERR   ;  dans HRSERR                                       
+  STA     HRSERR   ;  dans HRSERR                                       
   PLA          ;  et poids faible de l'adresse de retour            
   RTS          ;  et on retourne ? l'appelant de l'appelant    
 
@@ -3934,10 +3934,9 @@ hires_verify_position:
 
 XPAPER_ROUTINE:
   clc
-  .byt $24
+  .byt     $24
 
 XINK_ROUTINE:
-
   sec
 
 ;                    FIXE LA COULEUR DE FOND OU DU TEXTE                     
@@ -4074,7 +4073,7 @@ XCIRCL_ROUTINE
   LDA      HRSY      ;  et HRSY                                           
   PHA                                                              
   LDA      HRSPAT   ;   et on met le pattern dans $56                     
-  STA HRS5+1      ;  car le trac? du cercle en tient compte            
+  STA     HRS5+1      ;  car le trac? du cercle en tient compte            
   LDA HRSY      ;  on prend HRSY                                     
   SEC                                                              
   SBC HRS1     ;   -rayon                                            
@@ -4157,14 +4156,14 @@ Lea51
   TAX                                                              
   JMP hires_put_coordinate    ;  et on replace le curseur                           
   
-/*
-                       CALCUL LE DEPLACEMENT sX ou sY                       
+
+;                       CALCUL LE DEPLACEMENT sX ou sY                       
                                                                                 
-Action:calcule dans $13,$12 la valeur de (X,A)/R, en fait (X,A)/2^N.            
-*/
+; Action:calcule dans $13,$12 la valeur de (X,A)/R, en fait (X,A)/2^N.            
+
 
 Lea62                                        
-  STA TR6       ; on place la partie fractionnaire dans $12         
+  STA     TR6       ; on place la partie fractionnaire dans $12         
   STX TR7       ; et la partie enti?re dans $13                     
   LDX TR0       ; X=N tel que Rayon<2^N
 Lea68  
@@ -4283,7 +4282,7 @@ Leaf3
 
 
 READ_A_SERIAL_BUFFER_CODE_INPUT
-  ldx #$0c
+  ldx     #$0c
   jmp LDB5D 
 wait_code_on_SERIAL_BUFFER_INPUT:
 @loop:
@@ -4435,7 +4434,7 @@ LECD9
 
 compute_file_size
   SEC
-  LDA $052F ; FIXME
+  LDA     $052F ; FIXME
   SBC $052D ; FIXME
   STA $052A ; FIXME
   LDA $0530 ; FIXME
@@ -4487,7 +4486,7 @@ XCONSO_ROUTINE:
   JSR LECC1
   JSR LECC9
 LED7D  
-  JSR READ_A_SERIAL_BUFFER_CODE_INPUT 
+  JSR     READ_A_SERIAL_BUFFER_CODE_INPUT 
   BCS LED85
   JSR Ldbb5
 LED85  
@@ -5047,11 +5046,11 @@ LF026:
   stx $64
   sty $66
 
-  adc #$08
-  cmp #$28
+  adc     #$08
+  cmp     #$28
   bne LF026 
 Lf042:
-  lda #0
+  lda #$00
   sta ACC1E
 LF046:
   sta ACC1S  
@@ -5104,7 +5103,7 @@ Lf08f
   RTS
 Lf090  
 
-       lda     ACC1S
+        lda     ACC1S
         eor     #$FF
         sta     ACC1S
 LF096:  lda     ACC1M
@@ -5175,18 +5174,16 @@ LF0FC:  ror     RESB,x
 LF106:  clc
         rts  
 const_ln_10
-  .byt $82,$13,$5d,$8d,$de ; 2.302585093 = ln(10)
+  .byt     $82,$13,$5d,$8d,$de ; 2.302585093 = ln(10)
 const_pi_radians
-  .byt $82,$49,$0f,$da,$9e ; PI in radians (3.14159265)
+  .byt     $82,$49,$0f,$da,$9e ; PI in radians (3.14159265)
 const_pi_degree  
-  .byt $88,$34,$00,$00,$00
+  .byt     $88,$34,$00,$00,$00
 
-polynome_ln_coef  
-  
-  .byt $03,$7f,$5e,$56,$cb,$79,$80,$13,$9b
-  .byt $0b,$64,$80,$76,$38,$93,$16
-  
-  .byt $82,$38,$aa,$3b,$20 ; 2.885390073 = 2/ln(2)
+polynome_ln_coef:
+  .byt     $03,$7f,$5e,$56,$cb,$79,$80,$13,$9b
+  .byt     $0B,$64,$80,$76,$38,$93,$16
+  .byt     $82,$38,$aa,$3b,$20 ; 2.885390073 = 2/ln(2)
 
   
 const_for_ln: 
@@ -5350,54 +5347,54 @@ LF237:  pla
         pla
         jmp     Lf042 
 Lf23c    
-    jmp LF0C7 
+    jmp     LF0C7 
 Lf23f    
-    jmp LF046 
+    jmp     LF046 
 ; 10*acc1->acc1  
 Lf242
-  JSR XA1A2_ROUTINE
+  JSR     XA1A2_ROUTINE
   TAX
-  BEQ Lf258
+  BEQ     Lf258
   CLC
-  ADC #$02
-  BCS Lf23c
-  LDX #$00
-  STX $6E
-  JSR LEFC2 
-  INC ACC1E
-  beq Lf23c
+  ADC     #$02
+  BCS     Lf23c
+  LDX     #$00
+  STX     $6E
+  JSR     LEFC2 
+  INC     ACC1E
+  beq     Lf23c
 Lf258
   rts
 ten_in_floating_point
-  .byt $84,$20,$00,$00,$00 ; Ten in floating point
+  .byt     $84,$20,$00,$00,$00 ; Ten in floating point
 Lf25e
 acc1_1_divide_10_in_acc1
-  jsr XA1A2_ROUTINE 
-  ldx #0
-  lda #<ten_in_floating_point
-  ldy #>ten_in_floating_point
+  jsr     XA1A2_ROUTINE 
+  ldx     #$00
+  lda     #<ten_in_floating_point
+  ldy     #>ten_in_floating_point
 LF267
-  stx $6e
+  stx     $6E
 
-  jsr Lf323 
-  jmp XA2DA1_ROUTINE  
+  jsr     Lf323 
+  jmp     XA2DA1_ROUTINE  
   
 XLOG_ROUTINE:
   tsx
-  stx $89
-  jsr LF149 
-  jsr XA1A2_ROUTINE 
-  lda #<const_ln_10
-  ldy #>const_ln_10
-  jsr Lf323 
-  jmp XA2DA1_ROUTINE  
+  stx     $89
+  jsr     LF149 
+  jsr     XA1A2_ROUTINE 
+  lda     #<const_ln_10
+  ldy     #>const_ln_10
+  jsr     Lf323 
+  jmp     XA2DA1_ROUTINE  
 
 display_divide_per_0:
-  lda #$03
-  sta FLERR ; FLERR
+  lda     #$03
+  sta     FLERR ; FLERR
   rts
 Lf287:
-  JSR LF1EC
+  JSR     LF1EC
   
 XA2DA1_ROUTINE:
   BEQ display_divide_per_0
@@ -5526,7 +5523,7 @@ Lf323
   RTS
 LF348
   ldx #$73
-  .byt $2c
+  .byt     $2C
 LF34B
   ldx #$78
   ldy #$00
@@ -5534,9 +5531,8 @@ LF34B
   JSR XAA1_ROUTINE 
 
 XA1XY_ROUTINE:
-  STX $7D
+  STX     $7D
   STY $7E
-  
   
   LDY #$04
   LDA $64
@@ -5646,18 +5642,18 @@ LF3DE
   JMP      LF01D 
 
 XIYAA1_ROUTINE:  
-  sta ACC1M
-  sty $62
-  ldx #$90
+  sta     ACC1M
+  sty     $62
+  ldx     #$90
   sec
-  bcs LF3DE
+  bcs     LF3DE
 ABS_ROUTINE  
   lsr ACC1S
 LF3F8  
   rts
 
 LF3F9:
-  STA $7D
+  STA     $7D
   STY $7E
   LDY #$00
   LDA ($7D),Y
@@ -5697,9 +5693,9 @@ LF436
 
 LF439
   LDA     ACC1E
-  BEQ LF487
+  BEQ     LF487
   SEC
-  SBC #$A0
+  SBC     #$A0
   BIT ACC1S
   BPL LF44D 
   TAX
@@ -5728,7 +5724,7 @@ LF469
   RTS
   
 XINT_ROUTINE:
-  LDA ACC1E
+  LDA     ACC1E
   CMP #$A0
   BCS LF469 
   JSR LF439 
@@ -5757,8 +5753,8 @@ LF491
   jmp LF3DE
 
 XA1AFF_ROUTINE: 
-  jsr XA1DEC_ROUTINE   
-  lda #$00
+  jsr     XA1DEC_ROUTINE   
+  lda     #$00
   ldy #$01
   jmp XWSTR0_ROUTINE 
 
@@ -5876,7 +5872,7 @@ LF558
   EOR     #$FF
   ADC     #$0A
 LF55F  
-  ADC #$2F
+  ADC     #$2F
   INY
   INY
   INY
@@ -6307,27 +6303,27 @@ XATN_ROUTINE
   RTS
 
 const_coef_atn:
-  .byt $0b ; 11 coef
-  .byt $76,$b3,$83,$bd,$d3
-  .byt $79,$1e,$f4,$a6,$f5
-  .byt $7b,$83,$fc,$b0,$10
-  .byt $7c,$0c,$1f,$67,$ca
-  .byt $7c,$de,$53,$cb,$c1
-  .byt $7d,$14,$64,$70,$4c
-  .byt $7d,$b7,$ea,$51,$7a
-  .byt $7d,$63,$30,$88,$7e
-  .byt $7e,$92,$44,$99,$3a
-  .byt $7e,$4c,$cc,$91,$c7
-  .byt $7f,$aa,$aa,$aa,$13
+  .byt     $0b ; 11 coef
+  .byt     $76,$b3,$83,$bd,$d3
+  .byt     $79,$1e,$f4,$a6,$f5
+  .byt     $7b,$83,$fc,$b0,$10
+  .byt     $7c,$0c,$1f,$67,$ca
+  .byt     $7c,$de,$53,$cb,$c1
+  .byt     $7d,$14,$64,$70,$4c
+  .byt     $7d,$b7,$ea,$51,$7a
+  .byt     $7d,$63,$30,$88,$7e
+  .byt     $7e,$92,$44,$99,$3a
+  .byt     $7e,$4c,$cc,$91,$c7
+  .byt     $7f,$aa,$aa,$aa,$13
 const_atn_1  
   .byt $81,$00,$00,$00,$00 ; 1 coef 0
 
 XDEG_ROUTINE  
 
   ; convert ACC1 in defree
-  lda #<const_180_divided_by_pi
-  ldy #>const_180_divided_by_pi 
-  jmp LF184 
+  lda     #<const_180_divided_by_pi
+  ldy     #>const_180_divided_by_pi 
+  jmp     LF184 
 
 LF8B1
   jsr     test_if_degree_mode  
@@ -6339,9 +6335,9 @@ XRAD_ROUTINE
   
 const_180_divided_by_pi
 LF8BD
-  .byt $86,$65,$2e,$e0,$d8
-const_pi_divided_by_180  
-  .byt $7b,$0e,$fa,$35,$19
+  .byt     $86,$65,$2e,$e0,$d8
+const_pi_divided_by_180:
+  .byt     $7b,$0e,$fa,$35,$19
 
 test_if_degree_mode
   lda     FLGTEL
@@ -6387,44 +6383,47 @@ LF8FF:
   cmp     #$32
   bcs     LF915
   cmp     #$31
-        rol     $62
-        rol     ACC1M
-        bcs     LF912
-        bcc     LF8FF
-LF912:  jmp     LF0C7 
+  rol     $62
+  rol     ACC1M
+  bcs     LF912
+  bcc     LF8FF
+LF912:
+  jmp     LF0C7 
 
-LF915:  ldx     #$90
-        sec
-        jsr     LF3DE 
-        ldx     #$00
-        rts  
+LF915:
+  ldx     #$90
+  sec
+  jsr     LF3DE 
+  ldx     #$00
+  rts  
 
 ;;;;;;;;;;;;;;; 
 XDECA1_ROUTINE
-        sta     RES
-        sty     RES+1
-        tsx
-        stx     $89
-        lda     #$00
-        sta     RESB
-        sta     RESB+1
-        sta     $66
-        ldx     #$05
-LF92F:  sta     ACC1E,x
-        sta     $73,x
-        dex
-        bpl     LF92F
-        jsr     LF9FE
-        bcc     LF951
-        cmp     #$23
-        beq     LF8DB
-        cmp     #$25
-        beq     LF8FF
-        cmp     #$2D
-        beq     LF94C
-        cmp     #$2B
-        bne     LF953
-        .byte   $2C
+  sta     RES
+  sty     RES+1
+  tsx
+  stx     $89
+  lda     #$00
+  sta     RESB
+  sta     RESB+1
+  sta     $66
+  ldx     #$05
+LF92F:
+  sta     ACC1E,x
+  sta     $73,x
+  dex
+  bpl     LF92F
+  jsr     LF9FE
+  bcc     LF951
+  cmp     #$23
+  beq     LF8DB
+  cmp     #$25
+  beq     LF8FF
+  cmp     #$2D
+  beq     LF94C
+  cmp     #$2B
+  bne     LF953
+  .byte   $2C
 LF94C:
   stx     RESB+1
 LF94E:
@@ -6435,40 +6434,46 @@ LF953:
   cmp     #$2E
   beq     LF9A6
   cmp     #$45
-        beq     LF95F
-        cmp     #$65
-        bne     LF9AC
-LF95F:  ldx     RESB
-        jsr     LF9FC
-        bcc     LF976
-        cmp     #$2D
-        beq     LF96F
-        cmp     #$2B
-        bne     LF998
-        .byte   $2C
-LF96F:  ror     $77
-LF971:  jsr     LF9FC
-        bcs     LF99A
-LF976:  lda     $75
-        cmp     #$0A
-        bcc     LF985
-        lda     #$64
-        bit     $77
-        bmi     LF993
-        jmp     LF0C7
+  beq     LF95F
+  cmp     #$65
+  bne     LF9AC
+LF95F:
+  ldx     RESB
+  jsr     LF9FC
+  bcc     LF976
+  cmp     #$2D
+  beq     LF96F
+  cmp     #$2B
+  bne     LF998
+  .byte   $2C
+LF96F:
+   ror     $77
+LF971:
+  jsr     LF9FC
+  bcs     LF99A
+LF976:
+  lda     $75
+  cmp     #$0A
+  bcc     LF985
+  lda     #$64
+  bit     $77
+  bmi     LF993
+  jmp     LF0C7
 
-LF985:  asl    
-        asl    
-        clc
-        adc     $75
-        asl    
-        clc
-        ldy     RESB
-        adc     (RES),y
-        sec
-        sbc     #$30
-LF993:  sta     $75
-        jmp     LF971
+LF985:
+  asl    
+  asl    
+  clc
+  adc     $75
+  asl    
+  clc
+  ldy     RESB
+  adc     (RES),y
+  sec
+  sbc     #$30
+LF993:
+   sta     $75
+   jmp     LF971
 
 LF998:  stx     RESB
 LF99A:  bit     $77
@@ -6497,73 +6502,82 @@ LF9C0:  jsr     Lf242
 LF9C7:  lda     RESB+1
         bmi     LF9E1
         bpl     LF9E4
-LF9CD:  pha
-        bit     $76
-        bpl     LF9D4
-        inc     $74
-LF9D4:  jsr     Lf242
-        pla
-        sec
-        sbc     #$30
-        jsr     LF9E9
-        jmp     LF94E
+LF9CD:
+  pha
+  bit     $76
+  bpl     LF9D4
+  inc     $74
+LF9D4:
+  jsr     Lf242
+  pla
+  sec
+  sbc     #$30
+  jsr     LF9E9
+  jmp     LF94E
 
-LF9E1:  jsr     XNA1_ROUTINE
-LF9E4:  ldx     #$00
-        jmp     XAA1_ROUTINE
+LF9E1:
+  jsr     XNA1_ROUTINE
+LF9E4:
+  ldx     #$00
+  jmp     XAA1_ROUTINE
 
-LF9E9:  pha
-        jsr     XA1A2_ROUTINE
-        pla
-        jsr     LF3D1
-        lda     $6D
-        eor     ACC1S
-        sta     $6E
-        ldx     ACC1E
-        jmp     XA1PA2_ROUTINE 
-
-LF9FC:  inc     RESB
-LF9FE:  ldy     RESB
-        lda     (RES),y
-        jsr     XMINMA_ROUTINE
-        cmp     #$20
-        beq     LF9FC 
-        cmp     #$30
-        bcc     LFA10
-        cmp     #$3A
-        rts
+LF9E9:
+  pha
+  jsr     XA1A2_ROUTINE
+  pla
+  jsr     LF3D1
+  lda     $6D
+  eor     ACC1S
+  sta     $6E
+  ldx     ACC1E
+  jmp     XA1PA2_ROUTINE 
+LF9FC:
+  inc     RESB
+LF9FE:
+  ldy     RESB
+  lda     (RES),y
+  jsr     XMINMA_ROUTINE
+  cmp     #$20
+  beq     LF9FC 
+  cmp     #$30
+  bcc     LFA10
+  cmp     #$3A
+  rts
 
 LFA10:  sec
-        rts
+  rts
 
 XINTEG_ROUTINE    
-        jsr     XA1A2_ROUTINE
-        lda     $68
-        beq     LFA32
-        bpl     LFA3C
-        sec
-        lda     #$A1
-        sbc     $68
-        bcc     LFA3C
-        tax
+  jsr     XA1A2_ROUTINE
+  lda     $68
+  beq     LFA32
+  bpl     LFA3C
+  sec
+  lda     #$A1
+  sbc     $68
+  bcc     LFA3C
+  tax
 LFA23:
   dex
-        beq     LFA39
-        lsr     $69
-        ror     $6A
-        ror     $6B
-        ror     $6C
-        bcc     LFA23
-        bcs     LFA3C
-LFA32:  ldx     #$03
-        sta     $69,x
-        dex
-        bpl     LFA23
-LFA39:  lda     #$01
-        rts
+  beq     LFA39
+  lsr     $69
+  ror     $6A
+  ror     $6B
+  ror     $6C
+  bcc     LFA23
+  bcs     LFA3C
+LFA32:
+  ldx     #$03
+  sta     $69,x
+  dex
+  bpl     LFA23
+LFA39:
+  lda     #$01
+  rts
 
-LFA3C:  lda     #$00
-        rts
+LFA3C:
+  lda     #$00
+  rts
 
 
 ; ****** BEGIN CHARSET ********************
@@ -6589,151 +6603,149 @@ table_chars_azerty:
   .byt $58
   .byt $41,$40,$7c,$0a,$7d,$53,$00,$23,$44,$43,$22,$09,$7b,$5a,$2b
 charset_text:
-        ; ' '
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        ; '!'
-        .byte   $08,$08,$08,$08,$08,$00,$08,$00
-        .byte   $14,$14,$14,$00,$00,$00,$00,$00
-        .byte   $14,$14,$3E,$14,$3E,$14,$14,$00
-        .byte   $08,$1E,$28,$1C,$0A,$3C,$08,$00
-        .byte   $30,$32,$04,$08,$10,$26,$06,$00
-        .byte   $10,$28,$28,$10,$2A,$24,$1A,$00
-        .byte   $08,$08,$08,$00,$00,$00,$00,$00
-        .byte   $08,$10,$20,$20,$20,$10,$08,$00
-        .byte   $08,$04,$02,$02,$02,$04,$08,$00
-        .byte   $08,$2A,$1C,$08,$1C,$2A,$08,$00
-        .byte   $00,$08,$08,$3E,$08,$08,$00,$00
-        .byte   $00,$00,$00,$00,$00,$08,$08,$10
-        .byte   $00,$00,$00,$3E,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$04,$00,$00
-        .byte   $00,$02,$04,$08,$10,$20,$00,$00
-        .byte   $1C,$22,$26,$2A,$32,$22,$1C,$00
-        .byte   $08,$18,$08,$08,$08,$08,$1C,$00
-        ; 50
-        .byte   $1C,$22,$02,$04,$08,$10,$3E,$00
-        .byte   $3E,$02,$04,$0C,$02,$22,$1C,$00
-        .byte   $04,$0C,$14,$24,$3E,$04,$04,$00
-        .byte   $3E,$20,$3C,$02,$02,$22,$1C,$00
-        .byte   $0C,$10,$20,$3C,$22,$22,$1C,$00
-        .byte   $3E,$02,$04,$08,$10,$10,$10,$00
-        .byte   $1C,$22,$22,$1C,$22,$22,$1C,$00
-        .byte   $1C,$22,$22,$1E,$02,$04,$18,$00
-        .byte   $00,$00,$08,$00,$00,$08,$00,$00
-        ;  90
-        .byte   $00,$00,$08,$00,$00,$08,$08,$10
-        .byte   $04,$08,$10,$20,$10,$08,$04,$00
-        .byte   $00,$00,$3E,$00,$3E,$00,$00,$00
-        .byte   $10,$08,$04,$02,$04,$08,$10,$00
-        .byte   $1C,$22,$04,$08,$08,$00,$08,$00
-        ; @
-        .byte   $1C,$22,$2A,$2E,$2C,$20,$1E,$00
-        ; 'A'
-
-        .byte   $08,$14,$22,$22,$3E,$22,$22,$00
-        ; B
-        .byte   $3C,$22,$22,$3C,$22,$22,$3C,$00
-        ; C
-        .byte   $1C,$22,$20,$20,$20,$22,$1C,$00
-        ; D
-        .byte   $3C,$22,$22,$22,$22,$22,$3C,$00
-        ; E
-        .byte   $3E,$20,$20,$3C,$20,$20,$3E,$00
-        ; F
-        .byte   $3E,$20,$20,$3C,$20,$20,$20,$00
-        ; G
-        .byte   $1E,$20,$20,$20,$26,$22,$1E,$00
-        ; H
-        .byte   $22,$22,$22,$3E,$22,$22,$22,$00
-        ; I
-        .byte   $1C,$08,$08,$08,$08,$08,$1C,$00
-        ; J
-        .byte   $02,$02,$02,$02,$02,$22,$1C,$00
-        ; K
-        .byte   $22,$24,$28,$30,$28,$24,$22,$00
-        ; L
-        .byte   $20,$20,$20,$20,$20,$20,$3E,$00
-        ; M
-        .byte   $22,$36,$2A,$2A,$22,$22,$22,$00
-        ; N
-        .byte   $22,$22,$32,$2A,$26,$22,$22,$00
-        ; O
-        .byte   $1C,$22,$22,$22,$22,$22,$1C,$00
-        ; P
-        .byte   $3C,$22,$22,$3C,$20,$20,$20,$00
-        ; Q
-        .byte   $1C,$22,$22,$22,$2A,$24,$1A,$00
-        ; R
-        .byte   $3C,$22,$22,$3C,$28,$24,$22,$00
-        ; S
-        .byte   $1C,$22,$20,$1C,$02,$22,$1C,$00
-        ; T
-        .byte   $3E,$08,$08,$08,$08,$08,$08,$00
-        ; U
-        .byte   $22,$22,$22,$22,$22,$22,$1C,$00
-        ; V
-        .byte   $22,$22,$22,$22,$22,$14,$08,$00
-        ; W
-        .byte   $22,$22,$22,$2A,$2A,$36,$22,$00
-        ; X
-        .byte   $22,$22,$14,$08,$14,$22,$22,$00
-        ; Y
-        .byte   $22,$22,$14,$08,$08,$08,$08,$00
-        ; Z
-        .byte   $3E,$02,$04,$08,$10,$20,$3E,$00
-        ; [
-        .byte   $65,$10,$10,$10,$10,$10,$1E,$00
-        ; \
-        .byte   $00,$20,$10,$08,$04,$02,$00,$00
-        ; ]
-        .byte   $3C,$04,$04,$04,$04,$04,$3C,$00
-        ; ^
-        .byte   $08,$14,$2A,$08,$08,$08,$08,$00
-        ; _ or pound
-        ; .byte   $0E,$10,$10,$10,$3C,$10,$3E,$00 ; pound char
-        .byte   $00,$00,$00,$00,$00,$00,63,$00
-        .byte   $0C,$12,$2D,$29,$29
-        .byte   $2D,$12,$0C,$00,$00,$1C,$02,$1E
-        .byte   $22,$1E,$00,$20,$20,$3C,$22,$22
-        .byte   $22,$3C,$00,$00,$00,$1E,$20,$20
-        .byte   $20,$1E,$00,$02,$02,$1E,$22,$22
-        .byte   $22,$1E,$00,$00,$00,$1C,$22,$3E
-        .byte   $20,$1E,$00,$0C,$12,$10,$3C,$10
-
-        ; middle of 'f'
-        .byte   $10,$10,$00,$00,$00,$1C,$22,$22
-        .byte   $1E,$02,$1C,$20,$20,$3C,$22,$22
-        .byte   $22,$22,$00,$08,$00,$18,$08,$08
-        .byte   $08,$1C,$00,$04,$00,$0C,$04,$04
-        .byte   $04,$24,$18,$20,$20,$22,$24,$38
-        .byte   $24,$22,$00,$18,$08,$08,$08,$08
-        .byte   $08,$1C,$00,$00,$00,$36,$2A,$2A
-        .byte   $2A,$22,$00,$00,$00,$3C,$22,$22
-        .byte   $22,$22,$00,$00,$00,$1C,$22,$22
-        .byte   $22,$1C,$00,$00,$00,$3C,$22,$22
-        .byte   $3C,$20,$20,$00,$00,$1E,$22,$22
-        .byte   $1E,$02,$02,$00,$00,$2E,$30,$20
-        .byte   $20,$20,$00,$00,$00,$1E,$20,$1C
-        .byte   $02,$3C,$00,$10,$10,$3C,$10,$10
-        .byte   $12,$0C,$00,$00,$00,$22,$22,$22
-        .byte   $26,$1A,$00,$00,$00,$22,$22,$22
-        .byte   $14,$08,$00,$00,$00,$22,$22,$2A
-        .byte   $2A,$36,$00,$00,$00,$22,$14,$08
-        .byte   $14,$22,$00,$00,$00,$22,$22,$22
-        .byte   $1E,$02,$1C,$00,$00,$3E,$04,$08
-        .byte   $10,$3E,$00,$0E,$18,$18,$30,$18
-        .byte   $18,$0E,$00,$08,$08,$08,$08,$08
-        .byte   $08,$08,$08,$38,$0C,$0C,$06,$0C
-        .byte   $0C,$38,$00
-       
-        ; Tilde char (~)
-        .byt    %00000000
-        .byt    %00000000
-        .byt    %00010000
-        .byt    %00101010
-        .byt    %00000100
-        .byt    %00000000
-        .byt    %00000000
-        .byt    %00000000
+  ; ' '
+  .byte   $00,$00,$00,$00,$00,$00,$00,$00
+  ; '!'
+  .byte   $08,$08,$08,$08,$08,$00,$08,$00
+  .byte   $14,$14,$14,$00,$00,$00,$00,$00
+  .byte   $14,$14,$3E,$14,$3E,$14,$14,$00
+  .byte   $08,$1E,$28,$1C,$0A,$3C,$08,$00
+  .byte   $30,$32,$04,$08,$10,$26,$06,$00
+  .byte   $10,$28,$28,$10,$2A,$24,$1A,$00
+  .byte   $08,$08,$08,$00,$00,$00,$00,$00
+  .byte   $08,$10,$20,$20,$20,$10,$08,$00
+  .byte   $08,$04,$02,$02,$02,$04,$08,$00
+  .byte   $08,$2A,$1C,$08,$1C,$2A,$08,$00
+  .byte   $00,$08,$08,$3E,$08,$08,$00,$00
+  .byte   $00,$00,$00,$00,$00,$08,$08,$10
+  .byte   $00,$00,$00,$3E,$00,$00,$00,$00
+  .byte   $00,$00,$00,$00,$00,$04,$00,$00
+  .byte   $00,$02,$04,$08,$10,$20,$00,$00
+  .byte   $1C,$22,$26,$2A,$32,$22,$1C,$00
+  .byte   $08,$18,$08,$08,$08,$08,$1C,$00
+  ; 50
+  .byte   $1C,$22,$02,$04,$08,$10,$3E,$00
+  .byte   $3E,$02,$04,$0C,$02,$22,$1C,$00
+  .byte   $04,$0C,$14,$24,$3E,$04,$04,$00
+  .byte   $3E,$20,$3C,$02,$02,$22,$1C,$00
+  .byte   $0C,$10,$20,$3C,$22,$22,$1C,$00
+  .byte   $3E,$02,$04,$08,$10,$10,$10,$00
+  .byte   $1C,$22,$22,$1C,$22,$22,$1C,$00
+  .byte   $1C,$22,$22,$1E,$02,$04,$18,$00
+  .byte   $00,$00,$08,$00,$00,$08,$00,$00
+  ;  90
+  .byte   $00,$00,$08,$00,$00,$08,$08,$10
+  .byte   $04,$08,$10,$20,$10,$08,$04,$00
+  .byte   $00,$00,$3E,$00,$3E,$00,$00,$00
+  .byte   $10,$08,$04,$02,$04,$08,$10,$00
+  .byte   $1C,$22,$04,$08,$08,$00,$08,$00
+  ; @
+  .byte   $1C,$22,$2A,$2E,$2C,$20,$1E,$00
+  ; 'A'
+  .byte   $08,$14,$22,$22,$3E,$22,$22,$00
+  ; B
+  .byte   $3C,$22,$22,$3C,$22,$22,$3C,$00
+  ; C
+  .byte   $1C,$22,$20,$20,$20,$22,$1C,$00
+  ; D
+  .byte   $3C,$22,$22,$22,$22,$22,$3C,$00
+  ; E
+  .byte   $3E,$20,$20,$3C,$20,$20,$3E,$00
+  ; F
+  .byte   $3E,$20,$20,$3C,$20,$20,$20,$00
+  ; G
+  .byte   $1E,$20,$20,$20,$26,$22,$1E,$00
+  ; H
+  .byte   $22,$22,$22,$3E,$22,$22,$22,$00
+  ; I
+  .byte   $1C,$08,$08,$08,$08,$08,$1C,$00
+  ; J
+  .byte   $02,$02,$02,$02,$02,$22,$1C,$00
+  ; K
+  .byte   $22,$24,$28,$30,$28,$24,$22,$00
+  ; L
+  .byte   $20,$20,$20,$20,$20,$20,$3E,$00
+  ; M
+  .byte   $22,$36,$2A,$2A,$22,$22,$22,$00
+  ; N
+  .byte   $22,$22,$32,$2A,$26,$22,$22,$00
+  ; O
+  .byte   $1C,$22,$22,$22,$22,$22,$1C,$00
+  ; P
+  .byte   $3C,$22,$22,$3C,$20,$20,$20,$00
+  ; Q
+  .byte   $1C,$22,$22,$22,$2A,$24,$1A,$00
+  ; R
+  .byte   $3C,$22,$22,$3C,$28,$24,$22,$00
+  ; S
+  .byte   $1C,$22,$20,$1C,$02,$22,$1C,$00
+  ; T
+  .byte   $3E,$08,$08,$08,$08,$08,$08,$00
+  ; U
+  .byte   $22,$22,$22,$22,$22,$22,$1C,$00
+  ; V
+  .byte   $22,$22,$22,$22,$22,$14,$08,$00
+  ; W
+  .byte   $22,$22,$22,$2A,$2A,$36,$22,$00
+  ; X
+  .byte   $22,$22,$14,$08,$14,$22,$22,$00
+  ; Y
+  .byte   $22,$22,$14,$08,$08,$08,$08,$00
+  ; Z
+  .byte   $3E,$02,$04,$08,$10,$20,$3E,$00
+  ; [
+  .byte   $65,$10,$10,$10,$10,$10,$1E,$00
+  ; \
+  .byte   $00,$20,$10,$08,$04,$02,$00,$00
+  ; ]
+  .byte   $3C,$04,$04,$04,$04,$04,$3C,$00
+  ; ^
+  .byte   $08,$14,$2A,$08,$08,$08,$08,$00
+  ; _ or pound
+  ; .byte   $0E,$10,$10,$10,$3C,$10,$3E,$00 ; pound char
+  .byte   $00,$00,$00,$00,$00,$00,63,$00
+  .byte   $0C,$12,$2D,$29,$29
+  .byte   $2D,$12,$0C,$00,$00,$1C,$02,$1E
+  .byte   $22,$1E,$00,$20,$20,$3C,$22,$22
+  .byte   $22,$3C,$00,$00,$00,$1E,$20,$20
+  .byte   $20,$1E,$00,$02,$02,$1E,$22,$22
+  .byte   $22,$1E,$00,$00,$00,$1C,$22,$3E
+  .byte   $20,$1E,$00,$0C,$12,$10,$3C,$10
+  ; middle of 'f'
+  .byte   $10,$10,$00,$00,$00,$1C,$22,$22
+  .byte   $1E,$02,$1C,$20,$20,$3C,$22,$22
+  .byte   $22,$22,$00,$08,$00,$18,$08,$08
+  .byte   $08,$1C,$00,$04,$00,$0C,$04,$04
+  .byte   $04,$24,$18,$20,$20,$22,$24,$38
+  .byte   $24,$22,$00,$18,$08,$08,$08,$08
+  .byte   $08,$1C,$00,$00,$00,$36,$2A,$2A
+  .byte   $2A,$22,$00,$00,$00,$3C,$22,$22
+  .byte   $22,$22,$00,$00,$00,$1C,$22,$22
+  .byte   $22,$1C,$00,$00,$00,$3C,$22,$22
+  .byte   $3C,$20,$20,$00,$00,$1E,$22,$22
+  .byte   $1E,$02,$02,$00,$00,$2E,$30,$20
+  .byte   $20,$20,$00,$00,$00,$1E,$20,$1C
+  .byte   $02,$3C,$00,$10,$10,$3C,$10,$10
+  .byte   $12,$0C,$00,$00,$00,$22,$22,$22
+  .byte   $26,$1A,$00,$00,$00,$22,$22,$22
+  .byte   $14,$08,$00,$00,$00,$22,$22,$2A
+  .byte   $2A,$36,$00,$00,$00,$22,$14,$08
+  .byte   $14,$22,$00,$00,$00,$22,$22,$22
+  .byte   $1E,$02,$1C,$00,$00,$3E,$04,$08
+  .byte   $10,$3E,$00,$0E,$18,$18,$30,$18
+  .byte   $18,$0E,$00,$08,$08,$08,$08,$08
+  .byte   $08,$08,$08,$38,$0C,$0C,$06,$0C
+  .byte   $0C,$38,$00
+ 
+  ; Tilde char (~)
+  .byt    %00000000
+  .byt    %00000000
+  .byt    %00010000
+  .byt    %00101010
+  .byt    %00000100
+  .byt    %00000000
+  .byt    %00000000
+  .byt    %00000000
 ;  END OF CHARSET 
 .include "functions/xloadcharset.asm"  
 

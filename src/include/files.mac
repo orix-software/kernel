@@ -1,0 +1,51 @@
+
+MAX_LENGTH_OF_FILES           = 9       ;  We say 8 chars for directory and end of string
+MAX_LENGTH_OF_A_COMMAND       = 9
+MAX_ARGS                      = 3       ;  Number of possible args in the command line
+
+
+ORIX_MAX_PATH_LENGTH = MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
+
+MAX_LENGTH_BUFEDT     =  ORIX_MAX_PATH_LENGTH+9
+
+ORIX_MAX_MAX_LENGTH_BUFEDT     =  ORIX_MAX_PATH_LENGTH+9
+
+ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
+ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
+
+
+; O_RDONLY   
+.macro FOPEN file, mode
+  lda   #<file
+  ldx   #>file
+  ldy   #mode
+  .byte $00,XOPEN
+.endmacro  
+ 
+.macro FOPEN_INTO_ROM file, mode
+  lda   #<file
+  ldx   #>file
+  ldy   #mode
+  jsr   XOPEN_ROUTINE
+.endmacro
+ 
+.macro MKDIR PATH 
+  lda   #<PATH
+  ldx   #>PATH
+  .byte $00,XMKDIR
+.endmacro  
+  
+; size_t fread ( void * ptr, size_t size, FILE * stream);  
+.macro FREAD ptr, size, count, fp
+    lda #<fp
+    lda #>fp
+    lda #<ptr
+    sta PTR_READ_DEST
+    lda #>ptr
+    sta PTR_READ_DEST+1
+    lda #<size
+    ldy #>size
+    BRK_ORIX XFREAD
+.endmacro
+
+userzp                  :=	VARLNG

@@ -1,7 +1,6 @@
 .include "telestrat.inc"
 
-
- ;ca65 -ttelestrat xexec.asm
+; ca65 -ttelestrat xexec.asm
 ; ld65.exe -ttelestrat xexec.o -o xexec
 XEXEC_ROUTINE:=$63
 .segment "CODE"
@@ -15,4 +14,3 @@ str:
     .asciiz "echo toto"    
 __MAIN_LAST__:
  
-
