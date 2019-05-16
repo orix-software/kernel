@@ -1,49 +1,56 @@
 .proc _XEXEC
 ;PARSE_VECTOR
+    ; A & Y contains the string command to execute
     sta     TR6        ; Save string pointer
-    sty     TR7
+    sty     TR7        ;
 
-    sei
-    lda     #<PARSE_VECTOR
-    sta     ptr1
+    lda     #$05       ; start at bank 05
+    sta     KERNEL_TMP_XEXEC
+
+    lda     #$07
+    sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
+
+    lda     #<PARSE_VECTOR ; get PARSE_VECTOR
+    sta     ADDRESS_READ_BETWEEN_BANK
+
     lda     #>PARSE_VECTOR
-    sta     ptr1+1
+
+    sta     ADDRESS_READ_BETWEEN_BANK+1
+
+    lda     KERNEL_TMP_XEXEC
+    sta     BNK_TO_SWITCH ; for $4AF call
+
     ldy     #$00
-    jsr     READ_BYTE_FROM_OVERLAY_RAM ; get low
+    jsr     $4AF
     sta     VEXBNK+1
-    ;sta     VAPLIC+1
-    iny 
-    jsr     READ_BYTE_FROM_OVERLAY_RAM ; get high
+
+    ldy     #$01
+    jsr     $4AF
     sta     VEXBNK+2
-    ;sta     VAPLIC+2
+
+    ; Now we check if  VEXBNK+1 & VEXBNK+2 equal to 00 then skip
+    bne     @continue
+    lda     VEXBNK+1
+    bne     @continue
+    ; if we are here we skip bank
+    beq     next
+@continue:
     lda     #$07  ; kernel
     sta     VAPLIC
-    lda     #$06 ; Shell bank
+    lda     KERNEL_TMP_XEXEC ; Shell bank
     sta     BNKCIB
     lda     #<next
     sta     VAPLIC+1
     lda     #>next
     sta     VAPLIC+2
-    JMP     EXBNK
-next:  
-    cli
+    lda     TR6
+    ldy     TR7
+    jsr     EXBNK
+
+next:
+    ; Here continue
+
     rts
-   
-	;lda     #<$c000
-	;ldy     #>$c000
-    ;sta     VAPLIC+1
-	;sty     VAPLIC+2
-	STA     VEXBNK+1 ; BNK_ADDRESS_TO_JUMP_LOW
-	STY     VEXBNK+2 ; BNK_ADDRESS_TO_JUMP_HIGH
-	STX     BNKCIB
-	JMP     EXBNK
-
-;    lda     RES
-    ;sta     ptr1
-    ;lda     RES+1
-    ;sta     ptr1+1
-
-
-	rts
+ 
 .endproc
 

@@ -18,7 +18,7 @@ ACIACR := $031E ; command register
 ACIACT := $031F ; control register
 
 
-.org     $C000
+.org      $C000
 .code
 start_rom:
   SEI
@@ -33,6 +33,9 @@ start_rom:
   inx
   stx     NEXT_STACK_BANK               ; Store in BNKCIB ?? ok but already init with label data_adress_418, when loading_vectors_telemon is executed
 .endif
+
+  lda     #$07 ; Kernel bank
+  sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
   jsr     init_screens
   jsr     init_via
@@ -146,9 +149,6 @@ next5:
   ORA     #$40
   STA     FLGTEL
 @skip:
-
-  lda #$11
-  sta $bb80+40
 
 ;  JSR     init_joystick ; $DFAB
   
@@ -547,7 +547,7 @@ code_adress_get
   STA     VIA2::PRA
   LDA     (ptr1),Y                       ; Read byte
   PHA   
-  lda     #ORIX_ID_BANK
+  lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
   sta     VIA2::PRA
   PLA                                ; Get the value
   RTS
@@ -1333,8 +1333,6 @@ vectors_telemon_second_table:
   .byt     <XPING_ROUTINE,>XPING_ROUTINE ; $9d
 
 
-
-
 display_bar_in_inverted_video_mode:
   jsr     put_cursor_in_61_x 
   bit     FLGTEL ; Minitel ?
@@ -1464,7 +1462,7 @@ convert_into_decimal_0_to_65535:
   .byt    $2c
 
 convert_into_decimal_0_to_9999
-  ldx #$02
+  ldx     #$02
 
 ; Don't put anything here ...
   
@@ -1741,10 +1739,10 @@ Ld882
   BCS     next71
 next73
   CMP     #$1B
-  BNE next74
-  LDA FLGKBD
-  AND #$20
-  BEQ next74
+  BNE     next74
+  LDA     FLGKBD
+  AND     #$20
+  BEQ     next74
   PLA
   LDA #$00
   PHA
@@ -1788,7 +1786,7 @@ manage_function_key:
   lsr
   bcs     Ld900 
   lda     (ADKBD),y
-  and     #$1f
+  and     #$1F
   ora     #$80
   .byt    $2C
 Ld8f8  
@@ -2153,7 +2151,7 @@ LDB7D
 ;                 GESTION DES SORTIES EN MODE TEXT                      
 
 ;Principe:tellement habituel que cela en devient monotone... mais bien pratique !  
-output_window0
+output_window0:
   PHA             ;   Save A & P
   PHP                                                              
   LDA     #$00    ;   window 0                                         
@@ -2795,9 +2793,9 @@ ROUTINE_TO_DEFINE_7
   STY ADDRESS_READ_BETWEEN_BANK+1 ; CORRECTME
   TXA
   CLC
-  ADC #$18
+  ADC     #$18
   TAX
-  LDY #$05
+  LDY     #$05
 
 next18
   PLP
@@ -2806,30 +2804,30 @@ next18
   BCS     @skip
 
   LDA     (ADDRESS_READ_BETWEEN_BANK),Y
-  BCC next17
+  BCC     next17
 @skip:
 
-  JSR ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
+  JSR     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
 next17
-  STA SCRY,X
+  STA     SCRY,X
 
   TXA
   SEC
-  SBC #$04
+  SBC     #$04
   TAX
   DEY
-  BPL next18
+  BPL     next18
 
 
 ; loop 4 times to set color ink/paper and flags on the 4 possibles screens  
-  LDA #$07
-  STA SCRCT,X ; Set ink to white
+  LDA     #$07
+  STA     SCRCT,X ; Set ink to white
   LDA     #$00
-  STA SCRCF,X ; set paper to black
-  LDA #$00
-  STA FLGSCR,X
-  LDA SCRDX,X
+  STA     SCRCF,X ; set paper to black
+  LDA     #$00
+  STA     FLGSCR,X
+  LDA     SCRDX,X
   STA SCRX,X ; init cursor to 0 (beginning of the line)
   LDA SCRDY,X
   STA SCRY,X
@@ -2845,11 +2843,11 @@ next17
 
   LDA     #$0C
 
-  JSR Ldbb5 
+  JSR     Ldbb5 
 
   PLA 
   
-  STA SCRNB
+  STA     SCRNB
   PLP
   rts
   ; $d3fd DEBUGGER
@@ -2888,22 +2886,22 @@ next17
 .endproc
 
 Ldf90
-  LDA VIA2::PRB
-  AND #$3F
-  ORA #$40
-  BNE next15
+  LDA     VIA2::PRB
+  AND     #$3F
+  ORA     #$40
+  BNE     next15
 Ldf99
-  LDA VIA2::PRB
-  AND #$3F
-  ORA #$80
+  LDA     VIA2::PRB
+  AND     #$3F
+  ORA     #$80
   
 next15:
-  STA VIA2::PRB
-  LDA VIA2::PRB
-  AND #$1F
+  STA     VIA2::PRB
+  LDA     VIA2::PRB
+  AND     #$1F
   rts
-  sec
-  rts
+  sec ; ????
+  rts ; ????
   
 init_joystick:
   LDA     #%01000001 ; SET mouse and joystick flag
@@ -2916,61 +2914,60 @@ init_joystick:
   DEX
   BPL     @loop
 
-
-  LDA #$01
-  STA MOUSE_JOYSTICK_MANAGEMENT+6
-  STA MOUSE_JOYSTICK_MANAGEMENT+11
-  LDA #$06
-  STA MOUSE_JOYSTICK_MANAGEMENT+7
-  STA MOUSE_JOYSTICK_MANAGEMENT+10
-  LDA #$01
-  STA MOUSE_JOYSTICK_MANAGEMENT+8
-  LDA #$0A
-  STA MOUSE_JOYSTICK_MANAGEMENT+9
-  LDA #$03
-  STA JCKTAB+5
-  STA JCKTAB+6
-  LDA #$10
-  LDY #$27
-  STA VIA_UNKNOWN
-  STY VIA_UNKNOWN+1
-  STA VIA::T2
-  STY VIA::T2+1
-  LDA #$A0
-  STA VIA::IER
+  LDA     #$01
+  STA     MOUSE_JOYSTICK_MANAGEMENT+6
+  STA     MOUSE_JOYSTICK_MANAGEMENT+11
+  LDA     #$06
+  STA     MOUSE_JOYSTICK_MANAGEMENT+7
+  STA     MOUSE_JOYSTICK_MANAGEMENT+10
+  LDA     #$01
+  STA     MOUSE_JOYSTICK_MANAGEMENT+8
+  LDA     #$0A
+  STA     MOUSE_JOYSTICK_MANAGEMENT+9
+  LDA     #$03
+  STA     JCKTAB+5
+  STA     JCKTAB+6
+  LDA     #$10
+  LDY     #$27
+  STA     VIA_UNKNOWN
+  STY     VIA_UNKNOWN+1
+  STA     VIA::T2
+  STY     VIA::T2+1
+  LDA     #$A0
+  STA     VIA::IER
   RTS
 
 telemon_values_for_JCKTAB
-  .byt $0b,$0a,$20,$08,$09,$03,$03
+  .byt     $0b,$0a,$20,$08,$09,$03,$03
 Ldffa
   rts
 Ldffb
-  LDA JCGVAL
-  AND #$04
-  BNE Le014
-  JSR Ldf90 
-  AND #$04
-  BNE Le01e
-  DEC MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
-  BNE Le037
-  LDX MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  JMP Le01e 
+  LDA     JCGVAL
+  AND     #$04
+  BNE     Le014
+  JSR     Ldf90 
+  AND     #$04
+  BNE     Le01e
+  DEC     MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
+  BNE     Le037
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
+  JMP     Le01e 
 Le014
-  JSR Ldf90 
-  AND #$04
-  BNE Le037
-  LDX MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
+  JSR     Ldf90 
+  AND     #$04
+  BNE     Le037
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
 Le01e
-  STX MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
-  STA VABKP1 ; CORRECTME
-  LDA JCGVAL
-  AND #$1B
-  ORA VABKP1 ; CORRECTME
-  STA JCGVAL
-  LDA VABKP1 ; CORRECTME
-  BNE Le037
-  LDA JCKTAB ; CORRECTME
-  JSR Le19f 
+  STX     MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
+  STA     VABKP1 ; CORRECTME
+  LDA     JCGVAL
+  AND     #$1B
+  ORA     VABKP1 ; CORRECTME
+  STA     JCGVAL
+  LDA     VABKP1 ; CORRECTME
+  BNE     Le037
+  LDA     JCKTAB ; CORRECTME
+  JSR     Le19f 
 Le037
   LDA     JCGVAL
   AND     #$1B
@@ -3063,36 +3060,35 @@ LE0BB
 Le0d2
   LSR                                                              
   PHA                                                              
-  BCS LE0DC     ;                                              
-  LDA JCKTAB,X   ; et on envoie les valeurs ASCII dans le buffer     
-  JSR Le19d      ;                                                    
+  BCS     LE0DC     ;                                              
+  LDA     JCKTAB,X   ; et on envoie les valeurs ASCII dans le buffer     
+  JSR     Le19d      ;                                                    
 LE0DC
   PLA                                                              
   DEX                                                              
-  BPL Le0d2
+  BPL     Le0d2
 LE0E0
   RTS                                                              
 
-Le0e1
-
-  LDA JCDVAL
-  AND #$04
-  BNE Le0fa
-  JSR Ldf99 
-  AND #$04
-  BNE Le102
-  DEC MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
-  BNE Le11b
-  LDX MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  JMP Le102
+Le0e1:
+  LDA     JCDVAL
+  AND     #$04
+  BNE     Le0fa
+  JSR     Ldf99 
+  AND     #$04
+  BNE     Le102
+  DEC     MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
+  BNE     Le11b
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
+  JMP     Le102
 Le0fa
-  JSR Ldf99
-  AND #$04
-  LDX MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
+  JSR     Ldf99
+  AND     #$04
+  LDX     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
 Le102
-  STA VABKP1 ; CORRECTME
-  STX MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
-  LDA JCDVAL
+  STA     VABKP1 ; CORRECTME
+  STX     MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
+  LDA     JCDVAL
   AND #$7B
   ORA VABKP1
   STA JCDVAL
@@ -3156,7 +3152,7 @@ Le180
   AND     #$40
   BNE     Le19c 
   LDA     JCKTAB+6 ; CORRECTME
-  JMP Le19d 
+  JMP     Le19d 
 Le19c
   RTS
 Le19d
@@ -3215,36 +3211,36 @@ LE27A
   STA     TR5
   TYA
   CLC
-  ADC #$A0
-  STA TR6
-  LDA #$08
+  ADC     #$A0
+  STA     TR6
+  LDA     #$08
   STA     TR4
-  LDY TR1
+  LDY     TR1
 LE290  
-  LDA (TR5),Y
+  LDA     (TR5),Y
   TAX
-  AND #$40
-  BNE LE29B 
+  AND     #$40
+  BNE     LE29B 
   TXA
-  AND #$80
+  AND     #$80
   TAX
 LE29B  
   TXA
-  BPL LE2A0
-  EOR #$3F
+  BPL     LE2A0
+  EOR     #$3F
 LE2A0  
-  LDX TR2
+  LDX     TR2
 LE2A2  
   LSR
   DEX
-  BPL LE2A2 
-  ROL TR3
+  BPL     LE2A2 
+  ROL     TR3
   TYA
   CLC
-  ADC #$28
+  ADC     #$28
   TAY
-  BCC LE2B1 
-  INC TR6
+  BCC     LE2B1 
+  INC     TR6
 LE2B1  
 
 LE2D0  
@@ -3252,7 +3248,7 @@ LE2D0
   RTS
 Le2de
 put_cursor_on_last_char_of_the_line
-  LDY SCRFX,X
+  LDY     SCRFX,X
   .byt $24
 LE2E2  
   dey
@@ -3266,7 +3262,7 @@ LE2E2
   
 test_if_prompt_is_on_beginning_of_the_line
 
-  cmp #$7f
+  cmp     #$7f
   bne     @skip
   tya
   cmp SCRDX,x
@@ -3599,7 +3595,7 @@ data_for_hires_display
   .byt $02,$01
 
   
-XHRSSE_ROUTINE  
+XHRSSE_ROUTINE:
   CLC          ;     C=0                                               
   BIT HRS5+1   ;  on fait tourner HRS5+1 sur lui-même               
   BPL @skip    ;   afin de conserver le pattern                     
@@ -3672,11 +3668,10 @@ hires_put_coordinate:
 ;                       TRACE UN RECTANGLE EN RELATIF                        
 
 ;Principe:On calcule les coordonnées absolues des 4 coins et on trace en absolu. 
-;         Pas tr?s optimis? en temps tout cela, il aurait ?t? plus simple de     
+;         Pas très optimisé en temps tout cela, il aurait été plus simple de     
 ;         de tracer directement en relatif !!!                                   
-;         Le rectangle est trac? comme ABOX avec les param?tres dans HRSx.       
-XBOX_ROUTINE
-                                                                                
+;         Le rectangle est tracé comme ABOX avec les param?tres dans HRSx.       
+XBOX_ROUTINE:
   CLC              ;   C=0                                               
   LDA     HRSX     ;   on place les coordon?es actuelles                 
   STA     DECFIN   ;   du curseur dans $06-07                            
@@ -3694,13 +3689,13 @@ XBOX_ROUTINE
 ;         joignant les 4 points. Voila bien la seule astuce inutile ! Il aurait  
 ;         été 100 (pourquoi pas 1000 !?) fois plus simple, puisque le rectangle  
 ;         n'est fait que de verticales et d'horizontales, de tracer le rectangle 
-;         imm?diatement en relatif plutot que de passer par des calculs de       
+;         immédiatement en relatif plutot que de passer par des calculs de       
 ;         tangentes lourds et donnant un résultat connu (0 et infini) !!!        
-;         Cette piètre routine nécessite les paramêtres comme ABOX dans HRSx.    
+;         Cette piètre routine nécessite les paramètres comme ABOX dans HRSx.    
 ;         Notez également l'utilisation de l'absolu,X plutot que du page 0,X en  
 ;         $E850... tss tss !                                                     
 
-XABOX_ROUTINE
+XABOX_ROUTINE:
   LDY #$06    ;   on place les 4 paramètres (poids faible seulement)
   LDX #$03 
 LE830

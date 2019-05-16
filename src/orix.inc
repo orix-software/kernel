@@ -1,4 +1,6 @@
 
+RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
+
 NEXT_STACK_BANK := $0418
 ORIX_ROUTINES   := $FFE0
 MOUSE_JOYSTICK_MANAGEMENT := $291 ; 12 bytes ?
@@ -7,7 +9,8 @@ i_o_save        := $1B ; 3 bytes ?
 TRANSITION_RS232:= $1E;  3 bytes
 
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
-VIA_UNKNOWN:=$028f ; seems tobe a backup of timer  2 bytesTELEMON_ID_BANK   		= $07
+VIA_UNKNOWN     :=$028f ; seems tobe a backup of timer  2 bytesTELEMON_ID_BANK   		= $07
+
 ATMOS_ID_BANK     		= $06
 ORIX_ID_BANK      		= $05
 MONITOR_ID_BANK   		= $04
@@ -96,13 +99,14 @@ FIXME_DUNNO
 STACK_BANK
 .res SIZE_OF_STACK_BANK
 READ_BYTE_FROM_OVERLAY_RAM
-.res 1
+; this contains a routine length : 20 bytew
+.res 20
 
 ERRNO:=$0509 ;ERRNO
 ; ORIX_CURRENT_PROCESS_FOREGROUND:=$512
 .bss
-.org $50d 
-ORIX_CURRENT_PROCESS_FOREGROUND
+.org $50D
+ORIX_CURRENT_PROCESS_FOREGROUND:
 .res 1
 MEMTOTAL
 .res 4 ; Store the length of the RAM in bytes
@@ -113,7 +117,7 @@ MEMTOTAL
 ORIX_PATH_CURRENT
 .res ORIX_MAX_PATH_LENGTH,0
 
-ORIX_MALLOC_FREE_TABLE
+ORIX_MALLOC_FREE_TABLE:
 ; (adress begin) (adress_end) (size of chunk 16 bit)
 ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
 .res ORIX_MALLOC_FREE_FRAGMENT_MAX
@@ -158,3 +162,5 @@ ORIX_MALLOC_BUSY_TABLE_PID
 
 ORIX_MALLOC_BUSY_TABLE_NUMBER
 .res 1
+KERNEL_TMP_XEXEC:
+    .res 1
