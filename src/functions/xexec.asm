@@ -7,6 +7,9 @@
     lda     #$05       ; start at bank 05
     sta     KERNEL_TMP_XEXEC
 
+
+next_bank:
+
     lda     #$07
     sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
@@ -14,7 +17,6 @@
     sta     ADDRESS_READ_BETWEEN_BANK
 
     lda     #>PARSE_VECTOR
-
     sta     ADDRESS_READ_BETWEEN_BANK+1
 
     lda     KERNEL_TMP_XEXEC
@@ -49,8 +51,18 @@
 
 next:
     ; Here continue
+    ldx     KERNEL_TMP_XEXEC
+    dex
+    cpx     #$03        ; Read only bank 5 to 4 for instance
+    beq     @out1
+    stx     KERNEL_TMP_XEXEC
+    jmp     next_bank
+@out1:
+    lda     #$05 ; Shell bank
+    sta     BNK_TO_SWITCH
 
     rts
+
  
 .endproc
 
