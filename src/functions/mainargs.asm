@@ -1,9 +1,26 @@
+KERNEL_MAX_ARGS_COMMAND_LINE = 3
 
-FNAME_LEN_BIS=$0D
-XMAINARGS_ROUTINE:
-	;	MALLOC()
-        ldx     #$00      ; Limit the length
-L0:     lda     BUFEDT,x
+.struct XMAINARGS_STRUCT
+__argc       .byte    ; number of args
+next_ptr_arg .word
+argv         .res     (3 * 2)
+
+.endstruct
+
+
+.proc XMAINARGS_ROUTINE
+        sta     RESB                    ; Contains command line pointer
+        sty     RESB+1        
+
+        lda     #<.sizeof(XMAINARGS_STRUCT)
+        ldy     #>.sizeof(XMAINARGS_STRUCT)
+	jsr     XMALLOC_ROUTINE
+        sta     RES                     ; Contains address of mainargs struct
+        sty     RES+1
+        
+
+        ldy     #$00
+L0:     lda     (RESB),y
         beq     L3
         cmp     #" "
         bne     L1
@@ -11,12 +28,29 @@ L0:     lda     BUFEDT,x
         beq     L3
 L1: 
 		;sta     name,x
-        inx
-        cpx     #FNAME_LEN_BIS ; not the same than FNAME_LEN FIXME
+        iny
+        cpy     #MAX_BUFEDT_LENGTH ; MAX_BUFEDT_LENGTH
         bne     L0
         lda     #0
-L3:		
+L3:	
+        tya                             ; FIXME 65C02
+        pha
+        ; argc++
+        ldy     #$00
+        lda     (RES),y                 ; get argc
+        
+        tax                             ; bit crap but 6502 can't do inc (RES),y
+        inx
+        txa
+        
+        sta     (RES),y                 ; get argc
+        
 
+        pla
+        tay
+
+        ;ldx     (RES),y
+        ;inc     (RES),y
 /*
 MAXARGS  = 10                   ; Maximum number of arguments allowed
         sta 	  name,x
@@ -103,5 +137,6 @@ argv:
 */ 
 
 	rts
+.endproc        
 
 

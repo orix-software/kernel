@@ -4,9 +4,11 @@
     sta     TR6        ; Save string pointer
     sty     TR7        ;
 
+    lda     BNKOLD
+    pha
+
     lda     #$05       ; start at bank 05
     sta     KERNEL_TMP_XEXEC
-
 
 next_bank:
 
@@ -58,9 +60,9 @@ next:
     stx     KERNEL_TMP_XEXEC
     jmp     next_bank
 @out1:
-    lda     #$05 ; Shell bank
+    ; Back to calling bank
+    pla
     sta     BNK_TO_SWITCH
-
     rts
 
  
