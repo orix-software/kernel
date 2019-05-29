@@ -1,0 +1,12 @@
+.macro UNREGISTER_PROCESS
+  lda   ORIX_CURRENT_PROCESS_FOREGROUND
+  beq   @skip_UNREGISTER_PROCESS
+  jsr   _orix_unregister_process
+@skip_UNREGISTER_PROCESS:
+.endmacro
+
+.macro UNREGISTER_PROCESS_BY_PID_IN_ACCUMULATOR
+  beq @skip_UNREGISTER_PROCESS
+  jsr _orix_unregister_process
+@skip_UNREGISTER_PROCESS:
+.endmacro
