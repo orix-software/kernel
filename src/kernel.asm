@@ -6,9 +6,13 @@
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
 .include   "libs/ch376-lib/include/ch376.inc"
+.include   "include/kernel.inc"
+.include   "include/process.inc"
 .include   "orix.mac"
 .include   "orix.inc"
 .include   "build.inc"
+
+
 
 PARSE_VECTOR:=$fff1
 
@@ -1212,11 +1216,10 @@ vectors_telemon:
   .byt     <XBINDX_ROUTINE,>XBINDX_ROUTINE         ; XBINDX $28
   .byt     <XDECIM_ROUTINE,>XDECIM_ROUTINE         ; $29
   .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE           ; 2a
-  .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2b
-  .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE
-  ;.byt     $00,$00
-  .byt     $00,$00
-  .byt     $00,$00 
+  .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2B
+  .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE   ; $2C
+  .byt     <XGETARGC_ROUTINE,>XGETARGC_ROUTINE     ; $2D
+  .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE     ; $2E
   .byt     $00,$00
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
 
@@ -1528,6 +1531,8 @@ XCLOSE_ROUTINE:
 .include  "functions/xtext.asm"
 .include  "functions/xfree.asm"
 .include  "functions/mainargs.asm"
+.include  "functions/getargc.asm"
+.include  "functions/getargv.asm"
 
 
 _multitasking:
@@ -4659,23 +4664,22 @@ _strcpy:
   ; y return the length
   rts
   
-XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE:
+.proc     XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE
+  sta     RES
+  sty     RES+1
+
   jsr     _open_root_and_enter
-  
-  ldx     #$01
-  lda     ORIX_PATH_CURRENT,x
-  beq     end2000 ; Because ORIX_PATH_CURRENT= /,0 no need to continue
+
 @restart:  
   ldy     #$00
 @loop:
   
-  lda     ORIX_PATH_CURRENT,x
+  lda     (RES),y
   beq     @send_set_filename_and_fileopen
   cmp     #"/"
   beq     @send_set_filename_and_fileopen
   sta     BUFNOM,y
   iny
-  inx
   
 .IFPC02
 .pc02
@@ -4686,44 +4690,52 @@ XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE:
 .endif  
 
 @send_set_filename_and_fileopen:
-
   lda     #$00
   sta     BUFNOM,y ; FIXME can be done in 65C02 with X register instead of Y
 
 .IFPC02
 .pc02
-  phx
+  phy
 .p02  
 .else  
-  stx     TR6
+  sty     TR6
 .endif
 
   jsr     _ch376_set_file_name
   jsr     _ch376_file_open
   cmp     #CH376_ERR_MISS_FILE
   bne     @next
+
   lda     #$01
   rts
 @next:  
   sta     ERRNO
 .IFPC02
 .pc02
-  plx
-  lda     ORIX_PATH_CURRENT,x
+  ply
+  lda     (RES),y
   beq     end2000
-  inx
   bra     @restart
 .p02  
 .else
-  ldx     TR6
-  lda     ORIX_PATH_CURRENT,x
-  beq     end2000
-  inx
+  ldy     TR6
+  lda     (RES),y
+  beq     @end
+  iny
+  tya
+  clc
+  adc     RES
+  bcc     @skip
+  inc     RES+1
+@skip:
+  sta     RES  
+
+
   jmp     @restart
 .endif  
-end2000:
+@end:
   rts
-
+.endproc
   
 ;.include  "functions/XOPEN.asm"
 
