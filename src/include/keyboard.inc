@@ -1,0 +1,9 @@
+KEY_LCTRL                     = 5
+KET_RCTRL                     = 6
+KEY_LSHIFT                    = 7
+KEY_RSHIFT                    = 8
+KEY_FUNCT		              = 9
+KEY_LEFT		              = 8
+KEY_RIGHT		              = 9
+KEY_DOWN		              = 10
+KEY_UP			              = 11
