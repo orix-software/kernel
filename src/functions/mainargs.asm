@@ -1,38 +1,119 @@
-KERNEL_MAX_ARGS_COMMAND_LINE = 3
-
 .struct XMAINARGS_STRUCT
-__argc       .byte    ; number of args
-next_ptr_arg .word
-argv         .res     (3 * 2)
-
+argc              .byte    ; number of args
+argv_ptr          .res     (KERNEL_MAX_ARGS_COMMAND_LINE * 2)
+argv_value_ptr    .res     (KERNEL_MAX_LENGTH_BUFEDT)
 .endstruct
 
+; Register Modify : A,X,Y
+; Register Save : 
+; Memory modify : RES,RESB,TR0,TR1
+; Memory save : RES,RESB,TR0,TR1
+
+XMAINARGS_ROUTINE_SPLIT_VALUE         :=TR1
+XMAINARGS_ROUTINE_ARGV_PTR            :=TR2 ; word
+XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
 
 .proc XMAINARGS_ROUTINE
         sta     RESB                    ; Contains command line pointer
         sty     RESB+1        
 
+        
         lda     #<.sizeof(XMAINARGS_STRUCT)
         ldy     #>.sizeof(XMAINARGS_STRUCT)
-	jsr     XMALLOC_ROUTINE
+        jsr     XMALLOC_ROUTINE
+
         sta     RES                     ; Contains address of mainargs struct
         sty     RES+1
+
+;        sta     $5000
+        ;sty     $5001
+
+        lda     #" " ; Split value 
+        sta     XMAINARGS_ROUTINE_SPLIT_VALUE
+
+; ************************* init XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
+        lda     RES+1
+        sta     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
+        sta     XMAINARGS_ROUTINE_ARGV_PTR+1
+        ;sta     $5003
+
+        ldy     #(XMAINARGS_STRUCT::argv_value_ptr)
+        tya
+        clc        
+        adc     RES
+        bcc     S3
+        inc     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
+        inc     XMAINARGS_ROUTINE_ARGV_PTR+1
+S3:
+        sta     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
+        sta     XMAINARGS_ROUTINE_ARGV_PTR
+        ;sta     $5002
+
+; ************************* init XMAINARGS_ROUTINE_ARGV_PTR
         
+
+        lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
+        sta     XMAINARGS_ROUTINE_ARGV_PTR
+        lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
+        sta     XMAINARGS_ROUTINE_ARGV_PTR+1
+
+
+        ldy     #$00
+        lda     #$00
+
+        ; init  ARGV to 0
+.ifpc02 
+.pc02
+        sta     (RES)
+.p02    
+.else
+        sta     (RES),y
+        ;iny 
+.endif     
 
         ldy     #$00
 L0:     lda     (RESB),y
         beq     L3
-        cmp     #" "
+        cmp     XMAINARGS_ROUTINE_SPLIT_VALUE     ; Split value is store in TR1
         bne     L1
-        lda     #$00
-        beq     L3
-L1: 
-		;sta     name,x
+        jsr     terminate_param
+        iny
+        jsr     inc_argv
+        
+.ifpc02 
+.pc02
+        bra     L0
+.p02    
+.else
+        jmp     L0                      ; FIXME could be replace by bne
+.endif        
+
+L1:  
+
+        sta     (XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR),y
+		
         iny
         cpy     #MAX_BUFEDT_LENGTH ; MAX_BUFEDT_LENGTH
         bne     L0
-        lda     #0
+        lda     #$00
 L3:	
+        jsr     terminate_param
+        jsr     inc_argv   
+        ; Return pointer
+        lda     RES
+        ldy     RES+1
+        rts
+
+inc_argv:
+
+.ifpc02
+.pc02
+        lda     (RES)                   ; get argc
+        inc     a
+        sta     (RES)                   ; get argc
+.p02
+.else
+.p02    
         tya                             ; FIXME 65C02
         pha
         ; argc++
@@ -44,99 +125,48 @@ L3:
         txa
         
         sta     (RES),y                 ; get argc
-        
 
         pla
         tay
+.endif    
 
-        ;ldx     (RES),y
-        ;inc     (RES),y
-/*
-MAXARGS  = 10                   ; Maximum number of arguments allowed
-        sta 	  name,x
-        inc     __argc          ; argc always is equal to, at least, 1
-
-		
-        ldy     #1 * 2          ; Point to second argv slot
-		
-next:   lda     BUFEDT,x
-        beq     done            ; End of line reached
-        inx
-        cmp     #' '            ; Skip leading spaces
-        beq     next		
-
-found:  cmp     #'"'            ; Is the argument quoted?
-        beq     setterm         ; Jump if so
-        dex                     ; Reset pointer to first argument character
-
-        lda     #' '            ; A space ends the argument
-setterm:sta     term            ; Set end of argument marker
-
-; Now, store a pointer, to the argument, into the next slot.
-
-        txa                     ; Get low byte
-        clc
-        adc 	  #<BUFEDT
-        bcc 	  L4
-        inc 	  L5+1
-L4:
-        sta     argv,y          ; argv[y]=&arg
-L5:		
-        lda     #>BUFEDT
-        sta     argv+1,y
-        iny
-        iny
-        inc     __argc          ; Found another arg
-
-; Search for the end of the argument
-
-argloop:lda     BUFEDT,x
-        beq     done
-        inx
-        cmp     term
-        bne     argloop
-
-; We've found the end of the argument. X points one character behind it, and
-; A contains the terminating character. To make the argument a valid C string,
-; replace the terminating character by a zero.
-
-        lda     #0
-        sta     BUFEDT-1,x
-
-; Check if the maximum number of command line arguments is reached. If not,
-; parse the next one.
-
-        lda     __argc          ; Get low byte of argument count
-        cmp     #MAXARGS        ; Maximum number of arguments reached?
-        bcc     next            ; Parse next one if not		
-		
-		
-done:   lda     #<argv
-        ldx     #>argv
-        sta     __argv
-        stx     __argv + 1
         rts
-		
-		
-.segment        "INIT"
 
-term:   .res    1
+terminate_param:
+        sty     TR0
 
 
-.data
+        lda     #$00
+        sta     (XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR),y
+        iny
+        tya
+        clc        
+        adc     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
+        bcc     S4
+        inc     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
+S4:
+        sta     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
 
-name:   .res    FNAME_LEN + 1
-args:   .res    SCREEN_XSIZE * 2 - 1
+        lda     XMAINARGS_ROUTINE_ARGV_PTR
+        clc
+        adc     #02
+        bcc     S5
+        inc     XMAINARGS_ROUTINE_ARGV_PTR+1
+S5:     
+        sta     XMAINARGS_ROUTINE_ARGV_PTR
 
-param_found:
-		.res 1
-; char* argv[MAXARGS+1]={name};
-argv:  
-		.addr   name
-   .res    MAXARGS * 2
-*/ 
+     ;   ldy     #$00
+        ;lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
+        ;sta     (XMAINARGS_ROUTINE_ARGV_PTR),y
+        ;iny
+        ;lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
+        ;sta     (XMAINARGS_ROUTINE_ARGV_PTR),y
 
-	rts
+
+
+        ldy     TR0
+        rts
+
 .endproc        
 
 

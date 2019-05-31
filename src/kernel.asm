@@ -4665,6 +4665,7 @@ _strcpy:
   rts
   
 .proc     XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE
+  ; A & Y is the ptr of the string to enter
   sta     RES
   sty     RES+1
 

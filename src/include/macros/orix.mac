@@ -1,0 +1,277 @@
+.macro  BRK_ORIX   value
+	.byte $00,value
+.endmacro
+ 
+.macro RETURNVAL value
+  lda #value
+  sta ERRNO
+.endmacro
+  
+.macro RETURN0
+    lda #$00
+    sta ERRNO  
+.endmacro
+
+.macro PRINT_BINARY_TO_DECIMAL_16BITS justif
+    LDX #$20
+    STX DEFAFF
+    LDX #justif
+    BRK_ORIX XDECIM
+    ;.byte $00,XDECIM
+.endmacro
+
+.macro CLS
+  lda     #<SCREEN
+  ldy     #>SCREEN
+  sta     RES
+  sty     RES+1
+  ldy     #<(SCREEN+40+27*40)
+  ldx     #>(SCREEN+40+27*40)
+  lda     #' '
+  BRK_ORIX XFILLM
+.endmacro
+  
+.macro UNREGISTER_PROCESS
+  lda   ORIX_CURRENT_PROCESS_FOREGROUND
+  beq   @skip_UNREGISTER_PROCESS
+  jsr   _orix_unregister_process
+@skip_UNREGISTER_PROCESS:
+.endmacro
+
+.macro UNREGISTER_PROCESS_BY_PID_IN_ACCUMULATOR
+  beq @skip_UNREGISTER_PROCESS
+  jsr _orix_unregister_process
+@skip_UNREGISTER_PROCESS:
+.endmacro
+ 
+.macro SWITCH_ON_CURSOR
+  ldx #$00
+  BRK_ORIX XCSSCR
+.endmacro  
+
+.macro SWITCH_OFF_CURSOR
+	ldx #$00
+	BRK_ORIX XCOSCR
+.endmacro    
+
+.macro HIRES
+	BRK_ORIX XHIRES
+.endmacro    
+
+.macro REGISTER_PROCESS str_name_process 
+  lda #<str_name_process
+  ldy #>str_name_process
+  jsr _orix_register_process  
+.endmacro
+
+;FIXME   
+.macro GET8_FROM_STRUCT offset, zpaddress
+	ldy #offset
+	lda (zpaddress),y
+.endmacro    
+
+.macro PUT8_FROM_STRUCT offset, zpaddress
+	ldy #offset
+	sta (zpaddress),y
+.endmacro    
+  
+; O_WRONLY
+; O_RDONLY   
+.macro FOPEN file, mode
+  lda   #<file
+  ldx   #>file
+  ldy   #mode
+  .byte $00,XOPEN
+.endmacro  
+ 
+.macro FOPEN_INTO_BANK7 file, mode
+  lda   #<file
+  ldx   #>file
+  ldy   #mode
+  jsr   XOPEN_ROUTINE
+.endmacro
+ 
+.macro MKDIR PATH 
+  lda   #<PATH
+  ldx   #>PATH
+  .byte $00,XMKDIR
+.endmacro  
+  
+; size_t fread ( void * ptr, size_t size, FILE * stream);  
+.macro FREAD ptr, size, count, fp
+    lda #<fp
+    lda #>fp
+    lda #<ptr
+    sta PTR_READ_DEST
+    lda #>ptr
+    sta PTR_READ_DEST+1
+    lda #<size
+    ldy #>size
+    BRK_ORIX XFREAD
+.endmacro
+
+; This macro must be placed after MALLOC call
+.macro TEST_OOM_AND_MAX_MALLOC
+    ; Test if we reached the max number of malloc chunk
+    cpx     #ORIX_NUMBER_OF_MALLOC
+    bne     @check_for_oom_TEST_OOM_AND_MAX_MALLOC
+    ; We reachead max malloc available
+    PRINT   str_max_malloc_reached
+    RETURN_LINE
+    rts
+    ; check if malloc is null, if it's equal, displays Out of Memory
+@check_for_oom_TEST_OOM_AND_MAX_MALLOC:
+    cmp     #NULL
+    bne     @TEST_OOM_AND_MAX_MALLOC
+    cpy     #NULL
+    bne     @TEST_OOM_AND_MAX_MALLOC
+    PRINT   str_out_of_memory
+    RETURN_LINE
+    ; We reached OOM
+    rts
+@TEST_OOM_AND_MAX_MALLOC: 
+.endmacro
+
+.macro  CGETC
+    BRK_ORIX XRDW0 
+.endmacro    
+    
+.macro MALLOC size 
+  lda #<size
+  ldy #>size
+  BRK_ORIX XMALLOC
+.endmacro
+
+.macro FREE ptr 
+  lda #<ptr
+  ldy #>ptr
+  BRK_ORIX XFREE
+.endmacro 
+
+.macro CPUTC char
+  lda #char
+  BRK_ORIX XWR0
+.endmacro
+  
+.macro  PRINT_CHAR str
+  pha
+  sta TR6
+  txa
+  pha
+  tya
+  pha
+  lda TR6
+  BRK_TELEMON XWR0
+  pla
+  tay
+  pla
+  txa
+  pla
+.endmacro	
+
+.macro PRINT str
+	pha
+	txa
+	pha
+	tya
+	pha
+	lda #<str
+	ldy #>str
+	BRK_TELEMON XWSTR0
+  pla
+	tay
+	pla
+	txa
+  pla
+.endmacro
+
+.macro PRINT_NOSAVE_REGISTER str
+	lda #<str
+	ldy #>str
+	BRK_TELEMON XWSTR0
+.endmacro
+
+.macro RETURN_LINE_INTO_TELEMON
+	pha
+	txa
+	pha
+	tya
+	pha
+	lda RES
+	pha
+	lda RES+1
+	pha
+	jsr XCRLF_ROUTINE 
+	pla
+	sta RES+1
+	pla
+	sta RES
+	pla
+	tay
+	pla
+	txa
+	pla
+.endmacro    
+	
+.macro PRINT_INTO_TELEMON str
+	pha
+	txa
+	pha
+	tya
+	pha
+	lda RES
+	pha
+	lda RES+1
+	pha
+	lda #<str
+	ldy #>str
+	jsr XWSTR0_ROUTINE 
+	pla
+	sta RES+1
+	pla
+	sta RES
+	pla
+	tay
+	pla
+	txa
+	pla
+.endmacro
+
+.macro RETURN_LINE
+  BRK_ORIX XCRLF
+.endmacro  
+	
+.macro STRCPY str1, str2
+	lda #<str1
+	sta RES
+	lda #>str1
+	sta RES+1
+	lda #<str2
+	sta RESB
+	lda #>str2
+	sta RESB+1
+	jsr _strcpy
+.endmacro    
+
+.macro STRCAT str1, str2
+	lda #<str1
+	sta RES
+	lda #>str1
+	sta RES+1
+	lda #<str2
+	sta RESB
+	lda #>str2
+	sta RESB+1
+	jsr _strcat 
+.endmacro     
+	
+; This macro copy AY address to str
+.macro STRCPY_BY_AY_SRC str
+	sta RES
+	sty RES+1
+	lda #<str
+	sta RESB
+	lda #>str
+	sta RESB+1
+	jsr _strcpy
+.endmacro    

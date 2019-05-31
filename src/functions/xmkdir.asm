@@ -18,7 +18,7 @@ XMKDIR_ROUTINE:
     beq     @isabsolute
     FOPEN_INTO_BANK7 ORIX_PATH_CURRENT,O_RDONLY
 
-    ldy  #$00
+    ldy     #$00
    
 @loop:
     lda     (ptr1),y

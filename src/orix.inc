@@ -60,27 +60,6 @@ ORIX_MALLOC_MEMORY       = $03
 ORIX_FREE_MEMORY         = $04
 
 
-PATH_CURRENT_MAX_LEVEL = 4 ; Only in telemon 3.0 number of level, if we add more, we should have to many RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
-MAX_LENGTH_OF_FILES    = 9 ;  We say 8 chars for directory and end of string
-
-MAX_LENGTH_OF_A_COMMAND = 9
-
-MAX_ARGS = 3              ;  Number of possible args in the command line
-
-ORIX_MAX_PATH_LENGTH = MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
-; ORIX_MAX_OPEN_FILES    = 2
-
-MAX_LENGTH_BUFEDT     =  ORIX_MAX_PATH_LENGTH+9
-
-ORIX_NUMBER_OF_MALLOC  = 3
-
-ORIX_MALLOC_FREE_FRAGMENT_MAX = 6
-
-ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
-
-ORIX_MALLOC_MAX_MEM_ADRESS = $B3FF
-
 SIZE_OF_STACK_BANK = 1
 
 BNKOLD:=$40F 
@@ -116,6 +95,7 @@ MEMTOTAL
 .res 14
 ORIX_PATH_CURRENT
 .res ORIX_MAX_PATH_LENGTH,0
+
 
 ORIX_MALLOC_FREE_TABLE:
 ; (adress begin) (adress_end) (size of chunk 16 bit)
