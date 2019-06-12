@@ -8,6 +8,7 @@
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
 .include   "include/process.inc"
+.include   "include/memory.inc"
 .include   "orix.mac"
 .include   "orix.inc"
 .include   "build.inc"
