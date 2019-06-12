@@ -1,0 +1,71 @@
+.macro PRINT_BINARY_TO_DECIMAL_16BITS justif
+    LDX #$20
+    STX DEFAFF
+    LDX #justif
+    BRK_ORIX XDECIM
+    ;.byte $00,XDECIM
+.endmacro
+
+.macro CLS
+  lda     #<SCREEN
+  ldy     #>SCREEN
+  sta     RES
+  sty     RES+1
+  ldy     #<(SCREEN+40+27*40)
+  ldx     #>(SCREEN+40+27*40)
+  lda     #' '
+  BRK_ORIX XFILLM
+.endmacro
+ 
+.macro SWITCH_ON_CURSOR
+  ldx #$00
+  BRK_ORIX XCSSCR
+.endmacro  
+
+.macro SWITCH_OFF_CURSOR
+	ldx #$00
+	BRK_ORIX XCOSCR
+.endmacro    
+
+  
+.macro  PRINT_CHAR str
+  pha
+  sta TR6
+  txa
+  pha
+  tya
+  pha
+  lda TR6
+  BRK_TELEMON XWR0
+  pla
+  tay
+  pla
+  txa
+  pla
+.endmacro	
+
+.macro PRINT str
+	pha
+	txa
+	pha
+	tya
+	pha
+	lda #<str
+	ldy #>str
+	BRK_TELEMON XWSTR0
+  pla
+	tay
+	pla
+	txa
+  pla
+.endmacro
+
+.macro PRINT_NOSAVE_REGISTER str
+	lda #<str
+	ldy #>str
+	BRK_TELEMON XWSTR0
+.endmacro
+
+.macro RETURN_LINE
+  BRK_ORIX XCRLF
+.endmacro  

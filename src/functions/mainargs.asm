@@ -16,7 +16,6 @@ XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
 .proc XMAINARGS_ROUTINE
         sta     RESB                    ; Contains command line pointer
         sty     RESB+1        
-
         
         lda     #<.sizeof(XMAINARGS_STRUCT)
         ldy     #>.sizeof(XMAINARGS_STRUCT)
@@ -24,9 +23,6 @@ XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
 
         sta     RES                     ; Contains address of mainargs struct
         sty     RES+1
-
-;        sta     $5000
-        ;sty     $5001
 
         lda     #" " ; Split value 
         sta     XMAINARGS_ROUTINE_SPLIT_VALUE
@@ -85,7 +81,7 @@ L0:     lda     (RESB),y
         bra     L0
 .p02    
 .else
-        jmp     L0                      ; FIXME could be replace by bne
+        jmp     L0                                ; FIXME could be replace by bne
 .endif        
 
 L1:  
@@ -120,9 +116,8 @@ inc_argv:
         ldy     #$00
         lda     (RES),y                 ; get argc
         
-        tax                             ; bit crap but 6502 can't do inc (RES),y
-        inx
-        txa
+        sec
+        adc     #$00                    ; inc a
         
         sta     (RES),y                 ; get argc
 
@@ -155,18 +150,7 @@ S4:
 S5:     
         sta     XMAINARGS_ROUTINE_ARGV_PTR
 
-     ;   ldy     #$00
-        ;lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
-        ;sta     (XMAINARGS_ROUTINE_ARGV_PTR),y
-        ;iny
-        ;lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
-        ;sta     (XMAINARGS_ROUTINE_ARGV_PTR),y
-
-
-
         ldy     TR0
         rts
 
 .endproc        
-
-

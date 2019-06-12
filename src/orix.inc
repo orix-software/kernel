@@ -144,7 +144,6 @@ ORIX_MALLOC_BUSY_TABLE_NUMBER
     .res 1
 KERNEL_TMP_XEXEC:
     .res 1
-KERNEL_RESTORE_VEXBNK:
-    .res 2
+kernel_process:      .tag    kernel_process_struct
     
 
