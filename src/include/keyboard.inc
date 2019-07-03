@@ -7,3 +7,7 @@ KEY_LEFT		              = 8
 KEY_RIGHT		              = 9
 KEY_DOWN		              = 10
 KEY_UP			              = 11
+KEY_RETURN                    = $0D
+KEY_ESC                       = $1B
+KEY_DEL                       = $7F
+

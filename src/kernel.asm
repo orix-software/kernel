@@ -1254,7 +1254,7 @@ vectors_telemon:
   .byt     <XMKDIR_ROUTINE,>XMKDIR_ROUTINE       ; $4b
   .byt     <XHCHRS_ROUTINE,>XHCHRS_ROUTINE ; $4c
   .byt     <XRM_ROUTINE,>XRM_ROUTINE       ; $4D
-  .byt     $00,$00 ; $4e
+  .byt     <_XFWR_routine,>_XFWR_routine ; $4E
   .byt     $00,$00 ; $4f
   .byt     <XALLKB_ROUTINE,>XALLKB_ROUTINE ; $50
   .byt     <XKBDAS_ROUTINE,>XKBDAS_ROUTINE ; $51
@@ -1534,6 +1534,7 @@ XCLOSE_ROUTINE:
 .include  "functions/mainargs.asm"
 .include  "functions/getargc.asm"
 .include  "functions/getargv.asm"
+.include  "functions/text/xfwr.asm"
 
 
 _multitasking:
@@ -2202,8 +2203,8 @@ Ldbb5:
   STA     ADSCR+1  
   
   LDA     SCRNB+1
-  CMP     #" "       ; is it space ?
-  BCS     Ldc4c      ; No it's a char
+  CMP     #" "       ; is it greater than space ?
+  BCS     Ldc4c      ; yes let's displays it.
 Ldbce   ; $d27e
   LDA     FLGSCR,X
 
@@ -2348,7 +2349,7 @@ LDCB8
   LDA     SCRNB+1          ;   on lit Y                                         I
   AND     #$3F             ;   on vire b4 (protocole US)                        I
   STA     SCRY,X           ;   et on fixe Y                                     I
-  JSR     LDE07            ;   on ajuste l'adresse dans la fen?tre              I
+  JSR     LDE07            ;   on ajuste l'adresse dans la fenêtre              I
   STA     ADSCRL,X         ;   dans ADSCRL                                      I
   TYA                      ;                                                    I
   STA     ADSCRH,X         ;   et ADSCRH                                        I
@@ -2605,9 +2606,9 @@ CTRL_HOME_START:
 LDE07
   LDA     SCRY,X   ;  et on calcule l'adresse                           
   JSR     LDE12    ;  de la ligne                                       
-  STA     ADSCR    ;  dans ADSCR                                        
-  STY     ADSCR+1  ;
-  RTS      
+  sta     ADSCR    ;  dans ADSCR                                        
+  sty     ADSCR+1  ;
+  rts      
 
 
 ;  CALCULE L'ADRESSE DE LA LIGNE A                       
