@@ -6704,7 +6704,7 @@ charset_text:
   ; Z
   .byte   $3E,$02,$04,$08,$10,$20,$3E,$00
   ; [
-  .byte   $65,$10,$10,$10,$10,$10,$1E,$00
+  .byte   30,$10,$10,$10,$10,$10,$1E,$00
   ; \
   .byte   $00,$20,$10,$08,$04,$02,$00,$00
   ; ]
@@ -6956,7 +6956,13 @@ signature:
   .byt     " 6502"
 .endif  
   .byt     $00
-  
+
+kernel_version:
+  .byt 0
+  .byt 0
+  .byt 1
+  .byt 1 ; patch
+
 free_bytes: ; 26 bytes
   .res     $FFF8-*
   .org     $FFF8
