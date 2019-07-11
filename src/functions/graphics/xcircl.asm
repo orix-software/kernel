@@ -1,9 +1,9 @@
 ;                              TRACE UN CERCLE                               
 
-;Principe:Pour tracer une ellipsoide en g?n?ral, on utilise la formule :         
+;Principe:Pour tracer une ellipsoide en général, on utilise la formule :         
                                                                                 
 ;         (X*X)/(A*A)+(Y*Y)/(B*B)=1, A et B étant respectivement la largeur      
-;         et la hauteur de l'ellipse. Pour un cercle, A=B donc on ?crit :        
+;         et la hauteur de l'ellipse. Pour un cercle, A=B donc on écrit :        
                                                                                 
 ;         X*X+Y*Y=R*R soit encore X=SQR(R*R-Y*Y).                                
                                                                                 
@@ -52,8 +52,7 @@
 ;         Il aurait suffit d'incrémenter le rayon avant le calcul...             
 
 .proc XCIRCL_ROUTINE
-                                                                            
-  lda      HRSX       ; on sauve HRSX                                     
+  lda      HRSX                    ; on sauve HRSX
   pha                                                              
   lda      HRSY                    ;  et HRSY                                           
   pha                                                              
@@ -85,7 +84,7 @@
   ror      TR1                     ;   on met b7 de TR1 à 1 (ne pas afficherle point)
   lda      TR4                     ;    AX=sY
   ldx      TR5                                                          
-  jsr      Lea62                   ;   on calcule sY/R (en fait sY/2^N)
+  jsr      compute_sX_or_sY                   ;   on calcule sY/R (en fait sY/2^N)
   clc                                                              
   lda      TR2                     ;   on calcule sX=sX+sY/R                             
   adc      TR6                                                          
@@ -106,7 +105,7 @@
 @S3:
   lda      TR2                     ;  AX=sX <-------------------------------------------
   ldx      TR3                                                          
-  jsr      Lea62                   ;    on calcule sX/R (en fait sX/2^N)
+  jsr      compute_sX_or_sY        ;    on calcule sX/R (en fait sX/2^N)
   sec                                                              
   lda      TR4                     ;    et sY=sY-sX/R
   sbc      TR6                                                          
@@ -138,5 +137,23 @@
   TAY                              ;    on reprend les coordonnées du curseur sauvées 
   pla                              ;    dans X et Y
   tax                                                              
-  jmp hires_put_coordinate         ;  et on replace le curseur
+  jmp      hires_put_coordinate         ;  et on replace le curseur
 .endproc  
+
+;                     CALCUL LE DEPLACEMENT sX ou sY                       
+                                                                                
+; Action:calcule dans $13,$12 la valeur de (X,A)/R, en fait (X,A)/2^N.            
+
+.proc compute_sX_or_sY
+  sta     TR6       ; on place la partie fractionnaire dans $12
+  stx     TR7       ; et la partie enti?re dans $13
+  ldx     TR0       ; X=N tel que Rayon<2^N
+@L1:
+  lda     TR7       ; on garde le signe du résultat
+  rol
+  ror     TR7       ; et on divise par 2^X
+  ror     TR6       ; dans $13,$12
+  dex
+  bne     @L1
+  rts
+.endproc

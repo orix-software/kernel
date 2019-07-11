@@ -220,7 +220,7 @@ display_cursor:
  
 call_routine_in_another_bank  
   sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
-  STY     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
+  sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
   stx     BNKCIB
   jmp     SWITCH_TO_BANK_ID
 
@@ -437,7 +437,7 @@ code_adress_419:
   sta     VIA2::PRA
   pla
   jsr     BUFROU     ; Read buffer
-  TAY            ; A contains the value read in the buffer, backup it
+  tay            ; A contains the value read in the buffer, backup it
   lda     VIA2::PRA
   ora     #$07
   sta     VIA2::PRA
@@ -691,7 +691,7 @@ routine_to_define_16
   ldy     BUFBUF+1,X
   sta     IRQSVP
 next36
-  STY     FIXME_PAGE0_0 ; FIXME
+  sty     FIXME_PAGE0_0 ; FIXME
   lda     IRQSVP
   rts
 
@@ -721,8 +721,8 @@ end_keyboard_buffer
 .include  "functions/xinteg.asm"
 
 send_command_A:
-  STY     ADDRESS_VECTOR_FOR_ADIOB
-  STY     ADDRESS_VECTOR_FOR_ADIOB+1 
+  sty     ADDRESS_VECTOR_FOR_ADIOB
+  sty     ADDRESS_VECTOR_FOR_ADIOB+1 
   pha
   txa
   asl
@@ -788,7 +788,7 @@ brk_management:
 .p02  
 .else
   stx     IRQSVX ; save register X
-  STY     IRQSVY ; save register 
+  sty     IRQSVY ; save register 
 .endif
   pla ; pull P (flag register)
   sta     IRQSVP ; save P (flag register)
@@ -923,7 +923,7 @@ next26
 next23:
   pla
 Lc91c:
-  TAY
+  tay
 Lc91d:
 .endif
   rts
@@ -1630,7 +1630,7 @@ XKBDAS_ROUTINE:
   asl
   asl
   asl
-  TAY
+  tay
   lda     KBD_UNKNOWN ;
 @loop:
   LSR
@@ -1647,7 +1647,7 @@ XKBDAS_ROUTINE:
   pha
   TYA
   adc     #$3F
-  TAY
+  tay
 @skip2:
   TYA
   cmp     #$20
@@ -1657,7 +1657,7 @@ XKBDAS_ROUTINE:
   bcc     @skip3
   sbc     #$08
 @skip3:
-  TAY
+  tay
 @skip4:
   txa
   and     #$20
@@ -1671,7 +1671,7 @@ XKBDAS_ROUTINE:
   bcs     @skip5
   sbc     #$1F
 @skip5:
-  TAY
+  tay
   txa
   and     #$04
   beq     next68
@@ -1685,7 +1685,7 @@ XKBDAS_ROUTINE:
   pha
   TYA
   and     #$1F
-  TAY
+  tay
 next68
   TYA
 Ld882  
@@ -1904,7 +1904,7 @@ init_keyboard:
   lda     #<table_chars_qwerty
   ldy     #>table_chars_qwerty
   sta     ADKBD
-  STY     ADKBD+1 ; FIXME
+  sty     ADKBD+1 ; FIXME
   LSR     KBDFLG_KEY
   lda     #$C0
   sta     FLGKBD
@@ -1926,7 +1926,7 @@ XSONPS_ROUTINE:
   lda     ADDRESS_READ_BETWEEN_BANK
   pha
   stx     ADDRESS_READ_BETWEEN_BANK
-  STY     ADDRESS_READ_BETWEEN_BANK+1
+  sty     ADDRESS_READ_BETWEEN_BANK+1
   php
   ldy     #$00
 ld9f9
@@ -1943,7 +1943,7 @@ lda04
   pha
   jsr     XEPSG_ROUTINE 
   pla
-  TAY
+  tay
   iny
   cpy     #$0E
   bne     ld9f9
@@ -2178,7 +2178,7 @@ Ldbce   ; $d27e
   pha
   lda     SCRNB+1
   asl     ; MULT2 in order to get vector 
-  TAY
+  tay
   lda     TABLE_OF_SHORTCUT_KEYBOARD+1,Y 
   pha
   lda     TABLE_OF_SHORTCUT_KEYBOARD  ,Y 
@@ -2399,7 +2399,7 @@ LDD13:
   ror    ;        on prépare masque %10000000                       
 
 LDD14:
-  TAY           ; dans Y                                            
+  tay           ; dans Y                                            
   TSX           ;  on indexe FLGSCR dans la pile                     
   eor     $0103,X   ;  on inverse le bit correspondant au code (bascule) 
   sta     $0103,X   ;  et on replace                                     
@@ -2609,7 +2609,7 @@ LDE2D
   beq     @skip
   TYA
   adc     #$28
-  TAY
+  tay
   pla
   sta     (ADSCR),Y
   rts
@@ -2657,7 +2657,7 @@ LDE62:
   iny
 @skip2:
   sta     DECCIB     ;  est dans $08-09                                   
-  STY     DECCIB+1                                                          
+  sty     DECCIB+1                                                          
   clc            ; on ajoute le d?placement                          
   adc     DECFIN                                                          
   sta     DECDEB
@@ -2749,7 +2749,7 @@ ROUTINE_TO_DEFINE_7
   clc
   php
   sta     ADDRESS_READ_BETWEEN_BANK ; CORRECTME
-  STY     ADDRESS_READ_BETWEEN_BANK+1 ; CORRECTME
+  sty     ADDRESS_READ_BETWEEN_BANK+1 ; CORRECTME
   txa
   clc
   adc     #$18
@@ -2857,9 +2857,9 @@ init_joystick:
   lda     #$10
   ldy     #$27
   sta     VIA_UNKNOWN
-  STY     VIA_UNKNOWN+1
+  sty     VIA_UNKNOWN+1
   sta     VIA::T2
-  STY     VIA::T2+1
+  sty     VIA::T2+1
   lda     #$A0
   sta     VIA::IER
   rts
@@ -3165,7 +3165,7 @@ LE2A2
   TYA
   clc
   adc     #$28
-  TAY
+  tay
   bcc     LE2B1 
   inc     TR6
 LE2B1  
@@ -3219,7 +3219,7 @@ Le2ed
 Le302  
   clc
   iny
-  STY ACC1E
+  sty ACC1E
 Le306  
   rts
 put_cursor_on_beginning_of_the_line:
@@ -3229,7 +3229,7 @@ put_cursor_on_beginning_of_the_line:
   jsr LDE12
   jsr put_cursor_on_last_char_of_the_line
 Le32f  
-  STY $62
+  sty $62
   beq Le34e 
   lda $63
   cmp SCRFY,X
@@ -3334,7 +3334,7 @@ display_bufedt_content:
   lda $26
   ldy $27
   sta RES
-  STY RES+1
+  sty RES+1
   ldx SCRNB
   ldy SCRX,X
 Le3e3:
@@ -3509,7 +3509,7 @@ LE656
   pla                  ;  on restaure les registres                        I
   tax                  ;                                                   I
   pla                  ;                                                   I
-  TAY                  ;                                                   I
+  tay                  ;                                                   I
   lda TR0              ;                                                   I
   bcs LE656            ;  si l'envoi s'est mal pass?, on recommence --------
 LE66B
@@ -3570,7 +3570,7 @@ Le7c0
 ;
 
 hires_put_coordinate:
-  STY HRSY            ;     Y dans HRSY                                       
+  sty HRSY            ;     Y dans HRSY                                       
   stx HRSX            ;     X dans HRSX                                       
   tya                 ;     et Y dans A                                       
   ldy #$00            ;     AY=A, ligne du curseur                            
@@ -3583,7 +3583,7 @@ hires_put_coordinate:
   stx RES             ;    on met la colonne dans RES                        
   lda #$06            ;    A=6                                               
   ldy #$00            ;    et Y=0  (dans RES+1)                              
-  STY RES+1           ;     AY=6 et RES=colonne                               
+  sty RES+1           ;     AY=6 et RES=colonne                               
   jsr XDIVIS_ROUTINE  ;     on divise la colonne par 6                       
   lda RES             ;     on sauve colonne/6 dans HSRX40                    
   sta HRSX40          ;                                                        
@@ -3646,7 +3646,7 @@ LE845
   rol         ;   dans A                                      I    I
   LSR DECDEB     ;                                               I    I
   rol         ;                                               I    I
-  TAY         ;   et Y                                        I    I
+  tay         ;   et Y                                        I    I
   lda $0006,Y  ;  on lit la coordonn?e correspondante         I    I
   sta HRS1,X    ;  et on stocke dans HRSx                      I    I
   dex         ;                                               I    I
@@ -3709,7 +3709,7 @@ LE87B
   sta     HRS5+1   ;   FIXME Jede : Erreur entre le commentaire et la valeur (avant $56) dans HRS1+1     
   jsr     Le942  ;    vérifie la validit? de dX et dY                  
   stx     HRSX    ;    X et Y contiennent HRSX+dX et HRSY+dY             
-  STY     HRSY     ;   dans HRSX et HRSY                                 
+  sty     HRSY     ;   dans HRSX et HRSY                                 
   bit     HRS1+1    ;    dX n?gatif ?                                      
   bpl     LE89D  ;    non ----------------------------------------------
   lda     HRS1    ;    oui, on compl?mente                              I
@@ -3738,21 +3738,21 @@ LE8A9
   sta     RES   ;     en fait, -1, mais c'est la m?me chose    I  I    I
 LE8C0  
   bit     HRS1+1 ; I
-  bpl               ; I   dX>0 -------------------------------------  I    I
-  jsr     XHRSCG_ROUTINE ; I   dX<0, on d?place le curseur ? gauche     I  I    I 
-  jmp     LE8CD          ; I---                                         I  I    I  
-LE8CA
-  jsr     XHRSCD_ROUTINE ; II  on on déplace le curseur ? droite <-------  I    I 
+  bpl  @S2          ; I   dX>0 -------------------------------------  I    I
+  jsr XHRSCG_ROUTINE ; I   dX<0, on d?place le curseur ? gauche     I  I    I 
+  jmp LE8CD          ; I---                                         I  I    I  
+@S2:
+  jsr XHRSCD_ROUTINE ; II  on on déplace le curseur ? droite <-------  I    I 
 LE8CD
   clc       ; I-->a-t-on parcouru une valeur de la tangente   I    I
   lda     RES   ; I                                               I    I
-  adc     RESB   ; I   on stocke le r?sultat dans RESB              I    I
-  sta     RESB   ; I                                               I    I
-  bcc     LE8E3  ;I   non, on continue -------------------------  I    I 
-  bit     $50   ; I   oui, dY<0 ?                              I  I    I
-  bmi     LE8E0 ; I   oui -------------------------------      I  I    I
-  jsr     XHRSCB_ROUTINE ; I   non, on déplace le curseur        I      I  I    I 
-  jmp     LE8E3  ;I---vers le bas                       I      I  I    I 
+  adc RESB   ; I   on stocke le r?sultat dans RESB              I    I
+  sta RESB   ; I                                               I    I
+  bcc LE8E3  ;I   non, on continue -------------------------  I    I 
+  bit $50   ; I   oui, dY<0 ?                              I  I    I
+  bmi LE8E0 ; I   oui -------------------------------      I  I    I
+  jsr XHRSCB_ROUTINE ; I   non, on déplace le curseur        I      I  I    I 
+  jmp LE8E3  ;I---vers le bas                       I      I  I    I 
 LE8E0
   jsr XHRSCH_ROUTINE ; II  on déplace vers le haut <----------      I  I    I
 LE8E3
@@ -3801,7 +3801,7 @@ Le921
 
   stx     RES+1     ;   dX (ou dY)*256 dans RES+1                         
   ldy     #$00    ;   dY (ou dX) dans AY                                
-  STY     RES                                                          
+  sty     RES                                                          
   jsr     XDIVIS_ROUTINE    ;  calcul dX*256/dY (ou dY/dX)                    
   lda     #$FF     ;  reste =-1                                         
   sta     RESB    ;    resultat dans RES                                 
@@ -3835,7 +3835,7 @@ Le942
   clc                                                              
   lda      HRSY     ;   HRSY                                              
   adc      HRS2     ;   plus le d?placement vertical                      
-  TAY               ;   dans Y           
+  tay               ;   dans Y           
 
 ;                       TESTE SI X ET Y SONT VALIDES                        
 ; Principe:Si X>239 ou Y>199 alors on ne retourne pas au programme appelant, mais son appelant, en indiquant l'erreur dans HRSERR.                     
@@ -3916,7 +3916,7 @@ LE9A7
 LE9B3
   plp         ;   on sort C <-------------------------------------  
   adc #$00    ;   A=A+C                                             
-  TAY        ;    dans Y                                            
+  tay        ;    dans Y                                            
   pla        ;    on sort le code                                   *
 LE9B8
   sta (RES),Y; -->on le place dans la colonne correspondante        
@@ -3935,35 +3935,18 @@ LE9C6
 
 .include "functions/graphics/xcircl.asm"
 
-;                       CALCUL LE DEPLACEMENT sX ou sY                       
-                                                                                
-; Action:calcule dans $13,$12 la valeur de (X,A)/R, en fait (X,A)/2^N.            
-
-
-Lea62                                        
-  sta     TR6       ; on place la partie fractionnaire dans $12         
-  stx TR7       ; et la partie enti?re dans $13                     
-  ldx TR0       ; X=N tel que Rayon<2^N
-Lea68  
-  lda TR7       ; on garde le signe du r?sultat                     
-  rol                                                              
-  ror TR7       ; et on divise par 2^X                              
-  ror TR6       ; dans $13,$12                                      
-  dex                                                              
-  bne Lea68                                                        
-  rts         
-
+;  
 XFILL_ROUTINE
-  lda ADHRS
-  ldy ADHRS+1
-  sta RES 
-  sty RES+1
+  lda     ADHRS
+  ldy     ADHRS+1
+  sta     RES 
+  sty     RES+1
 @loop2:
-  ldx HRS2
-  ldy HRSX40
-  lda HRS3
+  ldx     HRS2
+  ldy     HRSX40
+  lda     HRS3
 @loop:
-  sta (RES),y
+  sta     (RES),y
   iny
   dex
   bne @loop
@@ -4006,7 +3989,7 @@ LEAB5
   ldx HRSX6
   lda HRSY
   adc #$07
-  TAY
+  tay
   sbc #$BF
   bcc Lead0   
   beq Lead0   
@@ -4014,7 +3997,7 @@ LEAB5
   bne Leacf 
   lda #$00
 Leacf  
-  TAY
+  tay
 Lead0  
   jsr hires_put_coordinate
 Lead3  
@@ -4022,7 +4005,7 @@ Lead3
   jsr ZADCHA_ROUTINE 
   ldy #$00
 Lead9  
-  STY RES
+  sty RES
   lda HRSX40
   pha
   lda HRSX6
@@ -4058,19 +4041,18 @@ Leaf3
 .include  "functions/sound/sounds.asm"  
 
 
-
 READ_A_SERIAL_BUFFER_CODE_INPUT
   ldx     #$0c
-  jmp LDB5D 
+  jmp     LDB5D 
 wait_code_on_SERIAL_BUFFER_INPUT:
 @loop:
-  jsr READ_A_SERIAL_BUFFER_CODE_INPUT 
-  bcs @loop
+  jsr     READ_A_SERIAL_BUFFER_CODE_INPUT 
+  bcs     @loop
   rts
 
 write_caracter_in_output_serial_buffer
-  bit write_caracter_in_output_serial_buffer
-  jmp LDB79
+  bit     write_caracter_in_output_serial_buffer
+  jmp     LDB79
 
 ;Minitel  
 send_a_to_minitel:
@@ -4126,7 +4108,7 @@ LEC61
 
 Lec6b
   stx TR0
-  STY TR1
+  sty TR1
 Lec6f  
   asl KBDCTC
   bcc Lec77
@@ -4158,7 +4140,7 @@ Lec8b
   jsr LECB9 
   tax
   pla
-  TAY
+  tay
   txa
   cpy #$01
   bne LECA8 
@@ -4221,7 +4203,7 @@ compute_file_size
   lda $052D ; FIXME
   ldy $052E ; FIXME
   sta RES
-  STY RES+1
+  sty RES+1
   rts
 
 send_serial_header_file
@@ -4257,8 +4239,7 @@ LED24
 
 
 read_header_file:
- 
-  jmp Ldbb5
+  jmp     Ldbb5
 
 XCONSO_ROUTINE: 
   jsr     LECC1
@@ -4397,7 +4378,7 @@ read_a_file_rs232_minitel:
   sta $052B  ;FIXME
 LEE6C  
   ldy #$00
-  STY TR2
+  sty TR2
 LEE70  
   lda $052A ; FIXME
   beq LEE86  
@@ -5231,7 +5212,7 @@ LF2CD
   bmi LF2A4 
   bpl LF2BA
 LF2DB  
-  TAY
+  tay
   lda $6C
   sbc $64
   sta $6C
@@ -5284,7 +5265,7 @@ Lf31f
 XAYA1_ROUTINE:
 Lf323
   sta $7D
-  STY $7E
+  sty $7E
   ldy #$04
   lda ($7D),Y
   sta $64
@@ -5302,7 +5283,7 @@ Lf323
   DEY
   lda ($7D),Y
   sta ACC1E
-  STY ACC1EX
+  sty ACC1EX
   rts
 LF348
   ldx #$73
@@ -5315,7 +5296,7 @@ LF34B
 
 XA1XY_ROUTINE:
   stx     $7D
-  STY $7E
+  sty $7E
   
   ldy #$04
   lda $64
@@ -5334,7 +5315,7 @@ XA1XY_ROUTINE:
   DEY
   lda ACC1E
   sta ($7D),Y
-  STY ACC1EX
+  sty ACC1EX
   rts
 XA2A1_ROUTINE  
   lda $6d
@@ -5437,7 +5418,7 @@ LF3F8
 
 LF3F9:
   sta     $7D
-  STY $7E
+  sty $7E
   ldy #$00
   lda ($7D),Y
   iny
@@ -5491,18 +5472,18 @@ LF44D
   cmp #$F9
   bpl LF459 
   jsr LF0E5
-  STY $67
+  sty $67
   rts
 
 LF459: 
-  TAY
+  tay
   lda ACC1S
   and #$80
   LSR ACC1M
   ora ACC1M
   sta ACC1M
   jsr LF0FC 
-  STY $67
+  sty $67
 LF469  
   rts
   
@@ -5511,9 +5492,9 @@ XINT_ROUTINE:
   cmp #$A0
   bcs LF469 
   jsr LF439 
-  STY ACC1EX
+  sty ACC1EX
   lda ACC1S
-  STY ACC1S
+  sty ACC1S
   eor     #$80
   ROL
   lda     #$A0
@@ -5526,7 +5507,7 @@ LF487
   sta     $62
   sta     $63
   sta     $64
-  TAY
+  tay
   rts
 LF491
   sta     ACC1M
@@ -5550,7 +5531,7 @@ XA1DEC_ROUTINE:
 LF4AF  
   sta $0100,Y
   sta ACC1S
-  STY $77
+  sty $77
   iny
   lda #$30
   ldx ACC1E
@@ -5623,7 +5604,7 @@ LF51B
   iny
   sta $0100,Y
 LF52C  
-  STY $77
+  sty $77
 LF52E
 
   ldy #$00
@@ -5660,7 +5641,7 @@ LF55F
   iny
   iny
   iny
-  STY     $76
+  sty     $76
   ldy     $77
   iny
   tax
@@ -5672,7 +5653,7 @@ LF55F
   iny
   sta     $0100,Y
 @S1:
-  STY     $77
+  sty     $77
   ldy     $76
   txa
   eor     #$FF
@@ -5848,7 +5829,7 @@ LF6BD
   lda ACC2E,X
   ldy ACC1E,X
   sta ACC1E,X
-  STY ACC2E,X
+  sty ACC2E,X
   DEX
   bpl LF6BD 
   lda $7F
@@ -5867,7 +5848,7 @@ LF6BD
 LF6E1  
   sta $85
 LF6E3  
-  STY $86
+  sty $86
 LF6E5  
   jsr LF348 
 LF6E8  
@@ -5881,7 +5862,7 @@ LF6E8
   
 LF6F7
   sta $85
-  STY $86
+  sty $86
 LF6FB  
   jsr LF34B 
   lda ($85),Y
@@ -5904,7 +5885,7 @@ LD70E
   iny
 LF71B  
   sta $85
-  STY $86
+  sty $86
   jsr AY_add_acc1  
   lda #$78
   ldy #$00
@@ -6353,151 +6334,8 @@ table_chars_azerty:
   .byt $46,$24,$5f,$0b,$50,$45,$3f,$21,$1b,$57,$00,$08,$7f,$51,$0d
   .byt $58
   .byt $41,$40,$7c,$0a,$7d,$53,$00,$23,$44,$43,$22,$09,$7b,$5a,$2b
-charset_text:
-  ; ' '
-  .byte   $00,$00,$00,$00,$00,$00,$00,$00
-  ; '!'
-  .byte   $08,$08,$08,$08,$08,$00,$08,$00
-  .byte   $14,$14,$14,$00,$00,$00,$00,$00
-  .byte   $14,$14,$3E,$14,$3E,$14,$14,$00
-  .byte   $08,$1E,$28,$1C,$0A,$3C,$08,$00
-  .byte   $30,$32,$04,$08,$10,$26,$06,$00
-  .byte   $10,$28,$28,$10,$2A,$24,$1A,$00
-  .byte   $08,$08,$08,$00,$00,$00,$00,$00
-  .byte   $08,$10,$20,$20,$20,$10,$08,$00
-  .byte   $08,$04,$02,$02,$02,$04,$08,$00
-  .byte   $08,$2A,$1C,$08,$1C,$2A,$08,$00
-  .byte   $00,$08,$08,$3E,$08,$08,$00,$00
-  .byte   $00,$00,$00,$00,$00,$08,$08,$10
-  .byte   $00,$00,$00,$3E,$00,$00,$00,$00
-  .byte   $00,$00,$00,$00,$00,$04,$00,$00
-  .byte   $00,$02,$04,$08,$10,$20,$00,$00
-  .byte   $1C,$22,$26,$2A,$32,$22,$1C,$00
-  .byte   $08,$18,$08,$08,$08,$08,$1C,$00
-  ; 50
-  .byte   $1C,$22,$02,$04,$08,$10,$3E,$00
-  .byte   $3E,$02,$04,$0C,$02,$22,$1C,$00
-  .byte   $04,$0C,$14,$24,$3E,$04,$04,$00
-  .byte   $3E,$20,$3C,$02,$02,$22,$1C,$00
-  .byte   $0C,$10,$20,$3C,$22,$22,$1C,$00
-  .byte   $3E,$02,$04,$08,$10,$10,$10,$00
-  .byte   $1C,$22,$22,$1C,$22,$22,$1C,$00
-  .byte   $1C,$22,$22,$1E,$02,$04,$18,$00
-  .byte   $00,$00,$08,$00,$00,$08,$00,$00
-  ;  90
-  .byte   $00,$00,$08,$00,$00,$08,$08,$10
-  .byte   $04,$08,$10,$20,$10,$08,$04,$00
-  .byte   $00,$00,$3E,$00,$3E,$00,$00,$00
-  .byte   $10,$08,$04,$02,$04,$08,$10,$00
-  .byte   $1C,$22,$04,$08,$08,$00,$08,$00
-  ; @
-  .byte   $1C,$22,$2A,$2E,$2C,$20,$1E,$00
-  ; 'A'
-  .byte   $08,$14,$22,$22,$3E,$22,$22,$00
-  ; B
-  .byte   $3C,$22,$22,$3C,$22,$22,$3C,$00
-  ; C
-  .byte   $1C,$22,$20,$20,$20,$22,$1C,$00
-  ; D
-  .byte   $3C,$22,$22,$22,$22,$22,$3C,$00
-  ; E
-  .byte   $3E,$20,$20,$3C,$20,$20,$3E,$00
-  ; F
-  .byte   $3E,$20,$20,$3C,$20,$20,$20,$00
-  ; G
-  .byte   $1E,$20,$20,$20,$26,$22,$1E,$00
-  ; H
-  .byte   $22,$22,$22,$3E,$22,$22,$22,$00
-  ; I
-  .byte   $1C,$08,$08,$08,$08,$08,$1C,$00
-  ; J
-  .byte   $02,$02,$02,$02,$02,$22,$1C,$00
-  ; K
-  .byte   $22,$24,$28,$30,$28,$24,$22,$00
-  ; L
-  .byte   $20,$20,$20,$20,$20,$20,$3E,$00
-  ; M
-  .byte   $22,$36,$2A,$2A,$22,$22,$22,$00
-  ; N
-  .byte   $22,$22,$32,$2A,$26,$22,$22,$00
-  ; O
-  .byte   $1C,$22,$22,$22,$22,$22,$1C,$00
-  ; P
-  .byte   $3C,$22,$22,$3C,$20,$20,$20,$00
-  ; Q
-  .byte   $1C,$22,$22,$22,$2A,$24,$1A,$00
-  ; R
-  .byte   $3C,$22,$22,$3C,$28,$24,$22,$00
-  ; S
-  .byte   $1C,$22,$20,$1C,$02,$22,$1C,$00
-  ; T
-  .byte   $3E,$08,$08,$08,$08,$08,$08,$00
-  ; U
-  .byte   $22,$22,$22,$22,$22,$22,$1C,$00
-  ; V
-  .byte   $22,$22,$22,$22,$22,$14,$08,$00
-  ; W
-  .byte   $22,$22,$22,$2A,$2A,$36,$22,$00
-  ; X
-  .byte   $22,$22,$14,$08,$14,$22,$22,$00
-  ; Y
-  .byte   $22,$22,$14,$08,$08,$08,$08,$00
-  ; Z
-  .byte   $3E,$02,$04,$08,$10,$20,$3E,$00
-  ; [
-  .byte   30,$10,$10,$10,$10,$10,$1E,$00
-  ; \
-  .byte   $00,$20,$10,$08,$04,$02,$00,$00
-  ; ]
-  .byte   $3C,$04,$04,$04,$04,$04,$3C,$00
-  ; ^
-  .byte   $08,$14,$2A,$08,$08,$08,$08,$00
-  ; _ or pound
-  ; .byte   $0E,$10,$10,$10,$3C,$10,$3E,$00 ; pound char
-  .byte   $00,$00,$00,$00,$00,$00,63,$00
-  .byte   $0C,$12,$2D,$29,$29
-  .byte   $2D,$12,$0C,$00,$00,$1C,$02,$1E
-  .byte   $22,$1E,$00,$20,$20,$3C,$22,$22
-  .byte   $22,$3C,$00,$00,$00,$1E,$20,$20
-  .byte   $20,$1E,$00,$02,$02,$1E,$22,$22
-  .byte   $22,$1E,$00,$00,$00,$1C,$22,$3E
-  .byte   $20,$1E,$00,$0C,$12,$10,$3C,$10
-  ; middle of 'f'
-  .byte   $10,$10,$00,$00,$00,$1C,$22,$22
-  .byte   $1E,$02,$1C,$20,$20,$3C,$22,$22
-  .byte   $22,$22,$00,$08,$00,$18,$08,$08
-  .byte   $08,$1C,$00,$04,$00,$0C,$04,$04
-  .byte   $04,$24,$18,$20,$20,$22,$24,$38
-  .byte   $24,$22,$00,$18,$08,$08,$08,$08
-  .byte   $08,$1C,$00,$00,$00,$36,$2A,$2A
-  .byte   $2A,$22,$00,$00,$00,$3C,$22,$22
-  .byte   $22,$22,$00,$00,$00,$1C,$22,$22
-  .byte   $22,$1C,$00,$00,$00,$3C,$22,$22
-  .byte   $3C,$20,$20,$00,$00,$1E,$22,$22
-  .byte   $1E,$02,$02,$00,$00,$2E,$30,$20
-  .byte   $20,$20,$00,$00,$00,$1E,$20,$1C
-  .byte   $02,$3C,$00,$10,$10,$3C,$10,$10
-  .byte   $12,$0C,$00,$00,$00,$22,$22,$22
-  .byte   $26,$1A,$00,$00,$00,$22,$22,$22
-  .byte   $14,$08,$00,$00,$00,$22,$22,$2A
-  .byte   $2A,$36,$00,$00,$00,$22,$14,$08
-  .byte   $14,$22,$00,$00,$00,$22,$22,$22
-  .byte   $1E,$02,$1C,$00,$00,$3E,$04,$08
-  .byte   $10,$3E,$00,$0E,$18,$18,$30,$18
-  .byte   $18,$0E,$00,$08,$08,$08,$08,$08
-  .byte   $08,$08,$08,$38,$0C,$0C,$06,$0C
-  .byte   $0C,$38,$00
- 
-  ; Tilde char (~)
-  .byt    %00000000
-  .byt    %00000000
-  .byt    %00010000
-  .byt    %00101010
-  .byt    %00000100
-  .byt    %00000000
-  .byt    %00000000
-  .byt    %00000000
-;  END OF CHARSET 
+
+.include "functions/charsets/charset.asm"  
 .include "functions/xloadcharset.asm"  
 
 codes_for_calc_alternates:
@@ -6513,7 +6351,7 @@ XGOKBD_ROUTINE
 @L1:
 .endif  
   ldy     #$00
-  STY     RES
+  sty     RES
   sta     RES+1
   TYA
 
@@ -6534,7 +6372,7 @@ XGOKBD_ROUTINE
   lda     #<charset_text
   ldy     #>charset_text
   sta     RESB
-  STY     RESB+1
+  sty     RESB+1
   ldy     #$00
 loop70:
   ldx     #$00
