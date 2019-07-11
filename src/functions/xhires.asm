@@ -1,6 +1,8 @@
+.export XHIRES_ROUTINE
+
 .proc XHIRES_ROUTINE
 	ldx     #$00
-	ldy     #$ff
+	ldy     #$FF
 	sty     HRSPAT ; pattern
 	iny
 	jsr     hires_put_coordinate                                                                                
@@ -17,7 +19,7 @@
 	lda     #$5C
 	ldy     #$02
 	ldx     #$00
-	jsr     ldefd 
+	jsr     ROUTINE_TO_DEFINE_7 
 	jsr     _xeffhi
 	plp
 	rts
