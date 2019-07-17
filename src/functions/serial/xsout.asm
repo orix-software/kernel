@@ -1,3 +1,5 @@
+.export XSOUT_ROUTINE
+
 .proc XSOUT_ROUTINE
 ; RS232 
   pha 

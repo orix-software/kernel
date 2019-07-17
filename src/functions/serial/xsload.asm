@@ -1,4 +1,6 @@
-XSLOAD_ROUTINE 
+.export XSLOAD_ROUTINE
+
+.proc XSLOAD_ROUTINE 
   ror     INDRS
   lsr     INDRS
   lda     #$40
@@ -8,4 +10,5 @@ XSLOAD_ROUTINE
   lda     #$C0
   sta     VIA::IER
   jmp     Lecbf 
+.endproc  
   

@@ -1,16 +1,18 @@
-  
-XSDUMP_ROUTINE
+.export XSDUMP_ROUTINE 
+
+
+.proc XSDUMP_ROUTINE
   jsr     LECC1
-LED9D  
+@L1:
   asl     KBDCTC
-  bcs     LEDC7 
+  bcs     @S3
   jsr     READ_A_SERIAL_BUFFER_CODE_INPUT
-  bcs     LED9D 
+  bcs     @L1
   tax
-  bmi     LEDAE 
+  bmi     @S1
   cmp     #$20
-  bcs     LEDC1
-LEDAE:
+  bcs     @S2
+@S1:
   pha
   lda     #$81
   jsr     Ldbb5 
@@ -20,8 +22,9 @@ LEDAE:
   tya 
   jsr     Ldbb5 
   lda     #$87 
-LEDC1  
+@S2:
   jsr     Ldbb5
-  jmp     LED9D
-LEDC7  
+  jmp     @L1
+@S3:  
   jmp     Lecbf 
+.endproc  

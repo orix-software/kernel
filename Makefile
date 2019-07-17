@@ -30,22 +30,20 @@ init:
 	@mkdir -p build/usr/src/orix-source-1.0/src/
   
 kernel: $(SOURCE)
+	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@$(AS) --verbose -s -tnone --debug-info -o $(PROGRAM_NAME).ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -o $(PROGRAM_NAME).rom -DWITH_ACIA=2 -Ln $(PROGRAM_NAME).ca.sym
+	@ld65 -tnone $(PROGRAM_NAME).ld65 -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
+	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom
 	@echo Generating Kernel sd
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_ACIA=2 -o kernelsd.rom -Ln kernelsd.ca.sym
+	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_ACIA=2 -o $(PATH_PACKAGE_ROM)/6502/kernelkey.rom -Ln kernelsd.ca.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' $(PROGRAM_NAME).ca.sym | sort >  $(PROGRAM_NAME).sym	
 	@rm $(PROGRAM_NAME).ca.sym
-	@echo Generating Kernel for 32 banks ROM name kernela
 
 test:
-	#xa tests/xrm.asm -o xrm
-	#xa tests/xmkdir.asm -o xmkdir
-	#cp src/include/orix.h build/usr/include/orix/
-	cp Makefile build/usr/src/orix-source-1.0/
-	cp README.md build/usr/src/orix-source-1.0/
-	cp src/* build/usr/src/orix-source-1.0/src/ -adpR
+	cp Makefile build/usr/src/kernel/
+	cp README.md build/usr/src/kernel/
+	cp src/* build/usr/src/kernel/ -adpR
 	cp README.md build/usr/share/doc/$(PROGRAM_NAME)/
 	ls -l $(HOMEDIR)
 	export ORIX_PATH=`pwd`

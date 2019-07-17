@@ -21,6 +21,10 @@ ACC2S := $6D
 ACCPS := $6E
 FLTR0 := $7D
 FLTR1 := $7E
+FLPOLP := $85
+FLPO0  := $87
+
+FLSGN  := $8A
 
 
 
@@ -5656,6 +5660,7 @@ coef_polynome:
   .byt $7E,$75,$FD,$E7,$C6
   .byt $80,$31,$72,$18,$10
   .byt $81,$00,$00,$00,$00 ; 1
+
 XEXP_ROUTINE:
   TSX
   stx     FLSVS
@@ -5707,7 +5712,7 @@ LF6BD
 
 
 LF6E1  
-  sta $85
+  sta FLPOLP
 LF6E3  
   sty $86
 LF6E5  
@@ -5722,91 +5727,43 @@ LF6E8
 
   
 LF6F7
-  sta $85
+  sta FLPOLP
   sty $86
 LF6FB  
   jsr LF34B 
-  lda ($85),Y
-  sta $87
-  ldy $85
+  lda (FLPOLP),Y
+  sta FLPO0
+  ldy FLPOLP
   iny
   tya
   bne LF70A 
   inc $86
 LF70A  
-  sta $85
+  sta FLPOLP
   ldy $86
 LD70E  
   jsr LF184 
-  lda $85
+  lda FLPOLP
   ldy $86
   clc
   adc #$05
   bcc LF71B 
   iny
 LF71B  
-  sta $85
+  sta FLPOLP
   sty $86
   jsr AY_add_acc1  
   lda #$78
   ldy #$00
-  dec $87
+  dec FLPO0
   bne LD70E  
 LF72A
   rts
   
-
-const_11879546_for_rnd
-  .byt $98,$35,$44,$7A,$6B ; 11879546,42
-const_3_dot_92_for_rnd_etc
-  .byt $68,$28,$B1,$46,$20 ;3.927678 E-08
-  
-XRND_ROUTINE
-  jsr     LF3BD
-  tax
-  bmi LF753 
-  lda #$EF
-  ldy #$02
-  jsr Lf323
-  txa
-  beq LF72A 
-  lda #<const_11879546_for_rnd
-  ldy #>const_11879546_for_rnd
-  jsr LF184
-  lda #<const_3_dot_92_for_rnd_etc
-  ldy #>const_3_dot_92_for_rnd_etc
-  jsr AY_add_acc1 
-LF753  
-  ldx $64
-  lda ACC1M
-  sta $64
-  stx ACC1M
-  lda #$00
-  sta ACC1S
-  lda ACC1E
-  sta ACC1EX
-  lda #$80
-  sta ACC1E
-  jsr Lf022 
-  ldx #$EF ; FIXME
-  ldy #$02 ; FIXME
-  jmp XA1XY_ROUTINE
-
-XRAND_ROUTINE:
-  jsr LF348
-  jsr XRND_ROUTINE 
-  lda #$73
-  ldy #$00
-  jsr LF184 
-  jmp XINT_ROUTINE 
-
-XCOS_ROUTINE:
-
-  jsr LF8B1 
-  lda #<CONST_PI_DIVIDED_BY_TWO
-  ldy #>CONST_PI_DIVIDED_BY_TWO
-  jsr AY_add_acc1
-  jmp LF791
+ 
+.include "functions/math/xrnd.asm"
+.include "functions/math/xrand.asm"
+.include "functions/math/xcos.asm"
 
 XSIN_ROUTINE:
 
@@ -5831,9 +5788,9 @@ LF791
   jsr add_0_5_A_ACC1
   lda ACC1S
   bmi LF7C8 
-  lda $8A
+  lda FLSGN
   eor #$FF
-  sta $8A
+  sta FLSGN
   .byt $24
 LF7C4  
   pha
@@ -5860,10 +5817,10 @@ LF7DC
 const_pi_mult_by_two
   .byt $83,$49,$0f,$da,$a2 ; 6.283185307
 const_0_dot_twenty_five ; 0.25
-  .byt $7f,$00,$00,$00,$00
+  .byt $7F,$00,$00,$00,$00
 coef_polynome_sin
   .byt $05 ; 6 coef
-  .byt $84,$e6,$1a,$2d,$1b
+  .byt $84,$e6,$1a,$2d,$1B
   .byt $86,$28,$07,$fb,$f8
   .byt $87,$99,$68,$89,$01
   .byt $87,$23,$35,$df,$e1
@@ -5874,21 +5831,21 @@ XTAN_ROUTINE
   jsr     LF8B1 
   jsr     LF348
   lda     #$00
-  sta      $8A
-  jsr      LF791 
-  ldx      #$80
-  ldy      #$00
-  jsr XA1XY_ROUTINE 
+  sta     FLSGN
+  jsr     LF791 
+  ldx     #$80
+  ldy     #$00
+  jsr     XA1XY_ROUTINE 
   lda     #$73
   ldy     #$00
-  jsr Lf323
-  lda #$00
-  sta ACC1S
-  lda $8A
-  jsr LF7C4
-  lda #$80
-  ldy #$00
-  jmp Lf287
+  jsr     Lf323
+  lda     #$00
+  sta     ACC1S
+  lda     FLSGN
+  jsr     LF7C4
+  lda     #$80
+  ldy     #$00
+  jmp     Lf287
 
 
   
@@ -6372,9 +6329,21 @@ read_a_code_in_15_and_y:
 @skip:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
+.ifdef WITH_ACIA
+KERN_ACIA_CONFIG=1
+.else
+KERN_ACIA_CONFIG=0
+.endif
 
+.ifdef WITH_SDCARD_FOR_ROOT
+KERN_SDCARD_FOR_ROOT_CONFIG=2
+.else
+KERN_SDCARD_FOR_ROOT_CONFIG=0
+.endif
+
+; Byte for compile options
 kernel_compile_option:
-  .byt WITH_ACIA+WITH_SDCARD_FOR_ROOT
+  .byt KERN_ACIA_CONFIG+KERN_SDCARD_FOR_ROOT_CONFIG
 
 
 
