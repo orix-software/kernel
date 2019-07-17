@@ -1,0 +1,129 @@
+.macro PRINT str, option
+	;
+	; Call XWSTR0 function
+	;
+	; usage:
+	;	PRINT #byte [,TELEMON|NOSAVE]
+	;	PRINT (pointer) [,TELEMON|NOSAVE]
+	;	PRINT address [,TELEMON|NOSAVE]
+	;
+	; Option:
+	;	- TELEMON: when used within TELEMON bank
+	;	- NOSAVE : does not preserve A,X,Y registers
+	;
+
+	.if (.not .blank({option})) .and (.not .xmatch({option}, NOSAVE)) .and (.not .xmatch({option}, TELEMON) )
+		.error .sprintf("Unknown option: '%s' (not in [NOSAVE,TELEMON])", .string(option))
+	.endif
+
+
+	; ----------------------------------------------------------------------
+	;
+	;				Prologue
+	;
+	; ----------------------------------------------------------------------
+
+	;.if (.not .blank({option})) .and .xmatch({option}, NOSAVE)
+	;	.out "Don't save regs values"
+	;.endif
+
+	.if .blank({option})
+		pha
+		txa
+		pha
+		tya
+		pha
+	.endif
+
+	.if (.not .blank({option})) .and .xmatch({option}, TELEMON)
+		pha
+		txa
+		pha
+		tya
+		pha
+
+		lda RES
+		pha
+		lda RES+1
+		pha
+	.endif
+
+
+	; ----------------------------------------------------------------------
+	;
+	;			Corps de la routine
+	;
+	; ----------------------------------------------------------------------
+
+	.if (.match (.left (1, {str}), #))
+		; .out "Immediate mode"
+
+		lda # .right (.tcount ({str})-1, {str})
+
+		.if (.not .blank({option})) .and .xmatch({option}, TELEMON)
+			jsr XWR0_ROUTINE
+		.else
+			.byte $00, XWR0
+		.endif
+
+	.elseif (.match(.left(1, {str}), {(}) )
+		; Indirect
+		.if (.match(.right(1,{str}), {)}))
+			; .out"Indirect mode"
+
+			lda .mid (1,.tcount ({str})-2, {str})
+			ldy 1+(.mid (1,.tcount ({str})-2, {str}))
+
+			.if (.not .blank({option})) .and .xmatch({option}, TELEMON)
+				jsr XWSTR0_ROUTINE
+			.else
+				.byte $00, XWSTR0
+			.endif
+		.else
+			.error "-- PRINT: Need ')'"
+		.endif
+
+	.else
+		; assume absolute
+		; .out "Aboslute mode"
+
+		lda #<str
+		ldy #>str
+
+		.if (.not .blank({option})) .and .xmatch({option}, TELEMON)
+			jsr XWSTR0_ROUTINE
+		.else
+			.byte $00, XWSTR0
+		.endif
+	.endif
+
+
+	; ----------------------------------------------------------------------
+	;
+	;				Epilogue
+	;
+	; ----------------------------------------------------------------------
+
+	.if .blank({option})
+		pla
+		tay
+		pla
+		txa
+		pla
+	.endif
+
+	.if (.not .blank({option})) .and .xmatch({option}, TELEMON)
+		pla
+		sta RES+1
+		pla
+		sta RES
+
+		pla
+		tay
+		pla
+		txa
+		pla
+	.endif
+
+.endmacro
+

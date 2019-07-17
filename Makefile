@@ -32,9 +32,9 @@ init:
 kernel: $(SOURCE)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@$(AS) --verbose -s -tnone --debug-info -o $(PROGRAM_NAME).ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -o $(PROGRAM_NAME).rom -Ln $(PROGRAM_NAME).ca.sym
+	@ld65 -tnone $(PROGRAM_NAME).ld65 -o $(PROGRAM_NAME).rom -DWITH_ACIA=2 -Ln $(PROGRAM_NAME).ca.sym
 	@echo Generating Kernel sd
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_SDCARD_FOR_ROOT=1 -o kernelsd.rom -Ln kernelsd.ca.sym
+	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_ACIA=2 -o kernelsd.rom -Ln kernelsd.ca.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' $(PROGRAM_NAME).ca.sym | sort >  $(PROGRAM_NAME).sym	
 	@rm $(PROGRAM_NAME).ca.sym
 	@echo Generating Kernel for 32 banks ROM name kernela
