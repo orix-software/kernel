@@ -1,3 +1,5 @@
+.export  XLIGNE_ROUTINE
+
 .proc XLIGNE_ROUTINE
   ; REMOVEME minitel
 ; minitel ; get the line
