@@ -13,18 +13,37 @@
 .include   "orix.inc"
 .include   "build.inc"
 
+
+MENDFY := $63
+MENX := $64
+MENDY := $66
+
+
+ACC1EX := $66
+ACC1J := $67
 ACC2E := $68
 ACC2M := $69
-ACC4M := $74
-ACC1EX := $66
+
 ACC2S := $6D
 ACCPS := $6E
+ACC3 := $6F
+
+ACC4E := $73
+ACC4M := $74
+
+FLDT0 := $74
+FLDT1 := $75
+FLDT2 := $76
+FLSVY := $77
 FLTR0 := $7D
 FLTR1 := $7E
+
+
 FLPOLP := $85
 FLPO0  := $87
 
-FLSGN  := $8A
+FLSGN := $8A
+FLINT := $88
 
 
 
@@ -1381,7 +1400,7 @@ display_x_choice:
   pha
   jsr     put_cursor_in_61_x  
   inx
-  lda     $69
+  lda     ACC2M
   ldy     $6A
   sta     ADDRESS_READ_BETWEEN_BANK
   sty     ADDRESS_READ_BETWEEN_BANK+1
@@ -1431,12 +1450,12 @@ Lcd20
   beq     @skip2
   clc
 @skip2:
-  ror     $68
+  ror     ACC2E
   pla
   tax
   pla
   tay
-  bit     $68
+  bit     ACC2E
   rts
 
 put_cursor_in_61_x  
@@ -3210,24 +3229,24 @@ Le306
 put_cursor_on_beginning_of_the_line:
   ldx SCRNB
   lda SCRY,X
-  sta $63
+  sta MENDFY
   jsr LDE12
   jsr put_cursor_on_last_char_of_the_line
 Le32f  
   sty $62
   beq Le34e 
-  lda $63
+  lda MENDFY
   cmp SCRFY,X
   beq Le34d 
-  inc $63
-  lda $63
+  inc MENDFY
+  lda MENDFY
   jsr LDE12
   jsr Le2f9 
   beq Le34b 
   jsr put_cursor_on_last_char_of_the_line 
   bne Le32f 
 Le34b  
-  dec $63
+  dec MENDFY
 Le34d  
   rts
 Le34e  
@@ -3241,34 +3260,34 @@ LE34F
 send_the_end_of_line_in_bufedt  
   ldx SCRNB
   lda SCRX,X
-  sta ACC1E
+  sta ACC1E ; FIXME label
   lda SCRY,X
-  sta ACC1M
+  sta ACC1M ; FIXME label
 LE361  
   jsr put_cursor_on_beginning_of_the_line
     
-  lda ACC1M
-  sta ACC1S
-  cmp $63
+  lda ACC1M ; FIXME label
+  sta ACC1S ; FIXME label
+  cmp MENDFY
   bne Le378
 
   lda $62
-  cmp ACC1E
+  cmp ACC1E ; FIXME label
   bcs Le378
   lda     #$00
   sta     BUFEDT
   rts
 Le378  
 
-  lda     #$00
-  sta     $64
-  lsr ACC1EX
+  lda     #$00 ; FIXME 65C02
+  sta     MENX
+  lsr ACC1EX ; FIXME label
 Le37e  
-  lda ACC1S
+  lda ACC1S ; FIXME label
   jsr LDE12
-  ldy ACC1E
-  lda ACC1S
-  cmp ACC1M
+  ldy ACC1E ; FIXME label
+  lda ACC1S ; FIXME label
+  cmp ACC1M ; FIXME label
   beq Le390
   ldx SCRNB
   ldy SCRDX,X
@@ -3278,7 +3297,7 @@ Le390
   bcs Le398
   ora #$80
 Le398  
-  ldx $64
+  ldx MENX
   bit ACC1EX
   bpl Le3a4
   lda #$20
@@ -3286,20 +3305,20 @@ Le398
   bne Le3b1
 Le3a4
   sta BUFEDT,X
-  inc $64
-  cpx $67
+  inc MENX
+  cpx ACC1J
   bcc Le3b1
-  dec $64
+  dec MENX
   ror ACC1EX
 Le3b1  
   tya
   iny
   ldx ACC1S
-  cpx $63
+  cpx MENDFY
   bne Le3c5
   cmp $62
   bne Le390
-  ldx $64
+  ldx MENX
   lda #$00
   sta BUFEDT,X
   rts
@@ -3315,7 +3334,7 @@ Le3c5
 display_bufedt_content:
   ror ACC1EX
   lda #$00
-  sta $64
+  sta MENX
   lda ADSCR
   ldy ADSCR+1
   sta RES
@@ -3323,7 +3342,7 @@ display_bufedt_content:
   ldx SCRNB
   ldy SCRX,X
 Le3e3:
-  ldx $64 ; fixme
+  ldx MENX ; fixme
   lda BUFEDT,X
   beq Le41c 
   lda #$20
@@ -3351,7 +3370,7 @@ Le405
   jsr XADRES_ROUTINE 
   ldy SCRDX,X
 Le418  
-  inc $64
+  inc MENX
   bne Le3e3
 Le41c  
   bit FLGTEL ; Minitel ?
@@ -3401,7 +3420,7 @@ Le5d5
   bcc Le5c4
   jsr put_cursor_on_beginning_of_the_line
   ldx $62
-  ldy $63
+  ldy MENDFY
 LE5E7  
   pla
   
@@ -4566,7 +4585,7 @@ XA2NA1_ROUTINE
   lda     ACC1S ;$65 
   eor     #$ff
   sta     ACC1S ; $65
-  eor     $6d
+  eor     ACC2S
   sta     ACCPS
   lda     ACC1E
   jmp     XA1PA2_ROUTINE
@@ -4629,10 +4648,10 @@ LEFFA:
   sta ACC1EX
   lda $0004,y
   sbc $04,x
-  sta $64
+  sta MENX
   lda $0003,y
   sbc RESB+1,x
-  sta $63
+  sta MENDFY
   lda $0002,y
   sbc RESB,x
   sta $62
@@ -4654,15 +4673,15 @@ LF026:
   ldx $62
   stx ACC1M 
   
-  ldx $63
+  ldx MENDFY
   stx $62
 
-  ldx $64
+  ldx MENX
   
-  stx $63
+  stx MENDFY
 
   ldx     ACC1EX
-  stx     $64
+  stx     MENX
   sty     ACC1EX
 
   adc     #$08
@@ -4678,12 +4697,12 @@ Lf049:
 
   adc     $7F
   sta     ACC1EX
-  lda     $64
+  lda     MENX
   adc     $6C
-  sta     $64
-  lda     $63
+  sta     MENX
+  lda     MENDFY
   adc     $6B
-  sta     $63
+  sta     MENDFY
   lda     $62
   adc     $6A
   sta     $62
@@ -4694,8 +4713,8 @@ Lf049:
 Ld068:
   adc     #$01
   asl     ACC1EX
-  rol     $64
-  rol     $63
+  rol     MENX
+  rol     MENDFY
   rol     $62
   rol     ACC1M
 LF074:  
@@ -4716,8 +4735,8 @@ LF083:
   beq     LF0C7 
   ror     ACC1M
   ror     $62
-  ror     $63
-  ror     $64
+  ror     MENDFY
+  ror     MENX
 Lf08f
   rts
 Lf090  
@@ -4732,21 +4751,21 @@ LF096:
   lda     $62
   eor     #$FF
   sta     $62
-  lda     $63
+  lda     MENDFY
   eor     #$FF
-  sta     $63
-  lda     $64
+  sta     MENDFY
+  lda     MENX
   eor     #$FF
-  sta     $64
+  sta     MENX
   lda     ACC1EX
   eor     #$FF
   sta     ACC1EX
   inc     ACC1EX
   bne     LF0C6
 LF0B8:
-  inc     $64
+  inc     MENX
   bne     LF0C6
-  inc     $63
+  inc     MENDFY
   bne     LF0C6
   inc     $62
   bne     LF0C6
@@ -4775,7 +4794,7 @@ LF0D1:
   sty     RESB+1,x
   ldy     RES+1,x
   sty     RESB,x
-  ldy     $67
+  ldy     ACC1J
   sty     RES+1,x
 LF0E5:
   adc     #$08
@@ -4874,15 +4893,15 @@ XA1MA2_ROUTINE:
 LF190:
   jsr     LF217 
   lda     #$00
-  sta     $6F
+  sta     ACC3
   sta     $70
   sta     $71
   sta     $72
   lda     ACC1EX
   jsr     LF1B9  
-  lda     $64
+  lda     MENX
   jsr     LF1B9  
-  lda     $63
+  lda     MENDFY
   jsr     LF1B9 
   lda     $62
   jsr     LF1B9 
@@ -4910,11 +4929,11 @@ LF1C1:
   lda     $70
   adc     $6A
   sta     $70
-  lda     $6F
+  lda     ACC3
   adc     ACC2M
-  sta     $6F
+  sta     ACC3
 LF1DD:
-  ror     $6F
+  ror     ACC3
   ror     $70
   ror     $71
   ror     $72
@@ -5052,10 +5071,10 @@ LF2A4
   cpy $62
   bne LF2BA
   ldy $6B
-  cpy $63
+  cpy MENDFY
   bne LF2BA
   ldy $6C
-  cpy $64
+  cpy MENX
 LF2BA  
   php
   rol
@@ -5084,10 +5103,10 @@ LF2CD
 LF2DB  
   tay
   lda $6C
-  sbc $64
+  sbc MENX
   sta $6C
   lda $6B
-  sbc $63
+  sbc MENDFY
   sta $6B
   lda $6A
   sbc $62
@@ -5110,14 +5129,14 @@ LF2F8
 ; acc3->acc1  
 Lf301
   
-  lda $6f
+  lda ACC3
   sta ACC1M
   lda $70
   sta $62
   lda $71
-  sta $63
+  sta MENDFY
   lda $72
-  sta $64
+  sta MENX
   jmp Lf022
 
 XPI_ROUTINE  
@@ -5138,10 +5157,10 @@ Lf323
   sty FLTR1
   ldy #$04
   lda (FLTR0),Y
-  sta $64
+  sta MENX
   DEY
   lda (FLTR0),Y
-  sta $63
+  sta MENDFY
   DEY
   lda (FLTR0),Y
   sta $62
@@ -5169,10 +5188,10 @@ XA1XY_ROUTINE:
   sty FLTR1
   
   ldy #$04
-  lda $64
+  lda MENX
   sta (FLTR0),Y
   DEY
-  lda $63
+  lda MENDFY
   sta (FLTR0),Y
   DEY
   lda $62
@@ -5188,12 +5207,12 @@ XA1XY_ROUTINE:
   sty ACC1EX
   rts
 XA2A1_ROUTINE  
-  lda $6d
+  lda ACC2S
 LF379  
   sta ACC1S
   ldx #$05
 LF37D  
-  lda $67,x
+  lda ACC1J,x
   sta $5f,x
   dex
   bne LF37D
@@ -5209,7 +5228,7 @@ LF38A:
   ldx     #$06
 LF38C:
   lda     $5F,x
-  sta     $67,x
+  sta     ACC1J,x
   dex
   bne     LF38C
   stx     ACC1EX
@@ -5231,8 +5250,8 @@ XA1IAY_ROUTINE:
   cmp     #$91
   bcs     LF3B8
   jsr     LF439
-  lda     $64
-  ldy     $63
+  lda     MENX
+  ldy     MENDFY
   rts  
 
 LF3B8  
@@ -5268,8 +5287,8 @@ LF3D1
   rol
 LF3DE  
   lda      #$00
-  sta      $63
-  sta      $64
+  sta      MENDFY
+  sta      MENX
   stx      ACC1E
   sta      ACC1EX
   sta      ACC1S
@@ -5309,13 +5328,13 @@ LF3F9:
   bne LF430
   iny
   lda (FLTR0),Y
-  cmp $63
+  cmp MENDFY
   bne LF430  
   iny
   lda #$7F
   cmp ACC1EX
   lda (FLTR0),Y
-  sbc $64
+  sbc MENX
   beq LF3F8 
 LF430  
   lda     ACC1S
@@ -5334,7 +5353,7 @@ LF439
   bpl LF44D 
   tax
   lda #$FF
-  sta $67
+  sta ACC1J
   jsr LF096 
   txa
 LF44D  
@@ -5342,7 +5361,7 @@ LF44D
   cmp #$F9
   bpl LF459 
   jsr LF0E5
-  sty $67
+  sty ACC1J
   rts
 
 LF459: 
@@ -5353,7 +5372,7 @@ LF459:
   ora ACC1M
   sta ACC1M
   jsr LF0FC 
-  sty $67
+  sty ACC1J
 LF469  
   rts
   
@@ -5369,14 +5388,14 @@ XINT_ROUTINE:
   rol
   lda     #$A0
   sta     ACC1E
-  lda     $64
-  sta     $88
+  lda     MENX
+  sta     FLINT
   jmp     LF01D
 LF487  
   sta     ACC1M
   sta     $62
-  sta     $63
-  sta     $64
+  sta     MENDFY
+  sta     MENX
   tay
   rts
 LF491
@@ -5401,7 +5420,7 @@ XA1DEC_ROUTINE:
 LF4AF  
   sta     $0100,Y
   sta     ACC1S
-  sty     $77
+  sty     FLSVY
   iny
   lda     #$30
   ldx     ACC1E
@@ -5458,13 +5477,13 @@ LF50F
   sec
 LF511
   sbc     #$02
-  sta     $75
+  sta     FLDT1
   stx     ACC4M
   txa
   beq     LF51B 
   bpl     LF52E 
 LF51B  
-  ldy     $77
+  ldy     FLSVY
   lda     #$2E
   iny
   sta     $0100,Y
@@ -5474,7 +5493,7 @@ LF51B
   iny
   sta     $0100,Y
 LF52C  
-  sty     $77
+  sty     FLSVY
 LF52E
 
   ldy     #$00
@@ -5482,12 +5501,12 @@ LF52E
 LF532  
   clc
 LF533  
-  lda     $64
+  lda     MENX
   adc     const_negative_100_000_000+3,Y 
-  sta     $64
-  lda     $63
+  sta     MENX
+  lda     MENDFY
   adc     const_negative_100_000_000+2,Y 
-  sta     $63
+  sta     MENDFY
   lda     $62
   adc     const_negative_100_000_000+1,Y
   sta     $62
@@ -5511,8 +5530,8 @@ LF55F
   iny
   iny
   iny
-  sty     $76
-  ldy     $77
+  sty     FLDT2
+  ldy     FLSVY
   iny
   tax
   and     #$7F
@@ -5523,15 +5542,15 @@ LF55F
   iny
   sta     $0100,Y
 @S1:
-  sty     $77
-  ldy     $76
+  sty     FLSVY
+  ldy     FLDT2
   txa
   eor     #$FF
   and     #$80
   tax
   cpy     #$24
   bne     LF533 
-  ldy     $77
+  ldy     FLSVY
 LF58A  
   lda     $0100,Y
   DEY
@@ -5542,12 +5561,12 @@ LF58A
   iny
 @S1:
   lda     #$2B
-  ldx     $75
+  ldx     FLDT1
   beq     LF5CB 
   bpl     LF5A7 
   lda     #$00
   sec
-  sbc     $75
+  sbc     FLDT1
   tax
   lda     #$2D
 LF5A7  
@@ -5623,7 +5642,7 @@ XA2EA1_ROUTINE:
   jsr LF3F9 
   bne LF63D  
   tya
-  ldy $88
+  ldy FLINT
 LF63D
   jsr LF379  
   tya
@@ -5681,7 +5700,7 @@ LF6AA
 LF6AD  
   jsr XINT_ROUTINE 
   
-  lda $88
+  lda FLINT
   clc
   adc #$81
   beq LF6AA
@@ -5989,7 +6008,7 @@ XDECA1_ROUTINE
   ldx     #$05
 LF92F:
   sta     ACC1E,x
-  sta     $73,x
+  sta     ACC4E,x
   dex
   bpl     LF92F
   jsr     LF9FE
@@ -6026,16 +6045,16 @@ LF95F:
   bne     LF998
   .byte   $2C
 LF96F:
-   ror     $77
+   ror     FLSVY
 LF971:
   jsr     LF9FC
   bcs     LF99A
 LF976:
-  lda     $75
+  lda     FLDT1
   cmp     #$0A
   bcc     LF985
   lda     #$64
-  bit     $77
+  bit     FLSVY
   bmi     LF993
   jmp     LF0C7
 
@@ -6043,7 +6062,7 @@ LF985:
   asl    
   asl    
   clc
-  adc     $75
+  adc     FLDT1
   asl    
   clc
   ldy     RESB
@@ -6051,39 +6070,39 @@ LF985:
   sec
   sbc     #$30
 LF993:
-   sta     $75
+   sta     FLDT1
    jmp     LF971
 
 LF998:  stx     RESB
-LF99A:  bit     $77
+LF99A:  bit     FLSVY
         bpl     LF9AC
         lda     #$00
         sec
-        sbc     $75
+        sbc     FLDT1
         jmp     LF9AE
 
-LF9A6:  ror     $76
-        bit     $76
+LF9A6:  ror     FLDT2
+        bit     FLDT2
         bvc     LF94E
-LF9AC:  lda     $75
+LF9AC:  lda     FLDT1
 LF9AE:  sec
         sbc     ACC4M
-        sta     $75
+        sta     FLDT1
         beq     LF9C7
         bpl     LF9C0
 LF9B7:  jsr     Lf25e
-        inc     $75
+        inc     FLDT1
         bne     LF9B7
         beq     LF9C7
 LF9C0:  jsr     Lf242 
-        dec     $75
+        dec     FLDT1
         bne     LF9C0
 LF9C7:  lda     RESB+1
         bmi     LF9E1
   bpl     LF9E4
 LF9CD:
   pha
-  bit     $76
+  bit     FLDT2
   bpl     LF9D4
   inc     ACC4M
 LF9D4:
