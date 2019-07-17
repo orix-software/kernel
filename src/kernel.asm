@@ -4616,11 +4616,11 @@ LEFC2:
   sty     ACC1E
   ldy     ACC2S
   sty     ACC1S
-  eor     #$ff
+  eor     #$FF
   adc     #$00
   
   ldy     #$00
-  sty     $7F
+  sty     $7F ; FIXME
   ldx     #$60
   bne     @L2
 @next801:
@@ -4635,50 +4635,50 @@ LEFC2:
   
   jsr     LF0FC 
 next802  
-  bit ACCPS
-  bpl Lf049 
-  ldy #$60
-  cpx #$68
-  beq LEFFA 
-  ldy #$68
+  bit     ACCPS
+  bpl     Lf049 
+  ldy     #$60
+  cpx     #$68
+  beq     LEFFA 
+  ldy     #$68
 LEFFA:
   sec
-  eor #$ff
-  adc $7f
-  sta ACC1EX
-  lda $0004,y
-  sbc $04,x
-  sta MENX
-  lda $0003,y
-  sbc RESB+1,x
-  sta MENDFY
-  lda $0002,y
-  sbc RESB,x
-  sta $62
-  lda $0001,y
-  sbc RES+1,x
-  sta ACC1M
+  eor     #$FF
+  adc     $7f   ; FIXME
+  sta     ACC1EX
+  lda     $0004,y ; FIXME
+  sbc     $04,x ; FIXME
+  sta     MENX  ; FIXME
+  lda     $0003,y ; FIXME
+  sbc     RESB+1,x
+  sta     MENDFY
+  lda     $0002,y ; FIXME
+  sbc     RESB,x
+  sta     $62  ; FIXME
+  lda     $0001,y ; FIXME
+  sbc     RES+1,x
+  sta     ACC1M
 LF01D:
-  bcs Lf022 
+  bcs     Lf022 
   
-  jsr Lf090 
+  jsr     Lf090 
 Lf022:
-  ldy #00
+  ldy     #$00
   tya
   clc
 LF026:  
-  ldx ACC1M
+  ldx     ACC1M
   
-  bne LF074 
-  ldx $62
-  stx ACC1M 
+  bne     LF074 
+  ldx     $62 ; FIXME
+  stx     ACC1M 
   
-  ldx MENDFY
-  stx $62
+  ldx     MENDFY
+  stx     $62
 
-  ldx MENX
+  ldx     MENX
   
-  stx MENDFY
+  stx     MENDFY
 
   ldx     ACC1EX
   stx     MENX
@@ -4770,9 +4770,8 @@ LF0B8:
   inc     $62
   bne     LF0C6
   inc     ACC1M
-LF0C6:  rts
-
-
+LF0C6:
+  rts
 
 LF0C7:
   lda     #$01
@@ -4781,8 +4780,7 @@ LF0C9:
   ldx     FLSVS
   txs
   rts
-
-  
+ 
 justify__to_the_right_with_A_and_X
   ldx     #$6E
 LF0D1: 
@@ -4902,8 +4900,8 @@ LF190:
   lda     MENX
   jsr     LF1B9  
   lda     MENDFY
-  jsr     LF1B9 
-  lda     $62
+  jsr     LF1B9  
+  lda     $62 ; FIXME
   jsr     LF1B9 
   lda     ACC1M
   jsr     LF1BE  
@@ -4915,7 +4913,7 @@ LF1B9:
 
 LF1BE:
   lsr
-        ora     #$80
+  ora     #$80
 LF1C1:
   tay
   bcc     LF1DD
@@ -5456,7 +5454,7 @@ LF4D3
   dec     ACC4M 
   bne     @L1
 @S2:  
-  jsr     Lf25e ; 
+  jsr     acc1_1_divide_10_in_acc1 ; 
   inc     ACC4M
   bne     LF4D3
 @S3:
@@ -5916,24 +5914,18 @@ const_coef_atn:
 const_atn_1  
   .byt $81,$00,$00,$00,$00 ; 1 coef 0
 
-XDEG_ROUTINE  
-
-  ; convert ACC1 in defree
-  lda     #<const_180_divided_by_pi
-  ldy     #>const_180_divided_by_pi 
-  jmp     LF184 
+.include "functions/math/xdeg.asm"
 
 LF8B1
   jsr     test_if_degree_mode  
-  beq     LF8CC    
+  beq     LF8CC  
+
 XRAD_ROUTINE
   lda     #<const_pi_divided_by_180   
   ldy     #>const_pi_divided_by_180  
   jmp     LF184
   
-const_180_divided_by_pi
-LF8BD
-  .byt     $86,$65,$2e,$e0,$d8
+
 const_pi_divided_by_180:
   .byt     $7b,$0e,$fa,$35,$19
 
@@ -5942,8 +5934,8 @@ test_if_degree_mode
   and     #$20
 LF8CC
   rts
-XADNXT_ROUTINE  
 
+XADNXT_ROUTINE  
   sta     RES
   sty     RES+1
   jsr     AY_add_acc1
@@ -6073,32 +6065,40 @@ LF993:
    sta     FLDT1
    jmp     LF971
 
-LF998:  stx     RESB
-LF99A:  bit     FLSVY
-        bpl     LF9AC
-        lda     #$00
-        sec
-        sbc     FLDT1
-        jmp     LF9AE
+LF998:
+  stx     RESB
+LF99A:
+  bit     FLSVY
+  bpl     LF9AC
+  lda     #$00
+  sec
+  sbc     FLDT1
+  jmp     LF9AE
 
-LF9A6:  ror     FLDT2
-        bit     FLDT2
-        bvc     LF94E
-LF9AC:  lda     FLDT1
-LF9AE:  sec
-        sbc     ACC4M
-        sta     FLDT1
-        beq     LF9C7
-        bpl     LF9C0
-LF9B7:  jsr     Lf25e
-        inc     FLDT1
-        bne     LF9B7
-        beq     LF9C7
-LF9C0:  jsr     Lf242 
-        dec     FLDT1
-        bne     LF9C0
-LF9C7:  lda     RESB+1
-        bmi     LF9E1
+LF9A6:
+  ror     FLDT2
+  bit     FLDT2
+  bvc     LF94E
+LF9AC:
+  lda     FLDT1
+LF9AE:
+  sec
+  sbc     ACC4M
+  sta     FLDT1
+  beq     LF9C7
+  bpl     LF9C0
+LF9B7:
+  jsr     acc1_1_divide_10_in_acc1
+  inc     FLDT1
+  bne     LF9B7
+  beq     LF9C7
+LF9C0:
+  jsr     Lf242 
+  dec     FLDT1
+  bne     LF9C0
+LF9C7:
+  lda     RESB+1
+  bmi     LF9E1
   bpl     LF9E4
 LF9CD:
   pha
@@ -6347,20 +6347,20 @@ read_a_code_in_15_and_y:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
 .ifdef WITH_ACIA
-KERN_ACIA_CONFIG=1
+  KERN_ACIA_CONFIG=1
 .else
-KERN_ACIA_CONFIG=0
+  KERN_ACIA_CONFIG=0
 .endif
 
 .ifdef WITH_SDCARD_FOR_ROOT
-KERN_SDCARD_FOR_ROOT_CONFIG=2
+  KERN_SDCARD_FOR_ROOT_CONFIG=2
 .else
-KERN_SDCARD_FOR_ROOT_CONFIG=0
+  KERN_SDCARD_FOR_ROOT_CONFIG=0
 .endif
 
 ; Byte for compile options
 kernel_compile_option:
-  .byt KERN_ACIA_CONFIG+KERN_SDCARD_FOR_ROOT_CONFIG
+  .byt    KERN_ACIA_CONFIG+KERN_SDCARD_FOR_ROOT_CONFIG
 
 
 
