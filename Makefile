@@ -19,7 +19,6 @@ MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)-$(ORIX_VERSION)/
 
-#--verbose -s -ttelestrat --include-dir %CC65%\asminc\ src/%ROM%.asm -o %ROM%.ld65 --debug-info
 init:
 	@mkdir -p $(PATH_PACKAGE_ROM)/6502/
 	@mkdir -p $(PATH_PACKAGE_ROM)/65c02/	
