@@ -4014,9 +4014,9 @@ next910
   
   bcs next912 
 next911  
-  and #$7f
+  and #$7F
   pha 
-  lda #1
+  lda #$01
   jsr Lec49
   pla
 
@@ -5602,11 +5602,9 @@ LF609
   .byt     $ff,$ff,$ff,$ff
 LF60D
   jmp     Lf042
-XSQR_ROUTINE
-  jsr     XA1A2_ROUTINE 
-  lda     #<const_zero_dot_half  
-  ldy     #>const_zero_dot_half  
-  jsr     XAYA1_ROUTINE 
+
+
+
 
 XA2EA1_ROUTINE:
   beq     XEXP_ROUTINE  
