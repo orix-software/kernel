@@ -27,6 +27,7 @@ init:
 	@mkdir -p build/usr/share/doc/$(PROGRAM_NAME)/
 	@mkdir -p build/usr/include/orix/
 	@mkdir -p build/usr/src/orix-source-1.0/src/
+	@mkdir -p build/usr/src/kernel/
   
 kernel: $(SOURCE)
 	@echo Rom are built in $(PATH_PACKAGE_ROM)

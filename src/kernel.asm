@@ -5603,8 +5603,8 @@ LF609
 LF60D
   jmp     Lf042
 
-
-
+  
+.include "functions/math/xsqr.asm"
 
 XA2EA1_ROUTINE:
   beq     XEXP_ROUTINE  
