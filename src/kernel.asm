@@ -1960,15 +1960,15 @@ XSONPS_ROUTINE:
   sty     ADDRESS_READ_BETWEEN_BANK+1
   php
   ldy     #$00
-ld9f9
-  PLP
+@L1:
+  plp
   php
-  bcs     lda01
+  bcs     @S1
   lda     (ADDRESS_READ_BETWEEN_BANK),Y
-  bcc     lda04
-lda01
+  bcc     @S2
+@S1:
   jsr     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
-lda04
+@S2:
   tax
   tya
   pha
@@ -1977,13 +1977,13 @@ lda04
   tay
   iny
   cpy     #$0E
-  bne     ld9f9
-  PLP
+  bne     @L1
+  plp
   pla
   sta     ADDRESS_READ_BETWEEN_BANK
   pla
   sta     ADDRESS_READ_BETWEEN_BANK+1
-  PLP
+  plp
   rts
   
 
@@ -2097,14 +2097,14 @@ Ldb43
 LDB53
   rts                  ;     et on sort--------------------------------------  
 
-;Ldb54  
+.ifdef WITH_ACIA  
 init_rs232:
   ; RS232T: 
   ;  b0 to b3 : speed
   ;  b4 : external clock for 0, 1 for internal clock
   ;  b6 - b5 : 00=8 bits, 01=7 bits, 10=6 bits, 11=5 bits
   ;  b7 : 0=stop, 1= 2 or 1.5 stops
-.ifdef WITH_ACIA
+
   lda     #$1E 
   sta     RS232T
   ; FIXME 65C02
@@ -3394,7 +3394,7 @@ Le45a
 Le479  
   rts
 
-manage_normal_char
+
  
   
 manage_code_control
@@ -3472,90 +3472,94 @@ Le624
 ; que sortie vidéo.
 
 Le62a
-  lda #$1F      ; on envoie un US                                   
-  jsr Le648                                                     
-  tya          ;  on envoie Y+64                                    
-  ora #$40                                                         
-  jsr Le648                                                    
-  txa         ;   et X+64                                           
-  ora #$40                                                         
-  jsr Ldbb5                                                       
-  bit FLGTEL     ; mode minitel ?                                    
-  BVC LE66B     ; non                                              
-  inx           ; on ajoute une colonne                             
-  txa           ; dans A                                            
-  dex           ; et on revient en arri?re                          
-  ora #$40     ;  on ajoute 40                                      
-  jmp LE656    ;  et on envoie au minitel
+  lda     #$1F       ; on envoie un US                                   
+  jsr     Le648                                                     
+  tya                ;  on envoie Y+64                                    
+  ora     #$40                                                         
+  jsr     Le648                                                    
+  txa                ;   et X+64                                           
+  ora     #$40                                                         
+  jsr     Ldbb5
+.ifdef WITH_MINITEL                                                         
+  bit     FLGTEL     ; mode minitel ?                                    
+  BVC     @S1        ; non                                              
+  inx                ; on ajoute une colonne                             
+  txa                ; dans A                                            
+  dex                ; et on revient en arrière                          
+  ora     #$40       ;  on ajoute 40                                      
+  jmp     LE656      ;  et on envoie au minitel
+.endif  
+@S1:
 
+  rts
 
 ;                   ENVOIE UN CODE SUR LE TERMINAL VIDEO                    
                                                                                 
 ;Action:envoie un code sur l'écran et éventuellement sur le minitel s'il est     
 ;       actif comme sortie vidéo. Seule la fenêtre 0 est gérée, ce qui ote       
-;       définitivement tout espoir de gestion d'entr?e de commande sur une autre 
+;       définitivement tout espoir de gestion d'entrée de commande sur une autre 
 ;       fenêtre.                                                                 
 
 Le648                                                                        
 LE650
-  bit LE650    ;  V=0 et N=0 pour écriture <------------------------ 
-  jmp output_window0    ;  dans la fenêtre 0                               
+  bit     LE650    ;  V=0 et N=0 pour écriture <------------------------ 
+  jmp     output_window0    ;  dans la fenêtre 0                               
                                                                                 
 
 ;                 ENVOIE UN CODE AU BUFFER SERIE SORTIE                    
 
 LE656
-  sta TR0              ;  on sauve le code <--------------------------------
+  sta     TR0              ;  on sauve le code <--------------------------------
   tya                  ;  on sauve Y                                       I
   pha                  ;                                                   I
   txa                  ;  et X                                             I
   pha                  ;                                                   I
-  ldx #$18             ;  on indexe buffer ACIA sortie (minitel sortie)    I
-  lda TR0              ;  on envoie le code                                I
-  jsr XECRBU_ROUTINE   ;                                                   I
+  ldx     #$18             ;  on indexe buffer ACIA sortie (minitel sortie)    I
+  lda     TR0              ;  on envoie le code                                I
+  jsr     XECRBU_ROUTINE   ;                                                   I
   pla                  ;  on restaure les registres                        I
   tax                  ;                                                   I
   pla                  ;                                                   I
   tay                  ;                                                   I
-  lda TR0              ;                                                   I
-  bcs LE656            ;  si l'envoi s'est mal pass?, on recommence --------
+  lda     TR0              ;                                                   I
+  bcs     LE656            ;  si l'envoi s'est mal passé, on recommence --------
 LE66B
   rts                     
 
 
 
 data_for_hires_display
-  .byt $20,$10,$08,$04
-  .byt $02,$01
+  .byt    $20,$10,$08,$04
+  .byt    $02,$01
 
   
 XHRSSE_ROUTINE:
   clc            ;  C=0                                               
-  bit HRS5+1     ;  on fait tourner HRS5+1 sur lui-même               
-  bpl @skip      ;   afin de conserver le pattern                     
+  bit     HRS5+1     ;  on fait tourner HRS5+1 sur lui-même               
+  bpl     @skip      ;   afin de conserver le pattern                     
   sec 
 @skip:
-  rol HRS5+1                                                          
-  bcc Le7c0      ;    si b7 de $56   ? 0, on saute <-------------------- 
+  rol     HRS5+1                                                          
+  bcc     Le7c0      ;    si b7 de $56   ? 0, on saute <-------------------- 
 LE79C
-  ldy HRSX40     ;   sinon on prend X/6                               I
-  lda (ADHRS),Y  ;   on lit le code actuel                            I
+  ldy     HRSX40     ;   sinon on prend X/6                               I
+  lda     (ADHRS),Y  ;   on lit le code actuel                            I
   asl            ;   on sort b7                                       I
-  bpl Le7c0      ;   pas pixel, on sort ------------------------------O
-  ldx HRSX6      ;   on prend le reste de X/6                         I
-  lda data_for_hires_display,X  ;  on lit le bit correspondant                      I 
-  bit HRSFB      ;   b7 de HRSFB ? 1 ?                                I
-  bmi LE7BA      ;   b7 ? 1, donc 3 ou 2                              I 
-  BVC L7B3       ;   FB=0 ----------------------------------------    I 
-  ora (ADHRS),Y  ;   FB=1, on ajoute le code                     I    I
-  sta (ADHRS),Y  ;   et on le place                              I    I
+  bpl     Le7c0      ;   pas pixel, on sort ------------------------------O
+  ldx     HRSX6      ;   on prend le reste de X/6                         I
+  lda     data_for_hires_display,X  ;  on lit le bit correspondant                      I 
+  bit     HRSFB      ;   b7 de HRSFB ? 1 ?                                I
+  bmi     @S2      ;   b7 ? 1, donc 3 ou 2                              I 
+  BVC     @S1       ;   FB=0 ----------------------------------------    I 
+  ora     (ADHRS),Y  ;   FB=1, on ajoute le code                     I    I
+  sta     (ADHRS),Y  ;   et on le place                              I    I
   rts
-L7B3               ;                                               I    I
-  eor #$7F       ;   on inverse le bit  <-------------------------    I
-  and (ADHRS),Y  ;   et on l'?teint                                   I
+@S1:
+  eor     #$7F       ;   on inverse le bit  <-------------------------    I
+  and     (ADHRS),Y  ;   et on l'?teint                                   I
   sta (ADHRS),Y  ;   avant de le placer                               I
   rts            ;                                                    I
-LE7BA
+@S2:
   BVS Le7c0      ;   FB=3, on sort -----------------------------------O 
   eor (ADHRS),Y  ;   FB=2, on inverse le bit                          I
   sta (ADHRS),Y  ;    et on sort       a                               I
@@ -3567,7 +3571,7 @@ Le7c0
 .include "functions/xhrscd.asm"
 .include "functions/xhrscg.asm"
 
-;                         plaCE LE CURSEUR EN X,Y                           
+;                         PLACE LE CURSEUR EN X,Y                           
 
 ;Action:calcule l'adresse du curseur en calculant la position de la ligne par    
 ;       $A000+40*Y, la colonne dans X/6 et la position dans l'octet par X mod 6. 
@@ -3726,15 +3730,15 @@ LE8EB
 LE8ED
   lda     HRS2   ;  I  on trace la droite selon dY <---------------------
   beq     LE8EA  ; ---dY=0, on sort                                      
-  ldx HRS1   ;     X=dX                                              
-  jsr Le921 ;     on calcule dX/dY dans RES                          
+  ldx     HRS1   ;     X=dX                                              
+  jsr     Le921 ;     on calcule dX/dY dans RES                          
 LE8F6
   bit     HRS2+1                                                          
-  bpl LE900  ;    dY>0 --------------------------------------------- 
-  jsr XHRSCH_ROUTINE ;    dY<0, on d?place vers le haut                    I 
-  jmp LE903  ; ---et on saute                                      I 
+  bpl     LE900  ;    dY>0 --------------------------------------------- 
+  jsr     XHRSCH_ROUTINE ;    dY<0, on d?place vers le haut                    I 
+  jmp     LE903  ; ---et on saute                                      I 
 LE900
-  jsr XHRSCB_ROUTINE  ; I  on d?place vers le bas <-------------------------- 
+  jsr     XHRSCB_ROUTINE  ; I  on d?place vers le bas <-------------------------- 
 LE903  
   clc       ;  -->a-t-on parcouru la tangente ?                     
   lda RES                                                          
@@ -3856,8 +3860,8 @@ LE987
   ldy     SCRBAH,X  ;                                                   I
   jsr     XADRES_ROUTINE   ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I 
   ldy     SCRDX,X  ;  on prend la premi?re colonne de la fen?tre       I
-  DEY         ;   on enl?ve deux colonnes                          I
-  DEY         ;                                                    I
+  dey         ;   on enlève deux colonnes                          I
+  dey         ;                                                    I
   sec         ;                                                    I
   lda     SCRFY,X ;   on calcule le nombre de lignes                   I
   sbc     SCRDY,X ;   de la fen?tre                                    I
@@ -3895,7 +3899,7 @@ LE9C6
 .include "functions/graphics/xcircl.asm"
 
 ;  
-XFILL_ROUTINE
+.proc XFILL_ROUTINE
   lda     ADHRS
   ldy     ADHRS+1
   sta     RES 
@@ -3916,6 +3920,7 @@ XFILL_ROUTINE
   bne     @loop2
 Lea92  
   rts
+.endproc
   
   
 XSCHAR_ROUTINE:
@@ -4059,18 +4064,18 @@ Lec5e
   jsr write_caracter_in_output_serial_buffer
 LEC61  
   pla
-  eor TR2
-  sta TR2
-  ldx TR0
-  ldy TR1 
+  eor     TR2
+  sta     TR2
+  ldx     TR0
+  ldy     TR1 
   rts
 
 Lec6b
-  stx TR0
-  sty TR1
+  stx     TR0
+  sty     TR1
 Lec6f  
-  asl KBDCTC
-  bcc Lec77
+  asl     KBDCTC
+  bcc     Lec77
   pla
   pla
   rts
@@ -4122,14 +4127,14 @@ LECB9
   rts
 Lecbf
   sec
-  .byt $24
+  .byt    $24
 LECC1  
   clc
   lda     #$80
   jmp     LDB5D 
 LECC7
   sec 
-  .byt     $24
+  .byt    $24
 LECC9  
   clc
   lda     #$80
@@ -4254,8 +4259,8 @@ LEE51
   
 read_a_file_rs232_minitel:
   bit     INDRS 
-  BVS @skip  
-  jsr read_header_file  
+  bvs     @skip  
+  jsr     read_header_file  
 @skip: 
   jsr compute_file_size 
   bit INDRS
@@ -4455,7 +4460,7 @@ XOPEN_ROUTINE:
   jmp     @loop
 .endif
   
-; not_slash_first_param
+  ; not_slash_first_param
   ; Call here setfilename
   ldx     #$00 ; Flush param in order to send parameter
   iny
@@ -5212,12 +5217,12 @@ XA2A1_ROUTINE
 LF379  
   sta ACC1S
   ldx #$05
-LF37D  
+@L1:  
   lda ACC1J,x
   sta $5f,x
   dex
-  bne LF37D
-  stx ACC1EX
+  bne @L1
+  stx     ACC1EX
   rts
 
 
@@ -5297,52 +5302,52 @@ LF3DE
 
 XIYAA1_ROUTINE:  
   sta     ACC1M
-  sty     $62
+  sty     MENDDY
   ldx     #$90
   sec
   bcs     LF3DE
 ABS_ROUTINE  
-  lsr ACC1S
+  lsr     ACC1S
 LF3F8  
   rts
 
 LF3F9:
   sta     FLTR0
-  sty FLTR1
-  ldy #$00
-  lda (FLTR0),Y
+  sty     FLTR1
+  ldy     #$00
+  lda     (FLTR0),Y
   iny
   tax 
-  beq LF3BD  
-  lda (FLTR0),Y
-  eor ACC1S
-  bmi LF3C1 
-  cpx ACC1E
-  bne LF430 
-  lda (FLTR0),Y
-  ora #$80
-  cmp ACC1M
-  bne LF430
+  beq     LF3BD  
+  lda     (FLTR0),Y
+  eor     ACC1S
+  bmi     LF3C1 
+  cpx     ACC1E
+  bne     LF430 
+  lda     (FLTR0),Y
+  ora     #$80
+  cmp     ACC1M
+  bne     LF430
   iny
-  lda (FLTR0),Y
-  cmp $62
-  bne LF430
+  lda     (FLTR0),Y
+  cmp     MENDDY
+  bne     LF430
   iny
-  lda (FLTR0),Y
-  cmp MENDFY
-  bne LF430  
+  lda     (FLTR0),Y
+  cmp     MENDFY
+  bne     LF430  
   iny
-  lda #$7F
-  cmp ACC1EX
-  lda (FLTR0),Y
-  sbc MENX
-  beq LF3F8 
+  lda     #$7F
+  cmp     ACC1EX
+  lda     (FLTR0),Y
+  sbc     MENX
+  beq     LF3F8 
 LF430  
   lda     ACC1S
-  bcc LF436  
-  eor #$FF
+  bcc     LF436  
+  eor     #$FF
 LF436  
-  jmp LF3C3 
+  jmp     LF3C3 
 
 
 LF439
@@ -5350,30 +5355,30 @@ LF439
   beq     LF487
   sec
   sbc     #$A0
-  bit ACC1S
-  bpl LF44D 
+  bit     ACC1S
+  bpl     @S1
   tax
-  lda #$FF
-  sta ACC1J
-  jsr LF096 
+  lda     #$FF
+  sta     ACC1J
+  jsr     LF096 
   txa
-LF44D  
-  ldx #$60
-  cmp #$F9
-  bpl LF459 
-  jsr LF0E5
-  sty ACC1J
+@S1:
+  ldx     #$60
+  cmp     #$F9
+  bpl     LF459 
+  jsr     LF0E5
+  sty     ACC1J
   rts
 
 LF459: 
   tay
-  lda ACC1S
-  and #$80
-  lsr ACC1M
-  ora ACC1M
-  sta ACC1M
-  jsr LF0FC 
-  sty ACC1J
+  lda     ACC1S
+  and     #$80
+  lsr     ACC1M
+  ora     ACC1M
+  sta     ACC1M
+  jsr     LF0FC 
+  sty     ACC1J
 LF469  
   rts
   
@@ -5394,14 +5399,14 @@ XINT_ROUTINE:
   jmp     LF01D
 LF487  
   sta     ACC1M
-  sta     $62
+  sta     MENDDY
   sta     MENDFY
   sta     MENX
   tay
   rts
-LF491
+LF491 ; FIXME ??? label seul
   sta     ACC1M
-  stx     $62
+  stx     MENDDY
   ldx     #$90
   sec
   jmp     LF3DE
@@ -5441,8 +5446,8 @@ LF4C8
 LF4D1  
   sta     ACC4M
 LF4D3  
-  lda     #<LF5DA
-  ldy     #>LF5DA 
+  lda     #<const_999_999_999
+  ldy     #>const_999_999_999 
   jsr     LF3F9 ;
   beq     @S4 
   bpl     @S2
@@ -5603,8 +5608,7 @@ LF5D0
 const_for_decimal_convert:
 const_one_billion  
   .byt     $9e,$6E,$6B,$28,$00 ; 1 000 000 000  float
-const_999_999_999
-LF5DA  
+const_999_999_999:
   .byt     $9e,$6e,$6b,$27,$FD ; 999 999 999
 const_999_999_dot_9
   .byt     $9b,$3e,$bc,$1f,$FD ; 999 999.9
@@ -5655,7 +5659,7 @@ XA2EA1_ROUTINE:
   jsr     LF68F ; 
   pla
   lsr
-  bcc LF65D  
+  bcc     LF65D  
 
 XNA1_ROUTINE:
   ; negative number
@@ -5785,46 +5789,46 @@ LF72A
 
 XSIN_ROUTINE:
 
-  jsr LF8B1
+  jsr     LF8B1
 LF791  
-  jsr XA1A2_ROUTINE
-  lda #<const_pi_mult_by_two
-  ldy #>const_pi_mult_by_two
-  ldx ACC2S
-  jsr LF267 
-  jsr XA1A2_ROUTINE 
-  jsr XINT_ROUTINE
-  lda #$00
-  sta ACCPS
-  jsr XA2NA1_ROUTINE
-  lda #<const_0_dot_twenty_five
-  ldy #>const_0_dot_twenty_five 
-  jsr ACC2_ACC1 
-  lda ACC1S
+  jsr     XA1A2_ROUTINE
+  lda     #<const_pi_mult_by_two
+  ldy     #>const_pi_mult_by_two
+  ldx     ACC2S
+  jsr     LF267 
+  jsr     XA1A2_ROUTINE 
+  jsr     XINT_ROUTINE
+  lda     #$00
+  sta     ACCPS
+  jsr     XA2NA1_ROUTINE
+  lda     #<const_0_dot_twenty_five
+  ldy     #>const_0_dot_twenty_five 
+  jsr     ACC2_ACC1 
+  lda     ACC1S
   pha
-  bpl LF7C5
-  jsr add_0_5_A_ACC1
-  lda ACC1S
-  bmi LF7C8 
-  lda FLSGN
-  eor #$FF
-  sta FLSGN
-  .byt $24
+  bpl     LF7C5
+  jsr     add_0_5_A_ACC1
+  lda     ACC1S
+  bmi     LF7C8 
+  lda     FLSGN
+  eor     #$FF
+  sta     FLSGN
+  .byt    $24
 LF7C4  
   pha
 LF7C5  
-  jsr XNA1_ROUTINE 
+  jsr     XNA1_ROUTINE 
 LF7C8  
-  lda #<const_0_dot_twenty_five
-  ldy #>const_0_dot_twenty_five
-  jsr AY_add_acc1
+  lda     #<const_0_dot_twenty_five
+  ldy     #>const_0_dot_twenty_five
+  jsr     AY_add_acc1
   pla
-  bpl LF7D5
-  jsr XNA1_ROUTINE
-LF7D5  
-  lda #<coef_polynome_sin
-  ldy #>coef_polynome_sin
-  jmp LF6E1
+  bpl     @S1
+  jsr     XNA1_ROUTINE
+@S1:
+  lda     #<coef_polynome_sin
+  ldy     #>coef_polynome_sin
+  jmp     LF6E1
 
 
   
@@ -5900,7 +5904,7 @@ LF8E7:
   ldx     #$04
 LF8F3:
   asl    
-  rol     $62
+  rol     MENDDY
   rol     ACC1M
   bcs     LF912
   dex
@@ -5937,11 +5941,11 @@ XDECA1_ROUTINE
   sta     RESB+1
   sta     ACC1EX
   ldx     #$05
-LF92F:
+@L1:
   sta     ACC1E,x
   sta     ACC4E,x
   dex
-  bpl     LF92F
+  bpl     @L1
   jsr     LF9FE
   bcc     LF951
   cmp     #$23
@@ -6212,8 +6216,8 @@ next81:
   inc     RES+1
 @skip:
   pla
-  LSR
-  LSR
+  lsr
+  lsr
   dec     RESB
   bne     next81
   rts
@@ -6221,7 +6225,7 @@ next81:
 
 move_chars_text_to_hires:
   ldy     #$05
-  .byt $2c
+  .byt    $2c
 move_chars_hires_to_text:
   ldy     #$0B
   ldx     #$05
@@ -6235,9 +6239,9 @@ move_chars_hires_to_text:
 
 code_in_order_to_move_chars_tables
   ; Text to hires 6 bytes
-  .byt $00,$b4,$80,$bb,$00,$98
+  .byt    $00,$b4,$80,$bb,$00,$98
   ; hires to text 6 bytes
-  .byt $00,$98,$80,$9f,$00,$b4
+  .byt    $00,$98,$80,$9f,$00,$b4
 
 XSCRNE_ROUTINE:
 ; define a char in the adress AY 
