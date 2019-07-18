@@ -7,6 +7,5 @@
   ldy     #>const_180_divided_by_pi 
   jmp     LF184 
 const_180_divided_by_pi:
-  .byt     $86,$65,$2E,$E0,$D8
+  .byt    $86,$65,$2E,$E0,$D8
 .endproc
-

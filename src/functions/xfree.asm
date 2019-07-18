@@ -1,4 +1,6 @@
-XFREE_ROUTINE
+.export XFREE_ROUTINE
+
+.proc XFREE_ROUTINE
 
 ; [A & Y] the first adress of the pointer.
   ldx #$00
@@ -28,13 +30,13 @@ XFREE_ROUTINE
 @skip_inc_high:  
   cmp ORIX_MALLOC_BUSY_TABLE_END_LOW,x
   beq @compare_high
-	rts
+  rts
 @next_chunk:
-    inx
-    cpx #ORIX_NUMBER_OF_MALLOC
-    bne @myloop12
-	; Return NULL ?
-    rts
+  inx
+  cpx #ORIX_NUMBER_OF_MALLOC
+  bne @myloop12
+  ; Return NULL ?
+  rts
     
 @compare_high:
   lda ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
@@ -55,31 +57,32 @@ don_t_inc_carry:
   sta ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
 	
   lda ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x
-	sta ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
+  sta ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
   
   ; update size
   
-	lda ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x
-	clc
-	adc ORIX_MALLOC_FREE_SIZE_LOW_TABLE
-	bcc @do_not_inc
-	inc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE	
+  lda ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x
+  clc
+  adc ORIX_MALLOC_FREE_SIZE_LOW_TABLE
+  bcc @do_not_inc
+  inc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE	
 @do_not_inc:
-	sta ORIX_MALLOC_FREE_SIZE_LOW_TABLE
+  sta ORIX_MALLOC_FREE_SIZE_LOW_TABLE
 
-	lda ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
-	clc
-	adc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-	sta ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+  lda ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
+  clc
+  adc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+  sta ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
 
     ; move the busy malloc table
 ; FIXME
-   ldy #$00
-   inx 
-   cpx ORIX_MALLOC_BUSY_TABLE_NUMBER
-   beq @no_need_to_merge
+  ldy #$00
+  inx 
+  cpx ORIX_MALLOC_BUSY_TABLE_NUMBER
+  beq @no_need_to_merge
 @no_need_to_merge:
-   rts ; FIXME remove
-out
-   rts
+  rts ; FIXME remove
+out:
+  rts
+.endproc
 

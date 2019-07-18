@@ -33,8 +33,9 @@ kernel: $(SOURCE)
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@$(AS) --verbose -s -tnone --debug-info -o $(PROGRAM_NAME).ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
+	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernel.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
 	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom
+	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom| cut -b 1-8
 	@echo Generating Kernel sd
 	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_ACIA=2 -o $(PATH_PACKAGE_ROM)/6502/kernelkey.rom -Ln kernelsd.ca.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' $(PROGRAM_NAME).ca.sym | sort >  $(PROGRAM_NAME).sym	

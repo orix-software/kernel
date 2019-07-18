@@ -14,6 +14,10 @@
 .include   "build.inc"
 
 
+TELEMON_UNKNWON_LABEL_7F:= $7F
+TELEMON_UNKNWON_LABEL_86:= $86
+
+MENDDY := $62
 MENDFY := $63
 MENX := $64
 MENDY := $66
@@ -3040,39 +3044,39 @@ Le11b
   ldx     MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
   jmp     Le140
 Le137
-  jsr Ldf99
-  lda VIA2::PRA2
-  ldx MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
+  jsr     Ldf99
+  lda     VIA2::PRA2
+  ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
 Le140
-  stx MOUSE_JOYSTICK_MANAGEMENT+4 ; CORRECTME
-  and #$20
-  sta VABKP1 
-  lda JCDVAL
-  and #$5F
-  ora VABKP1 
-  sta JCDVAL
-  and #$20
-  bne Le15b
-  lda JCKTAB+5
-  jsr Le19d
+  stx     MOUSE_JOYSTICK_MANAGEMENT+4 ; CORRECTME
+  and     #$20
+  sta     VABKP1 
+  lda     JCDVAL
+  and     #$5F
+  ora     VABKP1 
+  sta     JCDVAL
+  and     #$20
+  bne     Le15b
+  lda     JCKTAB+5
+  jsr     Le19d
 Le15b
-  lda JCDVAL
-  and #$40
-  bne Le177
-  jsr Ldf99
-  lda VIA2::PRA2
-  and #$80
-  bne Le180
-  dec MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
-  bne Le19c
-  ldx MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
-  jmp Le180
+  lda     JCDVAL
+  and     #$40
+  bne     Le177
+  jsr     Ldf99
+  lda     VIA2::PRA2
+  and     #$80
+  bne     Le180
+  dec     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
+  bne     Le19c
+  ldx     MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
+  jmp     Le180
 Le177
-  jsr Ldf99
-  lda VIA2::PRA2
-  ldx MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
+  jsr     Ldf99
+  lda     VIA2::PRA2
+  ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
 Le180
-  stx MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
+  stx     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
   LSR
   and     #$40
   sta     VABKP1
@@ -3181,19 +3185,18 @@ Le2de
 put_cursor_on_last_char_of_the_line
   ldy     SCRFX,X
   .byt    $24
-LE2E2  
+@L1:
   dey
   lda     (RES),Y
   cmp     #$20
   bne     test_if_prompt_is_on_beginning_of_the_line
   tya
   cmp     SCRDX,X
-  bne     LE2E2 
+  bne     @L1 
   rts
   
 test_if_prompt_is_on_beginning_of_the_line
-
-  cmp     #$7f
+  cmp     #$7F
   bne     @skip
   tya
   cmp     SCRDX,x
@@ -3209,44 +3212,45 @@ LE301
   lda     SCRY,X
   sta     ACC1M
 Le2ed  
-  lda ACC1M
-  jsr LDE12 
-  jsr Le2f9 ;
+  lda     ACC1M
+  jsr     LDE12 
+  jsr     Le2f9 ;
 
-  beq Le302
-  lda ACC1M
-  cmp SCRDY,X
+  beq     @S1
+  lda     ACC1M
+  cmp     SCRDY,X
   
-  beq Le306
-  dec ACC1M
-  bcs Le2ed
-Le302  
+  beq     @S2
+  dec     ACC1M
+  bcs     Le2ed
+@S1:
   clc
   iny
-  sty ACC1E
-Le306  
+  sty     ACC1E
+@S2:
   rts
+
 put_cursor_on_beginning_of_the_line:
-  ldx SCRNB
-  lda SCRY,X
-  sta MENDFY
-  jsr LDE12
-  jsr put_cursor_on_last_char_of_the_line
+  ldx     SCRNB
+  lda     SCRY,X
+  sta     MENDFY
+  jsr     LDE12
+  jsr     put_cursor_on_last_char_of_the_line
 Le32f  
-  sty $62
-  beq Le34e 
-  lda MENDFY
-  cmp SCRFY,X
-  beq Le34d 
-  inc MENDFY
-  lda MENDFY
-  jsr LDE12
-  jsr Le2f9 
-  beq Le34b 
-  jsr put_cursor_on_last_char_of_the_line 
-  bne Le32f 
+  sty     MENDDY
+  beq     Le34e 
+  lda     MENDFY
+  cmp     SCRFY,X
+  beq     Le34d 
+  inc     MENDFY
+  lda     MENDFY
+  jsr     LDE12
+  jsr     Le2f9 
+  beq     Le34b 
+  jsr     put_cursor_on_last_char_of_the_line 
+  bne     Le32f 
 Le34b  
-  dec MENDFY
+  dec     MENDFY
 Le34d  
   rts
 Le34e  
@@ -3254,136 +3258,135 @@ Le34e
 
 
 LE34F
-  jsr LE301 
-  jmp LE361
+  jsr     LE301 
+  jmp     LE361
 
 send_the_end_of_line_in_bufedt  
-  ldx SCRNB
-  lda SCRX,X
-  sta ACC1E ; FIXME label
-  lda SCRY,X
-  sta ACC1M ; FIXME label
+  ldx     SCRNB
+  lda     SCRX,X
+  sta     ACC1E ; FIXME label
+  lda     SCRY,X
+  sta     ACC1M ; FIXME label
 LE361  
-  jsr put_cursor_on_beginning_of_the_line
+  jsr     put_cursor_on_beginning_of_the_line
     
-  lda ACC1M ; FIXME label
-  sta ACC1S ; FIXME label
-  cmp MENDFY
+  lda     ACC1M ; FIXME label
+  sta     ACC1S ; FIXME label
+  cmp     MENDFY
   bne Le378
 
-  lda $62
-  cmp ACC1E ; FIXME label
-  bcs Le378
-  lda     #$00
+  lda     MENDDY
+  cmp     ACC1E ; FIXME label
+  bcs     Le378
+  lda     #$00    ; FIXME 65c02
   sta     BUFEDT
   rts
 Le378  
 
   lda     #$00 ; FIXME 65C02
   sta     MENX
-  lsr ACC1EX ; FIXME label
+  lsr     ACC1EX ; FIXME label
 Le37e  
-  lda ACC1S ; FIXME label
-  jsr LDE12
-  ldy ACC1E ; FIXME label
-  lda ACC1S ; FIXME label
-  cmp ACC1M ; FIXME label
-  beq Le390
-  ldx SCRNB
-  ldy SCRDX,X
+  lda     ACC1S ; FIXME label
+  jsr     LDE12
+  ldy     ACC1E ; FIXME label
+  lda     ACC1S ; FIXME label
+  cmp     ACC1M ; FIXME label
+  beq     Le390
+  ldx     SCRNB
+  ldy     SCRDX,X
 Le390  
-  lda (RES),Y
-  cmp #$20
-  bcs Le398
-  ora #$80
+  lda     (RES),Y
+  cmp     #$20
+  bcs     Le398
+  ora     #$80
 Le398  
-  ldx MENX
-  bit ACC1EX
-  bpl Le3a4
-  lda #$20
-  sta (RES),Y
-  bne Le3b1
-Le3a4
-  sta BUFEDT,X
-  inc MENX
-  cpx ACC1J
-  bcc Le3b1
-  dec MENX
-  ror ACC1EX
+  ldx     MENX
+  bit     ACC1EX
+  bpl     @S1
+  lda     #$20
+  sta     (RES),Y
+  bne     Le3b1
+@S1:
+  sta     BUFEDT,X
+  inc     MENX
+  cpx     ACC1J
+  bcc     Le3b1
+  dec     MENX
+  ror     ACC1EX
 Le3b1  
   tya
   iny
-  ldx ACC1S
-  cpx MENDFY
-  bne Le3c5
-  cmp $62
-  bne Le390
-  ldx MENX
-  lda #$00
-  sta BUFEDT,X
+  ldx     ACC1S
+  cpx     MENDFY
+  bne     Le3c5
+  cmp     MENDDY
+  bne     Le390
+  ldx     MENX
+  lda     #$00        ; FIXME 65C02
+  sta     BUFEDT,X
   rts
 Le3c5  
 
-
-  ldx SCRNB
-  cmp SCRFX,X
-  bne Le390
-  inc ACC1S
-  bne Le37e
+  ldx     SCRNB
+  cmp     SCRFX,X
+  bne     Le390
+  inc     ACC1S
+  bne     Le37e
   
 display_bufedt_content:
-  ror ACC1EX
-  lda #$00
-  sta MENX
-  lda ADSCR
-  ldy ADSCR+1
-  sta RES
-  sty RES+1
-  ldx SCRNB
-  ldy SCRX,X
+  ror     ACC1EX
+  lda     #$00    ; FIXME 65c02
+  sta     MENX
+  lda     ADSCR
+  ldy     ADSCR+1
+  sta     RES
+  sty     RES+1
+  ldx     SCRNB
+  ldy     SCRX,X
 Le3e3:
-  ldx MENX ; fixme
-  lda BUFEDT,X
-  beq Le41c 
-  lda #$20
-  bit ACC1EX
-  bmi Le3fb
-  lda BUFEDT,X
-  bpl Le3fb
-  cmp #$A0
-  bcs Le3fb
-  and #$1F
-Le3fb  
-  sta (RES),Y
+  ldx     MENX ; fixme
+  lda     BUFEDT,X
+  beq     Le41c 
+  lda     #$20
+  bit     ACC1EX
+  bmi     @S1
+  lda     BUFEDT,X
+  bpl     @S1
+  cmp     #$A0
+  bcs     @S1
+  and     #$1F
+@S1:
+  sta     (RES),Y
 
-  bit FLGTEL ; Minitel ?
-  BVC Le405
-  jsr LE656
+  bit     FLGTEL ; Minitel ?
+  BVC     Le405
+  jsr     LE656
 Le405  
   tya
   iny
-  ldx SCRNB
-  cmp SCRFX,X
-  bne Le418
-  lda #$28
-  ldy #$00
-  jsr XADRES_ROUTINE 
-  ldy SCRDX,X
+  ldx     SCRNB
+  cmp     SCRFX,X
+  bne     Le418
+  lda     #$28
+  ldy     #$00
+  jsr     XADRES_ROUTINE 
+  ldy     SCRDX,X
 Le418  
-  inc MENX
-  bne Le3e3
+  inc     MENX
+  bne     Le3e3
 Le41c  
-  bit FLGTEL ; Minitel ?
-  BVC Le42a 
-  ldx SCRX
-  ldy SCRY
+  bit     FLGTEL ; Minitel ?
+  BVC     Le42a 
+  ldx     SCRX
+  ldy     SCRY
 
-  jsr Le62a 
+  jsr     Le62a 
 Le42a    
-  ldy SCRX
-  lda (ADSCR),Y
-  ldx SCRNB
-  sta CURSCR,X
+  ldy     SCRX
+  lda     (ADSCR),Y
+  ldx     SCRNB     ; FIXME 65C02
+  sta     CURSCR,X
   rts
 
   
@@ -3395,37 +3398,37 @@ manage_normal_char
  
   
 manage_code_control
-  cmp #$08
-  bne Le5d5
+  cmp     #$08
+  bne     Le5d5
   pha
-  lda KBDSHT
-  LSR
-  bcs Le5cb
+  lda     KBDSHT
+  lsr
+  bcs     Le5cb
 Le5c4  
   pla
-  jsr Le648 
-  jmp Le45a 
+  jsr     Le648 
+  jmp     Le45a 
 Le5cb  
-  jsr LE301 
-  ldx ACC1E
+  jsr     LE301 
+  ldx     ACC1E
 Le5d2  
-  ldy ACC1M
-  jmp LE5E7
+  ldy     ACC1M
+  jmp     LE5E7
 Le5d5
-  cmp #$09
-  bne Le5ee
+  cmp     #$09
+  bne     Le5ee
   pha
-  lda KBDSHT
-  LSR
-  bcc Le5c4
-  jsr put_cursor_on_beginning_of_the_line
-  ldx $62
-  ldy MENDFY
+  lda     KBDSHT
+  lsr
+  bcc     Le5c4
+  jsr     put_cursor_on_beginning_of_the_line
+  ldx     MENDDY
+  ldy     MENDFY
 LE5E7  
   pla
   
-  jsr Le62a 
-  jmp Le45a  
+  jsr     Le62a 
+  jmp     Le45a  
 Le5ee  
   cmp     #$0A
   bne     Le604
@@ -3436,31 +3439,31 @@ Le5ee
   lda     #$0A
   .byt    $2C
 Le5ff  
-  lda #$0B
-  
-  jmp Le479 
-Le604  
-  cmp #$0B
-  bne Le617
-  ldx SCRNB
-  lda SCRY,X
-  cmp SCRDY,X
-  beq Le5ff
   lda     #$0B
   
-  .byt $2c
+  jmp     Le479 
+Le604  
+  cmp     #$0B
+  bne     Le617
+  ldx     SCRNB
+  lda     SCRY,X
+  cmp     SCRDY,X
+  beq     Le5ff
+  lda     #$0B
+  
+  .byt    $2c
 Le615  
   lda     #$0A
 Le617  
   cmp     #$0C
-  bne Le624
+  bne     Le624
   
-  jsr Le648 
-  jsr XECRPR_ROUTINE 
-  jmp Le45a
+  jsr     Le648 
+  jsr     XECRPR_ROUTINE 
+  jmp     Le45a
 Le624  
-  jsr Le648 
-  jmp Le45a 
+  jsr     Le648 
+  jmp     Le45a 
 
 
 ;POSITIONNE LE CURSEUR EN X,Y                        
@@ -3706,15 +3709,15 @@ LE8CD
   sta     RESB   ; I                                               I    I
   bcc     LE8E3  ;I   non, on continue -------------------------  I    I 
   bit     $50   ; I   oui, dY<0 ?                              I  I    I
-  bmi LE8E0 ; I   oui -------------------------------      I  I    I
-  jsr XHRSCB_ROUTINE ; I   non, on déplace le curseur        I      I  I    I 
-  jmp LE8E3  ;I---vers le bas                       I      I  I    I 
+  bmi     LE8E0 ; I   oui -------------------------------      I  I    I
+  jsr     XHRSCB_ROUTINE ; I   non, on déplace le curseur        I      I  I    I 
+  jmp     LE8E3  ;I---vers le bas                       I      I  I    I 
 LE8E0
-  jsr XHRSCH_ROUTINE ; II  on déplace vers le haut <----------      I  I    I
+  jsr     XHRSCH_ROUTINE ; II  on déplace vers le haut <----------      I  I    I
 LE8E3
-  jsr XHRSSE_ROUTINE    ;I-->on affiche le point <---------------------  I    I 
-  dec HRS1   ; I   on d?cremente dX,                           I    I
-  bne LE8C0 ; ----on n'a pas parcouru tout l'axe              I    I 
+  jsr     XHRSSE_ROUTINE    ;I-->on affiche le point <---------------------  I    I 
+  dec     HRS1   ; I   on d?cremente dX,                           I    I
+  bne     LE8C0 ; ----on n'a pas parcouru tout l'axe              I    I 
 LE8EA
   rts       ;  -->sinon, on sort                              I    I
 LE8EB
@@ -3722,7 +3725,7 @@ LE8EB
   rts       ;  I                                                   I
 LE8ED
   lda     HRS2   ;  I  on trace la droite selon dY <---------------------
-  beq LE8EA  ; ---dY=0, on sort                                      
+  beq     LE8EA  ; ---dY=0, on sort                                      
   ldx HRS1   ;     X=dX                                              
   jsr Le921 ;     on calcule dX/dY dans RES                          
 LE8F6
@@ -3857,36 +3860,36 @@ LE987
   DEY         ;                                                    I
   sec         ;                                                    I
   lda     SCRFY,X ;   on calcule le nombre de lignes                   I
-  sbc SCRDY,X ;   de la fen?tre                                    I
+  sbc     SCRDY,X ;   de la fen?tre                                    I
   tax         ;   dans X                                           I
   inx         ;                                                    I
   tya         ;   colonne 0 dans Y                                 I
-  bcs LE9B3   ;   inconditionnel --------------------------------- I 
+  bcs     LE9B3   ;   inconditionnel --------------------------------- I 
 LE9A7
-  lda #$00     ;  <----------------------------------------------+--
-  ldx #$A0     ;                                                 I  
-  sta RES      ;  RES=$A000 , adresse HIRES                      I  
-  stx RES+1     ;                                                  I  
+  lda     #$00     ;  <----------------------------------------------+-- FIXME 65C02
+  ldx     #$A0     ;                                                 I  
+  sta     RES      ;  RES=$A000 , adresse HIRES                      I  
+  stx     RES+1     ;                                                  I  
   ldx      #$C8    ;   X=200 pour 200 lignes                          I  
-  lda #$00    ;   A=0 pour colonne de d?but = colonne 0          I  
+  lda     #$00    ;   A=0 pour colonne de début = colonne 0          I  
 LE9B3
   plp         ;   on sort C <-------------------------------------  
-  adc #$00    ;   A=A+C                                             
+  adc     #$00    ;   A=A+C                                             
   tay        ;    dans Y                                            
   pla        ;    on sort le code                                   *
 LE9B8
-  sta (RES),Y; -->on le place dans la colonne correspondante        
+  sta     (RES),Y; -->on le place dans la colonne correspondante        
   pha        ; I  on le sauve                                       
   clc        ; I                                                    
-  lda RES    ; I  on passe 28 colonnes                              
-  adc #$28    ;I  (donc une ligne)                                  
-  sta RES     ;I                                                    
-  bcc LE9C6  ; I                                                    
-  inc RES+1    ; I                                                    
+  lda     RES    ; I  on passe 28 colonnes                              
+  adc     #$28    ;I  (donc une ligne)                                  
+  sta     RES     ;I                                                    
+  bcc     LE9C6  ; I                                                    
+  inc     RES+1    ; I                                                    
 LE9C6
   pla        ; I  on sort le code                                   
   dex        ; I  on compte X lignes                                
-  bne LE9B8   ;---                                                 
+  bne     LE9B8   ;---                                                 
   rts         ;   et on sort----------------------------------------
 
 .include "functions/graphics/xcircl.asm"
@@ -3917,7 +3920,7 @@ Lea92
   
 XSCHAR_ROUTINE:
   sta     HRS3
-  sty HRS3+1
+  sty     HRS3+1
   stx HRS2
   lda #$40
   sta HRSFB
@@ -3936,7 +3939,7 @@ XCHAR_ROUTINE
   lda HRS1
   asl
   lsr HRS2
-  ROR
+  ror
 LEAB5  
   pha
   lda HRSX
@@ -4103,42 +4106,42 @@ Lec8b
   ora     #$80
   bmi     LEC80
 LECA8
-  cmp #$40
-  bcs LECB0 
-  sbc #$1F
-  bcs LEC80 
+  cmp     #$40
+  bcs     LECB0 
+  sbc     #$1F
+  bcs     LEC80 
 LECB0  
-  adc #$3F
-  bcc LEC80
+  adc     #$3F
+  bcc     LEC80
 LECB4  
-  ldx #$0C
-  jmp XLISBU_ROUTINE
+  ldx     #$0C
+  jmp     XLISBU_ROUTINE
 LECB9  
-  jsr LECB4   
-  bcs LECB9 
+  jsr     LECB4   
+  bcs     LECB9 
   rts
 Lecbf
   sec
   .byt $24
 LECC1  
   clc
-  lda #$80
-  jmp LDB5D 
+  lda     #$80
+  jmp     LDB5D 
 LECC7
   sec 
-  .byt $24
+  .byt     $24
 LECC9  
   clc
-  lda #$80
+  lda     #$80
 
-  jmp LDB79 
+  jmp     LDB79 
 LECCF
   sec
   .byt $24
 LECD1
   clc
-  lda #$80
-  jmp LDAF7  
+  lda     #$80
+  jmp     LDAF7  
   
 LECD7  
   sec
@@ -4240,9 +4243,9 @@ LEE36
   bit INDRS ; FIXME
   bpl LEE2F 
   lda #$30 
-  sta $44 ; FIXME
+  sta TIMEUD ; FIXME
 LEE4B  
-  lda $44; FIXME
+  lda TIMEUD; FIXME
   bne LEE4B 
   beq LEE2F
 LEE51  
@@ -4603,7 +4606,7 @@ ACC2_ADD_ACC1:
   tsx
   stx     FLSVS
   ldx     ACC1EX
-  stx     $7F
+  stx     TELEMON_UNKNWON_LABEL_7F
   ldx     #$68
   lda     ACC2E
 LEFC2:  
@@ -4620,7 +4623,7 @@ LEFC2:
   adc     #$00
   
   ldy     #$00
-  sty     $7F ; FIXME
+  sty     TELEMON_UNKNWON_LABEL_7F ; FIXME
   ldx     #$60
   bne     @L2
 @next801:
@@ -4644,7 +4647,7 @@ next802
 LEFFA:
   sec
   eor     #$FF
-  adc     $7f   ; FIXME
+  adc     TELEMON_UNKNWON_LABEL_7F   ; FIXME
   sta     ACC1EX
   lda     $0004,y ; FIXME
   sbc     $04,x ; FIXME
@@ -4695,7 +4698,7 @@ LF046:
   rts
 Lf049:
 
-  adc     $7F
+  adc     TELEMON_UNKNWON_LABEL_7F
   sta     ACC1EX
   lda     MENX
   adc     $6C
@@ -5599,19 +5602,19 @@ LF5D0
   
 const_for_decimal_convert:
 const_one_billion  
-  .byt     $9e,$6e,$6b,$28,$00 ; 1 000 000 000  float
+  .byt     $9e,$6E,$6B,$28,$00 ; 1 000 000 000  float
 const_999_999_999
 LF5DA  
-  .byt     $9e,$6e,$6b,$27,$fd ; 999 999 999
+  .byt     $9e,$6e,$6b,$27,$FD ; 999 999 999
 const_999_999_dot_9
-  .byt     $9b,$3e,$bc,$1f,$fd ; 999 999.9
+  .byt     $9b,$3e,$bc,$1f,$FD ; 999 999.9
 const_zero_dot_half  
   .byt     $80,$00,$00,$00,$00 ; 0.5 
 const_negative_100_000_000 ; 32 bits binary signed
-  .byt     $fa,$0a,$1f,$00
+  .byt     $FA,$0A,$1F,$00
 const_ten_million
   .byt     $00,$98,$96,$80 ; 10 000 000 
-  .byt     $ff,$f0,$bd,$c0 ; -1 000 000
+  .byt     $ff,$f0,$BD,$C0 ; -1 000 000
 
   .byt     $00,$01,$86,$a0,$ff,$ff,$d8,$f0,$00,$00,$03
   .byt     $e8,$ff,$ff,$ff,$9c,$00,$00,$00,$0a
@@ -5632,49 +5635,49 @@ XA2EA1_ROUTINE:
   ldx     #$80
   ldy     #$00
   jsr     XA1XY_ROUTINE 
-  lda ACC2S
-  bpl LF63D  
-  jsr XINT_ROUTINE  
-  lda #$80
-  ldy #$00
-  jsr LF3F9 
-  bne LF63D  
+  lda     ACC2S
+  bpl     @S1
+  jsr     XINT_ROUTINE  
+  lda     #$80
+  ldy     #$00
+  jsr     LF3F9 
+  bne     @S1
   tya
-  ldy FLINT
-LF63D
-  jsr LF379  
+  ldy     FLINT
+@S1:
+  jsr     LF379  
   tya
   pha
-  jsr LF149  ; 
-  lda #$80
-  ldy #$00
-  jsr LF184  
-  jsr  LF68F ; 
+  jsr     LF149  ; 
+  lda     #$80
+  ldy     #$00
+  jsr     LF184  
+  jsr     LF68F ; 
   pla
-  LSR
+  lsr
   bcc LF65D  
 
 XNA1_ROUTINE:
   ; negative number
-  lda ACC1E
-  beq LF65D 
-  lda ACC1S
-  eor #$ff
-  sta ACC1S
+  lda     ACC1E
+  beq     LF65D 
+  lda     ACC1S
+  eor     #$FF
+  sta     ACC1S
 LF65D  
   rts
 const_1_divide_ln_2 ; 1/ln(2)  
-  .byt $81,$38,$aa,$3b,$29
+  .byt    $81,$38,$AA,$3B,$29
 coef_polynome:
-  .byt     $07 ; for 8 coef
-  .byt $71,$34,$58,$3E,$56
-  .byt $74,$16,$7E,$B3,$1B
-  .byt $77,$2F,$EE,$E3,$85
-  .byt $7A,$1D,$84,$1C,$2A
-  .byt $7c,$63,$59,$58,$0a
-  .byt $7E,$75,$FD,$E7,$C6
-  .byt $80,$31,$72,$18,$10
-  .byt $81,$00,$00,$00,$00 ; 1
+  .byt    $07 ; for 8 coef
+  .byt    $71,$34,$58,$3E,$56
+  .byt    $74,$16,$7E,$B3,$1B
+  .byt    $77,$2F,$EE,$E3,$85
+  .byt    $7A,$1D,$84,$1C,$2A
+  .byt    $7C,$63,$59,$58,$0A
+  .byt    $7E,$75,$FD,$E7,$C6
+  .byt    $80,$31,$72,$18,$10
+  .byt    $81,$00,$00,$00,$00 ; 1
 
 XEXP_ROUTINE:
   TSX
@@ -5682,96 +5685,96 @@ XEXP_ROUTINE:
 LF68F  
   lda     #<const_1_divide_ln_2
   ldy     #>const_1_divide_ln_2
-  jsr LF184 
-  lda ACC1EX
-  adc #$50
-  bcc LF69F 
-  jsr XAA1_ROUTINE 
+  jsr     LF184 
+  lda     ACC1EX
+  adc     #$50
+  bcc     LF69F 
+  jsr     XAA1_ROUTINE 
 LF69F  
-  sta $7F
-  jsr LF38A 
-  lda ACC1E
-  cmp #$88
-  bcc LF6AD
-LF6AA  
-  jsr LF231 
-LF6AD  
-  jsr XINT_ROUTINE 
+  sta     TELEMON_UNKNWON_LABEL_7F
+  jsr     LF38A 
+  lda     ACC1E
+  cmp     #$88
+  bcc     @S1
+@L1:
+  jsr     LF231 
+@S1:
+  jsr     XINT_ROUTINE 
   
-  lda FLINT
+  lda     FLINT
   clc
-  adc #$81
-  beq LF6AA
+  adc     #$81
+  beq     @L1
   sec
-  sbc #$01
+  sbc     #$01
   pha
-  ldx #$05
-LF6BD  
-  lda ACC2E,X
-  ldy ACC1E,X
-  sta ACC1E,X
-  sty ACC2E,X
-  DEX
-  bpl LF6BD 
-  lda $7F
-  sta ACC1EX
-  jsr XA2NA1_ROUTINE
-  jsr XNA1_ROUTINE 
-  lda #<coef_polynome 
-  ldy #>coef_polynome 
-  jsr LF6F7 
-  lda #$00
-  sta ACCPS
+  ldx     #$05
+@S2:
+  lda     ACC2E,X
+  ldy     ACC1E,X
+  sta     ACC1E,X
+  sty     ACC2E,X
+  dex
+  bpl     @S2
+  lda     TELEMON_UNKNWON_LABEL_7F
+  sta     ACC1EX
+  jsr     XA2NA1_ROUTINE
+  jsr     XNA1_ROUTINE 
+  lda     #<coef_polynome 
+  ldy     #>coef_polynome 
+  jsr     LF6F7 
+  lda     #$00      ; FIXME 65c02
+  sta     ACCPS
   pla
-  jmp LF219 
+  jmp     LF219 
 
 
 LF6E1  
-  sta FLPOLP
+  sta     FLPOLP
 LF6E3  
-  sty $86
+  sty     TELEMON_UNKNWON_LABEL_86
 LF6E5  
-  jsr LF348 
+  jsr     LF348 
 LF6E8  
-  lda #$73
-  jsr LF184
-  jsr LF6FB 
-  lda #$73
-  ldy #$00
-  jmp LF184  
+  lda     #$73
+  jsr     LF184
+  jsr     LF6FB 
+  lda     #$73
+  ldy     #$00
+  jmp     LF184  
 
   
 LF6F7
-  sta FLPOLP
-  sty $86
+  sta     FLPOLP
+  sty     TELEMON_UNKNWON_LABEL_86
 LF6FB  
-  jsr LF34B 
-  lda (FLPOLP),Y
-  sta FLPO0
-  ldy FLPOLP
+  jsr     LF34B 
+  lda     (FLPOLP),Y
+  sta     FLPO0
+  ldy     FLPOLP
   iny
   tya
-  bne LF70A 
-  inc $86
-LF70A  
-  sta FLPOLP
-  ldy $86
+  bne     @S1
+  inc     TELEMON_UNKNWON_LABEL_86
+@S1:
+  sta     FLPOLP
+  ldy     TELEMON_UNKNWON_LABEL_86
 LD70E  
-  jsr LF184 
-  lda FLPOLP
-  ldy $86
+  jsr     LF184 
+  lda     FLPOLP
+  ldy     TELEMON_UNKNWON_LABEL_86
   clc
-  adc #$05
-  bcc LF71B 
+  adc     #$05
+  bcc     LF71B 
   iny
 LF71B  
-  sta FLPOLP
-  sty $86
-  jsr AY_add_acc1  
-  lda #$78
-  ldy #$00
-  dec FLPO0
-  bne LD70E  
+  sta     FLPOLP
+  sty     TELEMON_UNKNWON_LABEL_86
+  jsr     AY_add_acc1  
+  lda     #$78
+  ldy     #$00
+  dec     FLPO0
+  bne     LD70E  
 LF72A
   rts
   
@@ -5842,79 +5845,15 @@ coef_polynome_sin
   .byt $86,$a5,$5d,$e7,$28
   .byt $83,$49,$0f,$da,$a2
 
-XTAN_ROUTINE
-  jsr     LF8B1 
-  jsr     LF348
-  lda     #$00
-  sta     FLSGN
-  jsr     LF791 
-  ldx     #$80
-  ldy     #$00
-  jsr     XA1XY_ROUTINE 
-  lda     #$73
-  ldy     #$00
-  jsr     Lf323
-  lda     #$00
-  sta     ACC1S
-  lda     FLSGN
-  jsr     LF7C4
-  lda     #$80
-  ldy     #$00
-  jmp     Lf287
 
+.include "functions/math/xtan.asm"
 
-  
-XATN_ROUTINE
-  lda     ACC1S
-  pha
-  bpl     @L1
-  jsr     XNA1_ROUTINE 
-@L1:
-  lda     ACC1E
-  pha
-  cmp     #$81
-  bcc     @L2
-  lda     #<const_atn_1
-  ldy     #>const_atn_1 
-  jsr     Lf287 
-@L2:  
-  lda     #<const_coef_atn 
-  ldy     #>const_coef_atn 
-  jsr     LF6E1
-  pla
-  cmp     #$81 
-  bcc     @L3
-  lda     #<CONST_SIN_AND_COS 
-  ldy     #>CONST_SIN_AND_COS
-  jsr     ACC2_ACC1
-@L3:  
-  pla
-  bpl      @L4
-  jsr      XNA1_ROUTINE
-@L4:  
-  jsr      test_if_degree_mode 
-  beq      @L5
-  jmp      XDEG_ROUTINE   
-@L5:
-  rts
-
-const_coef_atn:
-  .byt     $0b ; 11 coef
-  .byt     $76,$b3,$83,$bd,$d3
-  .byt     $79,$1e,$f4,$a6,$f5
-  .byt     $7b,$83,$fc,$b0,$10
-  .byt     $7c,$0c,$1f,$67,$ca
-  .byt     $7c,$de,$53,$cb,$c1
-  .byt     $7d,$14,$64,$70,$4c
-  .byt     $7d,$b7,$ea,$51,$7a
-  .byt     $7d,$63,$30,$88,$7e
-  .byt     $7e,$92,$44,$99,$3a
-  .byt     $7e,$4c,$cc,$91,$c7
-  .byt     $7f,$aa,$aa,$aa,$13
-const_atn_1  
-  .byt $81,$00,$00,$00,$00 ; 1 coef 0
 
 .include "functions/math/xdeg.asm"
+.include "functions/math/xatn.asm"
+
+const_atn_1:
+  .byt    $81,$00,$00,$00,$00 ; 1 coef 0
 
 LF8B1
   jsr     test_if_degree_mode  
@@ -5927,7 +5866,7 @@ XRAD_ROUTINE
   
 
 const_pi_divided_by_180:
-  .byt     $7b,$0e,$fa,$35,$19
+  .byt     $7B,$0E,$FA,$35,$19
 
 test_if_degree_mode
   lda     FLGTEL
@@ -5973,7 +5912,7 @@ LF8FF:
   cmp     #$32
   bcs     LF915
   cmp     #$31
-  rol     $62
+  rol     MENDDY
   rol     ACC1M
   bcs     LF912
   bcc     LF8FF
@@ -6037,7 +5976,7 @@ LF95F:
   bne     LF998
   .byte   $2C
 LF96F:
-   ror     FLSVY
+  ror     FLSVY
 LF971:
   jsr     LF9FC
   bcs     LF99A
@@ -6062,9 +6001,8 @@ LF985:
   sec
   sbc     #$30
 LF993:
-   sta     FLDT1
-   jmp     LF971
-
+  sta     FLDT1
+  jmp     LF971
 LF998:
   stx     RESB
 LF99A:
@@ -6150,7 +6088,7 @@ LFA10:
 ; ****** BEGIN CHARSET ********************
 
 table_chars_qwerty
-  .byt $37,$6a,$6d,$6b,$20,$75,$79,$38,$6e,$74,$36,$39,$2c,$69,$68,$6c,$35
+  .byt     $37,$6a,$6d,$6b,$20,$75,$79,$38,$6e,$74,$36,$39,$2c,$69,$68,$6c,$35
   .byt $72,$62,$3b,$2e,$6f,$67,$30,$76,$66,$34,$2d,$0b,$70,$65,$2f,$31
   .byt $1b,$7a,$00,$08,$7f,$61,$0d,$78,$71,$32,$5c,$0a,$5d,$73,$00,$33
   .byt $64,$63,$27,$09,$5b,$77,$3d,$26,$4a,$4d,$4b,$20,$55,$59,$2a,$4e

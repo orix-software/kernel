@@ -1,0 +1,21 @@
+.export  XTAN_ROUTINE
+.proc XTAN_ROUTINE
+  jsr     LF8B1 
+  jsr     LF348
+  lda     #$00
+  sta     FLSGN
+  jsr     LF791 
+  ldx     #$80
+  ldy     #$00
+  jsr     XA1XY_ROUTINE 
+  lda     #$73
+  ldy     #$00
+  jsr     Lf323
+  lda     #$00
+  sta     ACC1S
+  lda     FLSGN
+  jsr     LF7C4
+  lda     #$80
+  ldy     #$00
+  jmp     Lf287
+.endproc
