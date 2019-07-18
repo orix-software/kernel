@@ -14,6 +14,7 @@
 .include   "build.inc"
 
 
+TELEMON_UNKNWON_LABEL_72:= $72
 TELEMON_UNKNWON_LABEL_7F:= $7F
 TELEMON_UNKNWON_LABEL_86:= $86
 
@@ -1405,7 +1406,7 @@ display_x_choice:
   jsr     put_cursor_in_61_x  
   inx
   lda     ACC2M
-  ldy     $6A
+  ldy     ACC2M+1
   sta     ADDRESS_READ_BETWEEN_BANK
   sty     ADDRESS_READ_BETWEEN_BANK+1
   ldy     #$00
@@ -3860,8 +3861,8 @@ LE987
   ldy     SCRBAH,X  ;                                                   I
   jsr     XADRES_ROUTINE   ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I 
   ldy     SCRDX,X  ;  on prend la premi?re colonne de la fen?tre       I
-  dey         ;   on enlève deux colonnes                          I
-  dey         ;                                                    I
+  DEY         ;   on enl?ve deux colonnes                          I
+  DEY         ;                                                    I
   sec         ;                                                    I
   lda     SCRFY,X ;   on calcule le nombre de lignes                   I
   sbc     SCRDY,X ;   de la fen?tre                                    I
@@ -3899,7 +3900,7 @@ LE9C6
 .include "functions/graphics/xcircl.asm"
 
 ;  
-.proc XFILL_ROUTINE
+XFILL_ROUTINE
   lda     ADHRS
   ldy     ADHRS+1
   sta     RES 
@@ -3920,7 +3921,6 @@ LE9C6
   bne     @loop2
 Lea92  
   rts
-.endproc
   
   
 XSCHAR_ROUTINE:
@@ -4064,18 +4064,18 @@ Lec5e
   jsr write_caracter_in_output_serial_buffer
 LEC61  
   pla
-  eor     TR2
-  sta     TR2
-  ldx     TR0
-  ldy     TR1 
+  eor TR2
+  sta TR2
+  ldx TR0
+  ldy TR1 
   rts
 
 Lec6b
-  stx     TR0
-  sty     TR1
+  stx TR0
+  sty TR1
 Lec6f  
-  asl     KBDCTC
-  bcc     Lec77
+  asl KBDCTC
+  bcc Lec77
   pla
   pla
   rts
@@ -4127,14 +4127,14 @@ LECB9
   rts
 Lecbf
   sec
-  .byt    $24
+  .byt $24
 LECC1  
   clc
   lda     #$80
   jmp     LDB5D 
 LECC7
   sec 
-  .byt    $24
+  .byt     $24
 LECC9  
   clc
   lda     #$80
@@ -4259,8 +4259,8 @@ LEE51
   
 read_a_file_rs232_minitel:
   bit     INDRS 
-  bvs     @skip  
-  jsr     read_header_file  
+  BVS @skip  
+  jsr read_header_file  
 @skip: 
   jsr compute_file_size 
   bit INDRS
@@ -4460,7 +4460,7 @@ XOPEN_ROUTINE:
   jmp     @loop
 .endif
   
-  ; not_slash_first_param
+; not_slash_first_param
   ; Call here setfilename
   ldx     #$00 ; Flush param in order to send parameter
   iny
@@ -4706,13 +4706,13 @@ Lf049:
   adc     TELEMON_UNKNWON_LABEL_7F
   sta     ACC1EX
   lda     MENX
-  adc     $6C
+  adc     ACC2M+3
   sta     MENX
   lda     MENDFY
-  adc     $6B
+  adc     ACC2M+2
   sta     MENDFY
   lda     $62
-  adc     $6A
+  adc     ACC2M+1
   sta     $62
   lda     ACC1M
   adc     ACC2M
@@ -4902,7 +4902,7 @@ LF190:
   sta     ACC3
   sta     $70
   sta     $71
-  sta     $72
+  sta     TELEMON_UNKNWON_LABEL_72
   lda     ACC1EX
   jsr     LF1B9  
   lda     MENX
@@ -4926,14 +4926,14 @@ LF1C1:
   tay
   bcc     LF1DD
   clc
-  lda     $72
-  adc     $6C
-  sta     $72
+  lda     TELEMON_UNKNWON_LABEL_72
+  adc     ACC2M+3
+  sta     TELEMON_UNKNWON_LABEL_72
   lda     $71
-  adc     $6B
+  adc     ACC2M+2
   sta     $71
   lda     $70
-  adc     $6A
+  adc     ACC2M+1
   sta     $70
   lda     ACC3
   adc     ACC2M
@@ -4942,7 +4942,7 @@ LF1DD:
   ror     ACC3
   ror     $70
   ror     $71
-  ror     $72
+  ror     TELEMON_UNKNWON_LABEL_72
   ror     ACC1EX
   tya
   lsr
@@ -5073,20 +5073,20 @@ LF2A4
   ldy ACC2M ; FIXME
   cpy ACC1M
   bne LF2BA 
-  ldy $6A
+  ldy ACC2M+1
   cpy $62
   bne LF2BA
-  ldy $6B
+  ldy ACC2M+2
   cpy MENDFY
   bne LF2BA
-  ldy $6C
+  ldy ACC2M+3
   cpy MENX
 LF2BA  
   php
   rol
   bcc LF2CA 
   inx
-  sta $72,X
+  sta TELEMON_UNKNWON_LABEL_72,X
   beq LF2C8
   bpl LF2F8 
   lda #$01
@@ -5099,24 +5099,24 @@ LF2CA
   PLP
   bcs LF2DB 
 LF2CD  
-  asl $6C
-  rol $6B
-  rol $6A
+  asl ACC2M+3
+  rol ACC2M+2
+  rol ACC2M+1
   rol ACC2M
   bcs LF2BA 
   bmi LF2A4 
   bpl LF2BA
 LF2DB  
   tay
-  lda $6C
+  lda ACC2M+3
   sbc MENX
-  sta $6C
-  lda $6B
+  sta ACC2M+3
+  lda ACC2M+2
   sbc MENDFY
-  sta $6B
-  lda $6A
+  sta ACC2M+2
+  lda ACC2M+1
   sbc $62
-  sta $6A
+  sta ACC2M+1
   lda ACC2M
   sbc ACC1M
   sta ACC2M
@@ -5141,7 +5141,7 @@ Lf301
   sta $62
   lda $71
   sta MENDFY
-  lda $72
+  lda TELEMON_UNKNWON_LABEL_72
   sta MENX
   jmp Lf022
 
