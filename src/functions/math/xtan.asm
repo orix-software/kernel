@@ -10,7 +10,7 @@
   jsr     XA1XY_ROUTINE 
   lda     #$73
   ldy     #$00
-  jsr     Lf323
+  jsr     XAYA1_ROUTINE
   lda     #$00
   sta     ACC1S
   lda     FLSGN
