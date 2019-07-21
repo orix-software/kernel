@@ -15,7 +15,6 @@
 
 TELEMON_UNKNWON_LABEL_62:= $62
 TELEMON_UNKNWON_LABEL_72:= $72
-TELEMON_UNKNWON_LABEL_72:= $72
 TELEMON_UNKNWON_LABEL_7F:= $7F
 TELEMON_UNKNWON_LABEL_86:= $86
 
@@ -4711,15 +4710,10 @@ Lf049:
   lda     MENDFY
   adc     ACC2M+2
   sta     MENDFY
-<<<<<<< .mine
   lda     TELEMON_UNKNWON_LABEL_62
   adc     ACC2M+1
   sta     TELEMON_UNKNWON_LABEL_62
-=======
-  lda     $62
-  adc     ACC2M+1
-  sta     $62
->>>>>>> .theirs
+
   lda     ACC1M
   adc     ACC2M
   sta     ACC1M
@@ -5076,7 +5070,7 @@ XA2DA1_ROUTINE:
   ldx     #$FC
   lda     #$01
 LF2A4  
-<<<<<<< .mine
+
   ldy     ACC2M 
   cpy     ACC1M
   bne     LF2BA 
@@ -5088,35 +5082,18 @@ LF2A4
   bne     LF2BA
   ldy     ACC2M+3
   cpy     MENX
-=======
-  ldy ACC2M ; FIXME
-  cpy ACC1M
-  bne LF2BA 
-  ldy ACC2M+1
-  cpy $62
-  bne LF2BA
-  ldy ACC2M+2
-  cpy MENDFY
-  bne LF2BA
-  ldy ACC2M+3
-  cpy MENX
->>>>>>> .theirs
+
 LF2BA  
   php
   rol
   bcc     LF2CA 
   inx
-<<<<<<< .mine
+
   sta     TELEMON_UNKNWON_LABEL_72,X
   beq     LF2C8
   bpl     LF2F8 
   lda     #$01
-=======
-  sta TELEMON_UNKNWON_LABEL_72,X
-  beq LF2C8
-  bpl LF2F8 
-  lda #$01
->>>>>>> .theirs
+
 Lf2c7  
   .byt     $2c
 LF2C8  
@@ -5126,7 +5103,7 @@ LF2CA
   plp
   bcs     LF2DB 
 LF2CD  
-<<<<<<< .mine
+
   asl     ACC2M+3
   rol     ACC2M+2
   rol     ACC2M+1
@@ -5134,18 +5111,9 @@ LF2CD
   bcs     LF2BA 
   bmi     LF2A4 
   bpl     LF2BA
-=======
-  asl ACC2M+3
-  rol ACC2M+2
-  rol ACC2M+1
-  rol ACC2M
-  bcs LF2BA 
-  bmi LF2A4 
-  bpl LF2BA
->>>>>>> .theirs
+
 LF2DB  
   tay
-<<<<<<< .mine
   lda     ACC2M+3
   sbc     MENX
   sta     ACC2M+3
@@ -5158,6 +5126,7 @@ LF2DB
   lda     ACC2M
   sbc     ACC1M
   sta     ACC2M
+<<<<<<< HEAD
 =======
   lda ACC2M+3
   sbc MENX
@@ -5172,6 +5141,8 @@ LF2DB
   sbc ACC1M
   sta ACC2M
 >>>>>>> .theirs
+=======
+>>>>>>> e7230c3c24d9366d654abd2857a0b5cb3a027ebf
   tya 
   jmp     LF2CD 
 LF2F8  
@@ -5186,8 +5157,8 @@ LF2F8
 
 ; acc3->acc1  
 Lf301
-  
-<<<<<<< .mine
+
+
   lda     ACC3
   sta     ACC1M
   lda     $70  ; FIXME
@@ -5197,17 +5168,7 @@ Lf301
   lda     TELEMON_UNKNWON_LABEL_72
   sta     MENX
   jmp     Lf022
-=======
-  lda ACC3
-  sta ACC1M
-  lda $70
-  sta $62
-  lda $71
-  sta MENDFY
-  lda TELEMON_UNKNWON_LABEL_72
-  sta MENX
-  jmp Lf022
->>>>>>> .theirs
+
 
 XPI_ROUTINE  
 ; pi->acc1
