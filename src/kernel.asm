@@ -18,37 +18,10 @@ TELEMON_UNKNWON_LABEL_72:= $72
 TELEMON_UNKNWON_LABEL_7F:= $7F
 TELEMON_UNKNWON_LABEL_86:= $86
 
-MENDDY := $62
-MENDFY := $63
-MENX := $64
-MENDY := $66
-
-
-ACC1EX := $66
-ACC1J := $67
-ACC2E := $68
-ACC2M := $69
-
-ACC2S := $6D
-ACCPS := $6E
-ACC3 := $6F
-
-ACC4E := $73
-ACC4M := $74
-
-FLDT0 := $74
-FLDT1 := $75
-FLDT2 := $76
-FLSVY := $77
-FLTR0 := $7D
-FLTR1 := $7E
 
 
 FLPOLP := $85
 FLPO0  := $87
-
-FLSGN := $8A
-FLINT := $88
 
 
 
@@ -5126,23 +5099,6 @@ LF2DB
   lda     ACC2M
   sbc     ACC1M
   sta     ACC2M
-<<<<<<< HEAD
-=======
-  lda ACC2M+3
-  sbc MENX
-  sta ACC2M+3
-  lda ACC2M+2
-  sbc MENDFY
-  sta ACC2M+2
-  lda ACC2M+1
-  sbc $62
-  sta ACC2M+1
-  lda ACC2M
-  sbc ACC1M
-  sta ACC2M
->>>>>>> .theirs
-=======
->>>>>>> e7230c3c24d9366d654abd2857a0b5cb3a027ebf
   tya 
   jmp     LF2CD 
 LF2F8  
