@@ -3595,30 +3595,7 @@ XBOX_ROUTINE:
   bcc     LE83A    ;   inconditionnel                                    
 
 .include "functions/graphics/xabox.asm" ; don't move this include
-
-;                         TRACE DE TRAIT EN ABSOLU                          
-                                                                               
-; Action:on calcule dX et dY les d?placements dans HRS1 et HRS2 et on trace en    
-; relatif. En entr?e, comme ADRAW dans HRSx.                               
-
-XDRAWA_ROUTINE:
-  ldx HRS1     ;   X=colonne                                         
-  ldy HRS2     ;   Y=ligne du curseur                                
-  jsr hires_put_coordinate   ;   on place le curseur en X,Y                         
-  ldx #$FF    ;   on met -1 dans X pour un changement de signe      
-  sec         ;   ?ventuel dans les param?tres                      
-  lda HRS3     ;   on prend X2                                       
-  sbc HRS1     ;   -X1                                               
-  sta HRS1     ;   dans HRS1 (DX)                                    
-  bcs LE87B   ;   si DX<0, on inverse le signe de HRS1              
-  stx HRS1+1     ;   dec $4E aurait ?t? mieux...                       
-  sec
-LE87B
-  lda HRS4      ;  on prend Y2                                       
-  sbc HRS2      ;  -Y1                                               
-  sta HRS2     ;   dans HRS2 (DY)                                    
-  bcs XDRAWR_ROUTINE   ;   et si DY n?gatif, on met signe -1                 
-  stx HRS2+1     ;   ou dec $50                                                                               
+.include "functions/graphics/xdrawa.asm" ; don't move this include
 
 ;                          TRACE DE TRAIT EN RELATIF
 
@@ -3647,19 +3624,19 @@ LE87B
   stx     HRSX    ;    X et Y contiennent HRSX+dX et HRSY+dY             
   sty     HRSY     ;   dans HRSX et HRSY                                 
   bit     HRS1+1    ;    dX n?gatif ?                                      
-  bpl     LE89D  ;    non ----------------------------------------------
+  bpl     @S1  ;    non ----------------------------------------------
   lda     HRS1    ;    oui, on compl?mente                              I
   eor     #$FF    ;   dX                                               I
   sta     HRS1    ;                                                     I
   inc     HRS1    ;    ? 2                                              I
-LE89D
+@S1:
   bit     HRS2+1    ;    dY négatif ? <------------------------------------
-  bpl     LE8A9  ;    non ---------------------------------------------- 
+  bpl     @S2  ;    non ---------------------------------------------- 
   lda     HRS2    ;    oui on compl?mente                               I
   eor     #$FF   ;    dY                                               I
   sta     HRS2    ;                                                     I
   inc     HRS2    ;    ? 2                                              I
-LE8A9
+@S2:
   lda     HRS1    ;    on teste dX et dY <-------------------------------
   cmp     HRS2                                                          
   bcc     LE8ED   ;   dX<dY -------------------------------------------- 
