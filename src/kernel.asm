@@ -216,6 +216,26 @@ display_cursor:
   ldx     #$00
   BRK_TELEMON XCSSCR ; display cursors
 
+  lda     #<str_binary_to_start
+  sta     RES
+  lda     #>str_binary_to_start
+  sta     RES+1
+  ; copy to BUFEDT
+  ldy     #$00
+@L1:  
+  lda     (RES),y
+  beq     @S1
+  sta     BUFEDT,y
+  iny
+  bne     @L1
+@S1:
+  sta     BUFEDT,y 
+  lda     #<BUFEDT
+  ldy     #>BUFEDT
+  ;      rts 
+
+  jmp     _XEXEC
+   
   
   ldx     #ORIX_ID_BANK
   stx     VAPLIC
@@ -252,7 +272,8 @@ routine_to_define_19:
 .endif
 
   rts
-
+str_binary_to_start:
+  .asciiz "sh"
 
 telemon_convert_to_decimal:
 ; FIXME macro
@@ -2602,93 +2623,7 @@ LDE2D
 lde53  
   rts
   
-
-XSCROH_ROUTINE
-;                     SCROLLE UNE FENETRE VERS LE BAS                       
-;Action:scrolle vers le bas de la ligne X à la ligne Y la fenêtre courante.
-
-  lda     #$00     ;  on prend $0028, soit 40                           
-  sta     DECFIN+1                                                          
-  lda     #$28                                                         
-  bne     LDE62    ;  inconditionnel                                    
-
-
-;                      SCROLLE UNE FENETRE VERS LE HAUT                      
-;Action:scrolle vers le haut de la ligne X à la ligne Y la fen?tre courante.     
-
-XSCROB_ROUTINE:
-  lda     #$FF       ;    on prend $FFD8, soit -40 en compl?ment ? 2        fixme 
-  sta     DECFIN+1                                                          
-  lda     #$D8                                                         
-LDE62:
-  sta     DECFIN     ;   $06-07 contiennent le d?placement                 
-  stx     RES        ;    on met la ligne de d?part en RES                  
-  tya                                                              
-  sec                                                              
-  sbc     RES        ;   on calcule le nombre de lignes                    
-  pha            ;    on sauve le nombre de lignes                      
-  txa            ;    ligne de d?but dans A                             
-  bit     DECFIN                                                          
-  bpl     @skip      ;    d?placement n?gatif ?                             
-  tya            ;    oui, ligne de fin dans A
-@skip:
-  ldx     SCRNB                                                          
-  jsr     LDE12      ;   on calcule l'adresse de la ligne                 
-  clc                                                              
-  adc     SCRDX,X    ;   l'adresse exacte de la ligne dans la fen?tre      
-  bcc     @skip2                                                       
-  iny
-@skip2:
-  sta     DECCIB     ;  est dans $08-09                                   
-  sty     DECCIB+1                                                          
-  clc            ; on ajoute le d?placement                          
-  adc     DECFIN                                                          
-  sta     DECDEB
-  tya                                                              
-  adc     DECFIN+1                                                          
-  sta     DECDEB+1   ;   dans $04-05                                       
-  pla            ;   on sort le nombre de lignes                       
-  sta     RES        ;   dans RES                                          
-  beq     LDEC4      ;   si nul on fait n'importe quoi ! on devrait sortir!
-  bmi     LDECD      ;  si négatif, on sort ------------------------------
-  sec            ;  on calcule                                       I
-  ldx     SCRNB      ;                                                   I
-  lda     SCRFX,X    ; la largeur de la fenètre                          I
-  sbc     SCRDX,X    ;                                                   I
-  sta     RES+1      ;  dans RES+1                                       I
-LDE9D
-  ldy     RES+1 
-LDE9F            ;                                                   I
-  lda     (DECDEB),Y ;   on transfère une ligne                          I
-  sta     (DECCIB),Y ;                                                   I
-  DEY            ;                                                   I
-  bpl     LDE9F      ;                                                   I
-  clc            ;                                                   I
-  lda     DECDEB     ;   on ajoute le déplacement                        I
-  adc     DECFIN     ;   à l'adresse de base                             I
-  sta     DECDEB     ;                                                   I
-  lda     DECDEB+1   ;                                                   I
-  adc     DECFIN+1   ;                                                   I
-  sta     DECDEB+1   ;                                                   I
-  clc            ;                                                   I
-  lda     DECCIB     ;   et à l'adresse d'arriv?e                        I
-  adc     DECFIN     ;                                                   I
-  sta     DECCIB     ;                                                   I
-  lda     DECCIB+1   ;                                                   I
-  adc     DECFIN+1   ;                                                   I
-  sta     DECCIB+1   ;                                                   I
-  dec     RES        ;  on décompte une ligne de faite                   I
-  bne     LDE9D      ;  et on fait toutes les lignes                     I
-LDEC4
-  ldy     RES+1      ;  on remplit la derni?re ligne                     I
-  lda     #$20       ;                                                   I
-LDEC8
-  sta     (DECCIB),Y ;  avec de espaces                                  I
-  DEY            ;                                                   I
-  bpl     LDEC8      ;                                                   I
-LDECD
-  rts            ;  <-------------------------------------------------
-
+.include "functions/text/xscrob_xscroh.asm"
 
 ; Action:inconnue... ne semble pas tre appelée et utilise des variables          
 ;       IRQ dont on ne sait rien.      
@@ -2790,7 +2725,7 @@ next18
   pla 
   
   sta     SCRNB
-  PLP
+  plp
   rts
   
 .include "functions/init_screen.asm"
@@ -3523,19 +3458,19 @@ LE79C
   lda     data_for_hires_display,X  ;  on lit le bit correspondant                      I 
   bit     HRSFB      ;   b7 de HRSFB ? 1 ?                                I
   bmi     @S2      ;   b7 ? 1, donc 3 ou 2                              I 
-  BVC     @S1       ;   FB=0 ----------------------------------------    I 
+  bvc     @S1       ;   FB=0 ----------------------------------------    I 
   ora     (ADHRS),Y  ;   FB=1, on ajoute le code                     I    I
   sta     (ADHRS),Y  ;   et on le place                              I    I
   rts
 @S1:
   eor     #$7F       ;   on inverse le bit  <-------------------------    I
   and     (ADHRS),Y  ;   et on l'?teint                                   I
-  sta (ADHRS),Y  ;   avant de le placer                               I
+  sta     (ADHRS),Y  ;   avant de le placer                               I
   rts            ;                                                    I
 @S2:
-  BVS Le7c0      ;   FB=3, on sort -----------------------------------O 
-  eor (ADHRS),Y  ;   FB=2, on inverse le bit                          I
-  sta (ADHRS),Y  ;    et on sort       a                               I
+  bvs     Le7c0      ;   FB=3, on sort -----------------------------------O 
+  eor     (ADHRS),Y  ;   FB=2, on inverse le bit                          I
+  sta     (ADHRS),Y  ;    et on sort       a                               I
 Le7c0
   rts  
 
@@ -3575,42 +3510,26 @@ hires_put_coordinate:
   sta HRSX6           ;                                                        
   rts                 ;      I
  
-
-;                       TRACE UN RECTANGLE EN RELATIF                        
-
-;Principe:On calcule les coordonnées absolues des 4 coins et on trace en absolu. 
-;         Pas très optimisé en temps tout cela, il aurait été plus simple de     
-;         de tracer directement en relatif !!!                                   
-;         Le rectangle est tracé comme ABOX avec les param?tres dans HRSx.       
-XBOX_ROUTINE:
-  clc              ;   C=0                                               
-  lda     HRSX     ;   on place les coordon?es actuelles                 
-  sta     DECFIN   ;   du curseur dans $06-07                            
-  adc     HRS1     ;   et les coordonn?es (X+dX,Y+dY)                    
-  sta     DECCIB                                                          
-  lda     HRSY                                                          
-  sta     DECFIN+1                                                          
-  adc     HRS2                                                          
-  sta     DECCIB+1 ;   dans DECCIB-09                                       
-  bcc     LE83A    ;   inconditionnel                                    
-
+                           
+; These 3 includes must be kept together
+.include "functions/graphics/xbox.asm" ; don't move this include
 .include "functions/graphics/xabox.asm" ; don't move this include
 .include "functions/graphics/xdrawa.asm" ; don't move this include
 
 ;                          TRACE DE TRAIT EN RELATIF
 
 ;Principe:Le principe du tracé des droites est en fait assez complexe. On aurait 
-;         aim? que F. BROCHE nous ponde une routine hyper-optimis?e dont il a le 
+;         aimé que F. BROCHE nous ponde une routine hyper-optimisée dont il a le 
 ;         secret. Ce n'est malheureusement pas le cas puisque cette routine      
-;         l'algorithme des ROM V1.0 et 1.1. Sans doute parce qu'il est tr?s      
+;         l'algorithme des ROM V1.0 et 1.1. Sans doute parce qu'il est très      
 ;         efficace...                                                            
 ;         Pour tracer un trait le plus rapidement possible, on cherche lequel des
 ;         deux axes est le plus grand et on trace selon cet axe. Pour tracer,    
 ;         on avance sur l'axe de t points (t est la valeur de la tangente) et on 
-;         avance d'un point sur l'autre axe, et ainsi de suite jusqu'? ce qu'on  
+;         avance d'un point sur l'autre axe, et ainsi de suite jusqu'à ce qu'on  
 ;         ait parcouru tout l'axe.                                               
 ;         Ainsi DRAW 10,2,1 donnera en fait 2 paliers de 5 pixels de large.      
-;         Le cas dX=dY (déplacements ?gaux) est trait? avec t=-1, de plus les    
+;         Le cas dX=dY (déplacements égaux) est traité avec t=-1, de plus les    
 ;         poids fort des déplacements gardent le signe car on prend la valeur    
 ;         absolue de dX et dY pour les calculs.                                  
 
@@ -3618,57 +3537,57 @@ XBOX_ROUTINE:
 ; NOERROR
    
 .proc XDRAWR_ROUTINE
-  lda     HRSPAT  ;    sauve le pattern                                  
-  sta     HRS5+1   ;   FIXME Jede : Erreur entre le commentaire et la valeur (avant $56) dans HRS1+1     
-  jsr     Le942  ;    vérifie la validit? de dX et dY                  
-  stx     HRSX    ;    X et Y contiennent HRSX+dX et HRSY+dY             
-  sty     HRSY     ;   dans HRSX et HRSY                                 
-  bit     HRS1+1    ;    dX n?gatif ?                                      
-  bpl     @S1  ;    non ----------------------------------------------
-  lda     HRS1    ;    oui, on compl?mente                              I
-  eor     #$FF    ;   dX                                               I
-  sta     HRS1    ;                                                     I
-  inc     HRS1    ;    ? 2                                              I
+  lda     HRSPAT         ;   sauve le pattern                                  
+  sta     HRS5+1         ;   FIXME Jede : Erreur entre le commentaire et la valeur (avant $56) dans HRS1+1     
+  jsr     check_relative_parameters          ;   vérifie la validité de dX et dY                  
+  stx     HRSX           ;   X et Y contiennent HRSX+dX et HRSY+dY             
+  sty     HRSY           ;   dans HRSX et HRSY                                 
+  bit     HRS1+1         ;   dX négatif ?                                      
+  bpl     @S1            ;   non ----------------------------------------------
+  lda     HRS1           ;   oui, on complèmente                              I
+  eor     #$FF           ;   dX                                               I
+  sta     HRS1           ;                                                    I
+  inc     HRS1           ;   à 2                                              I
 @S1:
-  bit     HRS2+1    ;    dY négatif ? <------------------------------------
-  bpl     @S2  ;    non ---------------------------------------------- 
-  lda     HRS2    ;    oui on compl?mente                               I
-  eor     #$FF   ;    dY                                               I
-  sta     HRS2    ;                                                     I
-  inc     HRS2    ;    ? 2                                              I
+  bit     HRS2+1         ;   dY négatif ? <------------------------------------
+  bpl     @S2            ;   non ---------------------------------------------- 
+  lda     HRS2           ;   oui on complèmente                               I
+  eor     #$FF           ;   dY                                               I
+  sta     HRS2           ;                                                    I
+  inc     HRS2           ;   à 2                                              I
 @S2:
-  lda     HRS1    ;    on teste dX et dY <-------------------------------
+  lda     HRS1           ;   on teste dX et dY <-------------------------------
   cmp     HRS2                                                          
-  bcc     LE8ED   ;   dX<dY -------------------------------------------- 
-  php         ;   dX>=dY , on trace selon dX                       I
-  lda     HRS1     ;   on prends dX                                     I
-  beq     LE8EB  ;    dX=0, on sort -------------------------------    I 
-  ldx     HRS2    ;    X=dY                                        I    I
-  jsr     Le921  ;    on calcule dY/dX                            I    I 
-  plp        ;                                                I    I
-  bne     LE8C0  ;    dX<>dY -----------------------------------  I    I 
-  lda     #$FF   ;    dX=dY, la tangente est 1                 I  I    I
-  sta     RES   ;     en fait, -1, mais c'est la m?me chose    I  I    I
+  bcc     LE8ED          ;   dX<dY -------------------------------------------- 
+  php                    ;   dX>=dY , on trace selon dX                       I
+  lda     HRS1           ;   on prends dX                                     I
+  beq     LE8EB          ;   dX=0, on sort -------------------------------    I 
+  ldx     HRS2           ;   X=dY                                        I    I
+  jsr     Le921          ;   on calcule dY/dX                            I    I 
+  plp                    ;                                               I    I
+  bne     LE8C0          ;   dX<>dY -----------------------------------  I    I 
+  lda     #$FF           ;   dX=dY, la tangente est 1                 I  I    I
+  sta     RES            ;   en fait, -1, mais c'est la même chose    I  I    I
 LE8C0  
-  bit     HRS1+1 ; I
-  bpl     @S2          ; I   dX>0 -------------------------------------  I    I
-  jsr     XHRSCG_ROUTINE ; I   dX<0, on d?place le curseur ? gauche     I  I    I 
-  jmp     LE8CD          ; I---                                         I  I    I  
+  bit     HRS1+1         ; I
+  bpl     @S2            ; I dX>0 -------------------------------------  I    I
+  jsr     XHRSCG_ROUTINE ; I dX<0, on d?place le curseur à gauche     I  I    I 
+  jmp     @S3            ; I---                                       I  I    I  
 @S2:
-  jsr     XHRSCD_ROUTINE ; II  on on déplace le curseur ? droite <-------  I    I 
-LE8CD
-  clc       ; I-->a-t-on parcouru une valeur de la tangente   I    I
-  lda     RES   ; I                                               I    I
-  adc     RESB   ; I   on stocke le r?sultat dans RESB              I    I
-  sta     RESB   ; I                                               I    I
-  bcc     LE8E3  ;I   non, on continue -------------------------  I    I 
-  bit     $50   ; I   oui, dY<0 ?                              I  I    I
-  bmi     LE8E0 ; I   oui -------------------------------      I  I    I
+  jsr     XHRSCD_ROUTINE ; II  on on déplace le curseur à droite <-------  I    I 
+@S3:
+  clc                    ; I-->a-t-on parcouru une valeur de la tangente   I    I
+  lda     RES            ; I                                               I    I
+  adc     RESB           ; I   on stocke le résultat dans RESB              I    I
+  sta     RESB           ; I                                               I    I
+  bcc     @S5          ;I   non, on continue -------------------------  I    I 
+  bit     $50            ; I   oui, dY<0 ?                              I  I    I FIXME
+  bmi     @S4          ; I   oui -------------------------------      I  I    I
   jsr     XHRSCB_ROUTINE ; I   non, on déplace le curseur        I      I  I    I 
-  jmp     LE8E3  ;I---vers le bas                       I      I  I    I 
-LE8E0
+  jmp     @S5          ;I---vers le bas                       I      I  I    I 
+@S4:
   jsr     XHRSCH_ROUTINE ; II  on déplace vers le haut <----------      I  I    I
-LE8E3
+@S5:
   jsr     XHRSSE_ROUTINE    ;I-->on affiche le point <---------------------  I    I 
   dec     HRS1   ; I   on d?cremente dX,                           I    I
   bne     LE8C0 ; ----on n'a pas parcouru tout l'axe              I    I 
@@ -3685,26 +3604,26 @@ LE8ED
 LE8F6
   bit     HRS2+1                                                          
   bpl     LE900  ;    dY>0 --------------------------------------------- 
-  jsr     XHRSCH_ROUTINE ;    dY<0, on d?place vers le haut                    I 
+  jsr     XHRSCH_ROUTINE ;    dY<0, on déplace vers le haut                    I 
   jmp     LE903  ; ---et on saute                                      I 
 LE900
-  jsr     XHRSCB_ROUTINE  ; I  on d?place vers le bas <-------------------------- 
+  jsr     XHRSCB_ROUTINE  ; I  on déplace vers le bas <-------------------------- 
 LE903  
   clc       ;  -->a-t-on parcouru la tangente ?                     
-  lda RES                                                          
-  adc RESB                                                          
-  sta RESB     ;   (dans RESB)                                        
-  bcc LE919   ;   non ---------------------------------------------- 
-  bit HRS1+1     ;                                                    I
-  bpl LE916   ;   dX>0 ------------------------------------        I
-  jsr XHRSCG_ROUTINE   ;   dX<0, on d?place vers                   I        I 
-  jmp LE919  ; ---la gauche                               I        I 
+  lda     RES                                                          
+  adc     RESB                                                          
+  sta     RESB     ;   (dans RESB)                                        
+  bcc     LE919   ;   non ---------------------------------------------- 
+  bit     HRS1+1     ;                                                    I
+  bpl     LE916   ;   dX>0 ------------------------------------        I
+  jsr     XHRSCG_ROUTINE   ;   dX<0, on déplace vers                   I        I 
+  jmp     LE919  ; ---la gauche                               I        I 
 LE916  
-  jsr XHRSCD_ROUTINE  ; I  on d?place vers la droite <--------------        I 
+  jsr     XHRSCD_ROUTINE  ; I  on déplace vers la droite <--------------        I 
 LE919  
-  jsr XHRSSE_ROUTINE   ; -->on affiche le point <----------------------------- 
-  dec HRS2    ;    et on d?crit dY       FIXME                             
-  bne LE8F6                                                       ;
+  jsr     XHRSSE_ROUTINE   ; -->on affiche le point <----------------------------- 
+  dec     HRS2    ;    et on décrit dY       FIXME
+  bne     LE8F6                                                       ;
   rts         ;   avant de sortir de longueur des lignes            
 .endproc 
 
@@ -3720,34 +3639,27 @@ Le921
   sta     RESB              ;    resultat dans RES                                 
   rts   
 
-           ;                    ROUTINE CURSET                               
-XCURSE_ROUTINE
-  ldx      HRS1      ;  X=HRSX                FIXME                            
-  ldy      HRS2     ;   Y=HRSY                FIXME
-  jsr      hires_verify_position    ;  on vérifie les coordonnées
-LE936
-  jsr      hires_put_coordinate    ;  on place le curseur en X,Y                        
+.include "functions/graphics/xcurse.asm"
 
-  jmp      LE79C    ;  et on affiche sans gérer pattern      
-  
-     ;                          ROUTINE CURMOV
-XCURMO_ROUTINE
-  jsr      Le942    ;  on vérifie les param?tres                        
-  jmp      LE936    ;   et on déplace
+;                          ROUTINE CURMOV
+.proc XCURMO_ROUTINE
+  jsr      check_relative_parameters    ;  on vérifie les paramêtres                        
+  jmp      XCURSE_ROUTINE::put          ;   et on déplace
+.endproc  
  
 
 ; VERIFIE LA VALIDITE DES PARAMETRES RELATIFS                 
                                                                                 
 ;Action:Vérifie si l'adressage relatif du curseur est dans les limites de l'écran
 ;       HIRES, soit si 0<=X+dX<240 et 0<=Y+dY<200.                               
-Le942  
+check_relative_parameters:
   clc                                                              
   lda      HRSX     ;   on prend HRSX                                     
-  adc      HRS1     ;   plus le d?placement horizontal                    
+  adc      HRS1     ;   plus le déplacement horizontal                    
   tax               ;  dans X                                            
   clc                                                              
   lda      HRSY     ;   HRSY                                              
-  adc      HRS2     ;   plus le d?placement vertical                      
+  adc      HRS2     ;   plus le déplacement vertical                      
   tay               ;   dans Y           
 
 ;                       TESTE SI X ET Y SONT VALIDES                        
@@ -3755,15 +3667,15 @@ Le942
 
 hires_verify_position:
   cpx     #$F0     ;  X>=240 ?                                          
-  bcs     @skip     ;   oui ---------------------------------------------- 
+  bcs     @skip    ;   oui ---------------------------------------------- 
   cpy     #$C8     ;   Y>=200 ?                                         I
-  bcs     @skip     ;   oui ---------------------------------------------O
-  rts          ;   coordonnées ok, on sort.                         I
+  bcs     @skip    ;   oui ---------------------------------------------O
+  rts              ;   coordonnées ok, on sort.                         I
 @skip:
-  pla          ;  on d?pile poids fort (>0) <-----------------------
+  pla              ;  on dépile poids fort (>0) <-----------------------
   sta     HRSERR   ;  dans HRSERR                                       
-  pla          ;  et poids faible de l'adresse de retour            
-  rts          ;  et on retourne ? l'appelant de l'appelant    
+  pla              ;  et poids faible de l'adresse de retour            
+  rts              ;  et on retourne ? l'appelant de l'appelant    
 
 
 
@@ -3779,7 +3691,7 @@ XINK_ROUTINE:
 ;Principe:A contient la couleur, X la fenêtre ou 128 si mode HIRES et C=1 si la  
 ;couleur est pour l'encre, 0 pour le fond.                              
 ;         Changer la couleur consiste à remplir la colonne couleur correspondante
-;         avec le code de couleur. Auncun test de validit? n'étant fait, on peut 
+;         avec le code de couleur. Auncun test de validité n'étant fait, on peut 
 ;         utiliser ce moyen pour remplir les colonnes 0 et 1 de n'importe quel   
 ;         attribut.                                                              
 
@@ -3875,81 +3787,81 @@ Lea92
 XSCHAR_ROUTINE:
   sta     HRS3
   sty     HRS3+1
-  stx HRS2
-  lda #$40
-  sta HRSFB
-  ldy #$00
+  stx     HRS2
+  lda     #$40
+  sta     HRSFB
+  ldy     #$00
 Lea9f
-  sty HRS2+1
-  cpy HRS2
-  bcs Lea92 
-  lda (HRS3),y
-  jsr LEAB5 
-  ldy HRS2+1
+  sty     HRS2+1
+  cpy     HRS2
+  bcs     Lea92 
+  lda     (HRS3),y
+  jsr     LEAB5 
+  ldy     HRS2+1
   iny
-  bne Lea9f
+  bne     Lea9f
 
 XCHAR_ROUTINE
-  lda HRS1
+  lda     HRS1
   asl
-  lsr HRS2
+  lsr     HRS2
   ror
 LEAB5  
   pha
-  lda HRSX
-  cmp #$EA
-  bcc Lead3
-  ldx HRSX6
-  lda HRSY
-  adc #$07
+  lda     HRSX
+  cmp     #$EA
+  bcc     Lead3
+  ldx     HRSX6
+  lda     HRSY
+  adc     #$07
   tay
-  sbc #$BF
-  bcc Lead0   
-  beq Lead0   
-  cmp #$08
-  bne Leacf 
-  lda #$00
+  sbc     #$BF
+  bcc     Lead0   
+  beq     Lead0   
+  cmp     #$08
+  bne     Leacf 
+  lda     #$00
 Leacf  
   tay
 Lead0  
-  jsr hires_put_coordinate
+  jsr     hires_put_coordinate
 Lead3  
   pla
-  jsr ZADCHA_ROUTINE 
-  ldy #$00
+  jsr     ZADCHA_ROUTINE 
+  ldy     #$00
 Lead9  
-  sty RES
-  lda HRSX40
+  sty     RES
+  lda     HRSX40
   pha
-  lda HRSX6
+  lda     HRSX6
   pha
-  lda (RESB),Y
+  lda     (RESB),Y
   asl
 Leae4  
   asl
-  beq Leaf3 
+  beq     Leaf3 
   pha
-  bpl Leaed 
-  jsr LE79C 
+  bpl     Leaed 
+  jsr     LE79C 
 Leaed  
-  jsr XHRSCD_ROUTINE 
+  jsr     XHRSCD_ROUTINE 
   pla
-  bne Leae4 
+  bne     Leae4 
 Leaf3  
-  jsr XHRSCB_ROUTINE
+  jsr     XHRSCB_ROUTINE
   pla
-  sta HRSX6
+  sta     HRSX6
   pla
-  sta HRSX40
-  ldy RES
+  sta     HRSX40
+  ldy     RES
   iny
-  cpy #$08
-  bne Lead9
-  lda HRSX
-  adc #$05
+  cpy     #$08
+  bne     Lead9
+  lda     HRSX
+  adc     #$05
   tax
-  ldy HRSY
-  jmp hires_put_coordinate 
+  ldy     HRSY
+  jmp     hires_put_coordinate 
 
 .include  "functions/sound/sounds.asm"  
 
@@ -3969,16 +3881,16 @@ write_caracter_in_output_serial_buffer
 
 ;Minitel  
 send_a_to_minitel:
-  bit INDRS
-  bvs Lec49 
+  bit     INDRS
+  bvs     Lec49 
   tax
-  bmi next910
-  cmp #$20
-  bcs Lec49 
-  adc #$20
+  bmi     next910
+  cmp     #$20
+  bcs     Lec49 
+  adc     #$20
 next912  
   pha
-  lda #$02
+  lda     #$02
   jsr Lec49 
   pla 
   jmp Lec49 
@@ -4076,14 +3988,14 @@ LECB9
   rts
 Lecbf
   sec
-  .byt $24
+  .byt    $24
 LECC1  
   clc
   lda     #$80
   jmp     LDB5D 
 LECC7
   sec 
-  .byt     $24
+  .byt    $24
 LECC9  
   clc
   lda     #$80
@@ -4091,7 +4003,7 @@ LECC9
   jmp     LDB79 
 LECCF
   sec
-  .byt $24
+  .byt    $24
 LECD1
   clc
   lda     #$80
@@ -4099,11 +4011,11 @@ LECD1
   
 LECD7  
   sec
-  .byt $24
+  .byt    $24
 LECD9  
   clc 
-  lda #$80
-  jmp Ldb12 
+  lda     #$80
+  jmp     Ldb12 
 
 compute_file_size
   sec
@@ -4200,35 +4112,35 @@ LEE36
   sta TIMEUD ; FIXME
 LEE4B  
   lda TIMEUD; FIXME
-  bne LEE4B 
-  beq LEE2F
+  bne     LEE4B 
+  beq     LEE2F
 LEE51  
-  lda TR2
-  jmp send_A_to_serial_output_with_check 
+  lda     TR2
+  jmp     send_A_to_serial_output_with_check 
   
 read_a_file_rs232_minitel:
   bit     INDRS 
-  BVS @skip  
-  jsr read_header_file  
+  bvs     @skip  
+  jsr     read_header_file  
 @skip: 
-  jsr compute_file_size 
-  bit INDRS
-  BVC LEE6C  
-  lda #$FF
-  sta $052A  ;FIXME
-  sta $052B  ;FIXME
+  jsr     compute_file_size 
+  bit     INDRS
+  BVC     LEE6C  
+  lda     #$FF
+  sta     $052A  ;FIXME
+  sta     $052B  ;FIXME
 LEE6C  
-  ldy #$00
-  sty TR2
+  ldy     #$00
+  sty     TR2
 LEE70  
-  lda $052A ; FIXME
-  beq LEE86  
-  jsr Lec6b 
-  sta (RES),Y
-  dec $052A   ; FIXME
-  inc RES
-  bne LEE70  
-  inc RES+1
+  lda     $052A ; FIXME
+  beq     LEE86  
+  jsr     Lec6b 
+  sta     (RES),Y
+  dec     $052A   ; FIXME
+  inc     RES
+  bne     LEE70  
+  inc     RES+1
   jmp     LEE70 
 LEE86  
   lda     $052B
@@ -5150,19 +5062,19 @@ XA1XY_ROUTINE:
   sty     FLTR1
   
   ldy     #$04
-  lda MENX
-  sta (FLTR0),Y
+  lda     MENX
+  sta     (FLTR0),Y
   dey
-  lda MENDFY
-  sta (FLTR0),Y
+  lda     MENDFY
+  sta     (FLTR0),Y
   dey
-  lda TELEMON_UNKNWON_LABEL_62 ; FIXME
-  sta (FLTR0),Y
+  lda     TELEMON_UNKNWON_LABEL_62 ; FIXME
+  sta     (FLTR0),Y
   dey
-  lda ACC1S
-  ora #$7F
-  and ACC1M
-  sta (FLTR0),Y
+  lda     ACC1S
+  ora     #$7F
+  and     ACC1M
+  sta     (FLTR0),Y
   dey
   lda     ACC1E
   sta     (FLTR0),Y
@@ -5640,7 +5552,7 @@ coef_polynome:
   .byt    $81,$00,$00,$00,$00 ; 1
 
 XEXP_ROUTINE:
-  TSX
+  tsx
   stx     FLSVS
 LF68F  
   lda     #<const_1_divide_ln_2
