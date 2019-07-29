@@ -232,18 +232,12 @@ display_cursor:
   sta     BUFEDT,y 
   lda     #<BUFEDT
   ldy     #>BUFEDT
-  ;      rts 
 
-  jmp     _XEXEC
+
+  jmp     _XEXEC ; start shell
    
   
-  ldx     #ORIX_ID_BANK
-  stx     VAPLIC
-  lda     #$00
-  sta     VAPLIC+1
-  ldy     #$C0
-  sty     VAPLIC+2
- 
+
 call_routine_in_another_bank  
   sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
   sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
@@ -1622,10 +1616,9 @@ XVARS_ROUTINE:
   rts
 XVARS_TABLE:
 XVARS_TABLE_LOW;
-  .byt     <ORIX_PATH_CURRENT ; pwd
   
 XVARS_TABLE_HIGH
-  .byt     >ORIX_PATH_CURRENT ; pwd
+
 
   
 XMINMA_ROUTINE:

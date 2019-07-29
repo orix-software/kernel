@@ -7,7 +7,7 @@ child_pid                       .res KERNEL_MAX_PROCESS*KERNEL_NUMBER_OF_CHILD_P
 kernel_one_process_struct_ptr   .res KERNEL_MAX_PROCESS*2
 .endstruct
 
-.struct kernel_one_process_struct
-cwd_str             .res KERNEL_MAX_PATH_LENGTH
-child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
-.endstruct 
+;.struct kernel_one_process_struct
+;cwd_str             .res KERNEL_MAX_PATH_LENGTH
+;child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
+;.endstruct 

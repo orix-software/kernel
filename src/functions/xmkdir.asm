@@ -16,7 +16,8 @@ XMKDIR_ROUTINE:
     lda     (ptr1),y
     cmp     #"/"
     beq     @isabsolute
-    FOPEN_INTO_BANK7 ORIX_PATH_CURRENT,O_RDONLY
+    ; FOPEN cwd
+;    FOPEN_INTO_BANK7 ORIX_PATH_CURRENT,O_RDONLY
 
     ldy     #$00
    
