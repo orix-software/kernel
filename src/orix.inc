@@ -93,8 +93,7 @@ MEMTOTAL
 .bss
 .org BUFNOM
 .res 14
-ORIX_PATH_CURRENT
-.res ORIX_MAX_PATH_LENGTH,0
+
 
 
 
