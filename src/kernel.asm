@@ -8,6 +8,7 @@
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
 .include   "include/process.inc"
+.include   "include/process_bss.inc"
 .include   "include/memory.inc"
 .include   "orix.mac"
 .include   "orix.inc"
@@ -216,6 +217,106 @@ display_cursor:
   ldx     #$00
   BRK_TELEMON XCSSCR ; display cursors
 
+; initialize 
+  ; Init PID tables and structs
+  
+  lda     #$00
+  ldx     #KERNEL_MAX_PROCESS
+@loop:
+  sta     kernel_process+kernel_process_struct::kernel_pid_list,x
+  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  dex
+  bpl     @loop
+
+init_process_init_in_struct:
+  ldx     #$00
+@L1:  
+  lda     str_name_process_kernel,x
+  beq     @S1
+  sta     kernel_process+kernel_process_struct::kernel_init_string,x
+  inx     
+  bne     @L1
+@S1:  
+  sta     kernel_process+kernel_process_struct::kernel_init_string,x
+
+init_process_init_cwd_in_struct:
+  ldx     #$00
+@L1:  
+  lda     str_name_process_kernel,x
+  beq     @S1
+  sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
+  inx     
+  bne     @L1
+@S1:  
+  sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
+
+  lda     #$01   ; Init PID =  1
+  sta     kernel_process+kernel_process_struct::kernel_pid_list
+  
+  
+  ; next PID allocated will be 2
+  lda     #$02
+  sta     kernel_process+kernel_process_struct::kernel_next_process_pid
+
+;**************************************************************************************************************************/
+;*                                                     init malloc table in memory                                        */
+;**************************************************************************************************************************/    
+orix_end_memory_kernel:=$700  
+; new init malloc table 
+ lda     #<orix_end_memory_kernel              ; First byte available when Orix Kernel has started
+ sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; store it malloc table (low)
+ lda     #>orix_end_memory_kernel
+ sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE     ; and High
+    
+
+    lda     #<ORIX_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
+    sta     ORIX_MALLOC_FREE_END_LOW_TABLE        ; store it (low)
+    lda     #>ORIX_MALLOC_MAX_MEM_ADRESS
+    sta     ORIX_MALLOC_FREE_END_HIGH_TABLE       ; store it high
+
+;-orix_end_memory_kernel
+    lda     #<(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) ; Get the size (free)
+    sta     ORIX_MALLOC_FREE_SIZE_LOW_TABLE                       ; and store
+    
+    lda     #>(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) 
+    sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+  
+    lda     #$00 ; 0 means One chunk
+    sta     ORIX_MALLOC_FREE_TABLE_NUMBER
+
+; init the malloc pid busy table
+; FIXME 65C02
+init_malloc_busy_table:
+    ldx     #ORIX_NUMBER_OF_MALLOC
+    lda     #$00
+
+@loop:
+    sta     ORIX_MALLOC_BUSY_TABLE_PID,x
+    dex
+    bpl     @loop
+
+;.struct kernel_process_struct
+;kernel_pid_list                      .res KERNEL_MAX_PROCESS
+;kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
+;kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
+;kernel_next_process_pid              .res 1
+;kernel_init_string                   .res .strlen("init")+1
+;kernel_cwd_str                       .res .strlen("/")+1
+;.endstruct
+
+
+;malloc_init_struct:
+
+;  lda     #<str_name_process_kernel
+ ; sta     RESB
+;  lda     #>str_name_process_kernel
+  ;sta     RESB+1
+  
+;  jsr     kernel_create_process
+
+
+launch_command:
   lda     #<str_binary_to_start
   sta     RES
   lda     #>str_binary_to_start
@@ -235,8 +336,131 @@ display_cursor:
 
 
   jmp     _XEXEC ; start shell
-   
+
+.proc kernel_create_process
+; RESB contains the ptr of the string name of the comamnd
+; it returns in A if it's ok or not :
+; 0 Process is OK
+; 1 We reached the max process KERNEL_MAX_PROCESS
+; 2 : FIXME if malloc return NULL
+
+; ORIX_CURRENT_PROCESS_FOREGROUND contains the index of the pid list not the PID value !
+
+; Get first pid
+  ldx     #$00
+@L3:  
+  lda     kernel_process+kernel_process_struct::kernel_pid_list,x
+  beq     @found
+  inx
+  cpx     #KERNEL_MAX_PROCESS
+  bne     @L3
+  ; Error here  KERNEL_MAX_PROCESS reached
+
+  lda     #$01
+  rts
+
+@found:
+
+  stx     ORIX_CURRENT_PROCESS_FOREGROUND
+; Malloc process for init process
+  lda     #.sizeof(kernel_one_process_struct)
+  ldy     #$00
+
+  jsr     XMALLOC_ROUTINE
+
+  ;       get current process entry
+  cmp     #$00
+  bne     @S2
+  cpy     #$00
+  bne     @S2
+  ; erreur OOM
+
+  lda     #$02
+  rts
+@S2:
+  sta   $7000
+  sty   $7001
+
+
+  ; now register ptr adress of process
+  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
+
+
+  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  sta     RES
+  tya
+
+  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+
+  ; prepare to copy 'process' string
+
+  sty     RES+1
+
+  ldy     #$00
+
+@L2:
+  lda     (RESB),y
+
+  beq     @S1
+  sta     (RES),y
   
+  iny
+  bne     @L2
+@S1:
+  sta     (RES),y
+  
+  
+  ; set to "/" cwd of init process
+  ; get the offset
+  ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
+  ldy     #kernel_one_process_struct::cwd_str
+  lda     #"/"
+  sta     (RES),y  ; Store / at the first car
+  iny
+  lda     #$00
+  sta     (RES),y  ; Store 0 for the last string
+
+  ; init child list to $00
+  ldy     #kernel_one_process_struct::child_pid
+  ldx     #$00
+  lda     #$00
+@L1:  
+  sta     (RES),y
+  iny
+  inx
+  cpx     #KERNEL_NUMBER_OF_CHILD_PER_PROCESS
+
+
+  ; Set pid number in the stuct
+  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
+
+  lda     kernel_process+kernel_process_struct::kernel_next_process_pid
+  sta     kernel_process+kernel_process_struct::kernel_pid_list,x
+  inc     kernel_process+kernel_process_struct::kernel_next_process_pid
+  
+
+  
+  lda     #$00  ; process is ok
+  rts
+
+  ; at this step, list pid contains 1 : init
+
+.endproc
+
+.proc kernel_destroy_process
+  ; X contains the index of the process to destroy
+
+  ; Must read all childpid and remove struct of each one
+  
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  tay
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  jsr     XFREE_ROUTINE
+  ; Free process
+
+  rts
+.endproc
+
 
 call_routine_in_another_bank  
   sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
@@ -268,7 +492,11 @@ routine_to_define_19:
   rts
 str_binary_to_start:
   .asciiz "sh"
-
+str_name_process_kernel:  ; if you modify this default, you must change struct too in process.inc
+  .asciiz "init"
+str_default_path:         ; if you modify this default, you must change struct too in process.inc
+  .asciiz "/"  
+ 
 telemon_convert_to_decimal:
 ; FIXME macro
   ldy     #$00 ; 00
@@ -1616,9 +1844,12 @@ XVARS_ROUTINE:
   rts
 XVARS_TABLE:
 XVARS_TABLE_LOW;
+  .byt <kernel_process
+  .byt <kernel_malloc_pid
   
 XVARS_TABLE_HIGH
-
+  .byt >kernel_process
+  .byt >kernel_malloc_pid
 
   
 XMINMA_ROUTINE:

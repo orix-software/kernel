@@ -2,8 +2,17 @@
 ;PARSE_VECTOR
     ; A & Y contains the string command to execute
     sta     TR6        ; Save string pointer
-    sty     TR7        ;
-
+    sty     TR5        ;
+    
+    sta     RESB
+    sty     RESB+1
+    jsr     kernel_create_process
+    cmp     #$00
+    beq     @S1
+    ; Error impossible to fork
+    
+    rts
+@S1
     lda     BNKOLD
     pha
 
@@ -12,6 +21,7 @@
 
 next_bank:
     ; We says that we return to Bank 7 
+
     lda     #$07
     sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
     ; Get parse vector
@@ -56,10 +66,11 @@ next_bank:
     lda     #>next
     sta     VAPLIC+2
     lda     TR6
-    ldy     TR7
+    ldy     TR5
 
 
     jsr     EXBNK
+    ; if there is an error destroy struct
     
 
 next:
