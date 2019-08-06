@@ -260,37 +260,37 @@ init_process_init_cwd_in_struct:
 ;**************************************************************************************************************************/    
 orix_end_memory_kernel:=$700  
 ; new init malloc table 
- lda     #<orix_end_memory_kernel              ; First byte available when Orix Kernel has started
- sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; store it malloc table (low)
- lda     #>orix_end_memory_kernel
- sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE     ; and High
+  lda     #<orix_end_memory_kernel              ; First byte available when Orix Kernel has started
+  sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; store it malloc table (low)
+  lda     #>orix_end_memory_kernel
+  sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE     ; and High
     
 
-    lda     #<ORIX_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
-    sta     ORIX_MALLOC_FREE_END_LOW_TABLE        ; store it (low)
-    lda     #>ORIX_MALLOC_MAX_MEM_ADRESS
-    sta     ORIX_MALLOC_FREE_END_HIGH_TABLE       ; store it high
+  lda     #<ORIX_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
+  sta     ORIX_MALLOC_FREE_END_LOW_TABLE        ; store it (low)
+  lda     #>ORIX_MALLOC_MAX_MEM_ADRESS
+  sta     ORIX_MALLOC_FREE_END_HIGH_TABLE       ; store it high
 
 ;-orix_end_memory_kernel
-    lda     #<(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) ; Get the size (free)
-    sta     ORIX_MALLOC_FREE_SIZE_LOW_TABLE                       ; and store
+  lda     #<(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) ; Get the size (free)
+  sta     ORIX_MALLOC_FREE_SIZE_LOW_TABLE                       ; and store
     
-    lda     #>(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) 
-    sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+  lda     #>(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) 
+  sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
   
-    lda     #$00 ; 0 means One chunk
-    sta     ORIX_MALLOC_FREE_TABLE_NUMBER
+  lda     #$00 ; 0 means One chunk
+  sta     ORIX_MALLOC_FREE_TABLE_NUMBER
 
 ; init the malloc pid busy table
 ; FIXME 65C02
 init_malloc_busy_table:
-    ldx     #ORIX_NUMBER_OF_MALLOC
-    lda     #$00
+  ldx     #ORIX_NUMBER_OF_MALLOC
+  lda     #$00
 
 @loop:
-    sta     ORIX_MALLOC_BUSY_TABLE_PID,x
-    dex
-    bpl     @loop
+  sta     ORIX_MALLOC_BUSY_TABLE_PID,x
+  dex
+  bpl     @loop
 
 ;.struct kernel_process_struct
 ;kernel_pid_list                      .res KERNEL_MAX_PROCESS
