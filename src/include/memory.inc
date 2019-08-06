@@ -18,15 +18,22 @@ ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
 
 .define KERNEL_MALLOC_FREE_CHUNK_MAX 6
 
+.define XVARS_KERNEL_PROCESS 0
+.define XVARS_KERNEL_MALLOC  1
 
-.struct kernel_malloc_free_chunk_struct
+
+.struct kernel_malloc_struct
 kernel_malloc_free_chunk_list_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_list_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
-.endstruct
-
-.struct kernel_malloc_pid_struct
 kernel_malloc_pid_list                     .res KERNEL_NUMBER_OF_MALLOC
 .endstruct
+
+.if     .sizeof(kernel_malloc_struct) > 255
+  .error  "kernel_malloc_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
+.endif
+  
+
+
 
 ;ORIX_MALLOC_FREE_TABLE:
 ; (adress begin) (adress_end) (size of chunk 16 bit)

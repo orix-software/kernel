@@ -90,7 +90,8 @@
     lda     ORIX_CURRENT_PROCESS_FOREGROUND
 
     sta     ORIX_MALLOC_BUSY_TABLE_PID,x
-    sta     kernel_malloc_pid,x
+
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_pid_list,x
     
     lda     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; return chunk adress
     ldy     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x

@@ -19,12 +19,8 @@ TELEMON_UNKNWON_LABEL_72:= $72
 TELEMON_UNKNWON_LABEL_7F:= $7F
 TELEMON_UNKNWON_LABEL_86:= $86
 
-
-
 FLPOLP := $85
 FLPO0  := $87
-
-
 
 PARSE_VECTOR:=$fff1
 
@@ -1831,10 +1827,10 @@ Lcfb6
   rts
 
 table_to_define_prompt_charset:
-  .byt     $7f ; char 127
-  .byt     $00,$00,$08,$3c,$3e,$3c,$08,$00,$00
+  .byt     $7F ; char 127
+  .byt     $00,$00,$08,$3C,$3E,$3C,$08,$00,$00
 table_to_define_prompt_charset_empty:
-  .byt     $7f,$00,$00,$08,$34,$32,$34,$08,$00,$00
+  .byt     $7F,$00,$00,$08,$34,$32,$34,$08,$00,$00
 
 ; This primitive will get the address of variables built in telemon and orix.  
 
@@ -1842,14 +1838,15 @@ XVARS_ROUTINE:
   lda     XVARS_TABLE_LOW,x
   ldy     XVARS_TABLE_HIGH,x
   rts
+
 XVARS_TABLE:
 XVARS_TABLE_LOW;
   .byt <kernel_process
-  .byt <kernel_malloc_pid
+  .byt <kernel_malloc
   
 XVARS_TABLE_HIGH
   .byt >kernel_process
-  .byt >kernel_malloc_pid
+  .byt >kernel_malloc
 
   
 XMINMA_ROUTINE:

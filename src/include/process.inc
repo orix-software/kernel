@@ -13,10 +13,18 @@ kernel_init_string                   .res .strlen("init")+1
 kernel_cwd_str                       .res .strlen("/")+1
 .endstruct
 
+.if     .sizeof(kernel_process_struct) > 255
+  .error  "kernel_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
+.endif
+
 ; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct 
 .struct kernel_one_process_struct
 process_name        .res KERNEL_MAX_LENGTH_COMMAND+1
 cwd_str             .res KERNEL_MAX_PATH_LENGTH
 child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
 .endstruct 
+
+.if     .sizeof(kernel_one_process_struct) > 255
+  .error  "kernel_one_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
+.endif
 
