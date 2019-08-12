@@ -10,11 +10,14 @@
 .include   "include/process.inc"
 .include   "include/process_bss.inc"
 .include   "include/memory.inc"
+.include   "include/files.inc"
 .include   "orix.mac"
 .include   "orix.inc"
 .include   "build.inc"
 
 TELEMON_UNKNWON_LABEL_62:= $62
+TELEMON_UNKNWON_LABEL_70:= $70
+TELEMON_UNKNWON_LABEL_71:= $71
 TELEMON_UNKNWON_LABEL_72:= $72
 TELEMON_UNKNWON_LABEL_7F:= $7F
 TELEMON_UNKNWON_LABEL_86:= $86
@@ -213,10 +216,18 @@ display_cursor:
   ldx     #$00
   BRK_TELEMON XCSSCR ; display cursors
 
+  
+  
+
 ; initialize 
   ; Init PID tables and structs
   
+
+
   lda     #$00
+  ; Set process foreground 
+  sta     ORIX_CURRENT_PROCESS_FOREGROUND
+
   ldx     #KERNEL_MAX_PROCESS
 @loop:
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
@@ -258,8 +269,19 @@ init_process_init_cwd_in_struct:
 ;**************************************************************************************************************************/
 ;*                                                     init malloc table in memory                                        */
 ;**************************************************************************************************************************/    
-orix_end_memory_kernel:=$700  
+
+orix_end_memory_kernel:=BUFEDT+MAX_BUFEDT_LENGTH+1
+
 ; new init malloc table 
+  ldx     #$00
+  lda     #$00              ; First byte available when Orix Kernel has started
+@L3:  
+  sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE,x      ; store it malloc table (low)
+  sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE,x     ; and High
+  inx
+  cpx     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  bne     @L3
+
   lda     #<orix_end_memory_kernel              ; First byte available when Orix Kernel has started
   sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; store it malloc table (low)
   lda     #>orix_end_memory_kernel
@@ -284,7 +306,7 @@ orix_end_memory_kernel:=$700
 ; init the malloc pid busy table
 ; FIXME 65C02
 init_malloc_busy_table:
-  ldx     #ORIX_NUMBER_OF_MALLOC
+  ldx     #KERNEL_MAX_NUMBER_OF_MALLOC
   lda     #$00
 
 @loop:
@@ -330,6 +352,8 @@ launch_command:
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
+;  lda     #$01
+ ; sta     ORIX_CURRENT_PROCESS_FOREGROUND
 
   jmp     _XEXEC ; start shell
 
@@ -374,13 +398,9 @@ launch_command:
   lda     #$02
   rts
 @S2:
-  sta   $7000
-  sty   $7001
-
 
   ; now register ptr adress of process
   ldx     ORIX_CURRENT_PROCESS_FOREGROUND
-
 
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
@@ -392,7 +412,7 @@ launch_command:
 
   sty     RES+1
 
-  ldy     #$00
+  ldy     #kernel_one_process_struct::process_name
 
 @L2:
   lda     (RESB),y
@@ -409,6 +429,9 @@ launch_command:
   ; set to "/" cwd of init process
   ; get the offset
   ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
+
+
+
   ldy     #kernel_one_process_struct::cwd_str
   lda     #"/"
   sta     (RES),y  ; Store / at the first car
@@ -433,8 +456,6 @@ launch_command:
   lda     kernel_process+kernel_process_struct::kernel_next_process_pid
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
   inc     kernel_process+kernel_process_struct::kernel_next_process_pid
-  
-
   
   lda     #$00  ; process is ok
   rts
@@ -1496,8 +1517,8 @@ vectors_telemon:
   .byt     <XMUSIC_ROUTINE,>XMUSIC_ROUTINE ; $45
   .byt     <XZAP_ROUTINE,>XZAP_ROUTINE ; $46
   .byt     <XSHOOT_ROUTINE,>XSHOOT_ROUTINE ; 47
-  .byt     $00,$00 ; $48
-  .byt     $00,$00 ; $49
+  .byt     <XGETCWD_ROUTINE,>XGETCWD_ROUTINE ; $48
+  .byt     <XPUTCWD_ROUTINE,>XPUTCWD_ROUTINE ; $49
   .byt     $00,$00 ; $4a
   .byt     <XMKDIR_ROUTINE,>XMKDIR_ROUTINE       ; $4b
   .byt     <XHCHRS_ROUTINE,>XHCHRS_ROUTINE ; $4c
@@ -1762,9 +1783,10 @@ _open_root_and_enter:
 XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "include/libs/xa65/ch376_verify.s"
 
-XCLOSE_ROUTINE:
-  jmp     _ch376_file_close
+.include  "functions/files/xclose.asm"  
 .include  "functions/xread.asm"
+.include  "functions/files/xgetcwd.asm"
+.include  "functions/files/xputcwd.asm"
 .include  "functions/xwrite.asm"
 .include  "functions/xfseek.asm"
 .include  "functions/xdecal.asm"
@@ -2312,7 +2334,7 @@ Ldb43
   sta     ACIACT           ;                                                    I  
 .endif
 LDB53
-  rts                  ;     et on sort--------------------------------------  
+  rts                      ;     et on sort--------------------------------------  
 
 .ifdef WITH_ACIA  
 init_rs232:
@@ -2388,7 +2410,7 @@ output_window3:
   lda     #$03     ; fen?tre 3
 skipme2000:
 
-  sta     SCRNB       ; stocke la fen?tre dans SCRNB                      
+  sta     SCRNB       ; stocke la fenêtre dans SCRNB                      
   plp          ;  on lit la commande                                
   bpl     LDBA4    ;  ?criture -------    
   jmp     LDECE    ;  ouverture      I      
@@ -3916,68 +3938,68 @@ XINK_ROUTINE:
 ;         utiliser ce moyen pour remplir les colonnes 0 et 1 de n'importe quel   
 ;         attribut.                                                              
 
-  pha           ; on sauve la couleur                               
-  php           ; et C                                              
+  pha               ; on sauve la couleur                               
+  php               ; et C                                              
   stx     RES       ; fenêtre dans RES                                  
   bit     RES       ; HIRES ?                                           
   bmi     LE9A7     ; oui ---------------------------------------------- 
-  stx     SCRNB      ; TEXT, on met le num?ro de fen?tre dans $28       I
-  bcc     @S2     ; si C=0, c'est PAPER                              I 
-  sta     SCRCT,X  ;  on stocke la couleur d'encre                     I
-  bcs     @S1    ;  si C=1 c'est INK                                 I 
+  stx     SCRNB     ; TEXT, on met le num?ro de fenètre dans $28       I
+  bcc     @S2       ; si C=0, c'est PAPER                              I 
+  sta     SCRCT,X   ;  on stocke la couleur d'encre                     I
+  bcs     @S1       ;  si C=1 c'est INK                                 I 
 @S2:
-  sta     SCRCF,X  ;  ou la couleur de fond  
+  sta     SCRCF,X   ;  ou la couleur de fond  
 @S1:
   lda     FLGSCR,X  ;  est on en 38 colonnes ?                          I
-  and     #$10     ;                                                   I
-  bne     LE987    ; mode 38 colonnes ------------------------------  I
-  lda     #$0C     ;  mode 40 colonnes, on efface l'?cran           I  I
-  jsr     Ldbb5    ;  (on envoie CHR$(12))                          I  I 
-  lda     #$1D     ;  et on passe en 38 colonnes                    I  I
-  jsr     Ldbb5    ;  (on envoie CHR$(29))                          I  I 
-  ldx     SCRNB      ;  on prend X=num?ro de fen?tre                  I  I
+  and     #$10      ;                                                   I
+  bne     LE987     ; mode 38 colonnes ------------------------------  I
+  lda     #$0C      ;  mode 40 colonnes, on efface l'écran           I  I
+  jsr     Ldbb5     ;  (on envoie CHR$(12))                          I  I 
+  lda     #$1D      ;  et on passe en 38 colonnes                    I  I
+  jsr     Ldbb5     ;  (on envoie CHR$(29))                          I  I 
+  ldx     SCRNB     ;  on prend X=numéro de fenêtre                  I  I
 LE987  
-  lda     SCRDY,X           ;  on prend la ligne 0 de la fen?tre <------------  I
+  lda     SCRDY,X           ;  on prend la ligne 0 de la fenêtre <------------  I
   jsr     XMUL40_ROUTINE    ;  *40 dans RES                                     I 
-  lda     SCRBAL,X          ;  AY=adresse de base de la fen?tre                 I
+  lda     SCRBAL,X          ;  AY=adresse de base de la fenêtre                 I
   ldy     SCRBAH,X  ;                                                   I
-  jsr     XADRES_ROUTINE   ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I 
-  ldy     SCRDX,X  ;  on prend la premi?re colonne de la fen?tre       I
-  DEY         ;   on enl?ve deux colonnes                          I
+  jsr     XADRES_ROUTINE    ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I 
+  ldy     SCRDX,X           ;  on prend la première colonne de la fenêtre       I
+  DEY                       ;   on enlève deux colonnes                          I
   DEY         ;                                                    I
   sec         ;                                                    I
-  lda     SCRFY,X ;   on calcule le nombre de lignes                   I
-  sbc     SCRDY,X ;   de la fen?tre                                    I
-  tax         ;   dans X                                           I
-  inx         ;                                                    I
-  tya         ;   colonne 0 dans Y                                 I
-  bcs     LE9B3   ;   inconditionnel --------------------------------- I 
+  lda     SCRFY,X           ;   on calcule le nombre de lignes                   I
+  sbc     SCRDY,X           ;   de la fenêtre                                    I
+  tax                       ;   dans X                                           I
+  inx                       ;                                                    I
+  tya                       ;   colonne 0 dans Y                                 I
+  bcs     LE9B3             ;   inconditionnel --------------------------------- I 
 LE9A7
-  lda     #$00     ;  <----------------------------------------------+-- FIXME 65C02
-  ldx     #$A0     ;                                                 I  
-  sta     RES      ;  RES=$A000 , adresse HIRES                      I  
-  stx     RES+1     ;                                                  I  
-  ldx      #$C8    ;   X=200 pour 200 lignes                          I  
-  lda     #$00    ;   A=0 pour colonne de début = colonne 0          I  
+  lda     #$00              ;  <----------------------------------------------+-- FIXME 65C02
+  ldx     #$A0              ;                                                 I  
+  sta     RES               ;  RES=$A000 , adresse HIRES                      I  
+  stx     RES+1             ;                                                  I  
+  ldx      #$C8             ;   X=200 pour 200 lignes                          I  
+  lda     #$00              ;   A=0 pour colonne de début = colonne 0          I  
 LE9B3
-  plp         ;   on sort C <-------------------------------------  
-  adc     #$00    ;   A=A+C                                             
-  tay        ;    dans Y                                            
-  pla        ;    on sort le code                                   *
+  plp                       ;   on sort C <-------------------------------------  
+  adc     #$00              ;   A=A+C                                             
+  tay                       ;    dans Y                                            
+  pla                       ;    on sort le code                                   *
 LE9B8
-  sta     (RES),Y; -->on le place dans la colonne correspondante        
-  pha        ; I  on le sauve                                       
-  clc        ; I                                                    
-  lda     RES    ; I  on passe 28 colonnes                              
-  adc     #$28    ;I  (donc une ligne)                                  
-  sta     RES     ;I                                                    
-  bcc     LE9C6  ; I                                                    
-  inc     RES+1    ; I                                                    
-LE9C6
-  pla        ; I  on sort le code                                   
-  dex        ; I  on compte X lignes                                
-  bne     LE9B8   ;---                                                 
-  rts         ;   et on sort----------------------------------------
+  sta     (RES),Y           ; -->on le place dans la colonne correspondante        
+  pha                       ; I  on le sauve                                       
+  clc                       ; I                                                    
+  lda     RES               ; I  on passe 28 colonnes                              
+  adc     #$28              ;I  (donc une ligne)                                  
+  sta     RES               ;I                                                    
+  bcc     @S1               ; I                                                    
+  inc     RES+1             ; I                                                    
+@S1:
+  pla                       ; I  on sort le code                                   
+  dex                       ; I  on compte X lignes                                
+  bne     LE9B8             ;---                                                 
+  rts                       ;   et on sort----------------------------------------
 
 .include "functions/graphics/xcircl.asm"
 
@@ -4112,21 +4134,21 @@ send_a_to_minitel:
 next912  
   pha
   lda     #$02
-  jsr Lec49 
+  jsr     Lec49 
   pla 
-  jmp Lec49 
+  jmp     Lec49 
 next910
-  cmp #$A0
+  cmp     #$A0
   
-  bcs next911 
-  adc #$c0
+  bcs     next911 
+  adc     #$C0
   
-  bcs next912 
+  bcs     next912 
 next911  
-  and #$7F
+  and     #$7F
   pha 
-  lda #$01
-  jsr Lec49
+  lda     #$01
+  jsr     Lec49
   pla
 
 Lec49  
@@ -4136,28 +4158,28 @@ Lec49
 send_A_to_serial_output_with_check:
 ; MINITEL
   stx     TR0
-  sty TR1
+  sty     TR1
   pha
-  bit INDRS
-  bpl Lec5e 
-  jsr send_a_to_minitel
-  jmp LEC61
+  bit     INDRS
+  bpl     Lec5e 
+  jsr     send_a_to_minitel
+  jmp     LEC61
 Lec5e  
-  jsr write_caracter_in_output_serial_buffer
+  jsr     write_caracter_in_output_serial_buffer
 LEC61  
   pla
-  eor TR2
-  sta TR2
-  ldx TR0
-  ldy TR1 
+  eor     TR2
+  sta     TR2
+  ldx     TR0
+  ldy     TR1 
   rts
 
 Lec6b
-  stx TR0
-  sty TR1
+  stx     TR0
+  sty     TR1
 Lec6f  
-  asl KBDCTC
-  bcc Lec77
+  asl     KBDCTC
+  bcc     Lec77
   pla
   pla
   rts
@@ -4297,42 +4319,42 @@ read_header_file:
 
 ;;;;;;;;;;;;;;;;;;  
 save_file_rs232_minitel:
-  bit INDRS
-  BVS LEE11 
-  jsr send_serial_header_file 
+  bit     INDRS
+  BVS     LEE11 
+  jsr     send_serial_header_file 
 LEE11  
-  jsr compute_file_size
+  jsr     compute_file_size
 
-  lda #$00
-  sta TR2
+  lda     #$00
+  sta     TR2
 LEE18  
-  lda $052A
-  beq LEE2F 
-  ldy #$00
-  lda (RES),Y
-  jsr send_A_to_serial_output_with_check 
-  dec $052A ; FIXME
-  inc RES
-  bne LEE18
-  inc RES+1
-  bne LEE18 
+  lda     $052A
+  beq     LEE2F 
+  ldy     #$00
+  lda     (RES),Y
+  jsr     send_A_to_serial_output_with_check 
+  dec     $052A ; FIXME
+  inc     RES
+  bne     LEE18
+  inc     RES+1
+  bne     LEE18 
 LEE2F  
-  lda $052B   ; FIXME
-  beq LEE51 
-  ldy #$00
+  lda     $052B   ; FIXME
+  beq     LEE51 
+  ldy     #$00
 LEE36  
-  lda (RES),Y
-  jsr send_A_to_serial_output_with_check 
+  lda     (RES),Y
+  jsr     send_A_to_serial_output_with_check 
   iny
-  bne LEE36 
-  dec $052B ; FIXME
-  inc RES+1
-  bit INDRS ; FIXME
-  bpl LEE2F 
-  lda #$30 
-  sta TIMEUD ; FIXME
+  bne     LEE36 
+  dec     $052B ; FIXME
+  inc     RES+1
+  bit     INDRS ; FIXME
+  bpl     LEE2F 
+  lda     #$30 
+  sta     TIMEUD ; FIXME
 LEE4B  
-  lda TIMEUD; FIXME
+  lda     TIMEUD; FIXME
   bne     LEE4B 
   beq     LEE2F
 LEE51  
@@ -4574,29 +4596,17 @@ XOPEN_ROUTINE:
 @write_only:
   jsr     _ch376_set_file_name
   jsr     _ch376_file_create
-  rts
+  ; fixme
+  jmp     create_file_pointer
 
 @read_only:
   jsr     _ch376_set_file_name
   jsr     _ch376_file_open  
   cmp     #CH376_ERR_MISS_FILE
   beq     file_not_found   
-
-
-  ; register filehandle call_routine_in_another_bank  
-  ;call_routine_in_another_bank  
-  lda     #ORIX_REGISTER_FILEHANDLE ; register file handle
-  sta     TR0                       ; store the id of the routine that will be launched by ORIX_ROUTINES primitive
-  lda     #<ORIX_ROUTINES           ; load the adress $ffe0 : it contains the routine in orix which will handle the ORIX_REGISTER_FILEHANDLE call
-  ldy     #>ORIX_ROUTINES           ; Orix is used because there is not enough space in Telemon bank. With the 65C816, it could be easier
-  ldx     #ORIX_ID_BANK             ; id of Orix bank
-  jsr     call_routine_in_another_bank
-
-  ; cc65 needs everything except $ff : if it returns $ff cc65 launch return0 (null)
-  ; A is return from Orix filehandle
-  ;lda #$00
-  ldx     #$00
-  rts
+  
+  jmp     create_file_pointer
+  
 
 
 longskip1:
@@ -4629,10 +4639,31 @@ open_and_read_go:
   rts
 file_not_found:
   ; return NULL
-  ldx     #$FF
-  lda     #$FF
+  ldy     #NULL
+  lda     #NULL
   rts
+
+.proc create_file_pointer
+  lda     #<.sizeof(_KERNEL_FILE)
+  ldy     #>.sizeof(_KERNEL_FILE)
+  jsr     XMALLOC_ROUTINE
+  sta     RES
+  sty     RES+1
+  ldy     #(_KERNEL_FILE::f_flags)
+  lda     #_FOPEN
+  sta     (RES),y
+
+  ; FIXME put readonly/writeonly etc mode
+
+  ldy     #(_KERNEL_FILE::f_path)
+  ; FIXME : set path in the struct
+
+  ; return fp or null
+  lda     RES
+  ldy     RES+1
   
+  rts
+.endproc
 
 
 _open_root:
@@ -4983,8 +5014,8 @@ LF190:
   jsr     LF217 
   lda     #$00
   sta     ACC3
-  sta     $70
-  sta     $71
+  sta     TELEMON_UNKNWON_LABEL_70
+  sta     TELEMON_UNKNWON_LABEL_71
   sta     TELEMON_UNKNWON_LABEL_72
   lda     ACC1EX
   jsr     LF1B9  
@@ -5012,19 +5043,19 @@ LF1C1:
   lda     TELEMON_UNKNWON_LABEL_72
   adc     ACC2M+3
   sta     TELEMON_UNKNWON_LABEL_72
-  lda     $71
+  lda     TELEMON_UNKNWON_LABEL_71
   adc     ACC2M+2
-  sta     $71
-  lda     $70
+  sta     TELEMON_UNKNWON_LABEL_71
+  lda     TELEMON_UNKNWON_LABEL_70
   adc     ACC2M+1
-  sta     $70
+  sta     TELEMON_UNKNWON_LABEL_70
   lda     ACC3
   adc     ACC2M
   sta     ACC3
 LF1DD:
   ror     ACC3
-  ror     $70
-  ror     $71
+  ror     TELEMON_UNKNWON_LABEL_70
+  ror     TELEMON_UNKNWON_LABEL_71
   ror     TELEMON_UNKNWON_LABEL_72
   ror     ACC1EX
   tya
@@ -5227,9 +5258,9 @@ Lf301
 
   lda     ACC3
   sta     ACC1M
-  lda     $70  ; FIXME
+  lda     TELEMON_UNKNWON_LABEL_70  ; FIXME
   sta     TELEMON_UNKNWON_LABEL_62
-  lda     $71
+  lda     TELEMON_UNKNWON_LABEL_71
   sta     MENDFY
   lda     TELEMON_UNKNWON_LABEL_72
   sta     MENX

@@ -1,6 +1,6 @@
 ORIX_NUMBER_OF_MALLOC  = 3
 
-.define KERNEL_NUMBER_OF_MALLOC  3
+.define KERNEL_MAX_NUMBER_OF_MALLOC  3
 
 ORIX_MALLOC_FREE_FRAGMENT_MAX = 6
 
@@ -25,7 +25,7 @@ ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
 .struct kernel_malloc_struct
 kernel_malloc_free_chunk_list_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_list_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_pid_list                     .res KERNEL_NUMBER_OF_MALLOC
+kernel_malloc_pid_list                     .res KERNEL_MAX_NUMBER_OF_MALLOC
 .endstruct
 
 .if     .sizeof(kernel_malloc_struct) > 255

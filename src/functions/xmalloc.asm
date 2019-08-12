@@ -3,15 +3,16 @@
 
 .proc XMALLOC_ROUTINE
 
-; [A & Y ] the length requested
+; IN [A & Y ] the length requested
 ; TR7 is modified
-; Don't use RES or RESB, if it's used, it affects kernel_create_process routine
+; OUT : NULL in A & Y or pointer in A & Y of the first byte of the allocated memory
+; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine
 ; Verify if there is enough memory
 ; 
-    cpy     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-    bcc     @allocate
-@exit_null:
-    lda     #NULL
+    cpy     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE     ; Does High value of the number of the malloc is greater than the free memory ?
+    bcc     @allocate                             
+@exit_null:                                      ; If yes, then we have no memory left, return NULL
+    lda     #NULL                            
     ldy     #NULL
 
     rts
@@ -19,7 +20,7 @@
 
     ; found first available busy table
     ldx     #$00
-    sta     TR7
+    sta     TR7                                  ; Save A (low value of the malloc), Y is not saved because we don't modify it
  
 @looking_for_busy_chunck_available:
     lda     ORIX_MALLOC_BUSY_TABLE_PID,x
@@ -37,10 +38,10 @@
     
     lda     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
     sta     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x   ; to compute High adress
-    sta     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x   ; to compute High adress
+    sta     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x     ; to compute High adress
     
     
-    lda     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE                ; get the first offset
+    lda     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; get the first offset
     sta     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; and save it
     sta     ORIX_MALLOC_BUSY_TABLE_END_LOW,x
     clc
@@ -87,9 +88,11 @@
 @skip4:
     
     ; register process in malloc table 
-    lda     ORIX_CURRENT_PROCESS_FOREGROUND
 
-    sta     ORIX_MALLOC_BUSY_TABLE_PID,x
+    lda     ORIX_CURRENT_PROCESS_FOREGROUND ; 50D
+
+    sta     ORIX_MALLOC_BUSY_TABLE_PID,x ; 55E
+    
 
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_pid_list,x
 

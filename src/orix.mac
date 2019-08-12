@@ -113,7 +113,7 @@
 ; This macro must be placed after MALLOC call
 .macro TEST_OOM_AND_MAX_MALLOC
     ; Test if we reached the max number of malloc chunk
-    cpx     #ORIX_NUMBER_OF_MALLOC
+    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
     bne     @check_for_oom_TEST_OOM_AND_MAX_MALLOC
     ; We reachead max malloc available
     PRINT   str_max_malloc_reached

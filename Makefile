@@ -30,6 +30,9 @@ init:
 	@mkdir -p build/usr/src/kernel/
   
 kernel: $(SOURCE)
+	@echo Create lib
+	@ca65 -ttelestrat src/functions/files/xgetcwd.asm -o src/functions/files/xgetcwd.o
+	@ar65 r lib/kernel.lib src/functions/files/xgetcwd.o
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@$(AS) --verbose -s -tnone --debug-info -o $(PROGRAM_NAME).ld65 $(SOURCE) $(ASFLAGS) 

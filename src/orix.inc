@@ -124,21 +124,21 @@ ORIX_MALLOC_FREE_TABLE_NUMBER
 ; Busy table
 ORIX_MALLOC_BUSY_TABLE
 ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 ORIX_MALLOC_BUSY_TABLE_END_LOW
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 ORIX_MALLOC_BUSY_TABLE_END_HIGH
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 ORIX_MALLOC_BUSY_TABLE_SIZE_LOW
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 
 ; We store the PID of the malloc
 ORIX_MALLOC_BUSY_TABLE_PID
-.res ORIX_NUMBER_OF_MALLOC
+.res KERNEL_MAX_NUMBER_OF_MALLOC
 
 ORIX_MALLOC_BUSY_TABLE_NUMBER
     .res 1
@@ -148,4 +148,10 @@ kernel_process:
     .tag    kernel_process_struct
 kernel_malloc:
     .tag    kernel_malloc_struct
+kernel_end_of_variables:    
+.if     kernel_end_of_variables > BUFEDT
+  .error  "Error BUFEDT is written by kernel variables try to move some variables in orix.inc after $590 "
+.endif    
+
+; Don't forget that in some case BUFEDT could be overwritten by struct (BUFEDT =$590)
 
