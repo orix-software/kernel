@@ -194,7 +194,7 @@ next5:
 
   lda     KOROM
   jsr     telemon_convert_to_decimal
-  PRINT str_KOROM
+  PRINT   str_KOROM
 
 
 telemon_hot_reset
@@ -1807,6 +1807,27 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/text/xfwr.asm"
 
 
+.proc _trim
+; This routine modify RES
+; Each time a space is found, RES is modified (+1 to the pointer) until it reached 0
+  ldy    #$00
+@L1:  
+  lda    (RES),y
+  beq    @S1
+  cmp    #" "
+  beq    @trim
+  iny
+  bne    @L1
+@S1:
+  rts
+@trim:
+  inc    RES
+  bcc    @next
+  inc    RES+1
+@next:
+  bne    @L1    
+.endproc
+
 _multitasking:
   ;LIST_PID
   ;ORIX_CURRENT_PROCESS_FOREGROUND
@@ -2351,14 +2372,14 @@ init_rs232:
   sta     RS232C
 .endif  
   rts
-                                                                                
-               ;          GESTION DE L'ENTREE RS232                          
+
+               ;          GESTION DE L'ENTREE RS232
 LDB5D
   bpl     LDAF7    ;  lecture, voir MINITEL (pourquoi pas $DAF9 ?)       
-  bcs     Ldb09   ;   C=1, on ferme                                    
+  bcs     Ldb09   ;   C=1, on ferme
 
 .ifdef    WITH_ACIA
-  lda     ACIACR   ;   on ouvre                                          
+  lda     ACIACR   ;   on ouvre
   and     #$0D     ;  on fixe le mode de controle
 .endif  
 
@@ -2410,12 +2431,12 @@ output_window3:
   lda     #$03     ; fen?tre 3
 skipme2000:
 
-  sta     SCRNB       ; stocke la fenêtre dans SCRNB                      
-  plp          ;  on lit la commande                                
+  sta     SCRNB       ; stocke la fenêtre dans SCRNB
+  plp          ;  on lit la commande
   bpl     LDBA4    ;  ?criture -------    
   jmp     LDECE    ;  ouverture      I      
 LDBA4:
-  pla          ;  on lit la donn?e <                                
+  pla          ;  on lit la donn?e <
   sta     SCRNB+1      ;  que l'on sauve
 
 Ldbb5:
@@ -2572,8 +2593,8 @@ LDCB8
   lda     FLGSCR,X         ;   US, on lit FLGSCR <-------------------------------
   pha                      ;   que l'on sauve                                    
   jsr     XCOSCR_ROUTINE   ;   on éteint le curseur                            
-  pla                      ;   on prend FLGSCR                                   
-  pha                                                              
+  pla                      ;   on prend FLGSCR
+  pha
   lsr                      ;   doit-on envoyer Y ou X ?                          
   bcs     LDCDC            ;   X ------------------------------------------------
 
@@ -2590,7 +2611,7 @@ LDCB8
   jmp     LDC2B            ;   et on sort                                       I
 LDCDC
   lda     SCRNB+1          ;  on lit X <----------------------------------------
-  and     #$3F             ;   on vire b4                                        
+  and     #$3F             ;   on vire b4
   sta     SCRX,X           ;   dans SCRX                                         
   pla                                                              
   and     #$FA             ;   on indique fin de US                              
@@ -2609,15 +2630,15 @@ KEYBOARD_NO_SHORTCUT       ; USED TO rts keyboard shortcut not managed
 ;         surement le fruit d'une mure reflexion. Chapeau.                       
 ;         En entrée de chaque routine, A=0, C=1 et la pile contient en son       
 ;         sommet -3, FLGSCR. Le rts branche en fait en $DC2B, routine générale   
-;         de fin de gestion de code de controle.                                 
+;         de fin de gestion de code de controle.
 
 .include "functions/shortcuts/ctrl_a.asm"
   
-;                             CODE 4 - CTRL D                               
+;                             CODE 4 - CTRL D
 CTRL_D_START:
   ror          ;  on prépare masque %00000010
 
- ;                               CODE 31 - US                                
+ ;                               CODE 31 - US
 CTRL_US_START:
 ;on prépare masque %00000100
   ROR
@@ -2768,7 +2789,7 @@ CTRL_L_START
   jsr     CTRL_N_START               ;  on efface la ligne courante                       
   lda     SCRY,X              ; on est à la fin de la fen?tre ?                   
   cmp     SCRFY,X             ;                                                     
-  beq     CTRL_HOME_START     ;  oui, on sort en repla?ant le curseur en haut     
+  beq     CTRL_HOME_START     ;  oui, on sort en replaçant le curseur en haut     
   jsr     CTRL_J_START               ;  non, on déplace le curseur vers le bas            
   jmp     @loop               ; et on boucle  (Et bpl, non ?!?!)                  
 
@@ -2785,13 +2806,13 @@ XOUPS_ROUTINE
 ;Action:émet un OUPS
 
 CTRL_G_START:
-  ldx     #<XOUPS_DATA     ;   on indexe les 14 donn?es du OUPS                  
+  ldx     #<XOUPS_DATA     ;   on indexe les 14 données du OUPS                  
   ldy     #>XOUPS_DATA                                                         
   jsr     send_14_paramaters_to_psg   ;   et on envoie au PSG                               
   ldy     #$60     ;   I                                                 
   ldx     #$00     ;   I                                                
 @loop:
-  dex         ;    I D?lai d'une seconde                             
+  dex         ;    I Délai d'une seconde                             
   bne     @loop     ;  I                                                 
   DEY           ;  I                                                 
   bne     @loop     ;  I                                                 
@@ -4420,8 +4441,10 @@ _strcpy:
   ; A & Y is the ptr of the string to enter
   sta     RES
   sty     RES+1
+  
 
   jsr     _open_root_and_enter
+
 
 @restart:  
   ldy     #$00
@@ -4610,8 +4633,9 @@ XOPEN_ROUTINE:
 
 
 longskip1:
-  ldx     #$ff
+  lda     #NULL
   txa
+  tya
   rts
 
 open_and_read_go:
@@ -4641,6 +4665,7 @@ file_not_found:
   ; return NULL
   ldy     #NULL
   lda     #NULL
+  ldx     #NULL
   rts
 
 .proc create_file_pointer
@@ -4661,6 +4686,7 @@ file_not_found:
   ; return fp or null
   lda     RES
   ldy     RES+1
+  ldx     RES+1  ; for cc65 compatibility
   
   rts
 .endproc

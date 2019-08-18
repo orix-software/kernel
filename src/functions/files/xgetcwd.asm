@@ -1,6 +1,9 @@
 .export XGETCWD_ROUTINE
 
 .proc XGETCWD_ROUTINE
+    ; Modify A,X,Y, RESB 
+    ; don't use RES or change xopen relative
+
     ldx     ORIX_CURRENT_PROCESS_FOREGROUND
 
             
