@@ -194,7 +194,7 @@ next5:
 
   lda     KOROM
   jsr     telemon_convert_to_decimal
-  PRINT   str_KOROM
+  PRINT str_KOROM
 
 
 telemon_hot_reset
