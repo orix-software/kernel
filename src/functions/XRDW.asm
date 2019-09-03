@@ -1,40 +1,40 @@
 XRD0_ROUTINE
-	lda #0
-	.byt $2c
+	lda     #$00
+	.byt    $2C
 XRD1_ROUTINE	
-	lda #4
-	.byt $2c
+	lda     #$04
+	.byt    $2C
 XRD2_ROUTINE		
-	lda #8
-	.byt $2c	
+	lda     #$08
+	.byt    $2c	
 XRD3_ROUTINE		
-	lda #$0c
+	lda     #$0C
 ; read keyboard	
 Lc7da:
-	STA work_channel
-	LDA #$04
-	STA i_o_counter
+	STA     work_channel
+	LDA     #$04
+	STA     i_o_counter
 	TXA
 	PHA
 	TYA
 	PHA
 @loop:
-	LDX work_channel
-	LDA IOTAB0,X ; FIXME
-	bpl @skip
+	ldx     work_channel
+	lda     IOTAB0,x
+	bpl     @skip
 
-	cmp #$88
-	bcs @skip
+	cmp     #$88
+	bcs     @skip
 
 	tax
-	ldy #$40
-	jsr send_command_A
-	sta $1d
-	bcc @skip2
+	ldy     #$40
+	jsr     send_command_A
+	sta     $1D
+	bcc     @skip2
 @skip:
-	inc work_channel
-	dec i_o_counter
-	bne @loop
+	inc     work_channel
+	dec     i_o_counter
+	bne     @loop
 @skip2:
 	pla
 	tay

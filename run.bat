@@ -18,7 +18,7 @@ copy %ROM%.rom %ORICUTRON%\roms\ > NUL
 
 cd %ORICUTRON%
 
-oricutronv1 -mt  
+oricutron -mt  
 rem  -r :bp.txt
 
 :End

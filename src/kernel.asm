@@ -37,17 +37,39 @@ ACIACT := $031F ; control register
 .code
 start_rom:
   sei
-  CLD
+  cld
   ldx     #$FF
-  TXS                         ; init stack
+  txs                         ; init stack
+
+  
 .IFPC02
 .pc02
   stz     NEXT_STACK_BANK
+  inx
+  ;ldy     FLGTEL
+@nloopc02:
+  stz     $00,x 
+  ;sta     $200,x it does not help to reboot properly
+  stz     $400,x
+  stz     $500,x
+  inx
+  bne     @nloopc02
 .p02  
 .else  
   inx
   stx     NEXT_STACK_BANK               ; Store in BNKCIB ?? ok but already init with label data_adress_418, when loading_vectors_telemon is executed
+  ; Clear memory for real atmos
+  ; X = 0
+  lda     #$00
+@nloop:
+  sta     $00,x 
+ ; sta     $200,x 
+  sta     $400,x
+  sta     $500,x
+  inx
+  bne     @nloop
 .endif
+  ;sty     FLGTEL
 
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
@@ -2895,16 +2917,16 @@ lde53
 ;Note de Jede : oui :  utilisée chercher le label LDECE     
 
 LDECE 
-  bcc     LDED7             ;  si C=0 on passe ------------                      
-  ldx     SCRNB             ;                             I                      
-  jsr     XCOSCR_ROUTINE    ;  on éteint le curseur       I                      
+  bcc      LDED7             ;  si C=0 on passe ------------                      
+  ldx      SCRNB             ;                             I                      
+  jsr      XCOSCR_ROUTINE    ;  on éteint le curseur       I                      
   pla                   ;  et on sort A de la pile    I                      
   rts          ;                             I    
-LDED7
-  lda     #$01     ;  on met 1 en $216 <----------                      
-  sta     FLGCUR                                                        
-  lda     #$80      ; on force b7 à 1 dans $217                         
-  sta     FLGCUR_STATE                                                        
+LDED7:
+  lda      #$01     ;  on met 1 en $216 <----------                      
+  sta      FLGCUR                                                        
+  lda      #$80      ; on force b7 à 1 dans $217                         
+  sta      FLGCUR_STATE                                                        
   pla           ; on sort A                                         
   rts           ; et on sort    
 

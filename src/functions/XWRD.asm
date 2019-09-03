@@ -9,13 +9,13 @@ XRDW2_ROUTINE
 	.byt $2c
 XRDW3_ROUTINE
 	lda #$0c
-	STA $1B
+	sta $1B
 @loop:
-	LDA $1B
-	JSR Lc7da
+	lda     $1B
+	jsr     Lc7da
 	bcs  @loop	
 LC81A ; Used to table_routine E/S 
-ROUTINE_I_O_NOTHING
+ROUTINE_I_O_NOTHING:
 	SEC
 	RTS
 	
