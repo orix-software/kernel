@@ -182,7 +182,7 @@ loop:
 .proc _ch376_set_usb_mode
     lda     #CH376_SET_USB_MODE ; $15
     sta     CH376_COMMAND
-    lda     KERN_CH376_MOUNT
+    lda     KERNEL_CH376_MOUNT
 
     sta     CH376_DATA	
     rts

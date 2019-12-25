@@ -32,9 +32,9 @@ ACIASR := $031D ; STATUS REGISTER
 ACIACR := $031E ; command register
 ACIACT := $031F ; control register
 
-KERN_KO_RAM_AVAILABLE := $200 ; 16 bits
-KERN_KO_ROM_AVAILABLE := $202 ; 16 bits
-KERN_CH376_MOUNT      := $203
+KERNEL_KO_RAM_AVAILABLE := $200 ; 16 bits
+KERNEL_KO_ROM_AVAILABLE := $202 ; 16 bits
+KERNEL_CH376_MOUNT      := $203
 
 
 .org      $C000
@@ -218,7 +218,7 @@ next5:
   lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
 .endif	
 
-  sta     KERN_CH376_MOUNT   
+  sta     KERNEL_CH376_MOUNT   
   ; display telestrat at the first line
   PRINT str_telestrat
 
@@ -1925,6 +1925,7 @@ XVARS_TABLE:
 XVARS_TABLE_LOW;
   .byt <kernel_process
   .byt <kernel_malloc
+  .byt <KERNEL_CH376_MOUNT
   
 XVARS_TABLE_HIGH
   .byt >kernel_process
