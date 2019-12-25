@@ -32,6 +32,10 @@ ACIASR := $031D ; STATUS REGISTER
 ACIACR := $031E ; command register
 ACIACT := $031F ; control register
 
+KERN_KO_RAM_AVAILABLE := $200 ; 16 bits
+KERN_KO_ROM_AVAILABLE := $202 ; 16 bits
+KERN_CH376_MOUNT      := $203
+
 
 .org      $C000
 .code
@@ -148,6 +152,9 @@ compute_rom_ram:
  
   jsr     XDEFBU_ROUTINE 
 skip:
+
+
+
   lda     #$00                        ; INIT VALUE of the rom to 0 bytes
   sta     KOROM
 
@@ -161,7 +168,10 @@ skip:
   lda     #$01 ; 64 KB
   sta     MEMTOTAL+2
 
-.ifdef TWILIGHTE_CARD_V04
+.ifdef TWILIGHTE_CARD
+
+
+
   lda     #$40
 .else
   lda     #$40-16                     ; store 48 Kbytes for roms
@@ -202,6 +212,13 @@ next5:
   bit     FLGRST ; COLD RESET ?
   bpl     telemon_hot_reset  ; no
   
+.ifdef WITH_SDCARD_FOR_ROOT	
+	lda     #CH376_SET_USB_MODE_CODE_SDCARD
+.else	
+  lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
+.endif	
+
+  sta     KERN_CH376_MOUNT   
   ; display telestrat at the first line
   PRINT str_telestrat
 

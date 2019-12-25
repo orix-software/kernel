@@ -181,9 +181,11 @@ loop:
 .proc _ch376_set_usb_mode
     lda     #CH376_SET_USB_MODE ; $15
     sta     CH376_COMMAND
-.ifdef WITH_SDCARD_FOR_ROOT	
+.ifdef WITH_SDCARD_FOR_ROOT
+     .warning "Build for sdcard by default"
 	lda     #CH376_SET_USB_MODE_CODE_SDCARD
 .else	
+    .warning "Build by usb key"
     lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
 .endif	
     sta     CH376_DATA	
