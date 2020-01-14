@@ -1,3 +1,4 @@
+
 userzp                  := VARLNG
 
 RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
@@ -10,8 +11,9 @@ i_o_save        := $1B ; 3 bytes ?
 TRANSITION_RS232:= $1E;  3 bytes
 
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
-VIA_UNKNOWN     :=$028f ; seems tobe a backup of timer  2 bytesTELEMON_ID_BANK   		= $07
+VIA_UNKNOWN     :=$028F ; seems tobe a backup of timer  2 bytes
 
+TELEMON_ID_BANK   		= $07
 ATMOS_ID_BANK     		= $06
 ORIX_ID_BANK      		= $05
 MONITOR_ID_BANK   		= $04
@@ -23,7 +25,7 @@ FIXME_PAGE0_0:=$25
 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
 
 work_channel  :=$19     ; 1 byte
-KBD_UNKNOWN:=$271  ;FIXME
+KBD_UNKNOWN   :=$271  ;FIXME
 
 ; ORIX_PATH_CURRENT:=$0525  ;FIXME
 FUFTRV=$0100; working Buffer 
@@ -73,7 +75,7 @@ tmp1:=$34
 ptr1:=$32
 
 .bss
-.org $4c7
+.org $4C7
 FIXME_DUNNO
 .res 1
 STACK_BANK
@@ -149,6 +151,8 @@ kernel_process:
     .tag    kernel_process_struct
 kernel_malloc:
     .tag    kernel_malloc_struct
+kernel_ch376_current_mode_fs:
+    .res $00
 kernel_end_of_variables:    
 .if     kernel_end_of_variables > BUFEDT
   .error  "Error BUFEDT is written by kernel variables try to move some variables in orix.inc after $590 "

@@ -133,7 +133,7 @@ loading_vectors_telemon:
 
 ; Just fill ram with BUFROU
   jsr     $0600
- 
+
 compute_rom_ram:
 ; this code sets buffers
   lda     #$00   ; Start from 0
@@ -168,10 +168,7 @@ skip:
   lda     #$01 ; 64 KB
   sta     MEMTOTAL+2
 
-.ifdef TWILIGHTE_CARD
-
-
-
+.ifdef    TWILIGHTE_CARD
   lda     #$40
 .else
   lda     #$40-16                     ; store 48 Kbytes for roms
@@ -609,12 +606,57 @@ loading_code_to_page_6:
   sta     BUFROU,X ; store data in c500 
   inx
   bne     @loop ; copy 256 bytes to BUFROU in OVERLAY RAM
- 
+    ; Becare full, each time shell is executed it launch it
+.ifdef WITH_TWILIGHTE_BOARD
+  ; Fill all ram banks with empty ram string
+  sei
+  lda     $342 
+  ora     #$20
+  sta     $342
 
+  lda     #$00
+  sta     $600
+
+  ldx     $600
+next_ram_bank:
+  stx     $343
+  
+  ldx     #$C0
+  stx     $C001
+  ldx     #$00
+  stx     $C000
+@L1:
+  lda     $0600+(str_ram_empty-loading_code_to_page_6),x
+  sta     $C000,x
+  inx
+  cpx     #(str_ram_empty_end-str_ram_empty)
+  bne     @L1
+
+  ldx     $343
+  inx
+  cpx     #14
+  bne     next_ram_bank
+
+@out: 
+  lda     #$00
+  sta     $343
+
+  lda     $342
+  and     #%11011111
+  sta     $342
+  cli
+.endif
+
+end_proc_init_rams:
   ldx     #$07 ; loops with all banks
   stx     VIA2::PRA ; Switch to each Bank ;
   rts
-
+.ifdef WITH_TWILIGHTE_BOARD
+str_ram_kernel:
+    .asciiz "Kernel reserved"
+str_ram_empty:
+    .asciiz "Empty RAM"
+.endif
 
 data_vectors_VNMI_IRQVECTOR_VAPLIC:
   ; 12 bytes
@@ -1140,8 +1182,8 @@ reset115_labels:
 
 .IFPC02
 .pc02
-  ply
   plx
+  ply
 .p02
 .else  
   ldy     IRQSVY
@@ -1930,7 +1972,7 @@ XVARS_TABLE_LOW;
 XVARS_TABLE_HIGH
   .byt >kernel_process
   .byt >kernel_malloc
-
+  .byt >KERNEL_CH376_MOUNT
   
 XMINMA_ROUTINE:
   cmp     #"a" ; 'a'

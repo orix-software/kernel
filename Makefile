@@ -39,11 +39,13 @@ kernel: $(SOURCE)
 	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernel.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
 	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernelnoacia.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noacia.rom -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
 	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernelnoaciatwil.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noaciatwil.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln $(PROGRAM_NAME).ca.sym
+	@echo Build kernelsd.rom
+	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln $(PROGRAM_NAME).ca.sym
 	@cp $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noacia.rom .
 	@cp $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noaciatwil.rom .
 	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom
 	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom| cut -b 1-8
-	@echo Generating Kernel sd
+	@echo Generating Kernel key
 	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_ACIA=2 -o $(PATH_PACKAGE_ROM)/6502/kernelkey.rom -Ln kernelsd.ca.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' $(PROGRAM_NAME).ca.sym | sort >  $(PROGRAM_NAME).sym	
 	@rm $(PROGRAM_NAME).ca.sym
