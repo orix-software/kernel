@@ -25,7 +25,7 @@ ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
 kernel_malloc_free_chunk_list_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_list_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_pid_list                     .res KERNEL_MAX_NUMBER_OF_MALLOC
-kernel_malloc_max_memory_main              .res 2
+kernel_malloc_max_memory_main              .res 1  ; in KB
 .endstruct
 
 .if     .sizeof(kernel_malloc_struct) > 255
