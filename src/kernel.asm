@@ -164,11 +164,9 @@ skip:
   ;kernel_malloc_max_memory_main
 
   ldy     #(kernel_malloc_struct::kernel_malloc_max_memory_main)
-  lda     #$00
-  sta     kernel_malloc,y
-  iny 
   lda     #$40
   sta     kernel_malloc,y
+
  
 
 .ifdef    TWILIGHTE_CARD
