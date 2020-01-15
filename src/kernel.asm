@@ -161,12 +161,15 @@ skip:
   lda     #$40                        ; INIT VALUE of the RAM to 64 KBytes
   sta     KORAM
  
-  lda     #$00; value in bytes
-  sta     MEMTOTAL
-  sta     MEMTOTAL+1
-  sta     MEMTOTAL+3
-  lda     #$01 ; 64 KB
-  sta     MEMTOTAL+2
+  ;kernel_malloc_max_memory_main
+
+  ldy     #(kernel_malloc_struct::kernel_malloc_max_memory_main)
+  lda     #$00
+  sta     kernel_malloc,y
+  iny 
+  lda     #$40
+  sta     kernel_malloc,y
+ 
 
 .ifdef    TWILIGHTE_CARD
   lda     #$40
