@@ -18,10 +18,12 @@ MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)-$(ORIX_VERSION)/
-
+RELEASE_PATH=release/
 init:
 	@mkdir -p $(PATH_PACKAGE_ROM)/6502/
 	@mkdir -p $(PATH_PACKAGE_ROM)/65c02/	
+	@mkdir -p $(RELEASE_PATH)/6502/twilighte/v0.3
+	@mkdir -p $(RELEASE_PATH)/6502/telestrat
 	@mkdir -p build/usr/share/ipkg/
 	@mkdir -p build/usr/share/man/  
 	@mkdir -p build/usr/share/doc/$(PROGRAM_NAME)/
@@ -35,21 +37,17 @@ kernel: $(SOURCE)
 	#@ar65 r lib/kernel.lib src/functions/files/xgetcwd.o
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
-	@$(AS) --verbose -s -tnone --debug-info -o $(PROGRAM_NAME).ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernel.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernelnoacia.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noacia.rom -DWITH_SDCARD_FOR_ROOT=1 -Ln $(PROGRAM_NAME).ca.sym
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernelnoaciatwil.map -o $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noaciatwil.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln $(PROGRAM_NAME).ca.sym
-	@echo Build kernelsd.rom
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln $(PROGRAM_NAME).ca.sym
-	@cp $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noacia.rom .
-	@cp $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME)noaciatwil.rom .
-	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom
-	@md5sum -b $(PATH_PACKAGE_ROM)/6502/$(PROGRAM_NAME).rom| cut -b 1-8
-	@echo Generating Kernel key
-	@ld65 -tnone $(PROGRAM_NAME).ld65 -DWITH_ACIA=2 -o $(PATH_PACKAGE_ROM)/6502/kernelkey.rom -Ln kernelsd.ca.sym
-	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' $(PROGRAM_NAME).ca.sym | sort >  $(PROGRAM_NAME).sym	
-	@rm $(PROGRAM_NAME).ca.sym
+	@echo Build kernelsd.rom for Telestrat
+	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 $(SOURCE) $(ASFLAGS) 
+	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
+	@cp kernel-telestrat.ld65.rom $(RELEASE_PATH)/6502/telestrat
+	@cp kernel-telestrat.ca.sym  $(RELEASE_PATH)/6502/telestrat
 
+	@echo Build kernelsd.rom for Twilighte board
+	@$(AS) --verbose -s -trelestrat --debug-info -o kernel-twil-sd.ld65 $(SOURCE) $(ASFLAGS) 
+	@ld65 -ttelestrat kernel-twil-sd.ld65 -m kernel-twil-sd.map -o kernel-twil-sd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln kernel-twil-sd.ca.sym
+	@cp kernel-twil-sd.rom $(RELEASE_PATH)/6502/twilighte/v0.3
+	@cp kernel-twil-sd.ca.sym  $(RELEASE_PATH)/6502/twilighte/v0.3
 test:
 	cp Makefile build/usr/src/kernel/
 	cp README.md build/usr/src/kernel/
