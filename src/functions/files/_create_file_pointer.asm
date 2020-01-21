@@ -1,17 +1,32 @@
 
 ; Use RES 
+
+; input
+; A & X contains the string
+; TR4 contains the flag
+
+; Output : A,Y the pointer
+
 .proc     _create_file_pointer
+  sta     RES
+  sty     RES+1
+
   lda     #<.sizeof(_KERNEL_FILE)
   ldy     #>.sizeof(_KERNEL_FILE)
-  jsr     XMALLOC_ROUTINE               ; Malloc Size of kernel_file
+  jsr     XMALLOC_ROUTINE               ; Malloc Size of kernel_file MODIFY TR7
   
   sta     KERNEL_XOPEN_PTR1             ; get pter
-  sta     KERNEL_XOPEN_PTR2             ; get pter
-
   sty     KERNEL_XOPEN_PTR1+1
+  sta     KERNEL_XOPEN_PTR2            ; get pter
   sty     KERNEL_XOPEN_PTR2+1
+
   
-  ldy     #(_KERNEL_FILE::f_flags)      ; get Offset
+  ldy     #_KERNEL_FILE::f_flags      ; get Offset
+  ; Store flag
+  lda     #_FOPEN
+  sta     (KERNEL_XOPEN_PTR1),y  
+
+  ldy     #_KERNEL_FILE::f_mode      ; get Offset
   ; Store flag
   lda     TR4
   sta     (KERNEL_XOPEN_PTR1),y  
@@ -19,20 +34,22 @@
 
   ; FIXME put readonly/writeonly etc mode
 
-  ldy     #(_KERNEL_FILE::f_path)
-  tya
+  lda     #_KERNEL_FILE::f_path
   clc
   adc     KERNEL_XOPEN_PTR2
   bcc     @S1
   inc     KERNEL_XOPEN_PTR2+1
 @S1:
   sta     KERNEL_XOPEN_PTR2
+
+
   ; Copy PATH
   ldy     #$00
 @L1:  
   lda     (RES),y
   beq     @S2
   sta     (KERNEL_XOPEN_PTR2),y  
+
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH
   bne     @L1
@@ -44,7 +61,6 @@
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1
-  ldx     KERNEL_XOPEN_PTR1+1  ; for cc65 compatibility
-  
+
   rts
 .endproc

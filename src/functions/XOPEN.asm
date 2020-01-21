@@ -1,16 +1,30 @@
+; INPUT
+;     this routine use : 
+;        RES, A X Y, TR0,TR1 TR4, TR5,TR6,
+;	  and with XMALLOC :
+;		     TR7 (malloc)
+; OUTPUT
+;     NULL if it does not exists
+;     filepointer in A & Y (and X for cc65 compatibility)
+
 .proc XOPEN_ROUTINE
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
+  ; Save string in 2 locations RES
   sta     RES
-  sta     RESB
   stx     RES+1
-  stx     RESB+1
+  ; and TR5+TR6
+  sta     TR5
+  stx     TR6
+  ; save flag
   sty     TR4 ; save flags
   
-  ; check if usbkey is available
+  ; check if device is available
   jsr     _ch376_verify_SetUsbPort_Mount
   cmp     #$01
   bne     @L1
-  ; impossible to mount
+  ; impossible to mount return null and store errno
+  lda     #ENODEV
+  sta	    ERRNO
   ldx     #$00
   txa
   rts
@@ -19,143 +33,157 @@
   lda     (RES),y
   ;
   cmp     #"/"
-  beq     @it_is_absolute
-  
-  ; here it's relative
-  jsr     XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE ; Read current path (and open)
-  ldy     #$00
-  ldx     #$00
-  jmp     @read_file
+  beq     @it_is_absolute ; It's absolute then skip currentpath
+ 
+  jsr     XGETCWD_ROUTINE ; Modify RESB
 
+  jsr     _create_file_pointer ; Modify RES
+  
+  sta     KERNEL_XOPEN_PTR1
+  sty     KERNEL_XOPEN_PTR1+1
+
+  ;ldy     #(_KERNEL_FILE::f_path)
+;  lda     KERNEL_XOPEN_PTR1
+
+  jmp     @open_from_device
+  ;jsr     XWSTR0_ROUTINE
   
 @it_is_absolute:
-
-@init_and_go:
-  jsr     _open_root
-  ldx     #$00
-  jsr     open_and_read_go
-
-@read_file:
-
-@loop:
-  lda     (RES),y 
-  beq     @end
-  cmp     #"/"
-  bne     @next_char
-.IFPC02
-.pc02
-  stz     BUFNOM,x
-.p02  
-.else
-  lda     #$00
-  sta     BUFNOM,x
-.endif  
-
-  jsr     open_and_read_go
+  ; Pass arg to createfile_pointer
+  lda     RES
   
-  cmp     #CH376_ERR_MISS_FILE
-  beq     file_not_found   
-  jmp     @loop
+  ldy     RES+1
+  ; and TR4 too at this step
+
+  jsr     _create_file_pointer
+
+  sta     KERNEL_XOPEN_PTR1
+  sty     KERNEL_XOPEN_PTR1+1
+
+@open_from_device:
+  ldy     #_KERNEL_FILE::f_path ; slip /
+
+  ; Reset flag to say that end of string is reached
+  lda     #$01
+  sta     TR7
+
+ @next_filename:
+  lda     #CH376_SET_FILE_NAME        ;$2F
+  sta     CH376_COMMAND
+
 @next_char:
-  sta     BUFNOM,x
-
+  lda     (KERNEL_XOPEN_PTR1),y
+  beq     @slash_found_or_end_of_string_stop
+  cmp     #"/"
+  beq     @slash_found_or_end_of_string
+  sta     CH376_DATA
   iny
-  inx
+  cpy     #_KERNEL_FILE::f_path+13 ; Max
+  bne     @next_char
+    ; error buffer overflow
+  beq     @exit_open_with_null
+
+
+@slash_found_or_end_of_string_stop:
+  sta    TR7
+  cpy    #_KERNEL_FILE::f_path+1  ; Do we reach $00 ? at the second char ? It means that it's '/' only
+  beq    @open_and_register_fp
+  bne    @S3
+
+@slash_found_or_end_of_string:  
+  ; do we reach / at the first char ? It should, then we enter 
+  sta    TR7
+  cpy     #_KERNEL_FILE::f_path
+  bne     @S3
+  sta     CH376_DATA
+
+@S3:  
+
 .IFPC02
 .pc02
-  bra     @loop
+  stz     CH376_DATA ; INIT  
 .p02  
-.else
-  jmp     @loop
+.else  
+  lda     #$00 ; used to write in BUFNOM
+  sta     CH376_DATA ; INIT  
 .endif
-  
-; not_slash_first_param
-  ; Call here setfilename
-  ldx     #$00 ; Flush param in order to send parameter
+  sty     TR0
+  jsr     _ch376_file_open
+  cmp     #CH376_ERR_MISS_FILE
+  beq     @file_not_found
+  ldy     TR0 ; reload Y
+  lda     TR7
+  beq     @could_be_created
   iny
-  bne     @loop
-@end:
-  sta     BUFNOM,x
-  cpy     #$00
-; reset_labels_g1
-  beq     longskip1
+  bne     @next_filename
+
+
  
-  ; Optimize, it's crap
+@file_not_found:
+  ; 
+
   lda     TR4 ; Get flags
-  and     #O_RDONLY
   cmp     #O_RDONLY
-  beq     @read_only
+  bne     @could_be_created
+@exit_open_with_null:
+  lda     KERNEL_XOPEN_PTR1
+  ldy     KERNEL_XOPEN_PTR1+1
+  jsr     XFREE_ROUTINE
+  ; No such file_or_directy
+  lda     #ENOENT
+  sta     ERRNO
+  ; return null 
+  ldy     #NULL
+  lda     #NULL
+  ldx     #NULL
+  rts
+
+@could_be_created:
   lda     TR4
   and     #O_WRONLY
   cmp     #O_WRONLY
   beq     @write_only
-
-  ; In all others keys, readonly read :!
-.IFPC02
-.pc02
-  bra     @read_only
-.p02  
-.else  
-  jmp     @read_only ; FIXME : replace jmp by bne to earn one byte
-.endif  
-@write_only:
-  jsr     _ch376_set_file_name
+  ; not write
+  bne     @open_and_register_fp 
+@write_only  
   jsr     _ch376_file_create
-  rts
+@open_and_register_fp:
+   rts
+ ; register fp
 
-@read_only:
-  jsr     _ch376_set_file_name
-  jsr     _ch376_file_open  
-  cmp     #CH376_ERR_MISS_FILE
-  beq     file_not_found   
+  ;       store pointer in process struct
+  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
+  
+  ;kernel_process+kernel_process_struct
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  sta     RES
+  ;tya
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  sta     RES+1
 
-  ; register filehandle call_routine_in_another_bank  
-  ;call_routine_in_another_bank  
-  lda     #ORIX_REGISTER_FILEHANDLE ; register file handle
-  sta     TR0                       ; store the id of the routine that will be launched by ORIX_ROUTINES primitive
-  lda     #<ORIX_ROUTINES           ; load the adress $ffe0 : it contains the routine in orix which will handle the ORIX_REGISTER_FILEHANDLE call
-  ldy     #>ORIX_ROUTINES           ; Orix is used because there is not enough space in Telemon bank. With the 65C816, it could be easier
-  ldx     #ORIX_ID_BANK             ; id of Orix bank
-  jsr     call_routine_in_another_bank
-
-  ; cc65 needs everything except $ff : if it returns $ff cc65 launch return0 (null)
-  ; A is return from Orix filehandle
-  ;lda #$00
-  ldx     #$00
-  rts
-
-
-longskip1:
-  ldx     #$ff
-  txa
-  rts
-
-open_and_read_go:
-.IFPC02
-.pc02
-  phy
-.p02  
-.else
-  sty     TR7
-.endif  
-  jsr     _ch376_set_file_name
-  jsr     _ch376_file_open
-  sta     TR6 ; store return 
-  ldx     #$00
-.IFPC02
-.pc02
-  ply
-.p02  
-.else
-  ldy     TR7 ; because it's "/" in the first char, it means that we are here _/_usr/bin/toto.txt
-.endif    
-
+  ;Fill the address of the fp
+  ; Manage only 1 FP for instance FIXME bug
+  ldy     #(kernel_one_process_struct::fp_ptr)
+@try_to_find_a_free_fp_for_current_process:
+  lda     KERNEL_XOPEN_PTR1
+  bne     @fp_is_not_busy 
+  tax
   iny
-  lda     TR6 ; GET error of _ch376_file_open return
-  rts
-file_not_found:
-  ; return NULL
-  ldx     #$FF
-  lda     #$FF
+  lda     KERNEL_XOPEN_PTR1+1
+  bne     @fp_not_busy
+  iny
+  cpy     #(KERNEL_MAX_FP_PER_PROCESS)*2
+  bne     @try_to_find_a_free_fp_for_current_process
+  lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
+  sta     ERRNO
+  ;       
+@fp_is_not_busy:
+  sta     (RES),y
+  iny
+  lda     KERNEL_XOPEN_PTR1+1
+@fp_not_busy:
+  sta     (RES),y
+  ;kernel_process
+
   rts
 .endproc

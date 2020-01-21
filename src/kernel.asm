@@ -394,112 +394,6 @@ launch_command:
 
   jmp     _XEXEC ; start shell
 
-.proc kernel_create_process
-; RESB contains the ptr of the string name of the comamnd
-; it returns in A if it's ok or not :
-; 0 Process is OK
-; 1 We reached the max process KERNEL_MAX_PROCESS
-; 2 : FIXME if malloc return NULL
-
-; ORIX_CURRENT_PROCESS_FOREGROUND contains the index of the pid list not the PID value !
-
-; Get first pid
-  ldx     #$00
-@L3:  
-  lda     kernel_process+kernel_process_struct::kernel_pid_list,x
-  beq     @found
-  inx
-  cpx     #KERNEL_MAX_PROCESS
-  bne     @L3
-  ; Error here  KERNEL_MAX_PROCESS reached
-
-  lda     #$01
-  rts
-
-@found:
-
-  stx     ORIX_CURRENT_PROCESS_FOREGROUND
-; Malloc process for init process
-  lda     #.sizeof(kernel_one_process_struct)
-  ldy     #$00
-
-  jsr     XMALLOC_ROUTINE
-
-  ;       get current process entry
-  cmp     #$00
-  bne     @S2
-  cpy     #$00
-  bne     @S2
-  ; erreur OOM
-
-  lda     #$02
-  rts
-@S2:
-
-  ; now register ptr adress of process
-  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
-
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-  sta     RES
-  tya
-
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-
-  ; prepare to copy 'process' string
-
-  sty     RES+1
-
-  ldy     #kernel_one_process_struct::process_name
-
-@L2:
-  lda     (RESB),y
-
-  beq     @S1
-  sta     (RES),y
-  
-  iny
-  bne     @L2
-@S1:
-  sta     (RES),y
-  
-  
-  ; set to "/" cwd of init process
-  ; get the offset
-  ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
-
-
-
-  ldy     #kernel_one_process_struct::cwd_str
-  lda     #"/"
-  sta     (RES),y  ; Store / at the first car
-  iny
-  lda     #$00
-  sta     (RES),y  ; Store 0 for the last string
-
-  ; init child list to $00
-  ldy     #kernel_one_process_struct::child_pid
-  ldx     #$00
-  lda     #$00
-@L1:  
-  sta     (RES),y
-  iny
-  inx
-  cpx     #KERNEL_NUMBER_OF_CHILD_PER_PROCESS
-
-
-  ; Set pid number in the stuct
-  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
-
-  lda     kernel_process+kernel_process_struct::kernel_next_process_pid
-  sta     kernel_process+kernel_process_struct::kernel_pid_list,x
-  inc     kernel_process+kernel_process_struct::kernel_next_process_pid
-  
-  lda     #$00  ; process is ok
-  rts
-
-  ; at this step, list pid contains 1 : init
-
-.endproc
 
 .proc kernel_destroy_process
   ; X contains the index of the process to destroy
@@ -1063,6 +957,8 @@ end_keyboard_buffer
 .include  "functions/memory/xmalloc.asm"
 .include  "functions/XOP.asm"
 .include  "functions/files/xcl.asm"
+.include  "functions/files/_create_file_pointer.asm"
+.include  "functions/process/kernel_create_process.asm"
 .include  "functions/zadcha.asm"
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
@@ -1575,7 +1471,7 @@ vectors_telemon:
   .byt     $00,$00
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
 
-  .byt     <XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE,>XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE ; Open from current path $31
+  .byt     <$00,>$00 ; Open from current path $31
 
   .byt     $00,$00; XEDTIN $32
   .byt     <XECRPR_ROUTINE,>XECRPR_ROUTINE; XECRPR $33 $ece6
@@ -4519,274 +4415,10 @@ _strcpy:
   sta     (RESB),y
   ; y return the length
   rts
-  
-.proc     XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE
-  ; A & Y is the ptr of the string to enter
-  sta     RES
-  sty     RES+1
-  
-
-  jsr     _open_root_and_enter
-
-
-@restart:  
-  ldy     #$00
-@loop:
-  
-  lda     (RES),y
-  beq     @send_set_filename_and_fileopen
-  cmp     #"/"
-  beq     @send_set_filename_and_fileopen
-  sta     BUFNOM,y
-  iny
-  
-.IFPC02
-.pc02
-  bra     @loop
-.p02  
-.else  
-  jmp     @loop
-.endif  
-
-@send_set_filename_and_fileopen:
-  lda     #$00
-  sta     BUFNOM,y ; FIXME can be done in 65C02 with X register instead of Y
-
-.IFPC02
-.pc02
-  phy
-.p02  
-.else  
-  sty     TR6
-.endif
-
-  jsr     _ch376_set_file_name
-  jsr     _ch376_file_open
-  cmp     #CH376_ERR_MISS_FILE
-  bne     @next
-
-  lda     #$01
-  rts
-@next:  
-  sta     ERRNO
-.IFPC02
-.pc02
-  ply
-  lda     (RES),y
-  beq     end2000
-  bra     @restart
-.p02  
-.else
-  ldy     TR6
-  lda     (RES),y
-  beq     @end
-  iny
-  tya
-  clc
-  adc     RES
-  bcc     @skip
-  inc     RES+1
-@skip:
-  sta     RES  
-
-
-  jmp     @restart
-.endif  
-@end:
-  rts
-.endproc
-  
-;.include  "functions/XOPEN.asm"
-
-; Use RES, A X Y TR4 cd   
-XOPEN_ROUTINE:
-  ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
-  sta     RES
-  sta     RESB
-  stx     RES+1
-  stx     RESB+1
-  sty     TR4 ; save flags
-  
-  ; check if usbkey is available
-  jsr     _ch376_verify_SetUsbPort_Mount
-  cmp     #$01
-  bne     @L1
-  ; impossible to mount
-  ldx     #$00
-  txa
-  rts
-@L1:
-  ldy     #$00
-  lda     (RES),y
-  ;
-  cmp     #"/"
-  beq     @it_is_absolute
-  
-  ; here it's relative
-  jsr     XOPEN_ABSOLUTE_PATH_CURRENT_ROUTINE ; Read current path (and open)
-  ldy     #$00
-  ldx     #$00
-  jmp     @read_file
-
-  
-@it_is_absolute:
-
-@init_and_go:
-  jsr     _open_root
-  ldx     #$00
-  jsr     open_and_read_go
-
-@read_file:
-
-@loop:
-  lda     (RES),y 
-  beq     @end
-  cmp     #"/"
-  bne     @next_char
-.IFPC02
-.pc02
-  stz     BUFNOM,x
-.p02  
-.else
-  lda     #$00
-  sta     BUFNOM,x
-.endif  
-
-  jsr     open_and_read_go
-  
-  cmp     #CH376_ERR_MISS_FILE
-  beq     file_not_found   
-  jmp     @loop
-@next_char:
-  sta     BUFNOM,x
-
-  iny
-  inx
-.IFPC02
-.pc02
-  bra     @loop
-.p02  
-.else
-  jmp     @loop
-.endif
-  
-; not_slash_first_param
-  ; Call here setfilename
-  ldx     #$00 ; Flush param in order to send parameter
-  iny
-  bne     @loop
-@end:
-  sta     BUFNOM,x
-  cpy     #$00
-; reset_labels_g1
-  beq     longskip1
  
-  ; Optimize, it's crap
-  lda     TR4 ; Get flags
-  and     #O_RDONLY
-  cmp     #O_RDONLY
-  beq     @read_only
-  lda     TR4
-  and     #O_WRONLY
-  cmp     #O_WRONLY
-  beq     @write_only
 
-  ; In all others keys, readonly read :!
-.IFPC02
-.pc02
-  bra     @read_only
-.p02  
-.else  
-  jmp     @read_only ; FIXME : replace jmp by bne to earn one byte
-.endif  
-@write_only:
-  jsr     _ch376_set_file_name
-  jsr     _ch376_file_create
-  ; fixme
-  jmp     create_file_pointer
+.include  "functions/XOPEN.asm"
 
-@read_only:
-  jsr     _ch376_set_file_name
-  jsr     _ch376_file_open  
-  cmp     #CH376_ERR_MISS_FILE
-  beq     file_not_found   
-  
-  jmp     create_file_pointer
-  
-
-
-longskip1:
-  lda     #NULL
-  txa
-  tya
-  rts
-
-open_and_read_go:
-.IFPC02
-.pc02
-  phy
-.p02  
-.else
-  sty     TR7
-.endif  
-  jsr     _ch376_set_file_name
-  jsr     _ch376_file_open
-  sta     TR6 ; store return 
-  ldx     #$00
-.IFPC02
-.pc02
-  ply
-.p02  
-.else
-  ldy     TR7 ; because it's "/" in the first char, it means that we are here _/_usr/bin/toto.txt
-.endif    
-
-  iny
-  lda     TR6 ; GET error of _ch376_file_open return
-  rts
-file_not_found:
-  ; return NULL
-  ldy     #NULL
-  lda     #NULL
-  ldx     #NULL
-  rts
-
-.proc create_file_pointer
-  lda     #<.sizeof(_KERNEL_FILE)
-  ldy     #>.sizeof(_KERNEL_FILE)
-  jsr     XMALLOC_ROUTINE
-  sta     RES
-  sty     RES+1
-  ldy     #(_KERNEL_FILE::f_flags)
-  lda     #_FOPEN
-  sta     (RES),y
-
-  ; FIXME put readonly/writeonly etc mode
-
-  ldy     #(_KERNEL_FILE::f_path)
-  ; FIXME : set path in the struct
-
-  ; return fp or null
-  lda     RES
-  ldy     RES+1
-  ldx     RES+1  ; for cc65 compatibility
-  
-  rts
-.endproc
-
-
-_open_root:
-  lda     #"/"
-  sta     BUFNOM
-.IFPC02
-.pc02
-  stz     BUFNOM+1 ; INIT  
-.p02  
-.else  
-  lda     #$00 ; used to write in BUFNOM
-  sta     BUFNOM+1 ; INIT  
-.endif
-  rts
     
 _call_orix_routine
   sta     TR0
@@ -4813,7 +4445,7 @@ ACC2_ACC1:
   jsr     LF1EC 
 XA2NA1_ROUTINE  
   lda     ACC1S ;$65 
-  eor     #$ff
+  eor     #$FF
   sta     ACC1S ; $65
   eor     ACC2S
   sta     ACCPS

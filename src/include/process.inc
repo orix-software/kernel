@@ -4,10 +4,11 @@
 .define KERNEL_MAX_LENGTH_COMMAND          8
 .define KERNEL_MAX_FP_PER_PROCESS          2
 
+.define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 .struct kernel_process_struct
-kernel_pid_list                      .res KERNEL_MAX_PROCESS
+kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID
 kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
 kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
 kernel_next_process_pid              .res 1
