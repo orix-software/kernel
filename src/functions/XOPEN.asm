@@ -148,7 +148,11 @@
 @write_only  
   jsr     _ch376_file_create
 @open_and_register_fp:
-   rts
+  ;return fp
+  lda     KERNEL_XOPEN_PTR1
+  ldy     KERNEL_XOPEN_PTR1+1 
+  ldx     KERNEL_XOPEN_PTR1+1 
+  rts
  ; register fp
 
   ;       store pointer in process struct
