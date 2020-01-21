@@ -41,9 +41,44 @@
   
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
+  ; now concat
+  ldy     #_KERNEL_FILE::f_path
+@L3:
+  lda     (KERNEL_XOPEN_PTR1),y
+  beq     @end_of_string_found
+  iny
+  cpy     #KERNEL_MAX_PATH_LENGTH
+  bne     @L3 
+  ; at this step, we cannot detect the end of string : BOF, return null
+  jmp     @exit_open_with_null
 
-  ;ldy     #(_KERNEL_FILE::f_path)
-;  lda     KERNEL_XOPEN_PTR1
+@end_of_string_found:
+  ; This solution avoid to compute pointer and to create another zp address
+  sty    RES
+  lda    #$00
+  sta    TR7   ; It will be used to read offset of relative path passed in XOPEN arg
+@L4:
+  ldy    TR7
+  lda    (TR5),y
+  beq    @end_of_path_from_arg
+
+  iny
+  sty    TR7
+  ldy    RES
+  sta    (KERNEL_XOPEN_PTR1),y
+
+  ; Be careful BOF can occurs if 
+  iny
+  sty    RES
+  cpy    #KERNEL_MAX_PATH_LENGTH
+
+  bne     @L4
+  ; Bof return NULL
+  beq     @exit_open_with_null
+
+@end_of_path_from_arg:
+  ldy     RES  
+  sta     (KERNEL_XOPEN_PTR1),y
 
   jmp     @open_from_device
   ;jsr     XWSTR0_ROUTINE
@@ -148,12 +183,9 @@
 @write_only  
   jsr     _ch376_file_create
 @open_and_register_fp:
-  ;return fp
-  lda     KERNEL_XOPEN_PTR1
-  ldy     KERNEL_XOPEN_PTR1+1 
-  ldx     KERNEL_XOPEN_PTR1+1 
-  rts
- ; register fp
+
+
+ ; register fp in process struct
 
   ;       store pointer in process struct
   ldx     ORIX_CURRENT_PROCESS_FOREGROUND
@@ -188,6 +220,11 @@
 @fp_not_busy:
   sta     (RES),y
   ;kernel_process
+  ;return fp
+
+  lda     KERNEL_XOPEN_PTR1
+  ldy     KERNEL_XOPEN_PTR1+1 
+  ldx     KERNEL_XOPEN_PTR1+1 
 
   rts
 .endproc

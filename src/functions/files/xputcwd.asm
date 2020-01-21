@@ -32,8 +32,8 @@
     ; let's concat now
     ldy     #$00    
 @L2:
-    lda     (RES),y
-    beq     @S2
+    lda     (RESB),y
+    beq     @S3
     iny
     bne     @L2
     ; we are at char 0 of the current path
@@ -41,22 +41,22 @@
 @S3:
     tya
     clc
-    adc     RES
+    adc     RESB
     bcc     @S4
-    inc     RES+1
+    inc     RESB+1
 @S4:    
-    sta     RES
+    sta     RESB
     
     ; let's concat now
     ldy     #$00
 @L3:    
-    lda     (RESB),y
+    lda     (RES),y
     beq     @S5
-    sta     (RES),y
+    sta     (RESB),y
     iny
     bne     @L3
 @S5:
-    sta     (RES),y    
+    sta     (RESB),y    
 
     rts
 
