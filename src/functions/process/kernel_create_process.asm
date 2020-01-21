@@ -72,6 +72,16 @@
   ; get the offset
   ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
 
+  ; init fp to $00
+  ldy     #kernel_one_process_struct::fp_ptr 
+  lda     #$00
+@L4:
+  sta     (RES),y
+  iny     ; for address
+  sta     (RES),y
+  iny
+  cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS*2)
+  bne     @L4
 
 
   ldy     #kernel_one_process_struct::cwd_str
