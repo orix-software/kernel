@@ -24,7 +24,7 @@
   bne     @L1
   ; impossible to mount return null and store errno
   lda     #ENODEV
-  sta	    ERRNO
+  sta	    KERNEL_ERRNO
   ldx     #$00
   txa
   rts
@@ -176,7 +176,7 @@
   jsr     XFREE_ROUTINE
   ; No such file_or_directy
   lda     #ENOENT
-  sta     ERRNO
+  sta     KERNEL_ERRNO
   ; return null 
   ldy     #NULL
   lda     #NULL
@@ -221,7 +221,7 @@
   cpy     #(KERNEL_MAX_FP_PER_PROCESS)*2
   bne     @try_to_find_a_free_fp_for_current_process
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
-  sta     ERRNO
+  sta     KERNEL_ERRNO
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:

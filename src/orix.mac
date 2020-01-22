@@ -4,12 +4,12 @@
  
 .macro RETURNVAL value
   lda #value
-  sta ERRNO
+  sta KERNEL_ERRNO
 .endmacro
   
 .macro RETURN0
     lda #$00
-    sta ERRNO  
+    sta KERNEL_ERRNO
 .endmacro
 
 .macro PRINT_BINARY_TO_DECIMAL_16BITS justif

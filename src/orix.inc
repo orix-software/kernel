@@ -58,7 +58,7 @@ BUFROU:= $C500 ; Routines for buffers gestion
 ; [OUT] A contains the ID of the file ptr. IF A = 0 then there is an error
 ; [OUT] X contains the ID of the error
 
-ORIX_REGISTER_FILEHANDLE = $00
+
 ORIX_MALLOC_MEMORY       = $03
 ORIX_FREE_MEMORY         = $04
 
@@ -75,6 +75,11 @@ tmp1:=$34
 ptr1:=$32
 
 .bss
+.org $200
+KERNEL_ERRNO:
+    .res 1
+
+.bss
 .org $4C7
 FIXME_DUNNO
 .res 1
@@ -84,7 +89,7 @@ READ_BYTE_FROM_OVERLAY_RAM
 ; this contains a routine length : 20 bytew
 .res 20
 
-ERRNO:=$0509 ;ERRNO
+
 ; ORIX_CURRENT_PROCESS_FOREGROUND:=$512
 .bss
 .org $50D

@@ -31,7 +31,7 @@ XMKDIR_ROUTINE:
     sta     BUFNOM,y
     
     jsr     _ch376_set_file_name
-    sta     ERRNO
+    sta     KERNEL_ERRNO
     jsr     _ch376_dir_create    
     rts
     
@@ -78,7 +78,7 @@ XMKDIR_ROUTINE:
     sta     BUFNOM,x
     sty     TR7   ; save Y
     jsr     _ch376_set_file_name
-    sta     ERRNO
+    sta     KERNEL_ERRNO
     jsr     _ch376_dir_create
     ldy     TR7
     jmp     @next_folder ; FIXME 65c02
