@@ -196,7 +196,7 @@
 
 
  ; register fp in process struct
-
+  
   ;       store pointer in process struct
   ldx     ORIX_CURRENT_PROCESS_FOREGROUND
   
@@ -211,24 +211,26 @@
   ; Manage only 1 FP for instance FIXME bug
   ldy     #(kernel_one_process_struct::fp_ptr)
 @try_to_find_a_free_fp_for_current_process:
-  lda     KERNEL_XOPEN_PTR1
+  lda     (RES),y
   bne     @fp_is_not_busy 
   tax
   iny
-  lda     KERNEL_XOPEN_PTR1+1
+  lda     (RES),y
   bne     @fp_not_busy
   iny
   cpy     #(KERNEL_MAX_FP_PER_PROCESS)*2
   bne     @try_to_find_a_free_fp_for_current_process
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     ERRNO
+  beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:
-  sta     (RES),y
+  lda     KERNEL_XOPEN_PTR1
+  ;sta     (RES),y
   iny
-  lda     KERNEL_XOPEN_PTR1+1
+  lda    KERNEL_XOPEN_PTR1
 @fp_not_busy:
-  sta     (RES),y
+  ;sta     (RES),y
   ;kernel_process
   ;return fp
 

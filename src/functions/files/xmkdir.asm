@@ -37,7 +37,19 @@ XMKDIR_ROUTINE:
     
  
 @isabsolute:
-    jsr     _open_root_and_enter
+    lda     #"/"
+    sta     BUFNOM
+.IFPC02
+.pc02
+    stz     BUFNOM+1 ; INIT  
+.p02    
+.else  
+    lda     #$00 ; used to write in BUFNOM
+    sta     BUFNOM+1 ; INIT  
+.endif
+    jsr     _ch376_set_file_name
+    jsr     _ch376_file_open
+
     ldy     #$00                   ; skip /
 @next_folder:
     ldx     #$00

@@ -1741,25 +1741,10 @@ XDIVIS_ROUTINE
 .include  "functions/xdivis.asm"  
 
 
-_open_root_and_enter:
-    lda     #"/"
-    sta     BUFNOM
-.IFPC02
-.pc02
-    stz     BUFNOM+1 ; INIT  
-.p02    
-.else  
-    lda     #$00 ; used to write in BUFNOM
-    sta     BUFNOM+1 ; INIT  
-.endif
-    jsr     _ch376_set_file_name
-    jsr     _ch376_file_open
-    rts
-
 
 .include  "libs/ch376-lib/src/ch376.s"
 XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
-.include  "include/libs/xa65/ch376_verify.s"
+.include  "include/libs/ch376_verify.s"
 
 .include  "functions/files/xclose.asm"  
 .include  "functions/files/xread.asm"

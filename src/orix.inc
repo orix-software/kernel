@@ -90,8 +90,7 @@ ERRNO:=$0509 ;ERRNO
 .org $50D
 ORIX_CURRENT_PROCESS_FOREGROUND:
 .res 1
-MEMTOTAL
-.res 4 ; Store the length of the RAM in bytes
+
 
 .bss
 .org BUFNOM
