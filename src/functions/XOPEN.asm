@@ -34,7 +34,7 @@
   ;
   cmp     #"/"
   beq     @it_is_absolute ; It's absolute then skip currentpath
- 
+  ; concat
   jsr     XGETCWD_ROUTINE ; Modify RESB
 
   jsr     _create_file_pointer ; Modify RES
@@ -42,6 +42,7 @@
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
   ; now concat
+  ; reach the end of string
   ldy     #_KERNEL_FILE::f_path
 @L3:
   lda     (KERNEL_XOPEN_PTR1),y
@@ -54,7 +55,16 @@
 
 @end_of_string_found:
   ; This solution avoid to compute pointer and to create another zp address
+  cpy    #$01 ; is it slash "/",0 ?
+  beq    @don_t_add_slash  ; yes
+  ; it's a relative path and we are still in a folder (except /)
+  ; add slash then
+  sta    (KERNEL_XOPEN_PTR1),y
+  iny
+
+@don_t_add_slash:
   sty    RES
+  
   lda    #$00
   sta    TR7   ; It will be used to read offset of relative path passed in XOPEN arg
 @L4:

@@ -44,8 +44,8 @@ kernel: $(SOURCE)
 	@cp kernel-telestrat.ca.sym  $(RELEASE_PATH)/6502/telestrat
 
 	@echo Build kernelsd.rom for Twilighte board
-	@$(AS) --verbose -s -trelestrat --debug-info -o kernel-twil-sd.ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -ttelestrat kernel-twil-sd.ld65 -m kernel-twil-sd.map -o kernel-twil-sd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln kernel-twil-sd.ca.sym
+	@$(AS) --verbose -s -tnone --debug-info -o kernel-twil-sd.ld65 $(SOURCE) $(ASFLAGS) 
+	@ld65 -tnone kernel-twil-sd.ld65 -m kernel-twil-sd.map -o kernel-twil-sd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln kernel-twil-sd.ca.sym
 	@cp kernel-twil-sd.rom $(RELEASE_PATH)/6502/twilighte/v0.3
 	@cp kernel-twil-sd.ca.sym  $(RELEASE_PATH)/6502/twilighte/v0.3
 test:
