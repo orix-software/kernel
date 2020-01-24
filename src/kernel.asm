@@ -2044,7 +2044,7 @@ next22  ;$D946
   bpl     loop21 ; D94A
 
   ldy     #$08
-loop22  
+@L1:
   lda     SCRTRA+5,Y
   bne     out1
   cpy     #$06
@@ -2053,8 +2053,8 @@ loop22
   DEY
 @skip:
 
-  DEY
-  bne     loop22 ; d959
+  dey
+  bne     @L1
 
 out1:
   rts
@@ -2069,17 +2069,17 @@ manage_I_O_keyboard:
   sei
   ldx     #$00
   jsr     XLISBU_ROUTINE ; Read if we have data in keyboard buffer
-  bcs     skip2004
+  bcs     @S1
   sta     KBDKEY ; A contains a key, we store it on KBDKEY
   ldx     #$00
   jsr     XLISBU_ROUTINE 
-  bcs     skip2004
+  bcs     @S1
   sta     KBDSHT
   lda     KBDKEY
   plp
   clc
   rts
-skip2004:
+@S1:
   ; at this step, there is no keyboard key in the buffer
   plp
   sec
@@ -2181,29 +2181,30 @@ XSONPS_ROUTINE:
   
 
 
-init_printer:
+init_printer
   lda     #$07
   ldx     #$7F
   jmp     XEPSG_ROUTINE
 
 Lda70:
   bmi     LDAD2  
-next906:
+@S2:
   bit     FLGLPR  
-  BVS     next909
+  bvs     @S1
 
   cmp     #$7F
-  bne     next909
+  bne     @S1
  
   lda     #$20
-next909:
+@S1:
   pha  
   jsr     XECRBU_ROUTINE 
   pla 
-  bcs     next906
+  bcs     @S2
   rts
 LDAD2: 
   rts
+
 
 Ldae1:
   jmp     LDB7D 
@@ -2366,10 +2367,10 @@ skipme2000:
 
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
   plp          ;  on lit la commande
-  bpl     LDBA4    ;  ?criture -------    
+  bpl     @S1    ;  écriture -------    
   jmp     LDECE    ;  ouverture      I      
-LDBA4:
-  pla          ;  on lit la donn?e <
+@S1:
+  pla          ;  on lit la donnée <
   sta     SCRNB+1      ;  que l'on sauve
 
 Ldbb5:
@@ -2509,7 +2510,7 @@ display_char
   
 Ldc9a
   and     #$08
-  beq     LDCB8 
+  beq     @S1 
   lda     SCRNB+1 
   bmi     LDC46 
   cmp     #$40
@@ -2522,14 +2523,14 @@ Ldc9a
   lda     #$1B             ;  on envoie un ESC (fin de ESC)                    I
   jsr     Ldbb5            ;                                                   I
   jmp     LDC46            ; et on sort                                        I
-LDCB8
+@S1:
   lda     FLGSCR,X         ;   US, on lit FLGSCR <-------------------------------
   pha                      ;   que l'on sauve                                    
   jsr     XCOSCR_ROUTINE   ;   on éteint le curseur                            
   pla                      ;   on prend FLGSCR
   pha
   lsr                      ;   doit-on envoyer Y ou X ?                          
-  bcs     LDCDC            ;   X ------------------------------------------------
+  bcs     @S2            ;   X ------------------------------------------------
 
   lda     SCRNB+1          ;   on lit Y                                         I
   and     #$3F             ;   on vire b4 (protocole US)                        I
@@ -2542,7 +2543,7 @@ LDCB8
   ora     #$01             ;                                                    I
   pha                      ;                                                    I
   jmp     LDC2B            ;   et on sort                                       I
-LDCDC
+@S2:
   lda     SCRNB+1          ;  on lit X <----------------------------------------
   and     #$3F             ;   on vire b4
   sta     SCRX,X           ;   dans SCRX                                         
@@ -2550,7 +2551,7 @@ LDCDC
   and     #$FA             ;   on indique fin de US                              
   pha                                                              
   jmp     LDC2B            ;  et on sort
-KEYBOARD_NO_SHORTCUT       ; USED TO rts keyboard shortcut not managed  
+KEYBOARD_NO_SHORTCUT:       ; USED TO rts keyboard shortcut not managed  
   rts                                                                
 
 
@@ -2613,16 +2614,16 @@ LDD14:
 @skip:
   ldx     SCRNB     ;   on prend le num?ro de fen?tre <-------------------
   and     RES       ;  mode monochrome (ou 40 colonnes) ?                
-  beq     LDD3C     ;   oui ----------------------------------------------
+  beq     @S2     ;   oui ----------------------------------------------
   inc     SCRDX,X   ;  non, on interdit la première colonne             I
   inc     SCRDX,X   ;  et la deuxième                                   I
   lda     SCRX,X    ;  est-on dans une colonne                          I
   cmp     SCRDX,X   ;  interdite ?                                      I
-  bcs     LDD3B     ;  non                                               I
+  bcs     @S1     ;  non                                               I
   jmp     CTRL_M_START     ;  I  oui,on en sort                                    I
-LDD3B
+@S1:
   rts   ;  <---                                                    I
-LDD3C
+@S2:
   dec     SCRDX,X ;   on autorise colonne 0 et 1 <----------------------
   dec     SCRDX,X                                                      
   rts       
@@ -2986,20 +2987,20 @@ Ldffa
 Ldffb
   lda     JCGVAL
   and     #$04
-  bne     Le014
+  bne     @S1
   jsr     Ldf90 
   and     #$04
-  bne     Le01e
+  bne     @S2
   dec     MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
-  bne     Le037
+  bne     @S3
   ldx     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  jmp     Le01e 
-Le014
+  jmp     @S2 
+@S1:
   jsr     Ldf90 
   and     #$04
-  bne     Le037
+  bne     @S3
   ldx     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
-Le01e
+@S2:
   stx     MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
   sta     VABKP1 ; CORRECTME
   lda     JCGVAL
@@ -3007,32 +3008,32 @@ Le01e
   ora     VABKP1 ; CORRECTME
   sta     JCGVAL
   lda     VABKP1 ; CORRECTME
-  bne     Le037
+  bne     @S3
   lda     JCKTAB ; CORRECTME
   jsr     Le19f 
-Le037
+@S3:
   lda     JCGVAL
   and     #$1B
   eor     #$1B
-  beq     Le05b
+  beq     @S4
   jsr     Ldf90 
   and     #$1B
   sta     VABKP1 ; CORRECTME
   lda     JCGVAL
   and     #$1B
   eor     VABKP1
-  bne     Le062
+  bne     @S5
   dec     MOUSE_JOYSTICK_MANAGEMENT
   bne     Le084
   ldx     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  jmp     Le065
-Le05b
+  jmp     @S6
+@S4:
   jsr     Ldf90 
   and     #$1B
   sta     VABKP1 ; CORRECTME
-Le062
+@S5:
   ldx     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
-Le065
+@S6:
   stx     MOUSE_JOYSTICK_MANAGEMENT ; CORRECTME
   lda     JCGVAL
   and     #$04
@@ -3040,16 +3041,16 @@ Le065
   sta     JCGVAL
   ldx     #$04
   ora     #$04
-Le076
-  LSR
+@S8:
+  lsr
   pha
-  bcs     Le080
+  bcs     @S7
   lda     JCKTAB,X
   jsr     Le19f 
-Le080:
+@S7:
   pla
-  DEX
-  bpl     Le076
+  dex
+  bpl     @S8
 Le084
   rts
 
@@ -3068,10 +3069,10 @@ le085
   and     #$1B       ;   on isole les directions                           
   sta     VABKP1     ;   dans VABKP1                                          
   cmp     #$1B       ;   la souris bouge ?                                 
-  bne     LE095      ;   non ---------------------------------------------- 
+  bne     @S1      ;   non ---------------------------------------------- 
   dec     JCKTAB+7   ;   on déplace ?                                     I
   bne     Le084      ;   non, on sort.                                    I 
-LE095  
+@S1:  
   lda     JCKTAB+8    ;  on place vitesse d?placement dans  <--------------
   sta     JCKTAB+7    ;  $2A4                                              
   lda     VABKP1      ;   on lit le code                                    
