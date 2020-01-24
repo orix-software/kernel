@@ -839,7 +839,7 @@ LC5FE:
 
 @loop:
   lda     $0000,y ; FIXME
-  sta     $c07f,x ; FIXME
+  sta     $C07F,x ; FIXME
   dex
   dey
   bpl     @loop
@@ -860,11 +860,11 @@ LC61E
   
 LC639:
   bvs     LC661 
-  jsr     $c507 ; FIXME
+  jsr     $C507 ; FIXME
   bcs     LC660 
   lda     BUFBUF+6,x 
   ldy     BUFBUF+7,x 
-  jsr     $c5a6 ; FIXME
+  jsr     $C5A6 ; FIXME
   sta     BUFBUF+6,x 
   tya
   sta     BUFBUF+7,x 
@@ -1301,9 +1301,9 @@ Lca0b
 Lca10:
   lda     FLGJCK
   LSR
-  bcc     LCA19 
+  bcc     @S5
   jsr     Le0e1 
-LCA19: 
+@S5: 
   jmp     LC8B9 
 Lca1c:
   jmp     manage_irq_T1_and_T2
@@ -1369,16 +1369,8 @@ XDIVIDE_INTEGER32_BY_1024_ROUTINE:
 
 
 
+.include "functions/clock/_xwrclk.asm"
 
-XWRCLK_ROUTINE
-  php
-  sei
-  sta     ADCLK
-  sty     ADCLK+1
-  sec
-  ror     FLGCLK
-  plp
-  rts
   
 Lca75:
   ldy     #$00
@@ -1689,11 +1681,11 @@ put_cursor_in_61_x
 
 data_for_decimal_conversion
 const_10_decimal_low
-  .byt     $0a ; 19
+  .byt     $0A ; 19
 const_100_decimal_low
   .byt     $64 ; 100 
 const_1000_decimal_low  ; $3e8=1000
-  .byt     $e8
+  .byt     $E8
 const_10000_decimal_low  ; $3e8=1000  
   .byt     $10
 const_10_decimal_high
@@ -1705,12 +1697,12 @@ const_10_decimal_high
 Lcde5  
   ldx     #$00
   ldy     #$00
-  .byt    $2c
+  .byt    $2C
 
 convert_into_decimal_0_to_65535:
   
   ldx     #$03
-  .byt    $2c
+  .byt    $2C
 
 convert_into_decimal_0_to_9999
   ldx     #$02
@@ -1995,30 +1987,7 @@ sound_bip_keyboard:
   .byt     $1F,$00,$00
 ; END bip keyboard
 
-manage_function_key:
-  lda     (ADKBD),y
-  cmp     #$2D
-  beq     Ld8f8 
-  cmp     #$3D
-  beq     Ld8fb 
-  pla
-  ora     #$40
-  pha
-  lda     FLGKBD
-  lsr
-  bcs     Ld900 
-  lda     (ADKBD),y
-  and     #$1F
-  ora     #$80
-  .byt    $2C
-Ld8f8  
-  lda     #$60
-  .byt    $2C
-Ld8fb  
-  lda     #$7E
-  jmp     Ld882 
-Ld900:
-  jmp     (KBDFCT) ; Jump into function key vector
+.include "functions/keyboard/manage_function_key.asm"
 
 XALLKB_ROUTINE:
   ldy     #$07
@@ -4403,16 +4372,6 @@ _strcpy:
  
 
 .include  "functions/XOPEN.asm"
-
-    
-_call_orix_routine
-  sta     TR0
-  lda     #<ORIX_ROUTINES
-  ldy     #>ORIX_ROUTINES
-  ldx     #ORIX_ID_BANK  ; id of Orix bank
-  jsr     call_routine_in_another_bank
-  rts
-
 .include  "functions/minitel/xligne.asm"
 .include  "functions/serial/xsout.asm"
 

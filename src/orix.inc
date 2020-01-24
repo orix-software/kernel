@@ -54,14 +54,6 @@ NULL = 0
 BUFROU:= $C500 ; Routines for buffers gestion
 
 
-; [IN] RES the string of the path 
-; [OUT] A contains the ID of the file ptr. IF A = 0 then there is an error
-; [OUT] X contains the ID of the error
-
-
-ORIX_MALLOC_MEMORY       = $03
-ORIX_FREE_MEMORY         = $04
-
 
 SIZE_OF_STACK_BANK = 1
 
@@ -88,7 +80,6 @@ STACK_BANK
 READ_BYTE_FROM_OVERLAY_RAM
 ; this contains a routine length : 20 bytew
 .res 20
-
 
 ; ORIX_CURRENT_PROCESS_FOREGROUND:=$512
 .bss

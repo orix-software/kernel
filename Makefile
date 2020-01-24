@@ -17,18 +17,15 @@ PROGRAM_NAME=kernel
 MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 
-PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)-$(ORIX_VERSION)/
+PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
 RELEASE_PATH=release/
 init:
-	@mkdir -p $(PATH_PACKAGE_ROM)/6502/
-	@mkdir -p $(PATH_PACKAGE_ROM)/65c02/	
-	@mkdir -p $(RELEASE_PATH)/6502/twilighte/v0.3
-	@mkdir -p $(RELEASE_PATH)/6502/telestrat
+	@mkdir -p $(PATH_PACKAGE_ROM)/
+	@mkdir -p $(PATH_PACKAGE_ROM)/	
 	@mkdir -p build/usr/share/ipkg/
 	@mkdir -p build/usr/share/man/  
 	@mkdir -p build/usr/share/doc/$(PROGRAM_NAME)/
 	@mkdir -p build/usr/include/orix/
-	@mkdir -p build/usr/src/orix-source-1.0/src/
 	@mkdir -p build/usr/src/kernel/
   
 kernel: $(SOURCE)
@@ -40,14 +37,16 @@ kernel: $(SOURCE)
 	@echo Build kernelsd.rom for Telestrat
 	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
-	@cp kernel-telestrat.ld65.rom $(RELEASE_PATH)/6502/telestrat
-	@cp kernel-telestrat.ca.sym  $(RELEASE_PATH)/6502/telestrat
+#	@cp kernel-telestrat.ld65.rom $(RELEASE_PATH)/6502/telestrat
+#	@cp kernel-telestrat.ca.sym  $(RELEASE_PATH)/6502/telestrat
 
 	@echo Build kernelsd.rom for Twilighte board
 	@$(AS) --verbose -s -tnone --debug-info -o kernel-twil-sd.ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone kernel-twil-sd.ld65 -m kernel-twil-sd.map -o kernel-twil-sd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln kernel-twil-sd.ca.sym
-	@cp kernel-twil-sd.rom $(RELEASE_PATH)/6502/twilighte/v0.3
-	@cp kernel-twil-sd.ca.sym  $(RELEASE_PATH)/6502/twilighte/v0.3
+	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln kernelsd.sym
+	@cp kernelsd.rom $(RELEASE_PATH)/
+	@cp kernelsd.sym  $(RELEASE_PATH)/
+	@cp kernelsd.map $(RELEASE_PATH)/
+	
 test:
 	cp Makefile build/usr/src/kernel/
 	cp README.md build/usr/src/kernel/
