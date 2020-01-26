@@ -42,31 +42,41 @@
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
   ; now concat
-  ; reach the end of string
+  ; reach the end of string in the pointer
   ldy     #_KERNEL_FILE::f_path
 @L3:
   lda     (KERNEL_XOPEN_PTR1),y
+  sta     $5000,y
   beq     @end_of_string_found
   iny
-  cpy     #KERNEL_MAX_PATH_LENGTH
+  cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
   bne     @L3 
   ; at this step, we cannot detect the end of string : BOF, return null
   jmp     @exit_open_with_null
 
 @end_of_string_found:
   ; This solution avoid to compute pointer and to create another zp address
-  cpy    #$01 ; is it slash "/",0 ?
+  cpy    #_KERNEL_FILE::f_path+$01 ; is it slash "/",0 ?
   beq    @don_t_add_slash  ; yes
   ; it's a relative path and we are still in a folder (except /)
   ; add slash then
+  lda    #'/'
   sta    (KERNEL_XOPEN_PTR1),y
+
   iny
 
+
 @don_t_add_slash:
+
   sty    RES
-  
+
+
+
   lda    #$00
   sta    TR7   ; It will be used to read offset of relative path passed in XOPEN arg
+
+
+
 @L4:
   ldy    TR7
   lda    (TR5),y
@@ -75,12 +85,13 @@
   iny
   sty    TR7
   ldy    RES
+
   sta    (KERNEL_XOPEN_PTR1),y
 
   ; Be careful BOF can occurs if 
   iny
   sty    RES
-  cpy    #KERNEL_MAX_PATH_LENGTH
+  cpy    #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
 
   bne     @L4
   ; Bof return NULL

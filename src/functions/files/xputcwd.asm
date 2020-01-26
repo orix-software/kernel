@@ -33,12 +33,19 @@
     ldy     #$00    
 @L2:
     lda     (RESB),y
+
     beq     @S3
     iny
     bne     @L2
     ; we are at char 0 of the current path
     ; Add y to RES in order to align Y with RESB : 
 @S3:
+    cpy     #$01
+    beq     @skip_add_slash
+    lda     #'/'
+    sta     (RESB),y
+    iny
+@skip_add_slash:    
     tya
     clc
     adc     RESB
