@@ -6,5 +6,5 @@
   ldy     #<$BF68
   ldx     #>$BF68
   lda     #$40
-  jmp XFILLM_ROUTINE
+  jmp     XFILLM_ROUTINE
 .endproc  

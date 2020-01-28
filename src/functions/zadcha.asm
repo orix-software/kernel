@@ -11,7 +11,7 @@
   bit     FLGTEL
   bmi     @skip
   lda     RESB+1
-  adc     #$1c
+  adc     #$1C
   sta     RESB+1
 @skip:
   rts

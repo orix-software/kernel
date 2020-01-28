@@ -1,4 +1,4 @@
-XMKDIR_ROUTINE:
+.proc XMKDIR_ROUTINE
   ; [IN] AX contains the pointer of the path
   ; FIXME
   
@@ -82,4 +82,4 @@ XMKDIR_ROUTINE:
     jsr     _ch376_dir_create
     ldy     TR7
     jmp     @next_folder ; FIXME 65c02
-
+.endproc

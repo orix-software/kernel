@@ -35,8 +35,8 @@
   rts
 
 const_coef_atn:
-  .byt     $0b ; 11 coef
-  .byt     $76,$b3,$83,$bd,$d3
+  .byt     $0B ; 11 coef
+  .byt     $76,$B3,$83,$bd,$d3
   .byt     $79,$1e,$f4,$a6,$f5
   .byt     $7b,$83,$fc,$b0,$10
   .byt     $7c,$0c,$1f,$67,$ca

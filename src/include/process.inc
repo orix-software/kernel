@@ -8,14 +8,14 @@
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 .struct kernel_process_struct
-kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID
-kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
-kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
-kernel_next_process_pid              .res 1
-kernel_next_fp                       .res 1
-kernel_init_string                   .res .strlen("init")+1
-kernel_cwd_str                       .res .strlen("/")+1
-fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2
+  kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID when the byte is equal to 0, it means that this is free, else the index is equal to pid+1
+  kernel_current_process               .res 1                  ; id of the current pid
+  kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
+  kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
+  kernel_next_process_pid              .res 1                  ; should be deleted not useful
+  kernel_init_string                   .res .strlen("init")+1
+  kernel_cwd_str                       .res .strlen("/")+1
+  fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
 .endstruct
 
 .if     .sizeof(kernel_process_struct) > 255
@@ -24,10 +24,10 @@ fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2
 
 ; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct 
 .struct kernel_one_process_struct
-process_name        .res KERNEL_MAX_LENGTH_COMMAND+1
-cwd_str             .res KERNEL_MAX_PATH_LENGTH
-child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
-fp_ptr              .res KERNEL_MAX_FP_PER_PROCESS*2
+  process_name        .res KERNEL_MAX_LENGTH_COMMAND+1
+  cwd_str             .res KERNEL_MAX_PATH_LENGTH
+  child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
+  fp_ptr              .res KERNEL_MAX_FP_PER_PROCESS*2
 .endstruct 
 
 .if     .sizeof(kernel_one_process_struct) > 255

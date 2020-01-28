@@ -15,16 +15,16 @@
 	jsr     ROUTINE_TO_DEFINE_7
 	
 	lda     #$1A
-	sta     $bfdf
+	sta     $BFDF
 	jsr     wait_0_3_seconds
 	ldx     #$28
 	lda     #$20
 
 @loop:
-	sta $BB7F,x
+	sta     $BB7F,x
 	dex
-	bne @loop
-	jsr XCSSCR_ROUTINE
+	bne     @loop
+	jsr     XCSSCR_ROUTINE
 	plp
 @skip:
 	rts

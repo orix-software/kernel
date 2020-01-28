@@ -53,7 +53,7 @@ XWSTR0_re_enter_from_XDECAL:
 	TAX
 	LDA     i_o_save
 Lc7a7:
-	RTS
+	rts
 
 	
 	

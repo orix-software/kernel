@@ -51,7 +51,7 @@
 
 .macro SWITCH_OFF_CURSOR
 	ldx #$00
-	BRK_ORIX XCOSCR
+	BRK_KERNEL XCOSCR
 .endmacro    
 
 .macro HIRES

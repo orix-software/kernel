@@ -1,6 +1,6 @@
 
 	pha 
-	and #$0f
+	and #$0F
 	jsr Lce60 
 	tay
 	pla
@@ -10,9 +10,9 @@
 	lsr
 Lce60:
 	ora #$30
-	cmp #$3a
+	cmp #$3A
 	bcc @skip
-	adc #$6
+	adc #$06
 @skip:
 	rts
 

@@ -12,7 +12,7 @@
 ;         $E850... tss tss !                                                     
 
 XABOX_ROUTINE:
-  ldy #$06    ;   on place les 4 paramètres (poids faible seulement)
+  ldy     #$06    ;   on place les 4 paramètres (poids faible seulement)
   ldx #$03 
 LE830
   lda HRS1,Y  ;  de HRSx                                           

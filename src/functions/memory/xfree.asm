@@ -3,7 +3,7 @@
 .proc XFREE_ROUTINE
 
 ; [A & Y] the first adress of the pointer.
-  ldx #$00
+  ldx     #$00
 @search_busy_chunk:
   cmp     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x ; Looking if low is available.
   bne     @next_chunk
@@ -26,9 +26,9 @@
   ; at this step X is on the right busy table
   ; looking if we can merge with a free chunk
   ; FIXME BUG
-  lda #$00
-  sta ORIX_MALLOC_BUSY_TABLE_PID,x
-  sta RES
+  lda     #$00
+  sta     ORIX_MALLOC_BUSY_TABLE_PID,x
+  sta     RES
   
   ldy #$00
 @try_another_free_chunk:

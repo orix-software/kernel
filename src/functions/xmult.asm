@@ -3,8 +3,8 @@
 	ldx #00
 	stx TR0
 	stx TR1
-	stx $0e
-	stx $0f
+	stx $0E
+	stx $0F
 	stx RESB
 	stx RESB+1
 	ldx #$10
@@ -27,8 +27,8 @@ LCEAB
 	sta $0e
 	
 	lda RESB+1
-	adc $0f
-	sta $0f
+	adc $0F
+	sta $0F
 LCECA
 	asl RES
 	rol RES+1

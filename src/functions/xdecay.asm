@@ -9,14 +9,14 @@
 
 .proc XDECAY_ROUTINE
                                                                                 
-  STA     RES      ;   on sauve l'adresse du nombre                      
-  STY RES+1    ;    dans RES                                          
-  LDY #$00     ;    et on met RESB ? 0                                
-  STY RESB
-  STY RESB+1                                                          
+  sta     RES      ;   on sauve l'adresse du nombre                      
+  sty     RES+1    ;    dans RES                                          
+  ldy     #$00     ;    et on met RESB ? 0                                
+  sty     RESB
+  sty     RESB+1                                                          
 loop:
-  LDA (RES),Y  ;   on lit le code <------------------------------    
-  CMP #$30     ;   inférieur ? 0 ?                              I    
+  LDA     (RES),Y  ;   on lit le code <------------------------------    
+  CMP     #$30     ;   inférieur ? 0 ?                              I    
   BCC LE785    ;   oui -----------------------------------------+---- 
   CMP #$3A     ;   supérieur ? 9 ?                              I   I
   BCS LE785    ;   oui -----------------------------------------+---O 
@@ -38,9 +38,9 @@ loop:
   PLA          ;   plus chiffre lu                              I   I
   ADC RESB     ;                                                I   I
   STA RESB     ;                                                I   I
-  BCC LE782    ;                                                I   I
+  BCC @S1    ;                                                I   I
   INC RESB+1   ;                                                I   I
-LE782
+@S1:
   INY          ;   on ajoute un chiffre lu                      I   I
   BNE loop    ;     et on recommence  ----------------------------   I
 LE785

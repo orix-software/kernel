@@ -1,17 +1,17 @@
 .proc XDECIM_ROUTINE
-	PHA
-	LDA #$00 ; 65c02
-	STA TR5
-	LDA #$01
-	STA TR6
-	PLA
-	JSR XBINDX_ROUTINE
-	LDY #$00
+	pha
+	lda     #$00 ; 65c02
+	sta     TR5
+	lda     #$01
+	sta     TR6
+	pla
+	jsr     XBINDX_ROUTINE
+	ldy     #$00
 @loop:
-	LDA FUFTRV,Y
-	jSR XWR0_ROUTINE
-	INY
-	CPY TR4
-	BNE @loop
-	RTS
+	lda     FUFTRV,Y
+	jsr     XWR0_ROUTINE
+	iny
+	cpy     TR4
+	bne     @loop
+	rts
 .endproc

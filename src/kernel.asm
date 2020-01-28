@@ -1038,7 +1038,7 @@ brk_management:
   sta     IRQSVP ; save P (flag register)
   and     #%00010000 ; test B flag B flag means an that we reach a brk commands
   beq     next200 ; is it a break ?
-  TSX     ; yes we get Stack pointer
+  tsx     ; yes we get Stack pointer
   pla     ; we pull pointer program +2 
 
   bne     @skip
@@ -1079,8 +1079,8 @@ reset115_labels:
 
 .IFPC02
 .pc02
-  plx
   ply
+  plx
 .p02
 .else  
   ldy     IRQSVY
@@ -1118,7 +1118,7 @@ routine_to_define_12:
   and     #$07
   beq     @skip
   ora     #$B0
-  .byt     $24 ; jump one byte
+  .byt    $24 ; jump one byte
 @skip:
   txa
 
@@ -1152,10 +1152,9 @@ next26
   dec     $3F ; FIXME
   bne     next23
   lda     FLGLPR
-  LSR
+  lsr
   lsr 
-  LSR
-
+  lsr
 
   lda     ACIACR
   and     #$F3
@@ -1326,7 +1325,7 @@ next112
 @skip:
   sta     VIA::PRA
   lda     VIA::PRB
-  and     #$ef
+  and     #$EF
   sta     VIA::PRB
   ora     #$10
   sta     VIA::PRB
@@ -1367,10 +1366,7 @@ XDIVIDE_INTEGER32_BY_1024_ROUTINE:
   ror     RES
   rts
 
-
-
 .include "functions/clock/_xwrclk.asm"
-
   
 Lca75:
   ldy     #$00
@@ -3559,7 +3555,7 @@ Le604
   beq     Le5ff
   lda     #$0B
   
-  .byt    $2c
+  .byt    $2C
 Le615  
   lda     #$0A
 Le617  
@@ -3687,26 +3683,26 @@ Le7c0
 ;
 
 hires_put_coordinate:
-  sty HRSY            ;     Y dans HRSY                                       
-  stx HRSX            ;     X dans HRSX                                       
-  tya                 ;     et Y dans A                                       
-  ldy #$00            ;     AY=A, ligne du curseur                            
-  jsr XMUL40_ROUTINE  ;    on calcule 40*ligne                            
-  sta ADHRS           ;                                           
+  sty     HRSY            ;     Y dans HRSY                                       
+  stx     HRSX            ;     X dans HRSX                                       
+  tya                     ;     et Y dans A                                       
+  ldy     #$00            ;     AY=A, ligne du curseur                            
+  jsr     XMUL40_ROUTINE  ;     on calcule 40*ligne                            
+  sta     ADHRS           ;                                           
   clc                                                              
   tya                                                              
-  adc #$A0            ;   et on ajoute $A000, ?cran HIRES                   
-  sta ADHRS+1         ;    dans ADHRS                                        
-  stx RES             ;    on met la colonne dans RES                        
-  lda #$06            ;    A=6                                               
-  ldy #$00            ;    et Y=0  (dans RES+1)                              
-  sty RES+1           ;     AY=6 et RES=colonne                               
-  jsr XDIVIS_ROUTINE  ;     on divise la colonne par 6                       
-  lda RES             ;     on sauve colonne/6 dans HSRX40                    
-  sta HRSX40          ;                                                        
-  lda RESB            ;      et le reste dans HRSX6                            
-  sta HRSX6           ;                                                        
-  rts                 ;      I
+  adc     #$A0            ;    et on ajoute $A000, écran HIRES                   
+  sta     ADHRS+1         ;    dans ADHRS                                        
+  stx     RES             ;    on met la colonne dans RES                        
+  lda     #$06            ;    A=6                                               
+  ldy     #$00            ;    et Y=0  (dans RES+1)                              
+  sty     RES+1           ;    AY=6 et RES=colonne                               
+  jsr     XDIVIS_ROUTINE  ;    on divise la colonne par 6                       
+  lda     RES             ;    on sauve colonne/6 dans HSRX40                    
+  sta     HRSX40          ;                                                        
+  lda     RESB            ;     et le reste dans HRSX6                            
+  sta     HRSX6           ;                                                        
+  rts                     ;    
  
                            
 ; These 3 includes must be kept together
@@ -3974,7 +3970,7 @@ XFILL_ROUTINE
   dex
   bne     @loop
   lda     #$28
-  ldy     #00
+  ldy     #$00
   jsr     XADRES_ROUTINE 
   dec     HRS1
   bne     @loop2
@@ -4107,8 +4103,8 @@ next911
   pla
 
 Lec49  
-  bit Lec49
-  jmp Ldb12 
+  bit     Lec49
+  jmp     Ldb12 
   
 send_A_to_serial_output_with_check:
 ; MINITEL
@@ -4323,7 +4319,7 @@ read_a_file_rs232_minitel:
 @skip: 
   jsr     compute_file_size 
   bit     INDRS
-  BVC     LEE6C  
+  bvc     LEE6C  
   lda     #$FF
   sta     $052A  ;FIXME
   sta     $052B  ;FIXME
@@ -5018,6 +5014,7 @@ XA1XY_ROUTINE:
   sta     (FLTR0),Y
   sty     ACC1EX
   rts
+
 XA2A1_ROUTINE  
   lda     ACC2S
 LF379  
@@ -5025,7 +5022,7 @@ LF379
   ldx     #$05
 @L1:  
   lda     ACC1J,x
-  sta     $5f,x ; FIXME
+  sta     $5F,x ; FIXME
   dex
   bne     @L1
   stx     ACC1EX
@@ -5630,10 +5627,10 @@ XRAD_ROUTINE
 const_pi_divided_by_180:
   .byt     $7B,$0E,$FA,$35,$19
 
-test_if_degree_mode
+test_if_degree_mode:
   lda     FLGTEL
   and     #$20
-LF8CC
+LF8CC:
   rts
 
 XADNXT_ROUTINE  
@@ -5849,8 +5846,6 @@ LFA10:
 
 ; ****** BEGIN CHARSET ********************
 
-
-
 .include "functions/charsets/charset_qwerty.asm"  
 
 .ifdef WITH_CHARSET_AZERTY
@@ -5861,9 +5856,9 @@ LFA10:
 .include "functions/xloadcharset.asm"  
 
 codes_for_calc_alternates:
-  .byt     $00,$38,$07,$3f
+  .byt     $00,$38,$07,$3F
 
-XGOKBD_ROUTINE
+XGOKBD_ROUTINE:
   lda     #$B9 ;  index of alternate chars
 .ifdef WITH_TWILIGHTE_BOARD
 .else
@@ -5970,7 +5965,7 @@ next81:
 
 move_chars_text_to_hires:
   ldy     #$05
-  .byt    $2c
+  .byt    $2C
 move_chars_hires_to_text:
   ldy     #$0B
   ldx     #$05

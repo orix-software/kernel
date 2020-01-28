@@ -13,5 +13,4 @@
 .if     KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path > 255
   .error  "_KERNEL_FILE::path is too far from 0 or KERNEL_MAX_PATH_LENGTH is too long, in that case some routines won't work because it overflow 255 as XOPEN"
   .error  "We  reached this condition : KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path > 255"
-
 .endif

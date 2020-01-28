@@ -2,12 +2,12 @@
 ;                     DEPLACE LE CURSEUR VERS LA GAUCHE (hires)
 
 .proc XHRSCG_ROUTINE
-  LDX     HRSX6                                                          
-  DEX         ;   on d?place ? gauche                               
-  BPL     @skip   ;   si on sort                                        
-  LDX     #$05    ;   on se place ? droite                              
-  DEC     HRSX40     ;   et on enl?ve une colonne 
+  ldx     HRSX6                                                          
+  dex         ;   on déplace à gauche
+  bpl     @skip   ;   si on sort                                        
+  ldx     #$05    ;   on se place à droite
+  dec     HRSX40     ;   et on enlève une colonne 
 @skip:
-  STX     HRSX6                                                          
-  RTS 
+  stx     HRSX6                                                          
+  rts 
 .endproc       

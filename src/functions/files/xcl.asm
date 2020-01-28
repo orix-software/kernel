@@ -23,12 +23,12 @@ Lc73a
 	rts
 Lc73b	
 	lsr     IOTAB0,x
-	ldx     #$0f
-Lc740	
+	ldx     #$0F
+@L1:	
 	cmp     IOTAB0,x
 	beq     Lc73a
 	dex
-	bpl     Lc740
+	bpl     @L1
 	tax
 	ldy     #$81
 	jmp     send_command_A
@@ -38,5 +38,4 @@ Lc74e
 	dey
 	bpl     Lc74e
 	rts
-	
 	

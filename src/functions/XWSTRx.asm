@@ -1,12 +1,12 @@
 XWSTR0_ROUTINE
 	ldx     #$00
-	.byt    $2c
+	.byt    $2C
 XWSTR1_ROUTINE	
 	ldx     #$04
-	.byt    $2c
+	.byt    $2C
 XWSTR2_ROUTINE		
 	ldx     #$08
-	.byt    $2c
+	.byt    $2C
 XWSTR3_ROUTINE
 	ldx     #$0c
 	STX     i_o_save+1
@@ -22,7 +22,7 @@ Lc7b9
 	beq     Lc7a7
 
 	JSR     XWSTR0_re_enter_from_XDECAL
-	INC     ADDRESS_READ_BETWEEN_BANK
+	inc     ADDRESS_READ_BETWEEN_BANK
 	bne     @loop
 	INC     ADDRESS_READ_BETWEEN_BANK+1
 	bne     @loop

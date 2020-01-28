@@ -11,7 +11,7 @@
                                                                                 
 ;                    DEPLACE LE CURSEUR HIRES VERS LE BAS                      
 
-  CLC           ;     on ajoute 40                                      
+  clc           ;     on ajoute 40                                      
   LDA     ADHRS     ;    à ADHRS
   ADC     #$28                                                         
   STA     ADHRS                                                          

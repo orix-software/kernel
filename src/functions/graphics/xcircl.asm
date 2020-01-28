@@ -61,7 +61,7 @@
   lda      HRSY                    ;  on prend HRSY
   sec
   sbc      HRS1                    ;  -rayon
-  TAY                              ;  dans Y
+  tay                              ;  dans Y
   ldx      HRSX                    ;  on prend HRSX
   jsr      hires_put_coordinate    ;  et on place le premier point du cercle (X,Y-R)
   ldx      #$08                    ;  X=7+1 pour calculer N tel que Rayon<2^N.

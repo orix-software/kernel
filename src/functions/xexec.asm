@@ -12,7 +12,7 @@
     ; Error impossible to fork
     
     rts
-@S1
+@S1:
     lda     BNKOLD
     pha
 
@@ -86,7 +86,5 @@ next:
     pla
     sta     BNK_TO_SWITCH
     rts
-
- 
 .endproc
 

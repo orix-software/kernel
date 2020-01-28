@@ -9,7 +9,7 @@
 	tax
 	sty RESB
 	pla
-	ldy #0
+	ldy #$00
 loop:	
 	cpy RESB
 	bcs @skip2
