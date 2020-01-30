@@ -61,13 +61,13 @@
   ; Set now seek position to 0 ("32 bits")
   ldy     #_KERNEL_FILE::f_seek_file
   lda     #$00
-  sta     KERNEL_XOPEN_PTR1,y
+  sta     (KERNEL_XOPEN_PTR1),y
   iny
-  sta     KERNEL_XOPEN_PTR1,y
+  sta     (KERNEL_XOPEN_PTR1),y
   iny
-  sta     KERNEL_XOPEN_PTR1,y
+  sta     (KERNEL_XOPEN_PTR1),y
   iny
-  sta     KERNEL_XOPEN_PTR1,y
+  sta     (KERNEL_XOPEN_PTR1),y
 
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1
