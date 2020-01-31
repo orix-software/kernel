@@ -10,4 +10,4 @@
 @skip:
   stx     HRSX6                                                          
   rts 
-.endproc       
+.endproc

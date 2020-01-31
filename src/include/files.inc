@@ -5,8 +5,9 @@
         f_flags     .byte ; Fopen, closed etc
         f_mode      .byte ; Read only or not
         f_pushback  .byte
-        f_seek_file .res 4 ; 32 bits offset
+        ; When f_path is after f_seek_file here , XOPEN is broken ... BUG, FIXME
         f_path      .res KERNEL_MAX_PATH_LENGTH
+        f_seek_file .res 4 ; 32 bits offset        
 .endstruct
 
 

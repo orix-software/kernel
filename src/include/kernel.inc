@@ -6,15 +6,16 @@
         .byte $00,value
 .endmacro
 
-.define PATH_CURRENT_MAX_LEVEL  4 ; Only in telemon 3.0 number of level, if we add more, we should have to many RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
-.define MAX_LENGTH_OF_FILES     9 ;  We say 8 chars for directory and end of string
+.define PATH_CURRENT_MAX_LEVEL                    4 ; Only in telemon 3.0 number of level, if we add more, we should have more RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
+.define MAX_LENGTH_OF_FILES                       8+3+1+1 ;  We say 8 chars for file  and end of string 
 
 MAX_LENGTH_OF_A_COMMAND = 9
 
 .define MAX_LENGTH_OF_A_COMMAND       9
 
-.define ORIX_MAX_PATH_LENGTH MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
-.define KERNEL_MAX_PATH_LENGTH MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
+.define ORIX_MAX_PATH_LENGTH                      MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
+
+.define KERNEL_MAX_PATH_LENGTH                    MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+1 ;	 
 
 .define KERNEL_MAX_LENGTH_BUFEDT    ORIX_MAX_PATH_LENGTH+9
 

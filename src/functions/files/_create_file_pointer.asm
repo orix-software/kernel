@@ -14,10 +14,21 @@
   lda     #<.sizeof(_KERNEL_FILE)
   ldy     #>.sizeof(_KERNEL_FILE)
   jsr     XMALLOC_ROUTINE               ; Malloc Size of kernel_file MODIFY TR7
-  
-  sta     KERNEL_XOPEN_PTR1             ; get pter
+
+  cmp     #NULL
+  bne     @not_null_2
+  cpy     #NULL
+  bne     @not_null_2
+  lda     #ENOMEM
+  sta     KERNEL_ERRNO
+  lda     #NULL
+  rts
+
+@not_null_2:
+  sta     KERNEL_XOPEN_PTR1            ; save ptr
   sty     KERNEL_XOPEN_PTR1+1
-  sta     KERNEL_XOPEN_PTR2            ; get pter
+
+  sta     KERNEL_XOPEN_PTR2            ; save ptr
   sty     KERNEL_XOPEN_PTR2+1
 
   
@@ -59,15 +70,15 @@
   ; FIXME : set path in the struct
 
   ; Set now seek position to 0 ("32 bits")
-  ldy     #_KERNEL_FILE::f_seek_file
-  lda     #$00
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  sta     (KERNEL_XOPEN_PTR1),y
+  ;ldy     #_KERNEL_FILE::f_seek_file
+  ;lda     #$00
+  ;sta     (KERNEL_XOPEN_PTR1),y
+  ;iny
+  ;sta     (KERNEL_XOPEN_PTR1),y
+  ;iny
+  ;sta     (KERNEL_XOPEN_PTR1),y
+  ;iny
+  ;sta     (KERNEL_XOPEN_PTR1),y
 
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1

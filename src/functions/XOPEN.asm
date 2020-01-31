@@ -39,6 +39,16 @@
 
   jsr     _create_file_pointer ; Modify RES
   
+  ;cmp     #NULL
+  ;bne     @not_null_2
+  ;cpy     #NULL
+  ;bne     @not_null_2
+  ;lda     #ENOMEM
+  ;sta     KERNEL_ERRNO
+  ;lda     #NULL
+  ;rts
+
+@not_null_2:
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
   ; now concat
@@ -46,7 +56,7 @@
   ldy     #_KERNEL_FILE::f_path
 @L3:
   lda     (KERNEL_XOPEN_PTR1),y
-  sta     $5000,y
+ ; sta     $bb80,y
   beq     @end_of_string_found
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
@@ -65,17 +75,12 @@
 
   iny
 
-
 @don_t_add_slash:
 
   sty    RES
 
-
-
   lda    #$00
   sta    TR7   ; It will be used to read offset of relative path passed in XOPEN arg
-
-
 
 @L4:
   ldy    TR7
@@ -102,22 +107,28 @@
   sta     (KERNEL_XOPEN_PTR1),y
 
   jmp     @open_from_device
-  ;jsr     XWSTR0_ROUTINE
   
 @it_is_absolute:
   ; Pass arg to createfile_pointer
   lda     RES
-  
   ldy     RES+1
   ; and TR4 too at this step
 
   jsr     _create_file_pointer
-
+  cmp     #NULL
+  bne     @not_null_1
+  cpy     #NULL
+  bne     @not_null_1
+  lda     #ENOMEM
+  sta     KERNEL_ERRNO
+  lda     #NULL
+  rts
+@not_null_1:
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
 
 @open_from_device:
-  ldy     #_KERNEL_FILE::f_path ; slip /
+  ldy     #_KERNEL_FILE::f_path ; skip /
 
   ; Reset flag to say that end of string is reached
   lda     #$01
@@ -128,13 +139,14 @@
   sta     CH376_COMMAND
 
 @next_char:
+
   lda     (KERNEL_XOPEN_PTR1),y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
   sta     CH376_DATA
   iny
-  cpy     #_KERNEL_FILE::f_path+13 ; Max
+  cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
   bne     @next_char
     ; error buffer overflow
   beq     @exit_open_with_null
@@ -149,9 +161,9 @@
 @slash_found_or_end_of_string:  
   ; do we reach / at the first char ? It should, then we enter 
   sta    TR7
-  cpy     #_KERNEL_FILE::f_path
-  bne     @S3
-  sta     CH376_DATA
+  cpy    #_KERNEL_FILE::f_path
+  bne    @S3
+  sta    CH376_DATA
 
 @S3:  
 
