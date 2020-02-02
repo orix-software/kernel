@@ -11,9 +11,16 @@
 .include   "include/process_bss.inc"
 .include   "include/memory.inc"
 .include   "include/files.inc"
+
+.ifdef WITH_DEBUG
+.include   "include/debug.inc"
+.endif
+
+
 .include   "orix.mac"
 .include   "orix.inc"
 .include   "build.inc"
+
 
 TELEMON_UNKNWON_LABEL_62:= $62
 TELEMON_UNKNWON_LABEL_70:= $70
@@ -326,50 +333,37 @@ orix_end_memory_kernel:=BUFEDT+MAX_BUFEDT_LENGTH+1
   sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE     ; and High
     
 
-  lda     #<ORIX_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
+  lda     #<KERNEL_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
   sta     ORIX_MALLOC_FREE_END_LOW_TABLE        ; store it (low)
-  lda     #>ORIX_MALLOC_MAX_MEM_ADRESS
+  lda     #>KERNEL_MALLOC_MAX_MEM_ADRESS
   sta     ORIX_MALLOC_FREE_END_HIGH_TABLE       ; store it high
 
 ;-orix_end_memory_kernel
-  lda     #<(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) ; Get the size (free)
+  lda     #<(KERNEL_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) ; Get the size (free)
   sta     ORIX_MALLOC_FREE_SIZE_LOW_TABLE                       ; and store
     
-  lda     #>(ORIX_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) 
+  lda     #>(KERNEL_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) 
   sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-  
+ ; sta     
+
   lda     #$00 ; 0 means One chunk
   sta     ORIX_MALLOC_FREE_TABLE_NUMBER
 
+
 ; init the malloc pid busy table
 ; FIXME 65C02
+; 
+
+; all malloc are set with the pid of the process in kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list
+; it store the index of the pid
+
 init_malloc_busy_table:
   ldx     #KERNEL_MAX_NUMBER_OF_MALLOC
   lda     #$00
-
 @loop:
-  sta     ORIX_MALLOC_BUSY_TABLE_PID,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
   dex
   bpl     @loop
-
-;.struct kernel_process_struct
-;kernel_pid_list                      .res KERNEL_MAX_PROCESS
-;kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
-;kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
-;kernel_next_process_pid              .res 1
-;kernel_init_string                   .res .strlen("init")+1
-;kernel_cwd_str                       .res .strlen("/")+1
-;.endstruct
-
-
-;malloc_init_struct:
-
-;  lda     #<str_name_process_kernel
- ; sta     RESB
-;  lda     #>str_name_process_kernel
-  ;sta     RESB+1
-  
-;  jsr     kernel_create_process
 
 
 launch_command:
@@ -963,6 +957,10 @@ end_keyboard_buffer
 .include  "functions/xdecay.asm"
 .include  "functions/xinteg.asm"
 
+.ifdef WITH_DEBUG
+.include   "functions/xdebug.asm"
+.endif
+
 send_command_A:
   sty     ADDRESS_VECTOR_FOR_ADIOB
   sty     ADDRESS_VECTOR_FOR_ADIOB+1 
@@ -1060,12 +1058,16 @@ reset115_labels:
   pha
   lda     #$02
   pha
+
   lda     vectors_telemon+1,X ; fetch vector of brk
   ldy     vectors_telemon,X 
+
  
   bcc     @skip
-  lda     vectors_telemon_second_table+1,X ; Second table because X >127 
-  ldy     vectors_telemon_second_table,X ;
+  lda     vectors_telemon_second_table+1,x ; Second table because X >127 
+  ldy     vectors_telemon_second_table,x ;
+
+
 @skip:
 
   ; push A and Y vector : when RTI is reached, the stack contains the vector to execute

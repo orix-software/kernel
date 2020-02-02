@@ -9,9 +9,17 @@
 ; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine
 ; Verify if there is enough memory
 ; 
+.ifdef WITH_DEBUG
+    jsr     xdebug_enter_XMALLOC
+    jsr     xdebug_send_ay_to_printer
+.endif
     cpy     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate                             
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
+    ; we don't fix #ENOMEM, because null return already means OOM by default
+.ifdef WITH_DEBUG
+    jsr     xdebug_end
+.endif
     lda     #NULL                            
     ldy     #NULL
 
@@ -23,7 +31,8 @@
     sta     TR7                                  ; Save A (low value of the malloc), Y is not saved because we don't modify it
  
 @looking_for_busy_chunck_available:
-    lda     ORIX_MALLOC_BUSY_TABLE_PID,x
+    ; Try to find a place to set the pid value
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     beq     @found
     inx 
     cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
@@ -32,8 +41,10 @@
 
 @found:
     lda     TR7
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     sta     ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x     ; store the length of the busy chunk
     tya
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
     sta     ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x    ; store the length (low)
     
     lda     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
@@ -53,7 +64,7 @@
   
     sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE                ; update of the next chunk available
     
-    
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
     lda     ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
     clc
     adc     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
@@ -66,6 +77,8 @@
     
     lda     ORIX_MALLOC_FREE_SIZE_LOW_TABLE
     sec
+    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+    sec
     sbc     ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x
     bcs     @skip3
     dec     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
@@ -74,12 +87,11 @@
     
     lda     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
     sec
+    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+    sec
     sbc     ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
     ; FIXME 32 bits
     sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-    
-    
-   ; inc ORIX_MALLOC_BUSY_TABLE_NUMBER             ; increment the number of count 
     
     ; Ok now inc the next free memory offset 
     inc     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
@@ -89,14 +101,12 @@
     
     ; register process in malloc table 
     lda     kernel_process+kernel_process_struct::kernel_current_process
-
-
-    sta     ORIX_MALLOC_BUSY_TABLE_PID,x ; 55E
-    
-
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-
     
+.ifdef WITH_DEBUG
+    jsr     xdebug_end
+.endif
+
     lda     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; return chunk adress
     ldy     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x
     

@@ -2,6 +2,12 @@
 
 .proc XFREE_ROUTINE
 
+
+.ifdef WITH_DEBUG
+    jsr     xdebug_enter_XFREE
+.endif
+
+  ;jsr     xfree_debug_enter
 ; [A & Y] the first adress of the pointer.
   ldx     #$00
 @search_busy_chunk:
@@ -27,27 +33,32 @@
   ; looking if we can merge with a free chunk
   ; FIXME BUG
   lda     #$00
-  sta     ORIX_MALLOC_BUSY_TABLE_PID,x
- ; sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
   sta     RES
-  
-  ldy #$00
+
+; Try to recursive  
+  ldy     #$00
 @try_another_free_chunk:
-  lda ORIX_MALLOC_FREE_BEGIN_LOW_TABLE,y
+  lda     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE,y
   ; FIXME 65C02, use 'dec A'
   sec
-  sbc #$01
-  bcs @skip_inc_high
-  inc RES
+  sbc     #$01
+  bcs     @skip_inc_high
+  inc     RES
 @skip_inc_high:  
-  cmp ORIX_MALLOC_BUSY_TABLE_END_LOW,x
-  beq @compare_high
+  cmp     ORIX_MALLOC_BUSY_TABLE_END_LOW,x
+  beq     @compare_high
   ; At this step it's not the first free chunk
-  lda #$00
-  sta RES
+  lda     #$00
+  sta     RES
   iny 
-  cpy #KERNEL_MALLOC_FREE_FRAGMENT_MAX
-  bne @try_another_free_chunk
+  cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  bne     @try_another_free_chunk
+      
+.ifdef WITH_DEBUG
+    jsr     xdebug_end
+.endif
+
   rts
 
     
@@ -80,6 +91,11 @@ don_t_inc_carry:
   sta ORIX_MALLOC_BUSY_TABLE_END_LOW,x
   sta ORIX_MALLOC_BUSY_TABLE_END_LOW,x
 
+    
+.ifdef WITH_DEBUG
+    jsr     xdebug_end
+.endif
+
 
   rts
 
@@ -110,11 +126,14 @@ don_t_inc_carry:
     ; move the busy malloc table
 ; FIXME
   inx 
-  cpx ORIX_MALLOC_BUSY_TABLE_NUMBER
+  cpx #KERNEL_MAX_NUMBER_OF_MALLOC
   beq @no_need_to_merge
 @no_need_to_merge:
+
+.ifdef WITH_DEBUG
+    jsr     xdebug_end
+.endif
   rts ; FIXME remove
 out:
   rts
 .endproc
-

@@ -136,12 +136,14 @@ ORIX_MALLOC_FREE_TABLE_NUMBER
 ; it contains the number of free chuncks
 .res 1
 
-; We store the PID of the malloc
-ORIX_MALLOC_BUSY_TABLE_PID
-.res KERNEL_MAX_NUMBER_OF_MALLOC
+.ifdef WITH_DEBUG
+kernel_debug:
+    .tag   kernel_debug_struct
+.endif
 
-ORIX_MALLOC_BUSY_TABLE_NUMBER
-    .res 1
+
+
+
 KERNEL_TMP_XEXEC:
     .res 1
 kernel_process:

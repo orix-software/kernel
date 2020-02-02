@@ -18,6 +18,8 @@
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
 .endstruct
 
+.out     .sprintf("kernel_process_struct size (struct init process)      : %s bytes", .string(.sizeof(kernel_process_struct)))
+
 .if     .sizeof(kernel_process_struct) > 255
   .error  "kernel_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
@@ -29,6 +31,8 @@
   child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
   fp_ptr              .res KERNEL_MAX_FP_PER_PROCESS*2
 .endstruct 
+
+.out     .sprintf("kernel_one_process_struct size (struct for one process): %s bytes", .string(.sizeof(kernel_one_process_struct)))
 
 .if     .sizeof(kernel_one_process_struct) > 255
   .error  "kernel_one_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"

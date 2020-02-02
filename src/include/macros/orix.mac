@@ -167,7 +167,7 @@
 	lda #<str
 	ldy #>str
 	BRK_TELEMON XWSTR0
-  pla
+  	pla
 	tay
 	pla
 	txa

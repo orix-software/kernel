@@ -27,6 +27,8 @@ kernel_malloc_busy_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 
 .endstruct
 
+.out     .sprintf("kernel_malloc_struct size (malloc table)              : %s bytes", .string(.sizeof(kernel_malloc_struct)))
+
 .if     .sizeof(kernel_malloc_struct) > 255
   .error  "kernel_malloc_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif

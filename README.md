@@ -29,3 +29,9 @@ here is the list of available "compile option"
 * WITH_ACIA
 * WITH_DEBUG
 * WITH_TWILIGHTE_BOARD
+
+## How does it starts
+
+* Kernel tries to start binary set in his rom label 'str_binary_to_start'
+* it allocates a process struct (first malloc)
+* and register it in processlist

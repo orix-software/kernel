@@ -156,6 +156,7 @@
 	pha
 	tya
 	pha
+
 	lda #<str
 	ldy #>str
 	BRK_TELEMON XWSTR0

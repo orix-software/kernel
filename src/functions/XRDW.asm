@@ -6,15 +6,15 @@ XRD1_ROUTINE
 	.byt    $2C
 XRD2_ROUTINE		
 	lda     #$08
-	.byt    $2c	
+	.byt    $2C
 XRD3_ROUTINE		
 	lda     #$0C
 ; read keyboard	
 Lc7da:
-	STA     work_channel
-	LDA     #$04
-	STA     i_o_counter
-	TXA
+	sta     work_channel
+	lda     #$04
+	sta     i_o_counter
+	txa
 	PHA
 	TYA
 	PHA
@@ -40,7 +40,7 @@ Lc7da:
 	tay
 	pla
 	tax
-	lda $1D
+	lda 	$1D
 	rts
 	
 	
