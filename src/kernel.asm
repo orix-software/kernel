@@ -12,6 +12,11 @@
 .include   "include/memory.inc"
 .include   "include/files.inc"
 
+.out   "=================================================================="
+.out   "Resume"
+.out   "=================================================================="
+.out   .sprintf("System will need almost %s bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated", .string(.sizeof(kernel_one_process_struct)*KERNEL_MAX_PROCESS+.sizeof(kernel_process_struct)+.sizeof(kernel_malloc_struct)))
+
 .ifdef WITH_DEBUG
 .include   "include/debug.inc"
 .endif

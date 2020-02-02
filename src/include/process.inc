@@ -1,7 +1,7 @@
 .define ORIX_MAX_PROCESS                   4
 .define KERNEL_MAX_PROCESS	               ORIX_MAX_PROCESS ; max 84 because kernel_process_struct is handle with 8 bits offsets
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS 1
-.define KERNEL_MAX_LENGTH_COMMAND          8
+.define KERNEL_MAX_LENGTH_COMMAND          9
 .define KERNEL_MAX_FP_PER_PROCESS          2
 
 .define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
@@ -18,7 +18,10 @@
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
 .endstruct
 
-.out     .sprintf("kernel_process_struct size (struct init process)      : %s bytes", .string(.sizeof(kernel_process_struct)))
+.out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
+.out     .sprintf("KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): %s", .string(KERNEL_MAX_FP_PER_PROCESS))
+
+.out     .sprintf("kernel_process_struct size (struct init process)         : %s bytes", .string(.sizeof(kernel_process_struct)))
 
 .if     .sizeof(kernel_process_struct) > 255
   .error  "kernel_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
@@ -32,9 +35,10 @@
   fp_ptr              .res KERNEL_MAX_FP_PER_PROCESS*2
 .endstruct 
 
-.out     .sprintf("kernel_one_process_struct size (struct for one process): %s bytes", .string(.sizeof(kernel_one_process_struct)))
+.out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))
 
 .if     .sizeof(kernel_one_process_struct) > 255
   .error  "kernel_one_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
 
+.out   .sprintf("With all the parameter all process could use %s bytes in memory, if it's allocated", .string(.sizeof(kernel_one_process_struct)*KERNEL_MAX_PROCESS+.sizeof(kernel_process_struct)))
