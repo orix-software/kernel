@@ -1,22 +1,13 @@
 ; Number of all CURRENT malloc. If we reached this number, we won't be able to do a new malloc
 .define KERNEL_MAX_NUMBER_OF_MALLOC      4
 .define KERNEL_MALLOC_FREE_FRAGMENT_MAX  6
-.define KERNEL_MALLOC_BUSY_TABLE_SIZE    6*KERNEL_NUMBER_OF_MALLOC  
 .define KERNEL_MALLOC_FREE_CHUNK_MAX     6
+.define KERNEL_MALLOC_MAX_MEM_ADRESS     $B3FF ; We can't do malloc greater than this offset
 
 ORIX_MALLOC_FREE_FRAGMENT_MAX = 6
 
-
-ORIX_MALLOC_MAX_MEM_ADRESS = $B3FF
-
-KERNEL_MALLOC_MAX_MEM_ADRESS = $B3FF
-
-KERNEL_MALLOC_FREE_TABLE_SIZE  =        3*KERNEL_MALLOC_FREE_FRAGMENT_MAX ; ??? 
-
-
 ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
 ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*KERNEL_MAX_NUMBER_OF_MALLOC
-
 
 
 .struct kernel_malloc_struct
@@ -26,7 +17,11 @@ kernel_malloc_free_chunk_list_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_busy_chunk_list_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_busy_chunk_list_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 
-kernel_malloc_busy_pid_list                     .res KERNEL_MAX_NUMBER_OF_MALLOC
+; size of the chunk, it is store instead of compute (it's quicker for tools or primitives,but it requires more memory)
+kernel_malloc_busy_chunk_size_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
+kernel_malloc_busy_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
+
+kernel_malloc_busy_pid_list                .res KERNEL_MAX_NUMBER_OF_MALLOC ; We store the PID of the malloc
 kernel_malloc_max_memory_main              .res 1  ; in KB
 .endstruct
 
