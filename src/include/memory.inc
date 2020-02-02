@@ -1,26 +1,31 @@
-ORIX_NUMBER_OF_MALLOC  = 3
-
-.define KERNEL_MAX_NUMBER_OF_MALLOC  3
+; Number of all CURRENT malloc. If we reached this number, we won't be able to do a new malloc
+.define KERNEL_MAX_NUMBER_OF_MALLOC      4
+.define KERNEL_MALLOC_FREE_FRAGMENT_MAX  6
+.define KERNEL_MALLOC_BUSY_TABLE_SIZE    6*KERNEL_NUMBER_OF_MALLOC  
+.define KERNEL_MALLOC_FREE_CHUNK_MAX     6
 
 ORIX_MALLOC_FREE_FRAGMENT_MAX = 6
 
-KERNEL_MALLOC_FREE_FRAGMENT_MAX = 6
 
 ORIX_MALLOC_MAX_MEM_ADRESS = $B3FF
 
 KERNEL_MALLOC_MAX_MEM_ADRESS = $B3FF
 
-KERNEL_MALLOC_FREE_TABLE_SIZE  = 3*KERNEL_MALLOC_FREE_FRAGMENT_MAX ; ??? 
-.define KERNEL_MALLOC_BUSY_TABLE_SIZE   6*KERNEL_NUMBER_OF_MALLOC        ; ???
+KERNEL_MALLOC_FREE_TABLE_SIZE  =        3*KERNEL_MALLOC_FREE_FRAGMENT_MAX ; ??? 
+
 
 ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*ORIX_NUMBER_OF_MALLOC
+ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*KERNEL_MAX_NUMBER_OF_MALLOC
 
-.define KERNEL_MALLOC_FREE_CHUNK_MAX 6
+
 
 .struct kernel_malloc_struct
 kernel_malloc_free_chunk_list_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_list_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
+
+kernel_malloc_busy_chunk_list_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
+kernel_malloc_busy_chunk_list_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
+
 kernel_malloc_pid_list                     .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_max_memory_main              .res 1  ; in KB
 .endstruct
@@ -29,48 +34,3 @@ kernel_malloc_max_memory_main              .res 1  ; in KB
   .error  "kernel_malloc_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
   
-
-;ORIX_MALLOC_FREE_TABLE:
-; (adress begin) (adress_end) (size of chunk 16 bit)
-;ORIX_MALLOC_FREE_BEGIN_LOW_TABLE:
- ;   .res ORIX_MALLOC_FREE_FRAGMENT_MAX
-;ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE:
- ;   .res ORIX_MALLOC_FREE_FRAGMENT_MAX
-
-;ORIX_MALLOC_FREE_END_LOW_TABLE:
- ;   .res ORIX_MALLOC_FREE_FRAGMENT_MAX
-;ORIX_MALLOC_FREE_END_HIGH_TABLE:
- ;   .res ORIX_MALLOC_FREE_FRAGMENT_MAX
-
-;MEMFREE:
-;ORIX_MALLOC_FREE_SIZE_LOW_TABLE:
- ;   .res ORIX_MALLOC_FREE_FRAGMENT_MAX
-;ORIX_MALLOC_FREE_SIZE_HIGH_TABLE:
- ;   .res ORIX_MALLOC_FREE_FRAGMENT_MAX
-  ;  .res 2 ; For 32 bits management
-
-;ORIX_MALLOC_FREE_TABLE_NUMBER:
-; it contains the number of free chuncks
- ;   .res 1
-
-; Busy table
-;ORIX_MALLOC_BUSY_TABLE:
-;ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW:
-    ;.res ORIX_NUMBER_OF_MALLOC
-;ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH:
-    ;.res ORIX_NUMBER_OF_MALLOC
-;ORIX_MALLOC_BUSY_TABLE_END_LOW:
-    ;.res ORIX_NUMBER_OF_MALLOC
-;ORIX_MALLOC_BUSY_TABLE_END_HIGH:
-    ;.res ORIX_NUMBER_OF_MALLOC
-;ORIX_MALLOC_BUSY_TABLE_SIZE_LOW:
-    ;.res ORIX_NUMBER_OF_MALLOC
-;ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH:
-    ;.res ORIX_NUMBER_OF_MALLOC
-
-; We store the PID of the malloc
-;ORIX_MALLOC_BUSY_TABLE_PID:
- ;   .res ORIX_NUMBER_OF_MALLOC
-
-;ORIX_MALLOC_BUSY_TABLE_NUMBER:
- ;   .res 1

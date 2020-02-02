@@ -121,6 +121,8 @@
   bne     @not_null_1
   lda     #ENOMEM
   sta     KERNEL_ERRNO
+
+  ; and Y equals to NULL
   lda     #NULL
   rts
 @not_null_1:
@@ -221,8 +223,8 @@
  ; register fp in process struct
   
   ;       store pointer in process struct
-  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
-  
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
+
   ;kernel_process+kernel_process_struct
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
@@ -232,7 +234,7 @@
 
   ;Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
-  ldy     #(kernel_one_process_struct::fp_ptr)
+  ldy     #kernel_one_process_struct::fp_ptr
 @try_to_find_a_free_fp_for_current_process:
   lda     (RES),y
   bne     @fp_is_not_busy 
@@ -241,7 +243,7 @@
   lda     (RES),y
   bne     @fp_not_busy
   iny
-  cpy     #(KERNEL_MAX_FP_PER_PROCESS)*2
+  cpy     #KERNEL_MAX_FP_PER_PROCESS*2
   bne     @try_to_find_a_free_fp_for_current_process
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
@@ -249,11 +251,11 @@
   ;       
 @fp_is_not_busy:
   lda     KERNEL_XOPEN_PTR1
-  ;sta     (RES),y
+  sta     (RES),y
   iny
   lda    KERNEL_XOPEN_PTR1
 @fp_not_busy:
-  ;sta     (RES),y
+  sta     (RES),y
   ;kernel_process
   ;return fp
 

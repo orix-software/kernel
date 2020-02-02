@@ -26,7 +26,7 @@
     lda     ORIX_MALLOC_BUSY_TABLE_PID,x
     beq     @found
     inx 
-    cpx     #ORIX_NUMBER_OF_MALLOC
+    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
     beq     @exit_null 
     bne     @looking_for_busy_chunck_available
 
@@ -88,8 +88,8 @@
 @skip4:
     
     ; register process in malloc table 
+    lda     kernel_process+kernel_process_struct::kernel_current_process
 
-    lda     ORIX_CURRENT_PROCESS_FOREGROUND ; 50D
 
     sta     ORIX_MALLOC_BUSY_TABLE_PID,x ; 55E
     

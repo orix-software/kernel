@@ -13,7 +13,7 @@
   
 @next_chunk:
   inx
-  cpx     #ORIX_NUMBER_OF_MALLOC
+  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @search_busy_chunk
   ; Return NULL ?
   ; We did not found this busy chunk
@@ -28,6 +28,7 @@
   ; FIXME BUG
   lda     #$00
   sta     ORIX_MALLOC_BUSY_TABLE_PID,x
+ ; sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
   sta     RES
   
   ldy #$00

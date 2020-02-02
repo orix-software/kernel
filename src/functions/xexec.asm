@@ -77,8 +77,8 @@ next:
     ; Here continue
     ldx     KERNEL_TMP_XEXEC
     dex
-    cpx     #$03        ; Read only bank 5 to 4 for instance
-    beq     @out1
+    ;cpx     #$01        ; Read only bank 5 to 4 for instance FIXME BUG
+    bne     @out1
     stx     KERNEL_TMP_XEXEC
     jmp     next_bank
 @out1:

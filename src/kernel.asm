@@ -263,7 +263,8 @@ display_cursor:
 
   lda     #$00
   ; Set process foreground 
-  sta     ORIX_CURRENT_PROCESS_FOREGROUND
+
+  sta     kernel_process+kernel_process_struct::kernel_current_process
 
   ldx     #KERNEL_MAX_PROCESS
 @loop:
@@ -389,8 +390,6 @@ launch_command:
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
-;  lda     #$01
- ; sta     ORIX_CURRENT_PROCESS_FOREGROUND
 
   jmp     _XEXEC ; start shell
 
@@ -1780,8 +1779,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .endproc
 
 _multitasking:
-  ;LIST_PID
-  ;ORIX_CURRENT_PROCESS_FOREGROUND
+
   rts
   
 .include "functions/time/wait_0_3_seconds.asm"

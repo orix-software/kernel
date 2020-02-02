@@ -6,7 +6,7 @@
 ; 1 We reached the max process KERNEL_MAX_PROCESS
 ; 2 : FIXME if malloc return NULL
 
-; ORIX_CURRENT_PROCESS_FOREGROUND contains the index of the pid list not the PID value !
+;  kernel_process+kernel_process_struct::kernel_current_process contains the index of the pid list not the PID value !
 
 ; Get first pid
   ldx     #$00
@@ -22,8 +22,8 @@
   rts
 
 @found:
+  stx     kernel_process+kernel_process_struct::kernel_current_process
 
-  stx     ORIX_CURRENT_PROCESS_FOREGROUND
 ; Malloc process for init process
   lda     #.sizeof(kernel_one_process_struct)
   ldy     #$00
@@ -42,7 +42,8 @@
 @S2:
 
   ; now register ptr adress of process
-  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
+
 
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
@@ -103,7 +104,8 @@
 
 
   ; Set pid number in the stuct
-  ldx     ORIX_CURRENT_PROCESS_FOREGROUND
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
+
 
   lda     kernel_process+kernel_process_struct::kernel_next_process_pid
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x

@@ -30,19 +30,8 @@
   lda     #' '
   BRK_ORIX XFILLM
 .endmacro
-  
-.macro UNREGISTER_PROCESS
-  lda   ORIX_CURRENT_PROCESS_FOREGROUND
-  beq   @skip_UNREGISTER_PROCESS
-  jsr   _orix_unregister_process
-@skip_UNREGISTER_PROCESS:
-.endmacro
 
-.macro UNREGISTER_PROCESS_BY_PID_IN_ACCUMULATOR
-  beq @skip_UNREGISTER_PROCESS
-  jsr _orix_unregister_process
-@skip_UNREGISTER_PROCESS:
-.endmacro
+
  
 .macro SWITCH_ON_CURSOR
   ldx #$00
@@ -113,7 +102,7 @@
 ; This macro must be placed after MALLOC call
 .macro TEST_OOM_AND_MAX_MALLOC
     ; Test if we reached the max number of malloc chunk
-    cpx     #ORIX_NUMBER_OF_MALLOC
+    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
     bne     @check_for_oom_TEST_OOM_AND_MAX_MALLOC
     ; We reachead max malloc available
     PRINT   str_max_malloc_reached

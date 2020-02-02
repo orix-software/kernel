@@ -4,7 +4,7 @@ userzp                  := VARLNG
 RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
 
 NEXT_STACK_BANK := $0418
-ORIX_ROUTINES   := $FFE0
+
 MOUSE_JOYSTICK_MANAGEMENT := $291 ; 12 bytes ?
 i_o_counter     := $1A ; 1 byte
 i_o_save        := $1B ; 3 bytes ?
@@ -81,18 +81,20 @@ READ_BYTE_FROM_OVERLAY_RAM
 ; this contains a routine length : 20 bytew
 .res 20
 
-; ORIX_CURRENT_PROCESS_FOREGROUND:=$512
 .bss
-.org $50D
-ORIX_CURRENT_PROCESS_FOREGROUND:
-.res 1
+.org $500
+
+
+kernel_end_of_variables_before_BUFNOM:
+
+.if  kernel_end_of_variables_before_BUFNOM > BUFNOM
+  .error  "Error BUFNOM is written by kernel variables try to move some variables in orix.inc after BUFNOM or BUFEDT"
+.endif    
 
 
 .bss
 .org BUFNOM
 .res 14
-
-
 
 
 ORIX_MALLOC_FREE_TABLE:
@@ -113,11 +115,6 @@ ORIX_MALLOC_FREE_SIZE_LOW_TABLE
 ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
 .res ORIX_MALLOC_FREE_FRAGMENT_MAX
 .res 2 ; For 32 bits management
-
-ORIX_MALLOC_FREE_TABLE_NUMBER
-; it contains the number of free chuncks
-.res 1
-
 .bss
 ; Busy table
 ORIX_MALLOC_BUSY_TABLE
@@ -134,6 +131,11 @@ ORIX_MALLOC_BUSY_TABLE_SIZE_LOW
 ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH
 .res KERNEL_MAX_NUMBER_OF_MALLOC
 
+
+ORIX_MALLOC_FREE_TABLE_NUMBER
+; it contains the number of free chuncks
+.res 1
+
 ; We store the PID of the malloc
 ORIX_MALLOC_BUSY_TABLE_PID
 .res KERNEL_MAX_NUMBER_OF_MALLOC
@@ -144,14 +146,28 @@ KERNEL_TMP_XEXEC:
     .res 1
 kernel_process:
     .tag    kernel_process_struct
-kernel_malloc:
-    .tag    kernel_malloc_struct
+
 kernel_ch376_current_mode_fs:
     .res $00
-kernel_end_of_variables:    
-.if     kernel_end_of_variables > BUFEDT
-  .error  "Error BUFEDT is written by kernel variables try to move some variables in orix.inc after $590 "
+    
+kernel_end_of_variables_before_BUFEDT:    
+.if     kernel_end_of_variables_before_BUFEDT > BUFEDT
+  .error  "Error BUFEDT is written by kernel variables try to move some variables in orix.inc after $590"
 .endif    
 
-; Don't forget that in some case BUFEDT could be overwritten by struct (BUFEDT =$590)
+.bss
+.org BUFEDT
+.res 110
+
+
+kernel_malloc:
+    .tag    kernel_malloc_struct
+
+
+
+kernel_end_of_variables_after_BUFEDT:    
+.if     kernel_end_of_variables_after_BUFEDT > $7FF
+  .error  "Error start of execution program for binary ($800) is written by kernel variables try to move some variables in orix.inc before $800"
+.endif    
+
 

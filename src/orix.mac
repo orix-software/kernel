@@ -31,19 +31,6 @@
   BRK_ORIX XFILLM
 .endmacro
   
-.macro UNREGISTER_PROCESS
-  lda   ORIX_CURRENT_PROCESS_FOREGROUND
-  beq   @skip_UNREGISTER_PROCESS
-  jsr   _orix_unregister_process
-@skip_UNREGISTER_PROCESS:
-.endmacro
-
-.macro UNREGISTER_PROCESS_BY_PID_IN_ACCUMULATOR
-  beq @skip_UNREGISTER_PROCESS
-  jsr _orix_unregister_process
-@skip_UNREGISTER_PROCESS:
-.endmacro
- 
 .macro SWITCH_ON_CURSOR
   ldx #$00
   BRK_ORIX XCSSCR
@@ -57,12 +44,6 @@
 .macro HIRES
 	BRK_ORIX XHIRES
 .endmacro    
-
-.macro REGISTER_PROCESS str_name_process 
-  lda #<str_name_process
-  ldy #>str_name_process
-  jsr _orix_register_process  
-.endmacro
 
 ;FIXME   
 .macro GET8_FROM_STRUCT offset, zpaddress

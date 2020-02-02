@@ -3,8 +3,8 @@
 .proc XGETCWD_ROUTINE
     ; Modify A,X,Y, RESB 
     ; don't use RES or change xopen relative
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
 
-    ldx     ORIX_CURRENT_PROCESS_FOREGROUND
 
             
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x

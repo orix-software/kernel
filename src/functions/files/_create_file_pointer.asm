@@ -19,6 +19,7 @@
   bne     @not_null_2
   cpy     #NULL
   bne     @not_null_2
+
   lda     #ENOMEM
   sta     KERNEL_ERRNO
   lda     #NULL
