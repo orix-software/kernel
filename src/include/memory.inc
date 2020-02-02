@@ -26,7 +26,7 @@ kernel_malloc_free_chunk_list_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_busy_chunk_list_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_busy_chunk_list_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 
-kernel_malloc_pid_list                     .res KERNEL_MAX_NUMBER_OF_MALLOC
+kernel_malloc_busy_pid_list                     .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_max_memory_main              .res 1  ; in KB
 .endstruct
 

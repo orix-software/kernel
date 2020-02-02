@@ -94,7 +94,7 @@
     sta     ORIX_MALLOC_BUSY_TABLE_PID,x ; 55E
     
 
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_pid_list,x
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
 
     
     lda     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; return chunk adress
