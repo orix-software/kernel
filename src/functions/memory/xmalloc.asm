@@ -40,12 +40,16 @@
     bne     @looking_for_busy_chunck_available
 
 @found:
-    lda     TR7
+.ifdef WITH_DEBUG
+    ; Send id_free_chunk
+    jsr     xdebug_send_x_to_printer
+.endif
+    lda     TR7 ; get low byte of size (store the size)
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
-    sta     ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x     ; store the length of the busy chunk
-    tya
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
-    sta     ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x    ; store the length (low)
+
+    tya     ; Get high byte of the size and store
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
+
     
     lda     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
     sta     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x   ; to compute High adress
@@ -55,8 +59,9 @@
     lda     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; get the first offset
     sta     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; and save it
     sta     ORIX_MALLOC_BUSY_TABLE_END_LOW,x
+    
     clc
-    adc     ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x
+    adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     bcc     @skip2
     inc     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
  @skip2:
@@ -65,7 +70,6 @@
     sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE                ; update of the next chunk available
     
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
-    lda     ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
     clc
     adc     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
     ; FIXME for 32 bits mode in the future
@@ -78,8 +82,6 @@
     lda     ORIX_MALLOC_FREE_SIZE_LOW_TABLE
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
-    sec
-    sbc     ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x
     bcs     @skip3
     dec     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
 @skip3:
@@ -88,8 +90,7 @@
     lda     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
-    sec
-    sbc     ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
+
     ; FIXME 32 bits
     sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
     

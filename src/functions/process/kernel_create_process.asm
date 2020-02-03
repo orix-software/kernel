@@ -25,8 +25,8 @@
   stx     kernel_process+kernel_process_struct::kernel_current_process
 
 ; Malloc process for init process
-  lda     #.sizeof(kernel_one_process_struct)
-  ldy     #$00
+  lda     #<.sizeof(kernel_one_process_struct)
+  ldy     #>.sizeof(kernel_one_process_struct)
 
   jsr     XMALLOC_ROUTINE
 

@@ -110,7 +110,7 @@ don_t_inc_carry:
   
   ; update size
   
-  lda ORIX_MALLOC_BUSY_TABLE_SIZE_LOW,x
+  lda kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   clc
   adc ORIX_MALLOC_FREE_SIZE_LOW_TABLE
   bcc @do_not_inc
@@ -118,7 +118,7 @@ don_t_inc_carry:
 @do_not_inc:
   sta ORIX_MALLOC_FREE_SIZE_LOW_TABLE
 
-  lda ORIX_MALLOC_BUSY_TABLE_SIZE_HIGH,x
+  lda kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   clc
   adc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
   sta ORIX_MALLOC_FREE_SIZE_HIGH_TABLE

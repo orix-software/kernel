@@ -8,21 +8,23 @@
     jmp    xdebug_enter
 str_enter_malloc:
     .byte "XMALLOC",$0D,"=======================",$0D
-    .byte "SIZE  PID",$0D,0
+    .byte "SIZE  IDFREECHUNK",$0D,0
 .endproc
 
 .proc xdebug_binhex
 
          pha                   ;save byte
-         and #%00001111        ;extract LSN
-         jsr r0000010
-         tax                   ;save ASCII
-         pla                   ;recover byte
+         ;and #%11110000        ;extract LSN
          lsr                   ;extract...
          lsr                   ;MSN
          lsr
-         lsr         
-         
+         lsr
+         tax     
+         jsr r0000010
+                 ;save ASCII
+         pla                   ;recover byte
+         and #%00001111 
+         tax  
 r0000010
     ; cmp #15               ; 0 to 9 ?
          ;bcc r0000020          ; b: yes - must set bits 4 and 5
@@ -34,7 +36,6 @@ r0000010
 ; - must clear bits 4 and 5
 ;         
 ;r0000020 ;eor #%00110000        ;set or clear bits 4 and 5
-         tax
          lda    hex_table,x
          
          jsr    xdebug_send_printer
@@ -43,14 +44,47 @@ hex_table:
 .byte "0123456789ABCDEF"                  
 .endproc     
 
+
+.proc xdebug_send_x_to_printer
+    jsr        xdebug_save
+    lda        #'#'
+    jsr        xdebug_send_printer
+    lda        kernel_debug+kernel_debug_struct::RX
+   
+    jsr        xdebug_binhex
+    lda        #' '
+    jsr        xdebug_send_printer
+    jsr        xdebug_load
+    rts  
+.endproc
+
+.proc xdebug_send_a_to_printer
+    jsr        xdebug_save
+    lda        #'#'
+    jsr        xdebug_send_printer
+    lda        kernel_debug+kernel_debug_struct::RA
+   
+    jsr        xdebug_binhex
+    lda        #' '
+    jsr        xdebug_send_printer
+    jsr        xdebug_load
+    rts  
+.endproc
+
 .proc xdebug_send_ay_to_printer
     jsr        xdebug_save
     lda        #'#'
     jsr        xdebug_send_printer
     lda        kernel_debug+kernel_debug_struct::RY
+   ; sta        $5000
     jsr        xdebug_binhex
     lda        kernel_debug+kernel_debug_struct::RA
+    ;sta        $5001
+loopme:
+    ;jmp loopme        
     jsr        xdebug_binhex
+    lda        #' '
+    jsr        xdebug_send_printer
     jsr        xdebug_load
     rts  
 .endproc
@@ -149,6 +183,13 @@ str_enter_free:
 
 .proc xdebug_load
    
+    ;lda    #<str_line
+    ;ldy    #>str_line
+    ;sta    RES
+    ;sty    RES+1
+
+    ;jsr     xdebug_send_string_to_printer
+
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES
     
@@ -192,5 +233,7 @@ str_enter_free:
     ldy    kernel_debug+kernel_debug_struct::RY
     ldx    kernel_debug+kernel_debug_struct::RX
     rts
-
+str_line:
+    .byte $0D,"=======================",$0D
+    .byte 0
 .endproc
