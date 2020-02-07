@@ -13,15 +13,16 @@
     jsr     xdebug_enter_XMALLOC
     jsr     xdebug_send_ay_to_printer
 .endif
-    cpy     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE     ; Does High value of the number of the malloc is greater than the free memory ?
+    cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate                             
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null return already means OOM by default
 .ifdef WITH_DEBUG
     jsr     xdebug_end
 .endif
-    lda     #NULL                            
-    ldy     #NULL
+    lda     #$11
+    sta     $bb80
+
 
     rts
 @allocate:
@@ -45,59 +46,61 @@
     jsr     xdebug_send_x_to_printer
 .endif
     lda     TR7 ; get low byte of size (store the size)
+    ; Store the size in the busy table
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
 
     tya     ; Get high byte of the size and store
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
 
-    
-    lda     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
-    sta     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x   ; to compute High adress
-    sta     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x     ; to compute High adress
-    
-    
-    lda     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; get the first offset
-    sta     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; and save it
-    sta     ORIX_MALLOC_BUSY_TABLE_END_LOW,x
-    
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+
+
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+
+
+    ; Compute the end of the busy address
     clc
     adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     bcc     @skip2
-    inc     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
+    inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
  @skip2:
-    sta     ORIX_MALLOC_BUSY_TABLE_END_LOW,x
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
   
-    sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE                ; update of the next chunk available
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low                ; update of the next chunk available
     
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
     clc
-    adc     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
+    adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
     ; FIXME for 32 bits mode in the future
-    sta     ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
     
-    sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
     
     ; update now the memory available in the chunk memory free
     
-    lda     ORIX_MALLOC_FREE_SIZE_LOW_TABLE
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     bcs     @skip3
-    dec     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+    dec     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
 @skip3:
-    sta     ORIX_MALLOC_FREE_SIZE_LOW_TABLE
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
     
-    lda     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
 
     ; FIXME 32 bits
-    sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
     
     ; Ok now inc the next free memory offset 
-    inc     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
+    inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
     bne     @skip4
-    inc     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
+    inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 @skip4:
     
     ; register process in malloc table 
@@ -107,9 +110,9 @@
 .ifdef WITH_DEBUG
     jsr     xdebug_end
 .endif
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
-    lda     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x    ; return chunk adress
-    ldy     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x
     
     rts
 .endproc

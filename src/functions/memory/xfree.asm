@@ -9,12 +9,14 @@
 
   ;jsr     xfree_debug_enter
 ; [A & Y] the first adress of the pointer.
+  sta     KERNEL_XFREE_TMP
   ldx     #$00
 @search_busy_chunk:
-  cmp     ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x ; Looking if low is available.
+  lda     KERNEL_XFREE_TMP
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x ; Looking if low is available.
   bne     @next_chunk
   tya
-  cmp     ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
   beq     @busy_chunk_found
   
 @next_chunk:
@@ -39,14 +41,14 @@
 ; Try to recursive  
   ldy     #$00
 @try_another_free_chunk:
-  lda     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE,y
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
   ; FIXME 65C02, use 'dec A'
   sec
   sbc     #$01
   bcs     @skip_inc_high
   inc     RES
 @skip_inc_high:  
-  cmp     ORIX_MALLOC_BUSY_TABLE_END_LOW,x
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
   beq     @compare_high
   ; At this step it's not the first free chunk
   lda     #$00
@@ -63,33 +65,33 @@
 
     
 @compare_high:
-  lda ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE,y
-  sty RES+1
-  ldy RES
-  cpy #$01
-  bne don_t_inc_carry
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+  sty     RES+1
+  ldy     RES
+  cpy     #$01
+  bne     don_t_inc_carry
   sec
-  sbc #$01
+  sbc     #$01
 don_t_inc_carry:
-  cmp ORIX_MALLOC_BUSY_TABLE_END_HIGH,x
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
   beq @merge_with_free_table
   ; at this step we can not merge the chunk, we needs to create a new free chunk
-  ldy RES+1
-  lda ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x  
-  sta ORIX_MALLOC_FREE_BEGIN_LOW_TABLE,y
-  lda ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x  
-  sta ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE,y
+  ldy     RES+1
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
 
-  lda ORIX_MALLOC_BUSY_TABLE_END_LOW,x  
-  sta ORIX_MALLOC_FREE_END_LOW_TABLE,y
-  lda ORIX_MALLOC_BUSY_TABLE_END_HIGH,x  
-  sta ORIX_MALLOC_FREE_END_HIGH_TABLE,y
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
 
-  lda #$00
-  sta ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x  
-  sta ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x  
-  sta ORIX_MALLOC_BUSY_TABLE_END_LOW,x
-  sta ORIX_MALLOC_BUSY_TABLE_END_LOW,x
+  lda     #$00
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
 
     
 .ifdef WITH_DEBUG
@@ -102,38 +104,40 @@ don_t_inc_carry:
 ; at this step we can merge   
 @merge_with_free_table:
   ; add in the free malloc table
-  lda ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW,x
-  sta ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
 	
-  lda ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH,x
-  sta ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
   
   ; update size
   
-  lda kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   clc
-  adc ORIX_MALLOC_FREE_SIZE_LOW_TABLE
-  bcc @do_not_inc
-  inc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE	
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  bcc     @do_not_inc
+  inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high	
 @do_not_inc:
-  sta ORIX_MALLOC_FREE_SIZE_LOW_TABLE
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
 
-  lda kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   clc
-  adc ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-  sta ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+
 
     ; move the busy malloc table
 ; FIXME
   inx 
-  cpx #KERNEL_MAX_NUMBER_OF_MALLOC
-  beq @no_need_to_merge
+  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
+  beq     @no_need_to_merge
 @no_need_to_merge:
 
 .ifdef WITH_DEBUG
     jsr     xdebug_end
 .endif
-  rts ; FIXME remove
+
 out:
   rts
 .endproc
