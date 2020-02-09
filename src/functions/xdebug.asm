@@ -8,7 +8,29 @@
     jmp    xdebug_enter
 str_enter_malloc:
     .byte "XMALLOC",$0D,"=======================",$0D
-    .byte "SIZE  IDFREECHUNK",$0D,0
+    .byte "SIZE  ID  START",$0D,0
+.endproc
+
+.proc xdebug_enter_create_process_XMALLOC
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "Create process : XMALLOC call",$0D,"=======================",$0D
+.endproc
+
+.proc xdebug_enter_create_fp_XMALLOC
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "Create fp : XMALLOC call",$0D,"=======================",$0D
 .endproc
 
 .proc xdebug_binhex
@@ -102,8 +124,10 @@ str_enter_free:
 .endproc
 
 .proc xdebug_end
+    jsr    xdebug_save
     lda    #$0D
     jsr    xdebug_send_printer 
+    jsr    xdebug_load
     rts
 .endproc
 

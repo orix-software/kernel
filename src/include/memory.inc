@@ -4,11 +4,6 @@
 .define KERNEL_MALLOC_FREE_CHUNK_MAX     6
 .define KERNEL_MALLOC_MAX_MEM_ADRESS     $B3FF ; We can't do malloc greater than this offset
 
-ORIX_MALLOC_FREE_FRAGMENT_MAX = 6
-
-ORIX_MALLOC_FREE_TABLE_SIZE  = 3*ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_BUSY_TABLE_SIZE  = 6*KERNEL_MAX_NUMBER_OF_MALLOC
-
 
 .struct kernel_malloc_struct
 kernel_malloc_free_chunk_begin_low        .res KERNEL_MALLOC_FREE_CHUNK_MAX
@@ -34,10 +29,8 @@ kernel_malloc_busy_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_free_chunk_size_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_free_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 
-
-
-
 .endstruct
+
 .out     "=================================================================="
 .out     "Memory"
 .out     "=================================================================="

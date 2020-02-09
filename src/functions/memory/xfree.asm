@@ -58,7 +58,7 @@
   bne     @try_another_free_chunk
       
 .ifdef WITH_DEBUG
-    jsr     xdebug_end
+   ; jsr     xdebug_end
 .endif
 
   rts
@@ -95,7 +95,7 @@ don_t_inc_carry:
 
     
 .ifdef WITH_DEBUG
-    jsr     xdebug_end
+   ; jsr     xdebug_end
 .endif
 
 
@@ -135,7 +135,7 @@ don_t_inc_carry:
 @no_need_to_merge:
 
 .ifdef WITH_DEBUG
-    jsr     xdebug_end
+   ; jsr     xdebug_end
 .endif
 
 out:

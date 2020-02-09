@@ -3,6 +3,8 @@
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS 1
 .define KERNEL_MAX_LENGTH_COMMAND          9
 .define KERNEL_MAX_FP_PER_PROCESS          2
+.define KERNEL_USERZP_SAVE_LENGTH          16
+.define KERNEL_MAX_CMDLINE                 30
 
 .define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
 
@@ -20,6 +22,8 @@
 
 .out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
 .out     .sprintf("KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): %s", .string(KERNEL_MAX_FP_PER_PROCESS))
+.out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s", .string(KERNEL_USERZP_SAVE_LENGTH))
+.out     .sprintf("KERNEL_MAX_CMDLINE                                       : %s", .string(KERNEL_MAX_CMDLINE))
 
 .out     .sprintf("kernel_process_struct size (struct init process)         : %s bytes", .string(.sizeof(kernel_process_struct)))
 
@@ -33,6 +37,8 @@
   cwd_str             .res KERNEL_MAX_PATH_LENGTH
   child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
   fp_ptr              .res KERNEL_MAX_FP_PER_PROCESS*2
+  zp_save_userzp      .res KERNEL_USERZP_SAVE_LENGTH
+  cmdline             .res KERNEL_MAX_CMDLINE
 .endstruct 
 
 .out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))

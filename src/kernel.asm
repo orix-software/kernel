@@ -4,6 +4,7 @@
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
+.include   "o65.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
@@ -47,6 +48,7 @@ ACIACT := $031F ; control register
 KERNEL_KO_RAM_AVAILABLE := $200 ; 16 bits
 KERNEL_KO_ROM_AVAILABLE := $202 ; 16 bits
 KERNEL_CH376_MOUNT      := $203
+KERNEL_XFREE_TMP      := $204
 
 
 .org      $C000
@@ -320,39 +322,43 @@ init_process_init_cwd_in_struct:
 ;*                                                     init malloc table in memory                                        */
 ;**************************************************************************************************************************/    
 
-orix_end_memory_kernel:=BUFEDT+MAX_BUFEDT_LENGTH+1
+;orix_end_memory_kernel:=BUFEDT+MAX_BUFEDT_LENGTH+1
 
 ; new init malloc table 
   ldx     #$00
   lda     #$00              ; First byte available when Orix Kernel has started
-@L3:  
-  sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE,x      ; store it malloc table (low)
-  sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE,x     ; and High
+@L3:
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x   ; not useful 
+
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x      
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x    
   inx
   cpx     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
   bne     @L3
 
-  lda     #<orix_end_memory_kernel              ; First byte available when Orix Kernel has started
-  sta     ORIX_MALLOC_FREE_BEGIN_LOW_TABLE      ; store it malloc table (low)
-  lda     #>orix_end_memory_kernel
-  sta     ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE     ; and High
+
+
+  lda     #<kernel_end_of_memory_for_kernel             ; First byte available when Orix Kernel has started
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
+  
+  lda     #>kernel_end_of_memory_for_kernel
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+
     
 
   lda     #<KERNEL_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
-  sta     ORIX_MALLOC_FREE_END_LOW_TABLE        ; store it (low)
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low
+
   lda     #>KERNEL_MALLOC_MAX_MEM_ADRESS
-  sta     ORIX_MALLOC_FREE_END_HIGH_TABLE       ; store it high
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high
 
-;-orix_end_memory_kernel
-  lda     #<(KERNEL_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) ; Get the size (free)
-  sta     ORIX_MALLOC_FREE_SIZE_LOW_TABLE                       ; and store
+  lda     #<(KERNEL_MALLOC_MAX_MEM_ADRESS-kernel_end_of_memory_for_kernel) ; Get the size (free)
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
     
-  lda     #>(KERNEL_MALLOC_MAX_MEM_ADRESS-orix_end_memory_kernel) 
-  sta     ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
- ; sta     
+  lda     #>(KERNEL_MALLOC_MAX_MEM_ADRESS-kernel_end_of_memory_for_kernel) 
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
 
-  lda     #$00 ; 0 means One chunk
-  sta     ORIX_MALLOC_FREE_TABLE_NUMBER
 
 
 ; init the malloc pid busy table

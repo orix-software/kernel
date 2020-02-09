@@ -84,9 +84,12 @@ READ_BYTE_FROM_OVERLAY_RAM
 .bss
 .org $500
 
+kernel_ch376_current_mode_fs:
+    .res $00
 
 kernel_end_of_variables_before_BUFNOM:
-
+KERNEL_TMP_XEXEC:
+    .res 1
 .if  kernel_end_of_variables_before_BUFNOM > BUFNOM
   .error  "Error BUFNOM is written by kernel variables try to move some variables in orix.inc after BUFNOM or BUFEDT"
 .endif    
@@ -95,43 +98,8 @@ kernel_end_of_variables_before_BUFNOM:
 .bss
 .org BUFNOM
 .res 14
-
-
-ORIX_MALLOC_FREE_TABLE:
-; (adress begin) (adress_end) (size of chunk 16 bit)
-ORIX_MALLOC_FREE_BEGIN_LOW_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_FREE_BEGIN_HIGH_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-
-ORIX_MALLOC_FREE_END_LOW_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_FREE_END_HIGH_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-
-MEMFREE
-ORIX_MALLOC_FREE_SIZE_LOW_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-ORIX_MALLOC_FREE_SIZE_HIGH_TABLE
-.res ORIX_MALLOC_FREE_FRAGMENT_MAX
-.res 2 ; For 32 bits management
-.bss
-; Busy table
-ORIX_MALLOC_BUSY_TABLE
-ORIX_MALLOC_BUSY_TABLE_BEGIN_LOW
-.res KERNEL_MAX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_BEGIN_HIGH
-.res KERNEL_MAX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_END_LOW
-.res KERNEL_MAX_NUMBER_OF_MALLOC
-ORIX_MALLOC_BUSY_TABLE_END_HIGH
-.res KERNEL_MAX_NUMBER_OF_MALLOC
-
-
-
-ORIX_MALLOC_FREE_TABLE_NUMBER
-; it contains the number of free chuncks
-.res 1
+kernel_malloc:
+    .tag    kernel_malloc_struct
 
 .ifdef WITH_DEBUG
 kernel_debug:
@@ -139,15 +107,9 @@ kernel_debug:
 .endif
 
 
-
-
-KERNEL_TMP_XEXEC:
-    .res 1
 kernel_process:
     .tag    kernel_process_struct
 
-kernel_ch376_current_mode_fs:
-    .res $00
     
 kernel_end_of_variables_before_BUFEDT:    
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
@@ -158,11 +120,27 @@ kernel_end_of_variables_before_BUFEDT:
 .org BUFEDT
 .res 110
 
-
-kernel_malloc:
-    .tag    kernel_malloc_struct
+BASH_MAX_ARGS                      = 3       ;  Number of possible args in the command line
 
 
+BASH_MAX_BUFEDT_LENGTH         = 110
+
+ORIX_ARGV_NAME:
+    .res    MAX_LENGTH_OF_FILES  ; name
+ORIX_ARGV:
+	.res    MAX_LENGTH_OF_FILES*BASH_MAX_ARGS
+; used to check term
+TEMP_ORIX_1:
+    .res 1
+ORIX_ARGC:
+    .res 1
+
+
+
+
+kernel_end_of_memory_for_kernel:
+
+.out     .sprintf("kernel_end_of_memory_for_kernel  : %x", kernel_end_of_memory_for_kernel)
 
 kernel_end_of_variables_after_BUFEDT:    
 .if     kernel_end_of_variables_after_BUFEDT > $7FF

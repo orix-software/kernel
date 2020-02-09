@@ -11,6 +11,10 @@
   sta     RES
   sty     RES+1
 
+.ifdef WITH_DEBUG
+jsr   xdebug_enter_create_fp_XMALLOC
+.endif
+
   lda     #<.sizeof(_KERNEL_FILE)
   ldy     #>.sizeof(_KERNEL_FILE)
   jsr     XMALLOC_ROUTINE               ; Malloc Size of kernel_file MODIFY TR7

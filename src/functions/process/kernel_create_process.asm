@@ -8,6 +8,11 @@
 
 ;  kernel_process+kernel_process_struct::kernel_current_process contains the index of the pid list not the PID value !
 
+.ifdef WITH_DEBUG
+jsr   xdebug_enter_create_process_XMALLOC
+.endif
+
+
 ; Get first pid
   ldx     #$00
 @L3:  
