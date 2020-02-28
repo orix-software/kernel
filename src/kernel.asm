@@ -285,13 +285,9 @@ display_cursor:
 
   ldx     #$00
   BRK_KERNEL XCSSCR ; display cursors
-
-  
-  
-
 ; initialize 
   ; Init PID tables and structs
-  
+
 
 
   lda     #$FF   ; Init
@@ -300,7 +296,7 @@ display_cursor:
   sta     kernel_process+kernel_process_struct::kernel_current_process 
 
   lda     #$00
-  ldx     #KERNEL_MAX_PROCESS
+  ldx     #(KERNEL_MAX_PROCESS-1)
 @loop:
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -998,6 +994,7 @@ end_keyboard_buffer
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
 .endif
+
 
 send_command_A:
   sty     ADDRESS_VECTOR_FOR_ADIOB

@@ -92,17 +92,9 @@ jsr   xdebug_enter_create_process_XMALLOC
 
 
   lda     kernel_process+kernel_process_struct::kernel_current_process
-  ;cmp     #$FF
-  ;beq     @ppid_is_init                       ; If the process is in the first position in process list, it means that the ppid is init
 
-  ; set PPID
   ldy     #kernel_one_process_struct::ppid
   sta     (RES),y
-  ;jmp     @register_processname
-
-;@ppid_is_init:
-  ; ldy     #kernel_one_process_struct::ppid
-  ;sta     (RES),y
 
 
 
@@ -180,14 +172,14 @@ save_command_line:
   sta     (RES),y  ; Store 0 for the last string
 
   ; init child list to $00
-  ldy     #kernel_one_process_struct::child_pid
-  ldx     #$00
-  lda     #$00
-@L1:  
-  sta     (RES),y
-  iny
-  inx
-  cpx     #KERNEL_NUMBER_OF_CHILD_PER_PROCESS
+  ;ldy     #kernel_one_process_struct::child_pid
+  ;ldx     #$00
+  ;lda     #$00
+;@L1:  
+  ;sta     (RES),y
+  ;iny
+  ;inx
+  ;cpx     #KERNEL_NUMBER_OF_CHILD_PER_PROCESS
 
 
   ; Set pid number in the struct
