@@ -4,7 +4,6 @@
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
-.include   "o65.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
@@ -49,6 +48,7 @@ KERNEL_KO_RAM_AVAILABLE := $200 ; 16 bits
 KERNEL_KO_ROM_AVAILABLE := $202 ; 16 bits
 KERNEL_CH376_MOUNT      := $203
 KERNEL_XFREE_TMP      := $204
+KERNEL_XKERNEL_CREATE_PROCESS_TMP :=205
 
 
 .org      $C000
@@ -147,6 +147,25 @@ loading_vectors_telemon:
 
 ; Just fill ram with BUFROU
   jsr     $0600
+
+  ldx     #$00
+@loop2:
+  lda     kernel_memory_driver_to_copy,x
+  sta     KERNEL_DRIVER_MEMORY,x
+  inx                                 ; loop until 256 bytes are filled
+  bne     @loop2
+
+  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
+  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
+
+  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
+  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
+
+  ;sta     KERNEL_DRIVER_MEMORY,x
 
 compute_rom_ram:
 ; this code sets buffers
@@ -265,7 +284,7 @@ don_t_display_signature:
 display_cursor:
 
   ldx     #$00
-  BRK_TELEMON XCSSCR ; display cursors
+  BRK_KERNEL XCSSCR ; display cursors
 
   
   
@@ -275,11 +294,12 @@ display_cursor:
   
 
 
-  lda     #$00
+  lda     #$FF   ; Init
   ; Set process foreground 
 
-  sta     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process+kernel_process_struct::kernel_current_process 
 
+  lda     #$00
   ldx     #KERNEL_MAX_PROCESS
 @loop:
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
@@ -310,7 +330,7 @@ init_process_init_cwd_in_struct:
 @S1:  
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
 
-  lda     #$01   ; Init PID =  1
+  lda     #$01   ; Init PID = 1 but index = 0
   sta     kernel_process+kernel_process_struct::kernel_pid_list
   
   
@@ -341,9 +361,11 @@ init_process_init_cwd_in_struct:
 
   lda     #<kernel_end_of_memory_for_kernel             ; First byte available when Orix Kernel has started
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
+
   
   lda     #>kernel_end_of_memory_for_kernel
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+
 
     
 
@@ -581,9 +603,13 @@ str_telestrat:
   .byte     "    CPU : 6502"
 .endif
   .byt     $00 ; end of string
+
+kernel_memory_driver_to_copy_begin: 
+.include "functions/memory/memory_driver.asm"
+kernel_memory_driver_to_copy_end:
   
-  
-  
+.warning     .sprintf("Size of memory driver  : %d bytes, verify in orix.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
+
 str_KORAM:
   .ASCIIZ  " Ko RAM,"
 
@@ -963,6 +989,7 @@ end_keyboard_buffer
 .include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
 .include  "functions/process/kernel_create_process.asm"
+.include  "functions/process/kernel_kill_process.asm"
 .include  "functions/zadcha.asm"
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
@@ -1764,6 +1791,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/xhires.asm"  
 .include  "functions/xtext.asm"
 .include  "functions/memory/xfree.asm"
+.include  "functions/process/xfork.asm"
 .include  "functions/mainargs.asm"
 .include  "functions/getargc.asm"
 .include  "functions/getargv.asm"
@@ -4332,24 +4360,24 @@ read_a_file_rs232_minitel:
   bit     INDRS
   bvc     LEE6C  
   lda     #$FF
-  sta     $052A  ;FIXME
-  sta     $052B  ;FIXME
+ ; sta     $052A  ;FIXME
+  ;sta     $052B  ;FIXME
 LEE6C  
   ldy     #$00
   sty     TR2
 LEE70  
-  lda     $052A ; FIXME
-  beq     LEE86  
+;  lda     $052A ; FIXME
+ ; beq     LEE86  
   jsr     Lec6b 
   sta     (RES),Y
-  dec     $052A   ; FIXME
+  ;dec     $052A   ; FIXME
   inc     RES
   bne     LEE70  
   inc     RES+1
   jmp     LEE70 
 LEE86  
-  lda     $052B
-  beq     LEE9D  
+  ;lda     $052B
+  ;beq     LEE9D  
   ldy     #$00
 LEE8D  
   jsr     Lec6b 
@@ -4357,7 +4385,7 @@ LEE8D
   iny
   bne     LEE8D  
   inc     RES+1
-  dec     $052B
+  ;dec     $052B
 
   jmp     LEE86  
 LEE9D  

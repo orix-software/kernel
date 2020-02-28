@@ -134,7 +134,12 @@ TEMP_ORIX_1:
     .res 1
 ORIX_ARGC:
     .res 1
-
+KERNEL_DRIVER_MEMORY:
+    .res 128
+;.proc kernel_memory_driver
+;.include "functions/memory/memory_driver.asm"
+;.endproc
+;.res  end_read_command_from_bank_driver-begin_read_command_from_bank_driver
 
 
 

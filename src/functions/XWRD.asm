@@ -1,12 +1,12 @@
 XRDW0_ROUTINE
-	lda #$00
-	.byt $2C
+	lda     #$00
+	.byt    $2C
 XRDW1_ROUTINE
-	lda #$04
-	.byt $2C
+	lda     #$04
+	.byt    $2C
 XRDW2_ROUTINE
-	lda #$08
-	.byt $2C
+	lda     #$08
+	.byt    $2C
 XRDW3_ROUTINE
 	lda     #$0C
 	sta     $1B

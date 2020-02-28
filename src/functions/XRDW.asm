@@ -15,9 +15,9 @@ Lc7da:
 	lda     #$04
 	sta     i_o_counter
 	txa
-	PHA
-	TYA
-	PHA
+	pha
+	tya
+	pha
 @loop:
 	ldx     work_channel
 	lda     IOTAB0,x
