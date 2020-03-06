@@ -26,27 +26,6 @@
   cpx     #KERNEL_USERZP_SAVE_LENGTH
   bne     @L1
  
-    ;iny
-  ;cpy     #KERNEL_USERZP_SAVE_LENGTH  
-  ;lda     RESB+1
-  ;sta     TR5
-
-  ;lda     RESB
-  ;clc
-  ;adc     #kernel_one_process_struct::zp_save_userzp
-  ;bcc     @S11
-  ;inc     TR5
-;@S11:
-  ;sta     TR4
-; now TR4 & TR5 are set the the beginning of cmdline
-
-  ;ldy     #$00
-;@L11:  
- ; lda     userzp,y
-;  sta     (TR4),y
-  ;iny
-  ;cpy     #KERNEL_USERZP_SAVE_LENGTH
-  ;bne     @L11
 @skip_save_zp:
    lda     TR0
    ldy     TR1

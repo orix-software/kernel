@@ -6,8 +6,7 @@ kernel_memory_driver_to_copy:
     lda     VIA2::PRA
     and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
-    
-    
+
 
     lda     $FFF5  ; List command
     sta     RESB
@@ -50,10 +49,11 @@ read_command_from_bank_driver_do_not_inc:
     cpx     $FFF7 ; Number of command
     bne     read_command_from_bank_driver_mloop
     ; at this step we did not found the command in the rom
-    lda     #$01 ; error
+    lda     #ENOENT  ; error
 
     rts 
 read_command_from_bank_driver_command_found:
+
 
     ; X contains the id of the command to start
     lda     $FFF3
@@ -64,9 +64,9 @@ read_command_from_bank_driver_command_found:
     asl
     tay
     lda     (RES),y
+
 read_command_from_bank_driver_patch1:    
     sta     $dead           ; Will store in read_command_from_bank_driver_to_patch
-
     iny
     lda     (RES),y
 read_command_from_bank_driver_patch2:        
@@ -79,7 +79,7 @@ read_command_from_bank_driver_patch2:
     lda     VIA2::PRA
     and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
-    
+
 
 read_command_from_bank_driver_to_patch:
 
@@ -88,7 +88,7 @@ read_command_from_bank_driver_to_patch:
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
     sta     VIA2::PRA
-    lda     #$00
+    lda     #EOK
 
     rts
 

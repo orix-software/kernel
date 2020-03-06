@@ -35,8 +35,8 @@
 
   lda     RES
   ldy     RES+1
-  jsr     XFREE_ROUTINE
-
+  jsr     XFREE_ROUTINE ; We remove reference of the memory but it's still in RES
+  
   ; at this step process struct is clear and does not exists again
   
   ; restore zp of the PPID

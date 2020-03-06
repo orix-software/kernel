@@ -40,6 +40,8 @@
   zp_save_userzp      .res KERNEL_USERZP_SAVE_LENGTH
   cmdline             .res KERNEL_LENGTH_MAX_CMDLINE
   ppid                .res 1
+.ifdef WITH_PROCESS_UID
+.endif
 .endstruct 
 
 .out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))
