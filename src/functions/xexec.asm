@@ -38,7 +38,12 @@ next_bank:
 
     cmp     #EOK
     beq     out1
-
+    ;lda     #$12
+    ;sta     $bb80
+    ;pla
+    ;sta     BNKOLD    
+    ;lda     #ENOENT         ; Error
+    ;rts
 next:
     ; Here continue
 
@@ -46,10 +51,12 @@ next:
     ldx     KERNEL_TMP_XEXEC
     dex
     stx     KERNEL_TMP_XEXEC
+
     bne     next_bank
 
     pla
-    sta     BNKOLD    
+    sta     BNKOLD
+    sta     BNK_TO_SWITCH    
     lda     #ENOENT         ; Error
     rts
 

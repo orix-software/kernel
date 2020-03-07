@@ -80,23 +80,16 @@ jsr   xdebug_enter_create_process_XMALLOC
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sty     RES+1
 
-
-
   ; prepare to copy 'process' string
-
 
 ; ***********************************************************************************************************************
 ;                                          Save ppid
 ; ***********************************************************************************************************************
 
-
-
   lda     kernel_process+kernel_process_struct::kernel_current_process
 
   ldy     #kernel_one_process_struct::ppid
   sta     (RES),y
-
-
 
 @register_processname:
   ldy     #kernel_one_process_struct::process_name ; It works because it's the first item
@@ -113,9 +106,6 @@ jsr   xdebug_enter_create_process_XMALLOC
 @S1:
   lda     #$00
   sta     (RES),y
-
-
-
 
 ; ***********************************************************************************************************************
 ;                                          Save command line in process struct
