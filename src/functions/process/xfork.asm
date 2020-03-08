@@ -2,6 +2,12 @@
 
 .proc _XFORK
 
+;;
+; This procedure reads data.
+; @param CX - number of bytes
+; @return DI - address of data
+;;
+
 ; ***********************************************************************************************************************
 ;                                          Save ZP of the current process
 ; ***********************************************************************************************************************
@@ -29,6 +35,7 @@
 @skip_save_zp:
    lda     TR0
    ldy     TR1
+
 
 
    jsr     kernel_create_process

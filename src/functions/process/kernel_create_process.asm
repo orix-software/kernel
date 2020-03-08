@@ -71,7 +71,8 @@ jsr   xdebug_enter_create_process_XMALLOC
   ; now register ptr adress of process
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
-
+  ;sta     $5000
+  ;sty     $5001
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
 
@@ -110,11 +111,12 @@ jsr   xdebug_enter_create_process_XMALLOC
 ; ***********************************************************************************************************************
 ;                                          Save command line in process struct
 ; ***********************************************************************************************************************
+
 save_command_line:
-  lda     RESB+1
+  lda     RES+1
   sta     TR5
 
-  lda     RESB
+  lda     RES
   clc
   adc     #kernel_one_process_struct::cmdline
   bcc     @S7
@@ -134,7 +136,6 @@ save_command_line:
   
 @S8:
   sta     (TR4),y
-
 
   ; init fp to $00
 ;  ldy     #kernel_one_process_struct::fp_ptr 
