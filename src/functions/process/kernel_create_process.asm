@@ -137,15 +137,15 @@ save_command_line:
 
 
   ; init fp to $00
-  ldy     #kernel_one_process_struct::fp_ptr 
-  lda     #$00
-@L4:
-  sta     (RES),y
-  iny     ; for address
-  sta     (RES),y
-  iny
-  cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS*2)
-  bne     @L4
+;  ldy     #kernel_one_process_struct::fp_ptr 
+ ; lda     #$00
+;@L4:
+  ;sta     (RES),y
+  ;iny     ; for address
+  ;sta     (RES),y
+  ;iny
+  ;cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS*2)
+  ;bne     @L4
 
   ; set to "/" cwd of init process
   ; get the offset
