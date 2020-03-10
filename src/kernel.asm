@@ -418,19 +418,6 @@ launch_command:
   jmp     _XEXEC ; start shell
 
 
-.proc kernel_destroy_process
-  ; X contains the index of the process to destroy
-
-  ; Must read all childpid and remove struct of each one
-  
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  tay
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-  jsr     XFREE_ROUTINE
-  ; Free process
-
-  rts
-.endproc
 
 
 call_routine_in_another_bank  
