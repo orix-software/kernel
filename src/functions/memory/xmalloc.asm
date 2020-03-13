@@ -16,11 +16,12 @@
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate                             
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
-    ; we don't fix #ENOMEM, because null return already means OOM by default
+    ; we don't fix #ENOMEM, because null is returned already means OOM by default
 .ifdef WITH_DEBUG
     ;jsr     xdebug_end
 .endif
-
+    lda     #NULL
+    ldy     #NULL
 
 
     rts
