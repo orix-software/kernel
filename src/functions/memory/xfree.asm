@@ -23,9 +23,11 @@
   inx
   cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @search_busy_chunk
-  ; Return NULL ?
-  ; We did not found this busy chunk
-
+  
+  ; We did not found this busy chunk, return 0 in A
+  
+  lda     #NULL
+  
   rts
 
 @busy_chunk_found
@@ -97,7 +99,7 @@ don_t_inc_carry:
 .ifdef WITH_DEBUG
    ; jsr     xdebug_end
 .endif
-
+  lda     #$01 ; Chunk found
 
   rts
 
@@ -139,5 +141,6 @@ don_t_inc_carry:
 .endif
 
 out:
+  lda     #$01 
   rts
 .endproc
