@@ -51,6 +51,7 @@ next:
     ldy     TR1
 
     jsr     kernel_try_to_find_command_in_bin_path
+
     cmp     #EOK
     beq     out1
 

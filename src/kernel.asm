@@ -397,6 +397,7 @@ init_malloc_busy_table:
 
 
 launch_command:
+  jsr     XCRLF_ROUTINE
   lda     #<str_binary_to_start
   sta     RES
   lda     #>str_binary_to_start
