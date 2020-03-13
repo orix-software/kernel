@@ -60,11 +60,6 @@
   cpx     #KERNEL_USERZP_SAVE_LENGTH
   bne     @L1
 
-  ; Now destroy memory chunk
-;  lda     RES
- ; ldy     RES+1
-;  jsr     XFREE_ROUTINE
-
 @skip_load_zp: 
   ; destroy process
   rts

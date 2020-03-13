@@ -417,9 +417,6 @@ launch_command:
 
   jmp     _XEXEC ; start shell
 
-
-
-
 call_routine_in_another_bank  
   sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
   sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
@@ -4391,7 +4388,7 @@ _strcpy:
   ; y return the length
   rts
  
-
+.include  "functions/process/kernel_exec_from_storage.asm"  
 .include  "functions/XOPEN.asm"
 .include  "functions/minitel/xligne.asm"
 .include  "functions/serial/xsout.asm"

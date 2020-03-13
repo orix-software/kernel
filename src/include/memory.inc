@@ -12,15 +12,15 @@ kernel_malloc_free_chunk_begin_high       .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_end_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_end_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 
-kernel_malloc_busy_chunk_begin_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
-kernel_malloc_busy_chunk_begin_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
+kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
+kernel_malloc_busy_chunk_begin_low        .res KERNEL_MAX_NUMBER_OF_MALLOC
 
 kernel_malloc_busy_chunk_end_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_busy_chunk_end_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 
 
-kernel_malloc_busy_pid_list                .res KERNEL_MAX_NUMBER_OF_MALLOC ; We store the PID of the malloc
-kernel_malloc_max_memory_main              .res 1  ; in KB
+kernel_malloc_busy_pid_list               .res KERNEL_MAX_NUMBER_OF_MALLOC ; We store the PID of the malloc
+kernel_malloc_max_memory_main             .res 1  ; in KB
 
 ; size of the chunk, it is store instead of compute (it's quicker for tools or primitives,but it requires more memory)
 kernel_malloc_busy_chunk_size_high         .res KERNEL_MAX_NUMBER_OF_MALLOC

@@ -1,12 +1,9 @@
 
 kernel_memory_driver_to_copy:
  
-
-
     lda     VIA2::PRA
     and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
-
 
     lda     $FFF5  ; List command
     sta     RESB
@@ -85,7 +82,9 @@ read_command_from_bank_driver_patch2:
     lda     VIA2::PRA
     and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
-
+    
+	lda     TR0
+	ldy     TR1                            ; send command line in A & Y
 read_command_from_bank_driver_to_patch:
 
     jsr     $dead

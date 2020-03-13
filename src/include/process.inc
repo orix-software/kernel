@@ -33,15 +33,22 @@
 
 ; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct 
 .struct kernel_one_process_struct
-  process_name        .res KERNEL_MAX_LENGTH_COMMAND+1
-  cwd_str             .res KERNEL_MAX_PATH_LENGTH
-  child_pid           .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
-  fp_ptr              .res KERNEL_MAX_FP_PER_PROCESS*2
-  zp_save_userzp      .res KERNEL_USERZP_SAVE_LENGTH
-  cmdline             .res KERNEL_LENGTH_MAX_CMDLINE
-  ppid                .res 1
-.ifdef WITH_PROCESS_UID
-.endif
+  process_name               .res KERNEL_MAX_LENGTH_COMMAND+1
+  cwd_str                    .res KERNEL_MAX_PATH_LENGTH
+  child_pid                  .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
+  fp_ptr                     .res KERNEL_MAX_FP_PER_PROCESS*2
+  zp_save_userzp             .res KERNEL_USERZP_SAVE_LENGTH
+  cmdline                    .res KERNEL_LENGTH_MAX_CMDLINE
+  ppid                       .res 1
+  bank_id                    .res 1
+  is_rom_command             .res 1 ; 0 is file in memory, else it's ROM (1)
+  twilighte_register_command .res 1  
+  .ifdef WITH_KERNEL_PROCESS_UID
+  uid                        .res 1
+  .endif
+  .ifdef WITH_KERNEL_PROCESS_GID
+  gid                        .res 1
+  .endif
 .endstruct 
 
 .out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))

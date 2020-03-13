@@ -71,8 +71,6 @@ jsr   xdebug_enter_create_process_XMALLOC
   ; now register ptr adress of process
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
-  ;sta     $5000
-  ;sty     $5001
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
 

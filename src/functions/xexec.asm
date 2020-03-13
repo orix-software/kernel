@@ -38,26 +38,26 @@ next_bank:
 
     cmp     #EOK
     beq     out1
-    ;lda     #$12
-    ;sta     $bb80
-    ;pla
-    ;sta     BNKOLD    
-    ;lda     #ENOENT         ; Error
-    ;rts
+
 next:
     ; Here continue
-
-
     ldx     KERNEL_TMP_XEXEC
     dex
     stx     KERNEL_TMP_XEXEC
 
     bne     next_bank
 
+    lda     TR0
+    ldy     TR1
+
+    jsr     kernel_try_to_find_command_in_bin_path
+    cmp     #EOK
+    beq     out1
+
     pla
     sta     BNKOLD
     sta     BNK_TO_SWITCH    
-    lda     #ENOENT         ; Error
+    
     rts
 
 out1:
@@ -69,6 +69,7 @@ out1:
 exit:  
     pla
     sta     BNKOLD
+    sta     BNK_TO_SWITCH    
     lda     #EOK
     rts
 .endproc

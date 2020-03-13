@@ -125,7 +125,7 @@ TEMP_ORIX_1:
 ORIX_ARGC:
     .res 1
 KERNEL_DRIVER_MEMORY:
-    .res 136
+    .res 140
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
