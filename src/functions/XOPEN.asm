@@ -1,3 +1,5 @@
+
+.proc XOPEN_ROUTINE
 ; INPUT
 ;     this routine use : 
 ;        RES, A X Y, TR0,TR1 TR4, TR5,TR6,
@@ -7,7 +9,7 @@
 ;     NULL if it does not exists
 ;     filepointer in A & Y (and X for cc65 compatibility)
 
-.proc XOPEN_ROUTINE
+
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
   ; Save string in 2 locations RES
   sta     RES

@@ -7,6 +7,7 @@
 .define KERNEL_LENGTH_MAX_CMDLINE                 30
 
 .define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
+.define KERNEL_ERRNO_XFREE_NO_CHUNK_FOUND          1
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 .struct kernel_process_struct

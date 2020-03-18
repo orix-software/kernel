@@ -102,8 +102,8 @@ RESE := DECCIB
     bne     @not_null
 
     ; free string used for the strcat
-    lda     RESB
-    ldy     RESB+1
+    lda     RESC
+    ldy     RESC+1
     jsr     XFREE_ROUTINE
 
     ; error not found
@@ -116,9 +116,11 @@ RESE := DECCIB
     tya
     pha
     ; free tmp string
-    lda     RESB
-    ldy     RESB+1
+    lda     RESC
+    ldy     RESC+1
     jsr     XFREE_ROUTINE
+
+
     pla
     sta     RESC+1   ; save fp
     pla
@@ -147,7 +149,7 @@ RESE := DECCIB
     cpy     #NULL
     beq     @not_null2
 @out_not_found:
-    lda     #ENOENT         ; Error
+    lda     #ENOMEM         ; Error
     rts    
 
 
@@ -155,14 +157,17 @@ RESE := DECCIB
     ; RESD contains pointer to header
     sta     RESD
     sty     RESD+1
-    
+    sta     $5000
+    sty     $5001
+    rts
     sta     PTR_READ_DEST
     sty     PTR_READ_DEST+1
     ; read 20 bytes in the header
+
     lda     #20
     ldy     #$00
     jsr     XREADBYTES_ROUTINE
-   
+    
     
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
@@ -170,7 +175,7 @@ RESE := DECCIB
     cmp     #$01
     beq     @is_an_orix_file
 
-
+@undebug:
     lda     RESD
     ldy     RESD+1
     
@@ -225,7 +230,7 @@ RESE := DECCIB
     lda     RESC
     ldy     RESC+1
     jsr     XFREE_ROUTINE
-    jsr     execute
+;    jsr     execute
     lda     #EOK
     rts
 

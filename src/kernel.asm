@@ -55,6 +55,7 @@ KERNEL_KERNEL_XEXEC_TMP :=206
 .org      $C000
 .code
 start_rom:
+.proc _main
   sei
   cld
   ldx     #$FF
@@ -113,6 +114,8 @@ start_rom:
   and     #$20
   bne     @L1
 @L1:
+.endproc
+
 
 next1:
   ldx     #$2F
@@ -576,13 +579,13 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPR NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX 1.0",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.1 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
-  .byte     "  CPU : 65C02"
+  .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     "    CPU : 6502"
+  .byte     " CPU:6502"
 .endif
   .byt     $00 ; end of string
 
