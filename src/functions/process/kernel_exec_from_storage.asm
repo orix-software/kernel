@@ -150,6 +150,10 @@ RESE := DECCIB
     beq     @not_null2
 @out_not_found:
     lda     #ENOMEM         ; Error
+
+    lda     #$13
+    sta     $bb80+2
+
     rts    
 
 
@@ -157,9 +161,8 @@ RESE := DECCIB
     ; RESD contains pointer to header
     sta     RESD
     sty     RESD+1
-    sta     $5000
-    sty     $5001
-    rts
+
+
     sta     PTR_READ_DEST
     sty     PTR_READ_DEST+1
     ; read 20 bytes in the header
@@ -184,6 +187,7 @@ RESE := DECCIB
     jsr     XCLOSE_ROUTINE
     lda     #ENOENT 
     ; not found it means that we display error message
+
     rts
 
 
@@ -226,11 +230,12 @@ RESE := DECCIB
     lda     #$00 ; don't update length
     jsr     XCLOSE_ROUTINE
 
+
     ; free fp
     lda     RESC
     ldy     RESC+1
     jsr     XFREE_ROUTINE
-;    jsr     execute
+    jsr     execute
     lda     #EOK
     rts
 

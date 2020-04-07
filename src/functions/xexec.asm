@@ -18,7 +18,7 @@
     ; RACE CONDITION FIXME BUG
     ; If there is a multitasking switch during this step, the process is not started, but kernel will try to execute it
     lda     BNKOLD
-    pha
+    sta     KERNEL_KERNEL_XEXEC_BNKOLD
 
     ldx     #$05       ; start at bank 05
     stx     KERNEL_TMP_XEXEC
@@ -55,7 +55,7 @@ next:
     cmp     #EOK
     beq     out1
 
-    pla
+    lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNKOLD
     sta     BNK_TO_SWITCH    
     
@@ -63,12 +63,11 @@ next:
 
 out1:
     ; Now kill the current process
-
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
     ; Back to calling bank
 exit:  
-    pla
+    lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNKOLD
     sta     BNK_TO_SWITCH    
     lda     #EOK

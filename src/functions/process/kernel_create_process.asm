@@ -26,7 +26,7 @@ jsr   xdebug_enter_create_process_XMALLOC
 
 
 ; Get first pid
-  ldx     #$00
+  ldx     #$01   ; Because the first is init ($ff)
 
 @L3:  
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
@@ -36,7 +36,7 @@ jsr   xdebug_enter_create_process_XMALLOC
   bne     @L3
   ; Error here  KERNEL_MAX_PROCESS reached
 
-  lda     #$02
+  lda     #KERNEL_ERRNO_MAX_PROCESS_REACHED
   sta     KERNEL_ERRNO
   lda     #NULL
   ldy     #NULL  
@@ -47,6 +47,7 @@ jsr   xdebug_enter_create_process_XMALLOC
 
   ;stx     kernel_process+kernel_process_struct::kernel_current_process
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+ ; inx
   txa
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
 
@@ -85,7 +86,7 @@ jsr   xdebug_enter_create_process_XMALLOC
 ;                                          Save ppid
 ; ***********************************************************************************************************************
 
-  lda     kernel_process+kernel_process_struct::kernel_current_process
+  lda     kernel_process+kernel_process_struct::kernel_current_process  ; Is equal to $ff if it's init process
 
   ldy     #kernel_one_process_struct::ppid
   sta     (RES),y

@@ -47,6 +47,7 @@ read_command_from_bank_driver_do_not_inc:
     cpx     $FFF7 ; Number of command
     bne     read_command_from_bank_driver_mloop
     ; at this step we did not found the command in the rom
+exit_to_kernel:    
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
     sta     VIA2::PRA
@@ -78,6 +79,12 @@ read_command_from_bank_driver_patch2:
     ora     #%00000111                     ; Return to telemon
     sta     VIA2::PRA
     jsr     _XFORK
+    
+    ; we reached max process to launch ?
+    lda     KERNEL_ERRNO
+    cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
+    beq     exit_to_kernel    ; Yes we reached max process we exit
+
 
     lda     VIA2::PRA
     and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH

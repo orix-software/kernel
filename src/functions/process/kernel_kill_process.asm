@@ -10,6 +10,39 @@
   cmp     #$FF ; is it init 
   beq     @skip_load_zp  ; For instance, we don't load zp because all are reserved for init
 
+  ; destroy it's own memory chunks
+
+
+
+
+
+  ldx     #$00
+@L2:  
+  ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+  beq     @skip
+  sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
+  cpx     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save X
+  beq     @erase_chunk
+  
+  ;cpx     
+
+@skip:  
+  inx 
+  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
+  bne     @L2
+  beq     @all_chunk_are_free
+@erase_chunk:
+
+  pha
+  stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  jsr     XFREE_ROUTINE
+  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  pla
+  jmp     @L2
+             
+@all_chunk_are_free
   ; get the PPID  
   tax
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x

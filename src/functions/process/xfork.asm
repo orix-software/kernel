@@ -13,7 +13,7 @@
 ; ***********************************************************************************************************************
 
   ldx     kernel_process+kernel_process_struct::kernel_current_process
-  cpx     #$FF ; is it $FF = init ?
+ ; cpx     #$FF ; is it $FF = init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -38,7 +38,8 @@
 
 
 
-   jsr     kernel_create_process
+   jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
+   
    rts
 .endproc 
 

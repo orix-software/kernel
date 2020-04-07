@@ -1,18 +1,22 @@
-.define ORIX_MAX_PROCESS                   4
-.define KERNEL_MAX_PROCESS	               ORIX_MAX_PROCESS ; max 84 because kernel_process_struct is handle with 8 bits offsets
+.define KERNEL_MAX_PROCESS	               4 ; max 84 because kernel_process_struct is handle with 8 bits offsets
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS 1
 .define KERNEL_MAX_LENGTH_COMMAND          9
 .define KERNEL_MAX_FP_PER_PROCESS          2
 .define KERNEL_USERZP_SAVE_LENGTH          16
-.define KERNEL_LENGTH_MAX_CMDLINE                 30
+.define KERNEL_LENGTH_MAX_CMDLINE          30
 
 .define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
 .define KERNEL_ERRNO_XFREE_NO_CHUNK_FOUND          1
+.define KERNEL_ERRNO_MAX_PROCESS_REACHED           2
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
+
+; kernel_pid_list contains the id of the process it means that if the current process is 5, 
+
 .struct kernel_process_struct
-  kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID when the byte is equal to 0, it means that this is free, else the index is equal to pid+1
-  kernel_current_process               .res 1                  ; id of the current pid
+  ; don't move kernel_pid_list in an other line because it breaks ps
+  kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID when the byte is equal to 0, it means that this is free, it store the index
+  kernel_current_process               .res 1                  ; id of the current pid (French, contient l'index et non pas la valeur, l'index sur la table kernel_pid_list)
   kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
   kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
   kernel_next_process_pid              .res 1                  ; should be deleted not useful

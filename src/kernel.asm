@@ -50,6 +50,7 @@ KERNEL_CH376_MOUNT      := $203
 KERNEL_XFREE_TMP      := $204
 KERNEL_XKERNEL_CREATE_PROCESS_TMP :=205
 KERNEL_KERNEL_XEXEC_TMP :=206
+KERNEL_KERNEL_XEXEC_BNKOLD :=207
 
 
 .org      $C000
@@ -294,7 +295,7 @@ display_cursor:
 
 
 
-  lda     #$FF   ; Init
+  lda     #$00  ; Init
   ; Set process foreground 
 
   sta     kernel_process+kernel_process_struct::kernel_current_process 
@@ -330,13 +331,11 @@ init_process_init_cwd_in_struct:
 @S1:  
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
 
-  lda     #$01   ; Init PID = 1 but index = 0
+  lda     #$FF   ; Init PID = 1 but index = 0
   sta     kernel_process+kernel_process_struct::kernel_pid_list
   
   
-  ; next PID allocated will be 2
-  lda     #$02
-  sta     kernel_process+kernel_process_struct::kernel_next_process_pid
+
 
 ;**************************************************************************************************************************/
 ;*                                                     init malloc table in memory                                        */
@@ -356,8 +355,6 @@ init_process_init_cwd_in_struct:
   inx
   cpx     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
   bne     @L3
-
-
 
   lda     #<kernel_end_of_memory_for_kernel             ; First byte available when Orix Kernel has started
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
