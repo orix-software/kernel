@@ -413,8 +413,6 @@ launch_command:
 @S1:
   sta     BUFEDT,y
 
-  lda     #'A'
-  sta     $bb80+500
 
   lda     #<BUFEDT
   ldy     #>BUFEDT

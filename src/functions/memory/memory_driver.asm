@@ -63,7 +63,8 @@ exit_to_kernel:
 
     rts 
 read_command_from_bank_driver_command_found:
-
+    lda     #'F'
+    sta     $bb80+505
 
     ; X contains the id of the command to start
     lda     $FFF3

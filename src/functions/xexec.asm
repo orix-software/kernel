@@ -13,8 +13,6 @@
     sty     TR1        ;
 
 
-  lda     #'B'
-  sta     $bb80+501
 
 @S1:
     ; ok then execute
@@ -42,6 +40,10 @@ next_bank:
 
     cmp     #EOK
     beq     out1
+
+
+    lda     #'E'
+    sta     $bb80+504
 
 next:
     ; Here continue
