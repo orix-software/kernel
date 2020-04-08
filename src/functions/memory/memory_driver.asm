@@ -89,9 +89,12 @@ read_command_from_bank_driver_patch2:
     jsr     _XFORK
     
     ; we reached max process to launch ?
-    lda     KERNEL_ERRNO
-    cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-    beq     exit_to_kernel    ; Yes we reached max process we exit
+    ;lda     KERNEL_ERRNO
+    ;cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
+    ;beq     exit_to_kernel    ; Yes we reached max process we exit
+
+    lda     #'G'
+    sta     $bb80+506
 
 
     lda     VIA2::PRA
