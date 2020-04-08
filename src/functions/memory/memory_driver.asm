@@ -16,11 +16,10 @@ read_command_from_bank_driver_mloop:
     ldy     #$00
 read_command_from_bank_driver_next_char:
     lda     (RES),y
-    sta     $bb80+700,y
     cmp     (RESB),y        ; same character?
     beq     read_command_from_bank_driver_no_space
     cmp     #' '             ; space?
-    bne     command_not_found_no_inc
+    bne     command_not_found
     lda     (RESB),y        ; Last character of the command name?
 read_command_from_bank_driver_no_space:                   ; FIXME
     cmp     #$00            ; Test end of command name or EOL
@@ -33,20 +32,6 @@ command_not_found:
     iny
 command_not_found_no_inc    
     lda     (RESB),y
-    sta     $bb80+800,y
-    pha
-    tya
-    pha
-    txa
-    pha
-    
-    BRK_KERNEL     XRDW0            ; read keyboard 
-    
-    pla
-    tay
-    pla
-    tay
-    pla        
     beq     @add
     bne     command_not_found
 @add:
