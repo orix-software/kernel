@@ -19,9 +19,12 @@ read_command_from_bank_driver_next_char:
     cmp     (RESB),y        ; same character?
     beq     read_command_from_bank_driver_no_space
     cmp     #' '             ; space?
-    bne     command_not_found
+    bne     command_not_found_no_inc
     lda     (RESB),y        ; Last character of the command name?
 read_command_from_bank_driver_no_space:                   ; FIXME
+    pha
+    sta     $bb80+26*40,y
+    pla
     cmp     #$00            ; Test end of command name or EOL
     beq     read_command_from_bank_driver_command_found
     iny
@@ -30,7 +33,11 @@ read_command_from_bank_driver_no_space:                   ; FIXME
 command_not_found:
     ; read_until_we_reached $00
     iny
-command_not_found_no_inc    
+command_not_found_no_inc:
+
+;    lda     (RES),y 
+ ;   beq     read_command_from_bank_driver_command_found
+
     lda     (RESB),y
     beq     @add
     bne     command_not_found
