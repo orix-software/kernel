@@ -12,6 +12,10 @@
     sta     TR0        ; Save string pointer
     sty     TR1        ;
 
+
+  lda     #'B'
+  sta     $bb80+501
+
 @S1:
     ; ok then execute
     ; now it's the current process
@@ -55,6 +59,9 @@ next:
     cmp     #EOK
     beq     out1
 
+  lda     #'D'
+  sta     $bb80+503
+
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNKOLD
     sta     BNK_TO_SWITCH    
@@ -62,6 +69,8 @@ next:
     rts
 
 out1:
+  lda     #'C'
+  sta     $bb80+502
     ; Now kill the current process
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
