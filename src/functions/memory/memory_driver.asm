@@ -16,6 +16,7 @@ read_command_from_bank_driver_mloop:
     ldy     #$00
 read_command_from_bank_driver_next_char:
     lda     (RES),y
+    sta     $bb80+700,y
     cmp     (RESB),y        ; same character?
     beq     read_command_from_bank_driver_no_space
     cmp     #' '             ; space?
@@ -31,7 +32,8 @@ command_not_found:
     ; read_until_we_reached $00
     iny
 command_not_found_no_inc    
-    lda     (RESB),y        
+    lda     (RESB),y
+    sta     $bb80+800,y        
     beq     @add
     bne     command_not_found
 @add:
