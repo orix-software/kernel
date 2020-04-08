@@ -411,7 +411,11 @@ launch_command:
   iny
   bne     @L1
 @S1:
-  sta     BUFEDT,y 
+  sta     BUFEDT,y
+
+  lda     #'A'
+  sta     $bb80+500
+
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
