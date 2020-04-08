@@ -335,7 +335,8 @@ init_process_init_cwd_in_struct:
   sta     kernel_process+kernel_process_struct::kernel_pid_list
   
   
-
+  lda     #KERNEL_ERRNO_OK
+  sta     KERNEL_ERRNO
 
 ;**************************************************************************************************************************/
 ;*                                                     init malloc table in memory                                        */

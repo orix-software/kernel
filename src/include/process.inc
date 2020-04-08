@@ -8,6 +8,8 @@
 .define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
 .define KERNEL_ERRNO_XFREE_NO_CHUNK_FOUND          1
 .define KERNEL_ERRNO_MAX_PROCESS_REACHED           2
+.define KERNEL_ERRNO_OK           3
+
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 

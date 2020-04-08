@@ -22,9 +22,6 @@ read_command_from_bank_driver_next_char:
     bne     command_not_found_no_inc
     lda     (RESB),y        ; Last character of the command name?
 read_command_from_bank_driver_no_space:                   ; FIXME
-    pha
-    sta     $bb80+26*40,y
-    pla
     cmp     #$00            ; Test end of command name or EOL
     beq     read_command_from_bank_driver_command_found
     iny
@@ -35,8 +32,6 @@ command_not_found:
     iny
 command_not_found_no_inc:
 
-;    lda     (RES),y 
- ;   beq     read_command_from_bank_driver_command_found
 
     lda     (RESB),y
     beq     @add
@@ -63,8 +58,7 @@ exit_to_kernel:
 
     rts 
 read_command_from_bank_driver_command_found:
-    lda     #'F'
-    sta     $bb80+505
+
 
     ; X contains the id of the command to start
     lda     $FFF3
@@ -89,13 +83,9 @@ read_command_from_bank_driver_patch2:
     jsr     _XFORK
     
     ; we reached max process to launch ?
-    ;lda     KERNEL_ERRNO
-    ;cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-    ;beq     exit_to_kernel    ; Yes we reached max process we exit
-
-    lda     #'G'
-    sta     $bb80+506
-
+    lda     KERNEL_ERRNO
+    cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
+    beq     exit_to_kernel    ; Yes we reached max process we exit
 
     lda     VIA2::PRA
     and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH

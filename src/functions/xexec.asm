@@ -14,6 +14,9 @@
 
 
 
+
+
+
 @S1:
     ; ok then execute
     ; now it's the current process
@@ -42,8 +45,6 @@ next_bank:
     beq     out1
 
 
-    lda     #'E'
-    sta     $bb80+504
 
 next:
     ; Here continue
@@ -61,8 +62,7 @@ next:
     cmp     #EOK
     beq     out1
 
-  lda     #'D'
-  sta     $bb80+503
+
 
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNKOLD
@@ -71,8 +71,7 @@ next:
     rts
 
 out1:
-  lda     #'C'
-  sta     $bb80+502
+
     ; Now kill the current process
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
