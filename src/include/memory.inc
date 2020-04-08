@@ -1,5 +1,5 @@
 ; Number of all CURRENT malloc. If we reached this number, we won't be able to do a new malloc
-.define KERNEL_MAX_NUMBER_OF_MALLOC      4
+.define KERNEL_MAX_NUMBER_OF_MALLOC      5
 .define KERNEL_MALLOC_FREE_FRAGMENT_MAX  6
 .define KERNEL_MALLOC_FREE_CHUNK_MAX     6
 .define KERNEL_MALLOC_MAX_MEM_ADRESS     $B3FF ; We can't do malloc greater than this offset

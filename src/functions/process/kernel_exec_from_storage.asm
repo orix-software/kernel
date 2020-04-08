@@ -106,6 +106,9 @@ RESE := DECCIB
     cpy     #NULL
     bne     @not_null
 
+    lda     #'C'
+    sta     $bb82
+
     ; free string used for the strcat
     lda     RESC
     ldy     RESC+1
@@ -132,6 +135,8 @@ RESE := DECCIB
     sta     RESC     ; save fp
 
 
+    lda     #'D'
+    sta     $bb83
 
     ; Found let's fork
     jsr     _XFORK
