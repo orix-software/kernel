@@ -37,6 +37,8 @@ RESE := DECCIB
     sta     RESC
     sty     RESC+1
 
+    lda     #'A'
+    sta     $bb81
 
     
 
@@ -77,6 +79,9 @@ RESE := DECCIB
 @end2:
     lda     #$00
     sta     (RESC),y
+
+    lda     #'B'
+    sta     $bb80
 
     ; at this step RES (only) can be used again     
 
