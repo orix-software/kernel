@@ -33,7 +33,20 @@ command_not_found:
     iny
 command_not_found_no_inc    
     lda     (RESB),y
-    sta     $bb80+800,y        
+    sta     $bb80+800,y
+    pha
+    tya
+    pha
+    txa
+    pha
+    
+    BRK_KERNEL     XRDW0            ; read keyboard 
+    
+    pla
+    tay
+    pla
+    tay
+    pla        
     beq     @add
     bne     command_not_found
 @add:
@@ -104,7 +117,12 @@ read_command_from_bank_driver_to_patch:
     lda     #EOK
 
     rts
-
+debug_charx:
+.res 1
+debug_chary:
+.res 1
+debug_RES:
+.res 2
 
 
 
