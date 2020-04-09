@@ -42,7 +42,7 @@ kernel: $(SOURCE)
 
 	@echo Build kernelsd.rom for Twilighte board
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD  -Ln kernelsd.sym
+	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
 	@cp kernelsd.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.map $(PATH_PACKAGE_ROM)/
