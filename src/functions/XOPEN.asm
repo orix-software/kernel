@@ -20,6 +20,9 @@
   ; save flag
   sty     TR4 ; save flags
   
+  lda     #EOK
+  sta	    KERNEL_ERRNO
+
   ; check if device is available
   jsr     _ch376_verify_SetUsbPort_Mount
   cmp     #$01

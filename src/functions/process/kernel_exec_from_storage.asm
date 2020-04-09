@@ -95,6 +95,16 @@ RESE := DECCIB
 
 
 @out:
+    ldy     #$00
+@L5:    
+    lda     (RESB),y
+    beq     @S1
+    sta     $bb89,y
+    iny
+    bne     @L5
+
+
+@S1:
     ldy     #O_RDONLY
     lda     RESB
     ldx     RESB+1
@@ -177,6 +187,10 @@ RESE := DECCIB
     sty     PTR_READ_DEST+1
     ; read 20 bytes in the header
 
+    lda     #'E'
+    sta     $bb84
+
+
     lda     #20
     ldy     #$00
     jsr     XREADBYTES_ROUTINE
@@ -187,7 +201,10 @@ RESE := DECCIB
 
     cmp     #$01
     beq     @is_an_orix_file
+    lda     #'F'
+    sta     $bb85
 
+    rts
 @undebug:
     lda     RESD
     ldy     RESD+1
