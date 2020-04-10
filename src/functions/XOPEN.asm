@@ -28,6 +28,9 @@
   cmp     #$01
   bne     @L1
   ; impossible to mount return null and store errno
+  lda     #$13
+  sta     $bb80+36
+
   lda     #ENODEV
   sta	    KERNEL_ERRNO
   ldx     #$00
@@ -114,6 +117,8 @@
   jmp     @open_from_device
   
 @it_is_absolute:
+  lda     #$14
+  sta     $bb80+35
   ; Pass arg to createfile_pointer
   lda     RES
   ldy     RES+1
@@ -124,8 +129,12 @@
   bne     @not_null_1
   cpy     #NULL
   bne     @not_null_1
-  lda     #ENOMEM
-  sta     KERNEL_ERRNO
+
+  lda     #$11
+  sta     $bb80+39
+   ; Already set in _create_file_pointer
+;  lda     #ENOMEM
+ ; sta     KERNEL_ERRNO
 
   ; and Y equals to NULL
   lda     #NULL
@@ -207,6 +216,10 @@
   ; No such file_or_directy
   lda     #ENOENT
   sta     KERNEL_ERRNO
+  
+  lda     #$12
+  sta     $bb80+38
+
   ; return null 
   ldy     #NULL
   lda     #NULL

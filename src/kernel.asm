@@ -27,6 +27,12 @@
 .include   "build.inc"
 
 
+; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
+
+RES_XOPEN             :=    $4D ; Also HRS1
+RESB_XOPEN            :=    $4F ; Also HRS2
+
+
 TELEMON_UNKNWON_LABEL_62:= $62
 TELEMON_UNKNWON_LABEL_70:= $70
 TELEMON_UNKNWON_LABEL_71:= $71
