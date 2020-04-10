@@ -29,9 +29,20 @@
 
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
-RES_XOPEN             :=    $4D ; Also HRS1
-RESB_XOPEN            :=    $4F ; Also HRS2
 
+KERNEL_XOPEN_PTR1 := $04 ; DECBIN
+KERNEL_XOPEN_PTR2 := $06 ; DECFIN
+
+XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
+XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
+
+XOPEN_RES_SAVE        :=    $51 ; Also HRS3 2 bytes
+XOPEN_RESB_SAVE       :=    $53 ; Also HRS4 2 bytes
+
+XOPEN_SAVEY           :=    $55 ; Also HRS4 2 bytes
+XOPEN_SAVEA           :=    $56 ; Also HRS4 2 bytes
+
+XOPEN_FLAGS           :=    $57 ; also HRSFB 1 byte
 
 TELEMON_UNKNWON_LABEL_62:= $62
 TELEMON_UNKNWON_LABEL_70:= $70
