@@ -215,7 +215,13 @@
   lda     TR4 ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
+
+  lda     #'E'
+  sta     $bb80+39  
+
+
 @exit_open_with_null:
+
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
