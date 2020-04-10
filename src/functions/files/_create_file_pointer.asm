@@ -2,8 +2,8 @@
 ; Use RES 
 
 ; input
-; A & X contains the string
-; TR4 contains the flag
+; A & Y contains the string
+; XOPEN_FLAGS contains the flag
 
 ; Output : A,Y the pointer
 
@@ -44,7 +44,7 @@ jsr   xdebug_enter_create_fp_XMALLOC
 
   ldy     #_KERNEL_FILE::f_mode      ; get Offset
   ; Store flag
-  lda     TR4
+  lda     XOPEN_FLAGS
   sta     (KERNEL_XOPEN_PTR1),y  
 
 
