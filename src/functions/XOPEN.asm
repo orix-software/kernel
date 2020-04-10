@@ -69,6 +69,8 @@
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
   bne     @L3 
+  lda     #'B'
+  sta     $bb80+39
   ; at this step, we cannot detect the end of string : BOF, return null
   jmp     @exit_open_with_null
 
@@ -108,6 +110,8 @@
 
   bne     @L4
   ; Bof return NULL
+  lda     #'C'
+  sta     $bb80+39
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -165,6 +169,8 @@
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
   bne     @next_char
     ; error buffer overflow
+  lda     #'D'
+  sta     $bb80+39    
   beq     @exit_open_with_null
 
 
@@ -265,6 +271,9 @@
   bne     @try_to_find_a_free_fp_for_current_process
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
+  lda     #'A'
+  sta     $bb80+39
+  
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:
