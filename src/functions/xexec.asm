@@ -12,11 +12,6 @@
     sta     TR0        ; Save string pointer
     sty     TR1        ;
 
-
-
-
-
-
 @S1:
     ; ok then execute
     ; now it's the current process
@@ -28,11 +23,10 @@
     ldx     #$05       ; start at bank 05
     stx     KERNEL_TMP_XEXEC
 
-
 next_bank:
     ; We says that we return to Bank 7 
+   ; BRK_KERNEL XRDW0
     ldx     KERNEL_TMP_XEXEC
-    stx     BNK_TO_SWITCH ; for $4AF call
 
     lda     TR0
     ldy     TR1
@@ -44,30 +38,30 @@ next_bank:
     cmp     #EOK
     beq     out1
 
-
-
 next:
     ; Here continue
     ldx     KERNEL_TMP_XEXEC
-    dex
-    stx     KERNEL_TMP_XEXEC
-
+    dex 
+    cpx     #$04
+    ;dec     KERNEL_TMP_XEXEC
+    
     bne     next_bank
+
+
 
     lda     TR0
     ldy     TR1
-
     jsr     kernel_try_to_find_command_in_bin_path
 
     cmp     #EOK
     beq     out1
 
 
+; Exit
 
-    lda     KERNEL_KERNEL_XEXEC_BNKOLD
-    sta     BNKOLD
-    sta     BNK_TO_SWITCH    
-    
+    ldx     KERNEL_KERNEL_XEXEC_BNKOLD
+    stx     BNKOLD
+
     rts
 
 out1:
@@ -79,7 +73,7 @@ out1:
 exit:  
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNKOLD
-    sta     BNK_TO_SWITCH    
+    ;sta     BNK_TO_SWITCH    
     lda     #EOK
     rts
 .endproc

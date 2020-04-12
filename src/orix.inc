@@ -86,7 +86,7 @@ READ_BYTE_FROM_OVERLAY_RAM
 .org $500
 
 kernel_ch376_current_mode_fs:
-    .res $00
+    .res 1 ; FIXME
 
 kernel_end_of_variables_before_BUFNOM:
 KERNEL_TMP_XEXEC:
@@ -125,7 +125,7 @@ TEMP_ORIX_1:
 ORIX_ARGC:
     .res 1
 KERNEL_DRIVER_MEMORY:
-    .res 151
+    .res 170
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)

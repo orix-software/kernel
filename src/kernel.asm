@@ -1,5 +1,9 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
+
+; reproduction du bug : 12 fois l
+
+
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
@@ -435,14 +439,15 @@ launch_command:
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
-
+  ldx     #$05
+  stx     BNKCIB
   jmp     _XEXEC ; start shell
 
-call_routine_in_another_bank  
-  sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
-  sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
-  stx     BNKCIB
-  jmp     SWITCH_TO_BANK_ID
+;call_routine_in_another_bank  
+  ;sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
+  ;sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
+  ;stx     BNKCIB
+  ;jmp     SWITCH_TO_BANK_ID
 
 routine_to_define_19:
   CLI

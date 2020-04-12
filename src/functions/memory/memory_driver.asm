@@ -1,15 +1,18 @@
 
 kernel_memory_driver_to_copy:
- 
     lda     VIA2::PRA
-    and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
+    and     KERNEL_TMP_XEXEC                 ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
+    
+    lda     $FFF7                          ; the is no command is the current rom ($fff7=0) then skip
+    beq     exit_to_kernel
 
+test_debug:
     lda     $FFF5  ; List command
     sta     RESB
     lda     $FFF6  ; List command
     sta     RESB+1  
-
+; d15E
     ldx     #$00
 
 read_command_from_bank_driver_mloop:
@@ -88,7 +91,7 @@ read_command_from_bank_driver_patch2:
     beq     exit_to_kernel    ; Yes we reached max process we exit
 
     lda     VIA2::PRA
-    and     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
+    and     KERNEL_TMP_XEXEC                  ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
     
 	lda     TR0
@@ -103,12 +106,6 @@ read_command_from_bank_driver_to_patch:
     lda     #EOK
 
     rts
-debug_charx:
-.res 1
-debug_chary:
-.res 1
-debug_RES:
-.res 2
 
 
 

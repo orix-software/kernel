@@ -1,8 +1,7 @@
-
 .proc XOPEN_ROUTINE
 ; INPUT
 ;     this routine use : 
-;        RES, A X Y, TR0,TR1 XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
+;        RES, A X Y, XOPEN_SAVE XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
 ;	  and with XMALLOC :
 ;		     TR7 (malloc)
 ; OUTPUT
@@ -28,8 +27,7 @@
   cmp     #$01
   bne     @L1
   ; impossible to mount return null and store errno
-  lda     #$13
-  sta     $bb80+36
+
 
   lda     #ENODEV
   sta	    KERNEL_ERRNO
@@ -69,8 +67,7 @@
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
   bne     @L3 
-  lda     #'B'
-  sta     $bb80+39
+
   ; at this step, we cannot detect the end of string : BOF, return null
   jmp     @exit_open_with_null
 
@@ -110,8 +107,7 @@
 
   bne     @L4
   ; Bof return NULL
-  lda     #'C'
-  sta     $bb80+39
+
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -134,8 +130,7 @@
   cpy     #NULL
   bne     @not_null_1
 
-  lda     #$11
-  sta     $bb80+39
+
    ; Already set in _create_file_pointer
 ;  lda     #ENOMEM
  ; sta     KERNEL_ERRNO
@@ -166,6 +161,7 @@
   cmp     #"/"
   beq     @slash_found_or_end_of_string
   sta     CH376_DATA
+  sta     $bb80+80,y
   iny
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
   bne     @next_char
@@ -198,11 +194,12 @@
   lda     #$00 ; used to write in BUFNOM
   sta     CH376_DATA ; INIT  
 .endif
-  sty     TR0
+
+  sty     XOPEN_SAVEY
   jsr     _ch376_file_open
   cmp     #CH376_ERR_MISS_FILE
   beq     @file_not_found
-  ldy     TR0 ; reload Y
+  ldy     XOPEN_SAVEY ; reload Y
   lda     XOPEN_SAVEA
   beq     @could_be_created
   iny
