@@ -117,8 +117,7 @@
   jmp     @open_from_device
   
 @it_is_absolute:
-  lda     #$14
-  sta     $bb80+35
+
   ; Pass arg to createfile_pointer
   lda     RES
   ldy     RES+1
@@ -156,20 +155,22 @@
 @next_char:
 
   lda     (KERNEL_XOPEN_PTR1),y
-  sta     $bb80+20,y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
+  cmp     #"a"                        ; 'a'
+  bcc     @do_not_uppercase
+  cmp     #"z"+1                        ; 'z'
+  bcs     @do_not_uppercase
+  sbc     #$1F
+@do_not_uppercase:    
   sta     CH376_DATA
-  sta     $bb80+80,y
   iny
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
   bne     @next_char
     ; error buffer overflow
-  lda     #'D'
-  sta     $bb80+39    
+  
   beq     @exit_open_with_null
-
 
 @slash_found_or_end_of_string_stop:
   sta    XOPEN_SAVEA
@@ -182,6 +183,7 @@
   sta    XOPEN_SAVEA
   cpy    #_KERNEL_FILE::f_path
   bne    @S3
+  sta    $bb80+120,y
   sta    CH376_DATA
 
 @S3:  
@@ -199,6 +201,7 @@
   jsr     _ch376_file_open
   cmp     #CH376_ERR_MISS_FILE
   beq     @file_not_found
+  
   ldy     XOPEN_SAVEY ; reload Y
   lda     XOPEN_SAVEA
   beq     @could_be_created
