@@ -62,7 +62,6 @@
   ldy     #_KERNEL_FILE::f_path
 @L3:
   lda     (KERNEL_XOPEN_PTR1),y
- ; sta     $bb80,y
   beq     @end_of_string_found
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
@@ -183,7 +182,6 @@
   sta    XOPEN_SAVEA
   cpy    #_KERNEL_FILE::f_path
   bne    @S3
-  sta    $bb80+120,y
   sta    CH376_DATA
 
 @S3:  
@@ -217,9 +215,6 @@
   cmp     #O_RDONLY
   bne     @could_be_created
 
-  lda     #'E'
-  sta     $bb80+39  
-
 
 @exit_open_with_null:
 
@@ -230,8 +225,7 @@
   lda     #ENOENT
   sta     KERNEL_ERRNO
   
-  lda     #$12
-  sta     $bb80+38
+
 
   ; return null 
   ldy     #NULL
@@ -278,8 +272,7 @@
   bne     @try_to_find_a_free_fp_for_current_process
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
-  lda     #'A'
-  sta     $bb80+39
+
   
   beq     @exit_open_with_null
   ;       
