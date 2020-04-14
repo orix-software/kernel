@@ -40,10 +40,7 @@ next_bank:
 
 next:
     ; Here continue
-    ldx     KERNEL_TMP_XEXEC
-    dex 
-    cpx     #$04
-    ;dec     KERNEL_TMP_XEXEC
+    dec     KERNEL_TMP_XEXEC
     
     bne     next_bank
 
