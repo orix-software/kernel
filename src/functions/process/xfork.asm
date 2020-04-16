@@ -47,6 +47,7 @@
    rts
 exit_to_kernel:
 ; pull from stack old pc
+
    pla
    pla
    rts

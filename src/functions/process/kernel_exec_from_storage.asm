@@ -37,8 +37,6 @@ RESE := DECCIB
     sta     RESC
     sty     RESC+1
 
-    lda     #'A'
-    sta     $bb81
 
     
 
@@ -80,8 +78,7 @@ RESE := DECCIB
     lda     #$00
     sta     (RESC),y
 
-    lda     #'B'
-    sta     $bb80
+
 
     ; at this step RES (only) can be used again     
 
@@ -99,7 +96,7 @@ RESE := DECCIB
 @L5:    
     lda     (RESB),y
     beq     @S1
-    sta     $bb89,y
+
     iny
     bne     @L5
 
@@ -118,8 +115,6 @@ RESE := DECCIB
 
  
 
-    lda     #'C'
-    sta     $bb82
 
     ; free string used for the strcat
     lda     RESC
@@ -131,6 +126,7 @@ RESE := DECCIB
 
     rts
 @not_null:
+
     ; save fp
     pha
     tya
@@ -147,8 +143,6 @@ RESE := DECCIB
     sta     RESC     ; save fp
 
 
-    lda     #'D'
-    sta     $bb83
 
     ; Found let's fork
     jsr     _XFORK
@@ -173,9 +167,6 @@ RESE := DECCIB
 @out_not_found:
     lda     #ENOMEM         ; Error
 
-    lda     #$13
-    sta     $bb80+2
-
     rts    
 
 
@@ -189,22 +180,20 @@ RESE := DECCIB
     sty     PTR_READ_DEST+1
     ; read 20 bytes in the header
 
-    lda     #'E'
-    sta     $bb84
+ 
 
 
     lda     #20
     ldy     #$00
     jsr     XREADBYTES_ROUTINE
-    
+
     
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
 
     cmp     #$01
     beq     @is_an_orix_file
-    lda     #'F'
-    sta     $bb85
+
 
     rts
 @undebug:
@@ -255,7 +244,7 @@ RESE := DECCIB
     ldy     #$FF
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done
-   
+
     lda     #$00 ; don't update length
     jsr     XCLOSE_ROUTINE
 
@@ -265,6 +254,7 @@ RESE := DECCIB
     ldy     RESC+1
     jsr     XFREE_ROUTINE
     jsr     execute
+
     lda     #EOK
     rts
 

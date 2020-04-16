@@ -95,5 +95,10 @@
 
 @skip_load_zp: 
   ; destroy process
+  ;lda  #<str_destroyed
+  ;ldy  #>str_destroyed
+  ;jsr  XWSTR0_ROUTINE
   rts
+;str_destroyed:
+  ;.asciiz "Destroyed" 
 .endproc
