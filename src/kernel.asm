@@ -1,10 +1,13 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
+
+; reproduction du bug : 12 fois l
+
+
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
-.include   "o65.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
@@ -28,6 +31,23 @@
 .include   "build.inc"
 
 
+; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
+
+
+KERNEL_XOPEN_PTR1 := $04 ; DECBIN
+KERNEL_XOPEN_PTR2 := $06 ; DECFIN
+
+XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
+XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
+
+XOPEN_RES_SAVE        :=    $51 ; Also HRS3 2 bytes
+XOPEN_RESB_SAVE       :=    $53 ; Also HRS4 2 bytes
+
+XOPEN_SAVEY           :=    $55 ; Also HRS4 2 bytes
+XOPEN_SAVEA           :=    $56 ; Also HRS4 2 bytes
+
+XOPEN_FLAGS           :=    $57 ; also HRSFB 1 byte
+
 TELEMON_UNKNWON_LABEL_62:= $62
 TELEMON_UNKNWON_LABEL_70:= $70
 TELEMON_UNKNWON_LABEL_71:= $71
@@ -38,7 +58,7 @@ TELEMON_UNKNWON_LABEL_86:= $86
 FLPOLP := $85
 FLPO0  := $87
 
-PARSE_VECTOR:=$FFFF1
+PARSE_VECTOR:=$FFF1
 
 ACIADR := $031C ; DATA REGISTER
 ACIASR := $031D ; STATUS REGISTER
@@ -49,11 +69,15 @@ KERNEL_KO_RAM_AVAILABLE := $200 ; 16 bits
 KERNEL_KO_ROM_AVAILABLE := $202 ; 16 bits
 KERNEL_CH376_MOUNT      := $203
 KERNEL_XFREE_TMP      := $204
+KERNEL_XKERNEL_CREATE_PROCESS_TMP :=205
+KERNEL_KERNEL_XEXEC_TMP :=206
+KERNEL_KERNEL_XEXEC_BNKOLD :=207
 
 
 .org      $C000
 .code
 start_rom:
+.proc _main
   sei
   cld
   ldx     #$FF
@@ -112,6 +136,8 @@ start_rom:
   and     #$20
   bne     @L1
 @L1:
+.endproc
+
 
 next1:
   ldx     #$2F
@@ -147,6 +173,25 @@ loading_vectors_telemon:
 
 ; Just fill ram with BUFROU
   jsr     $0600
+
+  ldx     #$00
+@loop2:
+  lda     kernel_memory_driver_to_copy,x
+  sta     KERNEL_DRIVER_MEMORY,x
+  inx                                 ; loop until 256 bytes are filled
+  bne     @loop2
+
+  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
+  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
+
+  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
+  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
+
+  ;sta     KERNEL_DRIVER_MEMORY,x
 
 compute_rom_ram:
 ; this code sets buffers
@@ -265,22 +310,19 @@ don_t_display_signature:
 display_cursor:
 
   ldx     #$00
-  BRK_TELEMON XCSSCR ; display cursors
-
-  
-  
-
+  BRK_KERNEL XCSSCR ; display cursors
 ; initialize 
   ; Init PID tables and structs
-  
 
 
-  lda     #$00
+
+  lda     #$00  ; Init
   ; Set process foreground 
 
-  sta     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process+kernel_process_struct::kernel_current_process 
 
-  ldx     #KERNEL_MAX_PROCESS
+  lda     #$00
+  ldx     #(KERNEL_MAX_PROCESS-1)
 @loop:
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -310,13 +352,12 @@ init_process_init_cwd_in_struct:
 @S1:  
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
 
-  lda     #$01   ; Init PID =  1
+  lda     #$FF   ; Init PID = 1 but index = 0
   sta     kernel_process+kernel_process_struct::kernel_pid_list
   
   
-  ; next PID allocated will be 2
-  lda     #$02
-  sta     kernel_process+kernel_process_struct::kernel_next_process_pid
+  lda     #KERNEL_ERRNO_OK
+  sta     KERNEL_ERRNO
 
 ;**************************************************************************************************************************/
 ;*                                                     init malloc table in memory                                        */
@@ -337,13 +378,13 @@ init_process_init_cwd_in_struct:
   cpx     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
   bne     @L3
 
-
-
   lda     #<kernel_end_of_memory_for_kernel             ; First byte available when Orix Kernel has started
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
+
   
   lda     #>kernel_end_of_memory_for_kernel
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+
 
     
 
@@ -378,6 +419,7 @@ init_malloc_busy_table:
 
 
 launch_command:
+  jsr     XCRLF_ROUTINE
   lda     #<str_binary_to_start
   sta     RES
   lda     #>str_binary_to_start
@@ -391,34 +433,21 @@ launch_command:
   iny
   bne     @L1
 @S1:
-  sta     BUFEDT,y 
+  sta     BUFEDT,y
+
+
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
-
+  ldx     #$05
+  stx     BNKCIB
   jmp     _XEXEC ; start shell
 
-
-.proc kernel_destroy_process
-  ; X contains the index of the process to destroy
-
-  ; Must read all childpid and remove struct of each one
-  
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  tay
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-  jsr     XFREE_ROUTINE
-  ; Free process
-
-  rts
-.endproc
-
-
-call_routine_in_another_bank  
-  sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
-  sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
-  stx     BNKCIB
-  jmp     SWITCH_TO_BANK_ID
+;call_routine_in_another_bank  
+  ;sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
+  ;sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
+  ;stx     BNKCIB
+  ;jmp     SWITCH_TO_BANK_ID
 
 routine_to_define_19:
   CLI
@@ -572,18 +601,22 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPR NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX 1.0",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.1 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
-  .byte     "  CPU : 65C02"
+  .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     "    CPU : 6502"
+  .byte     " CPU:6502"
 .endif
   .byt     $00 ; end of string
+
+kernel_memory_driver_to_copy_begin: 
+.include "functions/memory/memory_driver.asm"
+kernel_memory_driver_to_copy_end:
   
-  
-  
+.warning     .sprintf("Size of memory driver  : %d bytes, verify in orix.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
+
 str_KORAM:
   .ASCIIZ  " Ko RAM,"
 
@@ -963,6 +996,7 @@ end_keyboard_buffer
 .include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
 .include  "functions/process/kernel_create_process.asm"
+.include  "functions/process/kernel_kill_process.asm"
 .include  "functions/zadcha.asm"
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
@@ -971,6 +1005,7 @@ end_keyboard_buffer
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
 .endif
+
 
 send_command_A:
   sty     ADDRESS_VECTOR_FOR_ADIOB
@@ -1764,6 +1799,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/xhires.asm"  
 .include  "functions/xtext.asm"
 .include  "functions/memory/xfree.asm"
+.include  "functions/process/xfork.asm"
 .include  "functions/mainargs.asm"
 .include  "functions/getargc.asm"
 .include  "functions/getargv.asm"
@@ -4332,24 +4368,24 @@ read_a_file_rs232_minitel:
   bit     INDRS
   bvc     LEE6C  
   lda     #$FF
-  sta     $052A  ;FIXME
-  sta     $052B  ;FIXME
+ ; sta     $052A  ;FIXME
+  ;sta     $052B  ;FIXME
 LEE6C  
   ldy     #$00
   sty     TR2
 LEE70  
-  lda     $052A ; FIXME
-  beq     LEE86  
+;  lda     $052A ; FIXME
+ ; beq     LEE86  
   jsr     Lec6b 
   sta     (RES),Y
-  dec     $052A   ; FIXME
+  ;dec     $052A   ; FIXME
   inc     RES
   bne     LEE70  
   inc     RES+1
   jmp     LEE70 
 LEE86  
-  lda     $052B
-  beq     LEE9D  
+  ;lda     $052B
+  ;beq     LEE9D  
   ldy     #$00
 LEE8D  
   jsr     Lec6b 
@@ -4357,7 +4393,7 @@ LEE8D
   iny
   bne     LEE8D  
   inc     RES+1
-  dec     $052B
+  ;dec     $052B
 
   jmp     LEE86  
 LEE9D  
@@ -4378,7 +4414,7 @@ _strcpy:
   ; y return the length
   rts
  
-
+.include  "functions/process/kernel_exec_from_storage.asm"  
 .include  "functions/XOPEN.asm"
 .include  "functions/minitel/xligne.asm"
 .include  "functions/serial/xsout.asm"
@@ -6067,7 +6103,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .byt     "Kernel-"
+  .asciiz     "Kernel v2020.1"
   .byt     __DATE__
 .IFPC02
 .pc02

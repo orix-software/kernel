@@ -6,7 +6,7 @@
 ; IN [A & Y ] the length requested
 ; TR7 is modified
 ; OUT : NULL in A & Y or pointer in A & Y of the first byte of the allocated memory
-; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine
+; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine and kernel_try_to_find_command_in_bin_path
 ; Verify if there is enough memory
 ; 
 .ifdef WITH_DEBUG
@@ -16,11 +16,12 @@
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate                             
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
-    ; we don't fix #ENOMEM, because null return already means OOM by default
+    ; we don't fix #ENOMEM, because null is returned already means OOM by default
 .ifdef WITH_DEBUG
     ;jsr     xdebug_end
 .endif
-
+    lda     #NULL
+    ldy     #NULL
 
 
     rts

@@ -35,14 +35,14 @@ kernel: $(SOURCE)
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@echo Build kernelsd.rom for Telestrat
-	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 $(SOURCE) $(ASFLAGS) 
+	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 #	@cp kernel-telestrat.ld65.rom $(RELEASE_PATH)/6502/telestrat
 #	@cp kernel-telestrat.ca.sym  $(RELEASE_PATH)/6502/telestrat
 
 	@echo Build kernelsd.rom for Twilighte board
-	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1 -Ln kernelsd.sym
+	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
+	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
 	@cp kernelsd.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.map $(PATH_PACKAGE_ROM)/

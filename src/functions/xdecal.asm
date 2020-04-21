@@ -1,4 +1,12 @@
 .proc XDECAL_ROUTINE
+
+; DOC_PRIMITIVE_NAME=XDECAL
+; DOC_REGISTER_X_MODIFIED=yes
+; DOC_REGISTER_Y_MODIFIED=yes
+; DOC_ACCUMULATOR_A_MODIFIED=yes
+; DOC_MEMORY_WRITE_0=DECFIN
+; DOC_MEMORY_WRITE_1=DECTRV
+
 ; This routine could be replace with a simple routine in 65C816 mode
 	pha
 	txa

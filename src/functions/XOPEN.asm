@@ -1,28 +1,34 @@
+.proc XOPEN_ROUTINE
 ; INPUT
 ;     this routine use : 
-;        RES, A X Y, TR0,TR1 TR4, TR5,TR6,
+;        RES, A X Y, XOPEN_SAVE XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
 ;	  and with XMALLOC :
 ;		     TR7 (malloc)
 ; OUTPUT
 ;     NULL if it does not exists
 ;     filepointer in A & Y (and X for cc65 compatibility)
 
-.proc XOPEN_ROUTINE
+
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
   ; Save string in 2 locations RES
   sta     RES
   stx     RES+1
-  ; and TR5+TR6
-  sta     TR5
-  stx     TR6
+
+  sta     XOPEN_RES_SAVE
+  stx     XOPEN_RES_SAVE+1
   ; save flag
-  sty     TR4 ; save flags
+  sty     XOPEN_FLAGS
   
+  lda     #EOK
+  sta	    KERNEL_ERRNO
+
   ; check if device is available
   jsr     _ch376_verify_SetUsbPort_Mount
   cmp     #$01
   bne     @L1
   ; impossible to mount return null and store errno
+
+
   lda     #ENODEV
   sta	    KERNEL_ERRNO
   ldx     #$00
@@ -56,11 +62,11 @@
   ldy     #_KERNEL_FILE::f_path
 @L3:
   lda     (KERNEL_XOPEN_PTR1),y
- ; sta     $bb80,y
   beq     @end_of_string_found
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
   bne     @L3 
+
   ; at this step, we cannot detect the end of string : BOF, return null
   jmp     @exit_open_with_null
 
@@ -80,15 +86,15 @@
   sty    RES
 
   lda    #$00
-  sta    TR7   ; It will be used to read offset of relative path passed in XOPEN arg
+  sta    XOPEN_SAVEA   ; It will be used to read offset of relative path passed in XOPEN arg
 
 @L4:
-  ldy    TR7
-  lda    (TR5),y
+  ldy    XOPEN_SAVEA
+  lda    (XOPEN_RES_SAVE),y
   beq    @end_of_path_from_arg
 
   iny
-  sty    TR7
+  sty    XOPEN_SAVEA
   ldy    RES
 
   sta    (KERNEL_XOPEN_PTR1),y
@@ -100,6 +106,7 @@
 
   bne     @L4
   ; Bof return NULL
+
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -109,18 +116,22 @@
   jmp     @open_from_device
   
 @it_is_absolute:
+
   ; Pass arg to createfile_pointer
   lda     RES
   ldy     RES+1
-  ; and TR4 too at this step
+  ; and XOPEN_FLAGS too at this step
 
   jsr     _create_file_pointer
   cmp     #NULL
   bne     @not_null_1
   cpy     #NULL
   bne     @not_null_1
-  lda     #ENOMEM
-  sta     KERNEL_ERRNO
+
+
+   ; Already set in _create_file_pointer
+;  lda     #ENOMEM
+ ; sta     KERNEL_ERRNO
 
   ; and Y equals to NULL
   lda     #NULL
@@ -134,7 +145,7 @@
 
   ; Reset flag to say that end of string is reached
   lda     #$01
-  sta     TR7
+  sta     XOPEN_SAVEA
 
  @next_filename:
   lda     #CH376_SET_FILE_NAME        ;$2F
@@ -146,23 +157,29 @@
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
+  cmp     #"a"                        ; 'a'
+  bcc     @do_not_uppercase
+  cmp     #"z"+1                        ; 'z'
+  bcs     @do_not_uppercase
+  sbc     #$1F
+@do_not_uppercase:    
   sta     CH376_DATA
   iny
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
   bne     @next_char
     ; error buffer overflow
+  
   beq     @exit_open_with_null
 
-
 @slash_found_or_end_of_string_stop:
-  sta    TR7
+  sta    XOPEN_SAVEA
   cpy    #_KERNEL_FILE::f_path+1  ; Do we reach $00 ? at the second char ? It means that it's '/' only
   beq    @open_and_register_fp
   bne    @S3
 
 @slash_found_or_end_of_string:  
   ; do we reach / at the first char ? It should, then we enter 
-  sta    TR7
+  sta    XOPEN_SAVEA
   cpy    #_KERNEL_FILE::f_path
   bne    @S3
   sta    CH376_DATA
@@ -177,12 +194,14 @@
   lda     #$00 ; used to write in BUFNOM
   sta     CH376_DATA ; INIT  
 .endif
-  sty     TR0
+
+  sty     XOPEN_SAVEY
   jsr     _ch376_file_open
   cmp     #CH376_ERR_MISS_FILE
   beq     @file_not_found
-  ldy     TR0 ; reload Y
-  lda     TR7
+  
+  ldy     XOPEN_SAVEY ; reload Y
+  lda     XOPEN_SAVEA
   beq     @could_be_created
   iny
   bne     @next_filename
@@ -192,16 +211,22 @@
 @file_not_found:
   ; 
 
-  lda     TR4 ; Get flags
+  lda     XOPEN_FLAGS ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
+
+
 @exit_open_with_null:
+
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
   ; No such file_or_directy
   lda     #ENOENT
   sta     KERNEL_ERRNO
+  
+
+
   ; return null 
   ldy     #NULL
   lda     #NULL
@@ -209,7 +234,7 @@
   rts
 
 @could_be_created:
-  lda     TR4
+  lda     XOPEN_FLAGS
   and     #O_WRONLY
   cmp     #O_WRONLY
   beq     @write_only
@@ -247,6 +272,8 @@
   bne     @try_to_find_a_free_fp_for_current_process
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
+
+  
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:

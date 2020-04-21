@@ -1,4 +1,6 @@
+BASH_MAX_ARGS                      = 3       ;  Number of possible args in the command line
 
+BASH_MAX_BUFEDT_LENGTH         = 110
 userzp                  := VARLNG
 
 RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
@@ -17,7 +19,7 @@ TELEMON_ID_BANK   		= $07
 ATMOS_ID_BANK     		= $06
 ORIX_ID_BANK      		= $05
 MONITOR_ID_BANK   		= $04
-TELEFORTH_ID_BANK     	= $03
+
 ORIX_MEMORY_DRIVER_ADDRESS:=$400
 SWITCH_TO_BANK_ID              :=     $040C
 ;NEXT_STACK_BANK:=$418
@@ -54,7 +56,6 @@ NULL = 0
 BUFROU:= $C500 ; Routines for buffers gestion
 
 
-
 SIZE_OF_STACK_BANK = 1
 
 BNKOLD:=$40F 
@@ -85,7 +86,7 @@ READ_BYTE_FROM_OVERLAY_RAM
 .org $500
 
 kernel_ch376_current_mode_fs:
-    .res $00
+    .res 1 ; FIXME
 
 kernel_end_of_variables_before_BUFNOM:
 KERNEL_TMP_XEXEC:
@@ -93,7 +94,6 @@ KERNEL_TMP_XEXEC:
 .if  kernel_end_of_variables_before_BUFNOM > BUFNOM
   .error  "Error BUFNOM is written by kernel variables try to move some variables in orix.inc after BUFNOM or BUFEDT"
 .endif    
-
 
 .bss
 .org BUFNOM
@@ -106,10 +106,8 @@ kernel_debug:
     .tag   kernel_debug_struct
 .endif
 
-
 kernel_process:
     .tag    kernel_process_struct
-
     
 kernel_end_of_variables_before_BUFEDT:    
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
@@ -119,14 +117,6 @@ kernel_end_of_variables_before_BUFEDT:
 .bss
 .org BUFEDT
 .res 110
-
-BASH_MAX_ARGS                      = 3       ;  Number of possible args in the command line
-
-
-BASH_MAX_BUFEDT_LENGTH         = 110
-
-ORIX_ARGV_NAME:
-    .res    MAX_LENGTH_OF_FILES  ; name
 ORIX_ARGV:
 	.res    MAX_LENGTH_OF_FILES*BASH_MAX_ARGS
 ; used to check term
@@ -134,8 +124,11 @@ TEMP_ORIX_1:
     .res 1
 ORIX_ARGC:
     .res 1
+KERNEL_DRIVER_MEMORY:
+    .res 170
 
-
+.out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
+.out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
 
 
 kernel_end_of_memory_for_kernel:

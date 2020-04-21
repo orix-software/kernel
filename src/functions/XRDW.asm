@@ -11,13 +11,13 @@ XRD3_ROUTINE
 	lda     #$0C
 ; read keyboard	
 Lc7da:
-	sta     work_channel
+	sta     work_channel   ; Save the channel
 	lda     #$04
 	sta     i_o_counter
 	txa
-	PHA
-	TYA
-	PHA
+	pha
+	tya
+	pha
 @loop:
 	ldx     work_channel
 	lda     IOTAB0,x
