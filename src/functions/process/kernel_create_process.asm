@@ -151,17 +151,36 @@ save_command_line:
   ; set to "/" cwd of init process
   ; get the offset
   ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
+  ;jmp     @initialize_to_slash
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ;cpx     #$ff
+  beq     @initialize_to_slash
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  sta     KERNEL_CREATE_PROCESS_PTR1
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  sta     KERNEL_CREATE_PROCESS_PTR1+1
 
+  ldy     #kernel_one_process_struct::cwd_str
+@loop:  
+  lda     (KERNEL_CREATE_PROCESS_PTR1),y
+  beq     @out
+  ;lda     #"/"
+  sta     (RES),y  ; Store / at the first car
+  iny
+  bne     @loop
+@out:  
+  lda     #$00
+  sta     (RES),y  ; Store 0 for the last string
+  jmp     @skip
+
+@initialize_to_slash:
   ldy     #kernel_one_process_struct::cwd_str
   lda     #"/"
   sta     (RES),y  ; Store / at the first car
-
-
-
   iny
   lda     #$00
   sta     (RES),y  ; Store 0 for the last string
-
+@skip:
   ; init child list to $00
   ;ldy     #kernel_one_process_struct::child_pid
   ;ldx     #$00

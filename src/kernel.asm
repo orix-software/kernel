@@ -37,6 +37,8 @@
 KERNEL_XOPEN_PTR1 := $04 ; DECBIN
 KERNEL_XOPEN_PTR2 := $06 ; DECFIN
 
+KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
+
 XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
 XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
 
@@ -4415,11 +4417,9 @@ _strcpy:
   rts
  
 .include  "functions/process/kernel_exec_from_storage.asm"  
-.include  "functions/XOPEN.asm"
+.include  "functions/files/XOPEN.asm"
 .include  "functions/minitel/xligne.asm"
 .include  "functions/serial/xsout.asm"
-
-
   
 add_0_5_A_ACC1:
   lda     #<const_zero_dot_half 
@@ -4431,7 +4431,7 @@ Lef97:
   
 ACC2_ACC1:
   jsr     LF1EC 
-XA2NA1_ROUTINE  
+XA2NA1_ROUTINE:
   lda     ACC1S ;$65 
   eor     #$FF
   sta     ACC1S ; $65
@@ -5254,7 +5254,7 @@ LF487
   sta     MENX
   tay
   rts
-LF491 ; FIXME ??? label seul
+LF491: ; FIXME ??? label seul
   sta     ACC1M
   stx     MENDDY
   ldx     #$90
@@ -5271,29 +5271,29 @@ XA1DEC_ROUTINE:
   ldy     #$00
   lda     #$20
   bit     ACC1S
-  bpl     LF4AF 
+  bpl     @S1
   lda     #$2D
-LF4AF  
+@S1:
   sta     $0100,Y
   sta     ACC1S
   sty     FLSVY
   iny
   lda     #$30
   ldx     ACC1E
-  bne     LF4C0 
+  bne     @S2 
   
   jmp     LF5C8
-LF4C0  
+@S2:
   lda     #$00
   cpx     #$80
-  beq     LF4C8
-  bcs     LF4D1 
-LF4C8  
+  beq     @S3
+  bcs     @S4 
+@S3:
   lda     #<const_for_decimal_convert 
   ldy     #>const_for_decimal_convert
   jsr     LF184 
   lda     #$F7 ; Should be indexed ?.= FIXME
-LF4D1  
+@S4:  
   sta     ACC4M
 LF4D3  
   lda     #<const_999_999_999
