@@ -5,6 +5,7 @@ before_install:
     - sudo apt-get install -y doxygen graphviz
     - sudo pip install --upgrade pip
     - sudo apt-get install mkdocs
+    - echo Current branch ${TRAVIS_BRANCH}
     - ls
     - git clone https://github.com/orix-software/orix-software.github.io.git    
     - cd tools/doxygen && doxygen && cd ../../
