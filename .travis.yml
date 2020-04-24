@@ -4,9 +4,10 @@ before_install:
     - sudo apt-get install -qq git
     - sudo apt-get install -y doxygen graphviz
     - sudo pip install --upgrade pip
-    - sudo pip install mkdocs 
+    - sudo apt-get install mkdocs
     - ls
-    - cd orix-software/kernel/tools/doxygen && doxygen && cd ../../../../
+    - git clone https://github.com/orix-software/orix-software.github.io.git    
+    - cd tools/doxygen && doxygen && cd ../../../../
     - git clone https://github.com/oric-software/buildTestAndRelease.git
     - cd buildTestAndRelease/ && sh make.sh
     - cd ..
