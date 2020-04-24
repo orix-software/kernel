@@ -7,7 +7,7 @@ before_install:
     - sudo apt-get install mkdocs
     - ls
     - git clone https://github.com/orix-software/orix-software.github.io.git    
-    - cd tools/doxygen && doxygen && cd ../../../../
+    - cd tools/doxygen && doxygen && cd ../../
     - git clone https://github.com/oric-software/buildTestAndRelease.git
     - cd buildTestAndRelease/ && sh make.sh
     - cd ..
