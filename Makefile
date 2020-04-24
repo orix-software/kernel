@@ -17,6 +17,15 @@ PROGRAM_NAME=kernel
 MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 
+ifdef TRAVIS_BRANCH
+ifneq ($(TRAVIS_BRANCH), master)
+RELEASE=`cat VERSION`
+endif
+else
+RELEASE=alpha
+endif
+
+
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
 RELEASE_PATH=release/
 init:
@@ -59,9 +68,9 @@ test:
 	filepack  $(PROGRAM_NAME).tar $(PROGRAM_NAME).pkg
 	gzip $(PROGRAM_NAME).tar
 	mv $(PROGRAM_NAME).tar.gz $(PROGRAM_NAME).tgz
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).pkg ${hash} 6502 pkg alpha
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 6502 tgz alpha
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).pkg ${hash} 65c02 pkg alpha
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 65c02 tgz alpha
+	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).pkg ${hash} 6502 pkg $RELEASE
+	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 6502 tgz $RELEASE
+	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).pkg ${hash} 65c02 pkg $RELEASE
+	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 65c02 tgz $RELEASE
   
   
