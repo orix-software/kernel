@@ -112,6 +112,8 @@ start_rom:
 .endif
   ;sty     FLGTEL
 
+
+
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
@@ -136,6 +138,7 @@ start_rom:
   bne     @L1
 @L1:
 .endproc
+
 
 
 next1:
@@ -184,6 +187,9 @@ loading_vectors_telemon:
   sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
   lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
   sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
+  
+; Bug here
+DEBUGME:
 
   lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
   sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
@@ -442,11 +448,6 @@ launch_command:
   stx     BNKCIB
   jmp     _XEXEC ; start shell
 
-;call_routine_in_another_bank  
-  ;sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
-  ;sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
-  ;stx     BNKCIB
-  ;jmp     SWITCH_TO_BANK_ID
 
 routine_to_define_19:
   CLI
@@ -600,7 +601,7 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPR NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.1 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.2 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
@@ -788,7 +789,8 @@ code_adress_493
   sta     VIA2::PRA
   lda     IRQSVA
   RTI
-code_adress_4A1
+
+code_adress_4A1:
   pha
   lda     VIA2::PRA
   and     #$F8
@@ -1780,16 +1782,18 @@ XDIVIS_ROUTINE
 XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "include/libs/ch376_verify.s"
 
+; Files
 .include  "functions/files/xclose.asm"  
 .include  "functions/files/xread.asm"
 .include  "functions/files/xgetcwd.asm"
 .include  "functions/files/xputcwd.asm"
 .include  "functions/files/xwrite.asm"
 .include  "functions/files/xfseek.asm"
-.include  "functions/xdecal.asm"
 .include  "functions/files/xmkdir.asm"  
 .include  "functions/files/xrm.asm"
-.include  "functions/xexec.asm"
+
+.include  "functions/xdecal.asm"
+
 .include  "functions/sound/xepsg.asm"
 .include  "functions/graphics/_xeffhi.asm"
 .include  "functions/clock/_xclcl.asm"
@@ -1798,6 +1802,8 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/xhires.asm"  
 .include  "functions/xtext.asm"
 .include  "functions/memory/xfree.asm"
+; Process
+.include  "functions/process/xexec.asm"
 .include  "functions/process/xfork.asm"
 .include  "functions/mainargs.asm"
 .include  "functions/getargc.asm"
