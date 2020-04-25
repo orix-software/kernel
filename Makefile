@@ -23,7 +23,6 @@ RELEASE=alpha
 endif
 else
 RELEASE:=$(shell cat VERSION)
-$(shell echo VERSION)
 endif
 
 
