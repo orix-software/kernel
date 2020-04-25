@@ -18,10 +18,10 @@ MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 
 ifdef $(TRAVIS_BRANCH)
-ifneq ($(TRAVIS_BRANCH), master)
-RELEASE:=alpha
-else
+ifeq ($(TRAVIS_BRANCH), master)
 RELEASE:=$(shell cat VERSION)
+else
+RELEASE:=alpha
 endif
 endif
 
