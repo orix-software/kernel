@@ -6,7 +6,7 @@ before_install:
     - sudo pip install --upgrade pip
     - sudo pip install mkdocs 
     - ls
-    - cd orix-software/kernel/tools/doxygen && doxygen && cd ../../../../
+    - cd tools/doxygen && doxygen && cd ../../../../
     - git clone https://github.com/oric-software/buildTestAndRelease.git
     - cd buildTestAndRelease/ && sh make.sh
     - cd ..
