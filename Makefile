@@ -69,6 +69,7 @@ test:
 	filepack  $(PROGRAM_NAME).tar $(PROGRAM_NAME).pkg
 	gzip $(PROGRAM_NAME).tar
 	mv $(PROGRAM_NAME).tar.gz $(PROGRAM_NAME).tgz
+	echo Release : $(RELEASE)
 	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 6502 tgz $(RELEASE)
 	
   
