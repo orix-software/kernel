@@ -6100,7 +6100,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.1"
+  .asciiz     "Kernel v2020.2"
   .byt     __DATE__
 .IFPC02
 .pc02
