@@ -1,9 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
 
-; reproduction du bug : 12 fois l
-
-
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
@@ -34,8 +31,8 @@
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 
-KERNEL_XOPEN_PTR1 := $04 ; DECBIN
-KERNEL_XOPEN_PTR2 := $06 ; DECFIN
+KERNEL_XOPEN_PTR1     := $04 ; DECBIN
+KERNEL_XOPEN_PTR2     := $06 ; DECFIN
 
 KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
 
@@ -6113,12 +6110,6 @@ signature:
   .byt     " 6502"
 .endif  
   .byt     $00
-
-kernel_version:
-  .byt 0
-  .byt 0
-  .byt 1
-  .byt 1 ; patch
 
 free_bytes: ; 26 bytes
   .res     $FFF8-*
