@@ -17,8 +17,8 @@ PROGRAM_NAME=kernel
 MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 
-ifdef ${TRAVIS_BRANCH}
-ifneq (${TRAVIS_BRANCH}, master)
+ifdef $(TRAVIS_BRANCH)
+ifneq ($(TRAVIS_BRANCH), master)
 RELEASE=alpha
 endif
 else
