@@ -22,7 +22,7 @@ ifneq ($(TRAVIS_BRANCH), master)
 RELEASE=alpha
 endif
 else
-RELEASE=`cat VERSION`
+REALEASE:=$(shell cat VERSION)
 endif
 
 
