@@ -19,7 +19,7 @@ MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 ifdef $(TRAVIS_BRANCH)
 ifneq ($(TRAVIS_BRANCH), master)
-RELEASE=alpha
+RELEASE:=alpha
 else
 RELEASE:=$(shell cat VERSION)
 endif
@@ -34,7 +34,7 @@ init:
 	@mkdir -p build/usr/share/ipkg/
 	@mkdir -p build/usr/share/man/  
 	@mkdir -p build/usr/share/doc/$(PROGRAM_NAME)/
-	@mkdir -p build/usr/include/orix/
+	@mkdir -p build/usr/include/kernel/
 	@mkdir -p build/usr/src/kernel/
   
 kernel: $(SOURCE)
@@ -68,9 +68,7 @@ test:
 	filepack  $(PROGRAM_NAME).tar $(PROGRAM_NAME).pkg
 	gzip $(PROGRAM_NAME).tar
 	mv $(PROGRAM_NAME).tar.gz $(PROGRAM_NAME).tgz
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).pkg ${hash} 6502 pkg $(RELEASE)
 	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 6502 tgz $(RELEASE)
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).pkg ${hash} 65c02 pkg $(RELEASE)
-	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 65c02 tgz $(RELEASE)
+
   
   
