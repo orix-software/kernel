@@ -440,17 +440,14 @@ launch_command:
 @S1:
   sta     BUFEDT,y
 
-
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
-  ldx     #$05
-  stx     BNKCIB
   jmp     _XEXEC ; start shell
 
 
 routine_to_define_19:
-  CLI
+  cli
 .ifdef WITH_TWILIGHTE_BOARD
 .else  
   lda     #$02
@@ -744,8 +741,8 @@ code_adress_436:
   jsr     $046A ; see code_adress_46A  
  
   pla
-  PLP
-  jsr     VEXBNK
+  plp
+  jsr     VEXBNK ; Used in monitor
 
   php
   sei
@@ -788,12 +785,12 @@ code_adress_493
   ora     BNKOLD
   sta     VIA2::PRA
   lda     IRQSVA
-  RTI
+  rti
 
 code_adress_4A1:
   pha
   lda     VIA2::PRA
-  and     #$F8
+  and     #%11111000 ;‭11111000‬
   ora     BNK_TO_SWITCH
   sta     VIA2::PRA
   pla
@@ -821,7 +818,7 @@ code_adress_4AF
   nop
   nop
   ; Stack used to switch from any bank
-code_adress_get
+code_adress_get:
 ; used in bank command in Oric
 
   lda     VIA2::PRA
@@ -839,11 +836,12 @@ code_adress_get
   sta     VIA2::PRA
   pla                                ; Get the value
   rts
-RETURN_BANK:
-  .res    1
+;RETURN_BANK:
+ ; .res    1
 end_of_copy_page4:
 ; THIS ROUTINE IS COPIED IN $700 and will be in overlay RAM
-data_to_define_4  
+; it can manage buffers
+data_to_define_4:
   ; should be length 256 bytes ?
   bcc     LC639  
   bvc     LC5FE  
@@ -882,7 +880,7 @@ LC5FE:
   dey
   bpl     @loop
 
-LC61E  
+LC61E:
   lda     #$00
   ; see page 4 of "Manuel Developpeur Telestrat"
   sta     BUFBUF+8,x ; get length low
@@ -944,9 +942,9 @@ LC661
   inc     BUFBUF+9,X 
 LC688:  
   ; 65C02 FIXME : use sta (XX)
-  ldy #$00
+  ldy     #$00
   pla
-  sta (IRQSVP),Y
+  sta     (IRQSVP),Y
   clc
   rts
 LC68F:
@@ -1886,15 +1884,15 @@ XVARS_ROUTINE:
   rts
 
 XVARS_TABLE:
-XVARS_TABLE_LOW;
-  .byt <kernel_process
-  .byt <kernel_malloc
-  .byt <KERNEL_CH376_MOUNT
+XVARS_TABLE_LOW:
+  .byt     <kernel_process
+  .byt     <kernel_malloc
+  .byt     <KERNEL_CH376_MOUNT
   
-XVARS_TABLE_HIGH
-  .byt >kernel_process
-  .byt >kernel_malloc
-  .byt >KERNEL_CH376_MOUNT
+XVARS_TABLE_HIGH:
+  .byt     >kernel_process
+  .byt     >kernel_malloc
+  .byt     >KERNEL_CH376_MOUNT
   
 XMINMA_ROUTINE:
   cmp     #"a" ; 'a'
@@ -1905,10 +1903,10 @@ XMINMA_ROUTINE:
 @skip:
   rts
 
-CTRL_G_KEYBOARD ; Send oups
+CTRL_G_KEYBOARD: ; Send oups
   jmp     XOUPS_ROUTINE 
 
-CTRL_O_KEYBOARD
+CTRL_O_KEYBOARD:
   rts
 
 .include "functions/_manage_keyboard.asm"
@@ -2320,24 +2318,24 @@ LDB2F
 .endif
 
   rts
-                           ;                                      < I
+                          ;                                      < I
 LDB3A
-  bcs     LDB53            ;     C=1 on ferme ==================================  I
+  bcs     LDB53           ;     C=1 on ferme ==================================  I
 
 .ifdef    WITH_ACIA
-  lda     ACIACR           ;     ouverture                                      > I
-  and     #$02             ;      ACIACR ? 0 sauf b1                             I I
-  ora     #$65             ;      %01101001, bits forc?s ? 1                     I I
+  lda     ACIACR          ;     ouverture                                      > I
+  and     #$02            ;      ACIACR à 0 sauf b1                             I I
+  ora     #$65            ;      %01101001, bits forcés ? 1                     I I
 Ldb43
-  sta     ACIACR           ;     dans ACIACR <----------------------------------+--
+  sta     ACIACR          ;     dans ACIACR <----------------------------------+--
 .endif
 
 .ifdef WITH_ACIA
-  lda     #$38             ;     %00111000 dans ACIACT                          I  
-  sta     ACIACT           ;                                                    I  
+  lda     #$38            ;     %00111000 dans ACIACT                          I  
+  sta     ACIACT          ;                                                    I  
 .endif
 LDB53
-  rts                      ;     et on sort--------------------------------------  
+  rts                     ;     et on sort--------------------------------------  
 
 .ifdef WITH_ACIA  
 init_rs232:

@@ -15,11 +15,6 @@ TRANSITION_RS232:= $1E;  3 bytes
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
 VIA_UNKNOWN     :=$028F ; seems tobe a backup of timer  2 bytes
 
-TELEMON_ID_BANK   		= $07
-ATMOS_ID_BANK     		= $06
-ORIX_ID_BANK      		= $05
-MONITOR_ID_BANK   		= $04
-
 ORIX_MEMORY_DRIVER_ADDRESS:=$400
 SWITCH_TO_BANK_ID              :=     $040C
 ;NEXT_STACK_BANK:=$418
@@ -74,9 +69,9 @@ KERNEL_ERRNO:
 
 .bss
 .org $4C7
-FIXME_DUNNO
+FIXME_DUNNO:
 .res 1
-STACK_BANK
+STACK_BANK:
 .res SIZE_OF_STACK_BANK
 READ_BYTE_FROM_OVERLAY_RAM
 ; this contains a routine length : 20 bytew
@@ -118,14 +113,14 @@ kernel_end_of_variables_before_BUFEDT:
 .org BUFEDT
 .res 110
 ORIX_ARGV:
-	.res    MAX_LENGTH_OF_FILES*BASH_MAX_ARGS
+	.res    KERNEL_MAX_LENGTH_OF_FILES*BASH_MAX_ARGS
 ; used to check term
 TEMP_ORIX_1:
     .res 1
 ORIX_ARGC:
     .res 1
 KERNEL_DRIVER_MEMORY:
-    .res 170
+    .res 152
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)

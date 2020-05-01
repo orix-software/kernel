@@ -8,10 +8,8 @@
 
 .define PATH_CURRENT_MAX_LEVEL                    4 ; Only in telemon 3.0 number of level, if we add more, we should have more RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
 .define MAX_LENGTH_OF_FILES                       8+3+1+1 ;  We say 8 chars for file  and end of string 
+.define KERNEL_MAX_LENGTH_OF_FILES                       8+3+1+1 ;  We say 8 chars for file  and end of string 
 
-MAX_LENGTH_OF_A_COMMAND = 9
-
-.define MAX_LENGTH_OF_A_COMMAND       9
 
 .define ORIX_MAX_PATH_LENGTH                      MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
 
@@ -29,8 +27,8 @@ MAX_LENGTH_OF_A_COMMAND = 9
 ; * numbers of levels on filesystem /usr/share/ means 2 levels
 ; * It means that OS can't enter in directory folder :  /usr/share/folder/ if it's set to 2
 ; You can increase this number but when this number is increased, there is more memory consumed for many features
-.define KERNEL_PATH_CURRENT_MAX_LEVEL  PATH_CURRENT_MAX_LEVEL  
-.define KERNEL_MAX_LENGTH_OF_FILES     MAX_LENGTH_OF_FILES
+;.define KERNEL_PATH_CURRENT_MAX_LEVEL  PATH_CURRENT_MAX_LEVEL  
+
 
 
 

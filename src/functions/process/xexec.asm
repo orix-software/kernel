@@ -61,8 +61,8 @@ out1:
     ; Back to calling bank
 exit:  
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
-   ; sta     BNKOLD
-   ; sta     BNK_TO_SWITCH    
+    sta     BNKOLD
+    sta     BNK_TO_SWITCH    
   
     lda     #EOK
     rts

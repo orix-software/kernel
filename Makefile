@@ -16,15 +16,13 @@ PROGRAM_NAME=kernel
 
 MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
-
-ifdef $(TRAVIS_BRANCH)
+ifdef TRAVIS_BRANCH
 ifeq ($(TRAVIS_BRANCH), master)
 RELEASE:=$(shell cat VERSION)
 else
 RELEASE:=alpha
 endif
 endif
-
 
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
 RELEASE_PATH=release/
