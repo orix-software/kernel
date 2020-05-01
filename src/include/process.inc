@@ -30,7 +30,7 @@
 .out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
 .out     .sprintf("KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): %s", .string(KERNEL_MAX_FP_PER_PROCESS))
 .out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s", .string(KERNEL_USERZP_SAVE_LENGTH))
-.out     .sprintf("KERNEL_LENGTH_MAX_CMDLINE                                : %s", .string(KERNEL_MAX_CMDLINE))
+.out     .sprintf("KERNEL_LENGTH_MAX_CMDLINE                                : %s", .string(KERNEL_LENGTH_MAX_CMDLINE))
 
 .out     .sprintf("kernel_process_struct size (struct init process)         : %s bytes", .string(.sizeof(kernel_process_struct)))
 
