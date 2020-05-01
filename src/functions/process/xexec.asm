@@ -42,14 +42,21 @@ next:
     jsr     kernel_try_to_find_command_in_bin_path
 
     cmp     #EOK
-    beq     out1
-
+    beq     out_from_bin
 
 ; Exit
 
-;    ldx     KERNEL_KERNEL_XEXEC_BNKOLD
- ;   stx     BNKOLD
+    ldx     KERNEL_KERNEL_XEXEC_BNKOLD
+    stx     BNKOLD
 
+    rts
+
+out_from_bin:
+    lda     KERNEL_KERNEL_XEXEC_BNKOLD
+    sta     BNKOLD
+    sta     BNK_TO_SWITCH    
+  
+    lda     #EOK
     rts
 
 out1:
@@ -60,9 +67,9 @@ out1:
 ;
     ; Back to calling bank
 exit:  
-    lda     KERNEL_KERNEL_XEXEC_BNKOLD
-    sta     BNKOLD
-    sta     BNK_TO_SWITCH    
+    ;lda     KERNEL_KERNEL_XEXEC_BNKOLD
+    ;sta     BNKOLD
+    ;sta     BNK_TO_SWITCH    
   
     lda     #EOK
     rts
