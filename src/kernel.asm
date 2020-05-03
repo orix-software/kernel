@@ -2417,7 +2417,7 @@ skipme2000:
   jmp     LDECE    ;  ouverture      I      
 @S1:
   pla          ;  on lit la donnée <
-  sta     SCRNB+1      ;  que l'on sauve
+ ; sta     SCRNB+1      ;  que l'on sauve
 
 Ldbb5:
 
@@ -2813,7 +2813,7 @@ CTRL_HOME_START:
   sta     SCRX,X   ;  dans SCRX                                         
   lda     SCRDY,X  ;  la première ligne dans                            
   sta     SCRY,X   ;  SCRY                                              
-LDE07
+LDE07:
   lda     SCRY,X   ;  et on calcule l'adresse                           
   jsr     LDE12    ;  de la ligne                                       
   sta     ADSCR    ;  dans ADSCR                                        
