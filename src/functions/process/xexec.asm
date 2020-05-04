@@ -4,6 +4,19 @@
     ; A & Y contains the string command to execute
     sta     TR0        ; Save string pointer
     sty     TR1        ;
+    ; Copy in BUFEDT
+    ldy     #$00
+@L7:    
+    lda     (TR0),y
+    beq     @S6
+    sta     BUFEDT,y
+    iny
+    cpy     #110
+    bne     @L7
+
+@S6:
+    lda     #$00
+    sta     BUFEDT,y
 
 @S1:
     ; ok then execute
@@ -52,6 +65,9 @@ next:
     rts
 
 out_from_bin:
+
+
+
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNKOLD
     sta     BNK_TO_SWITCH    
