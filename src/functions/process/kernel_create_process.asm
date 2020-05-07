@@ -39,6 +39,9 @@ jsr   xdebug_enter_create_process_XMALLOC
 
   lda     #KERNEL_ERRNO_MAX_PROCESS_REACHED
   sta     KERNEL_ERRNO
+
+
+
   lda     #NULL
   ldy     #NULL  
 
@@ -153,7 +156,7 @@ save_command_line:
   ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
   ;jmp     @initialize_to_slash
   ldx     kernel_process+kernel_process_struct::kernel_current_process
-  ;cpx     #$ff
+  cpx     #$01
   beq     @initialize_to_slash
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     KERNEL_CREATE_PROCESS_PTR1

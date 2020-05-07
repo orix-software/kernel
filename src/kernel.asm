@@ -321,7 +321,7 @@ display_cursor:
 
 
 
-  lda     #$00  ; Init
+  lda     #$01  ; Init
   ; Set process foreground 
 
   sta     kernel_process+kernel_process_struct::kernel_current_process 
@@ -334,6 +334,10 @@ display_cursor:
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   dex
   bpl     @loop
+
+  ; register init process
+  lda     #$01
+  sta     kernel_process+kernel_process_struct::kernel_pid_list
 
 init_process_init_in_struct:
   ldx     #$00
@@ -357,8 +361,6 @@ init_process_init_cwd_in_struct:
 @S1:  
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
 
-  lda     #$FF   ; Init PID = 1 but index = 0
-  sta     kernel_process+kernel_process_struct::kernel_pid_list
   
   
   lda     #KERNEL_ERRNO_OK
@@ -595,7 +597,7 @@ IRQVECTOR_CODE:
   .byt    $00 ; will be stored in $2FF
 
 
-; **************************** END LOOP ON DEVELOPPR NAME !*/
+; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
   .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.2 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
@@ -779,7 +781,7 @@ code_adress_47E:  ; brk gestion
   ora     #$07
   sta     VIA2::PRA
   jmp     brk_management   
-code_adress_493
+code_adress_493:
   lda     VIA2::PRA
   and     #$F8
   ora     BNKOLD
@@ -2408,7 +2410,7 @@ output_window2
 output_window3:
   pha                                                              
   php                                                              
-  lda     #$03     ; fen?tre 3
+  lda     #$03     ; Window 3
 skipme2000:
 
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
@@ -2436,6 +2438,7 @@ Ldbb5:
   
   lda     SCRNB+1
   cmp     #" "       ; is it greater than space ?
+  ;jmp     Ldc4c      ;Caractère de controle possibles
   bcs     Ldc4c      ; yes let's displays it.
 Ldbce   ; $d27e
   lda     FLGSCR,X

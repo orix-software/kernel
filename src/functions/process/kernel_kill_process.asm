@@ -1,4 +1,4 @@
-; Parameter in : X id of the PID to kill
+; Parameter in : A id of the PID to kill
 
 .proc      kernel_kill_process
     
@@ -7,13 +7,11 @@
 ; ***********************************************************************************************************************
   ; at this step, it's not possible to kill init (ID = 0)
 
-  cmp     #$FF ; is it init 
+  cmp     #$01 ; is it init 
   beq     @skip_load_zp  ; For instance, we don't load zp because all are reserved for init
 
   ; destroy it's own memory chunks
-
-
-
+  ;sta     RES
 
 
   ldx     #$00
@@ -42,7 +40,7 @@
   pla
   jmp     @L2
              
-@all_chunk_are_free
+@all_chunk_are_free:
   ; get the PPID  
   tax
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x

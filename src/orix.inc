@@ -128,7 +128,7 @@ KERNEL_DRIVER_MEMORY:
 
 kernel_end_of_memory_for_kernel:
 
-.out     .sprintf("kernel_end_of_memory_for_kernel  : %x", kernel_end_of_memory_for_kernel)
+.out     .sprintf("kernel_end_of_memory_for_kernel (malloc will start at this adress) : %x", kernel_end_of_memory_for_kernel)
 
 kernel_end_of_variables_after_BUFEDT:    
 .if     kernel_end_of_variables_after_BUFEDT > $7FF

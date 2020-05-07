@@ -2,7 +2,6 @@
 
 .proc XFREE_ROUTINE
 
-
 .ifdef WITH_DEBUG
     jsr     xdebug_enter_XFREE
 .endif
@@ -24,13 +23,16 @@
   cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @search_busy_chunk
   
+
+
   ; We did not found this busy chunk, return 0 in A
   
   lda     #NULL
   
   rts
 
-@busy_chunk_found
+@busy_chunk_found:
+
   ; Free now 
   ; TODO check process
   ; at this step X is on the right busy table
