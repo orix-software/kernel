@@ -104,7 +104,16 @@
 @skip4:
     
     ; register process in malloc table 
-    lda     kernel_process+kernel_process_struct::kernel_current_process
+    ;lda     KERNEL_MALLOC_TYPE
+    ;cmp     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE ; Is it a kernel create process ?
+    ;beq     @not_kernel_create_process_malloc
+    
+    ;lda     #$01   ; store init process in malloc_pid_list
+    ;bne     @store
+
+;@not_kernel_create_process_malloc:    
+    ;lda     kernel_process+kernel_process_struct::kernel_current_process
+@store:      
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     
 .ifdef WITH_DEBUG

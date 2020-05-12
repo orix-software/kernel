@@ -1,6 +1,6 @@
 XWR0_ROUTINE
-	PHA                     ; Push byte to write
-	LDA     #$00
+	pha                     ; Push byte to write
+	lda     #$00
 
 	BEQ     skip2_XWR0_ROUTINE
 XWR1_ROUTINE	
@@ -16,23 +16,23 @@ XWR3_ROUTINE
 	LDA     #$0C
 skip2_XWR0_ROUTINE:
 
-	STA     work_channel
-	PLA                      ; Get byte to write
+	sta     work_channel
+	pla                      ; Get byte to write
 XWSTR0_re_enter_from_XDECAL:
-	STA     i_o_save         ; save the byte to write in I_O_save
-	LDA     #$04
-	STA     i_o_counter
-	TXA
-	PHA
-	TYA
-	PHA
+	sta     i_o_save         ; save the byte to write in I_O_save
+	lda     #$04
+	sta     i_o_counter
+	txa		; X contains the id of the window
+	pha
+	tya
+	pha
 
 @loop2:
-	LDX     work_channel    ; It contains the value of the I/O 
-	LDA     IOTAB0,X        ; X contains 0, 4, 8 $0c
-	CMP     #$88
-	BCC     @skip            ; If it's higher than $88, it means that it's not an input 
-	ASL                     ; It's an input set it *2
+	ldx     work_channel    ; It contains the value of the I/O 
+	lda     IOTAB0,X        ; X contains 0, 4, 8 $0c
+	cmp     #$88
+	bcc     @skip            ; If it's higher than $88, it means that it's not an input 
+	asl                     ; It's an input set it *2
 	TAX                     ; 
 	LDA     ADIOB,X         ; GET vectors  
 	STA     ADIODB_VECTOR+1

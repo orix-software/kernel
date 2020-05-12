@@ -10,16 +10,17 @@
   cmp     #$01 ; is it init 
   beq     @skip_load_zp  ; For instance, we don't load zp because all are reserved for init
 
+
   ; destroy it's own memory chunks
   ;sta     RES
 
-
+; Try to find all malloc from this process
   ldx     #$00
 @L2:  
   ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-  beq     @skip
+  beq     @skip             ; is it 0 ? Yes it's a free chunk
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
-  cpx     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save X
+  cpy     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save X
   beq     @erase_chunk
   
   ;cpx     
@@ -92,6 +93,7 @@
   bne     @L1
 
 @skip_load_zp: 
+
   ; destroy process
   ;lda  #<str_destroyed
   ;ldy  #>str_destroyed

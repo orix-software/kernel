@@ -57,6 +57,9 @@ jsr   xdebug_enter_create_process_XMALLOC
 
 
 ; Malloc process for init process
+  lda     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE
+  sta     KERNEL_MALLOC_TYPE
+
   lda     #<.sizeof(kernel_one_process_struct)
   ldy     #>.sizeof(kernel_one_process_struct)
 
@@ -68,7 +71,8 @@ jsr   xdebug_enter_create_process_XMALLOC
   cpy     #NULL
   bne     @S2
   ; erreur OOM
-
+  lda     #KERNEL_UNKNOWN_MALLOC_TYPE
+  sta     KERNEL_MALLOC_TYPE
   lda     #$02
   rts
 @S2:
@@ -83,6 +87,8 @@ jsr   xdebug_enter_create_process_XMALLOC
 
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sty     RES+1
+
+
 
   ; prepare to copy 'process' string
 

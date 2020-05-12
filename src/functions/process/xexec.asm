@@ -57,10 +57,15 @@ next:
     cmp     #EOK
     beq     out_from_bin
 
+
+
+    ;lda     KERNEL_DRIVER_MEMORY
+
 ; Exit
 
-    ldx     KERNEL_KERNEL_XEXEC_BNKOLD
-    stx     BNKOLD
+    ;ldx     KERNEL_KERNEL_XEXEC_BNKOLD
+    ;stx     BNKOLD
+    ;stx     BNK_TO_SWITCH    
 
     rts
 
@@ -69,11 +74,11 @@ out_from_bin:
 
 
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
-    sta     BNKOLD
+    ;sta     BNKOLD
     sta     BNK_TO_SWITCH    
   
     lda     #EOK
-    rts
+    ;rts
 
 out1:
 
