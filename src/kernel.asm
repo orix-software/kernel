@@ -322,10 +322,7 @@ display_cursor:
 
 
 
-  lda     #$01  ; Init
-  ; Set process foreground 
 
-  sta     kernel_process+kernel_process_struct::kernel_current_process 
 
   lda     #$00
   ldx     #(KERNEL_MAX_PROCESS-1)
@@ -336,8 +333,13 @@ display_cursor:
   dex
   bpl     @loop
 
+
+  lda     #$01  ; Init
+  ; Set process foreground 
+
+  sta     kernel_process+kernel_process_struct::kernel_current_process 
   ; register init process
-  lda     #$01
+  ;lda     #$01
   sta     kernel_process+kernel_process_struct::kernel_pid_list
 
 init_process_init_in_struct:
