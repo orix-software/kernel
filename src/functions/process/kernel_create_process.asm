@@ -40,8 +40,6 @@ jsr   xdebug_enter_create_process_XMALLOC
   lda     #KERNEL_ERRNO_MAX_PROCESS_REACHED
   sta     KERNEL_ERRNO
 
-
-
   lda     #NULL
   ldy     #NULL  
 
@@ -51,9 +49,14 @@ jsr   xdebug_enter_create_process_XMALLOC
 
   ;stx     kernel_process+kernel_process_struct::kernel_current_process
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
- ; inx
+  ;inx
   txa
+  tay
+  iny
+  tya
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
+
+  
 
 
 ; Malloc process for init process
@@ -202,8 +205,9 @@ save_command_line:
 
 
   ; Set pid number in the struct
-  lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  sta     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  ;inx
+  stx     kernel_process+kernel_process_struct::kernel_current_process
   rts
 
   ; at this step, list pid contains 1 : init
