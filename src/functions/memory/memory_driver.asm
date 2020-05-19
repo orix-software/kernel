@@ -74,11 +74,11 @@ read_command_from_bank_driver_command_found:
     lda     (RES),y
 
 read_command_from_bank_driver_patch1:    
-    sta     $dead           ; Will store in read_command_from_bank_driver_to_patch
+    sta     VEXBNK+1           ; Will store in read_command_from_bank_driver_to_patch
     iny
     lda     (RES),y
 read_command_from_bank_driver_patch2:        
-    sta     $dead           ; Will store in read_command_from_bank_driver_to_patch
+    sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
 
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
@@ -98,7 +98,7 @@ read_command_from_bank_driver_patch2:
 	ldy     TR1                            ; send command line in A & Y
 read_command_from_bank_driver_to_patch:
 
-    jsr     $dead
+    jsr     VEXBNK
 
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon

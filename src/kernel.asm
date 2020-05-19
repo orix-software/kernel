@@ -184,18 +184,18 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop2
 
-  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
-  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
+  ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+;  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
+ ; lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
   
 ; Bug here
 DEBUGME:
 
-  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
-  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
+  ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
+  ;lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
 
   ;sta     KERNEL_DRIVER_MEMORY,x
 
@@ -321,9 +321,6 @@ display_cursor:
   ; Init PID tables and structs
 
 
-
-
-
   lda     #$00
   ldx     #(KERNEL_MAX_PROCESS-1)
 @loop:
@@ -334,12 +331,16 @@ display_cursor:
   bpl     @loop
 
 
-  lda     #$01  ; Init
+; kernel_process+kernel_process_struct::kernel_current_process  doit contenir l'offset dans kernel_process+kernel_process_struct::kernel_pid_list
+; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
+
+
+  lda     #$00  ; Init
   ; Set process foreground 
 
   sta     kernel_process+kernel_process_struct::kernel_current_process 
   ; register init process
-  ;lda     #$01
+  lda     #$01
   sta     kernel_process+kernel_process_struct::kernel_pid_list
 
 init_process_init_in_struct:
@@ -841,6 +842,9 @@ code_adress_get:
   sta     VIA2::PRA
   pla                                ; Get the value
   rts
+stack_bank_management:  
+  ;sta     BNKOLD ; store old bank before interrupt ?
+  ;lda     VIA2::PRA  ; Switch to telemon bank and jump  
 ;RETURN_BANK:
  ; .res    1
 end_of_copy_page4:
