@@ -71,15 +71,15 @@ KERNEL_ERRNO:
 .org $4C7
 FIXME_DUNNO:
 .res 1
-STACK_BANK:
-.res SIZE_OF_STACK_BANK
+
 READ_BYTE_FROM_OVERLAY_RAM
 ; this contains a routine length : 20 bytew
 .res 20
 
 .bss
 .org $500
-
+STACK_BANK:
+    .res SIZE_OF_STACK_BANK 
 kernel_ch376_current_mode_fs:
     .res 1 ; FIXME
 
@@ -87,7 +87,7 @@ kernel_end_of_variables_before_BUFNOM:
 KERNEL_TMP_XEXEC:
     .res 1
 .if  kernel_end_of_variables_before_BUFNOM > BUFNOM
-  .error  "Error BUFNOM is written by kernel variables try to move some variables in orix.inc after BUFNOM or BUFEDT"
+  .error  "Error BUFNOM is written by kernel variables try to move some variables in kernel.inc after BUFNOM or BUFEDT"
 .endif    
 
 .bss
@@ -106,7 +106,7 @@ kernel_process:
     
 kernel_end_of_variables_before_BUFEDT:    
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
-  .error  "Error BUFEDT is written by kernel variables try to move some variables in orix.inc after $590"
+  .error  "Error BUFEDT is written by kernel variables try to move some variables in kernel.inc after $590"
 .endif    
 
 .bss
@@ -132,7 +132,7 @@ kernel_end_of_memory_for_kernel:
 
 kernel_end_of_variables_after_BUFEDT:    
 .if     kernel_end_of_variables_after_BUFEDT > $7FF
-  .error  "Error start of execution program for binary ($800) is written by kernel variables try to move some variables in orix.inc before $800"
+  .error  "Error start of execution program for binary ($800) is written by kernel variables try to move some variables in kernel.inc before $800"
 .endif    
 
 

@@ -24,7 +24,7 @@
 
 
 .include   "orix.mac"
-.include   "orix.inc"
+.include   "kernel.inc"
 .include   "build.inc"
 
 
@@ -618,7 +618,7 @@ kernel_memory_driver_to_copy_begin:
 .include "functions/memory/memory_driver.asm"
 kernel_memory_driver_to_copy_end:
   
-.warning     .sprintf("Size of memory driver  : %d bytes, verify in orix.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
+.warning     .sprintf("Size of memory driver  : %d bytes, verify in kernel.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
 
 str_KORAM:
   .ASCIIZ  " Ko RAM,"
