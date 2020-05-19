@@ -7,9 +7,10 @@
 ; ***********************************************************************************************************************
   ; at this step, it's not possible to kill init (ID = 0)
 
-  cmp     #$01 ; is it init 
+  ;cmp     #$00 ; is it init 
   beq     @skip_load_zp  ; For instance, we don't load zp because all are reserved for init
-
+  
+  sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
 
   ; destroy it's own memory chunks
   ;sta     RES
@@ -19,7 +20,7 @@
 @L2:  
   ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
   beq     @skip             ; is it 0 ? Yes it's a free chunk
-  sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
+  
   cpy     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save X
   beq     @erase_chunk
   
@@ -31,12 +32,13 @@
   bne     @L2
   beq     @all_chunk_are_free
 @erase_chunk:
-
   pha
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
   ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
   jsr     XFREE_ROUTINE
+  
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   pla
   jmp     @L2
