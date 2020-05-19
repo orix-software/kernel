@@ -72,12 +72,16 @@ KERNEL_XFREE_TMP:
     .res 1
 KERNEL_XKERNEL_CREATE_PROCESS_TMP:
     .res 1
-KERNEL_KERNEL_XEXEC_TMP:
+KERNEL_TMP_XEXEC:
     .res 1
 KERNEL_KERNEL_XEXEC_BNKOLD:
     .res 1
 KERNEL_MALLOC_TYPE:
     .res 1
+KERNEL_END_PROCESS_VARIABLES:
+.if  KERNEL_END_PROCESS_VARIABLES > FLGTEL
+  .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
+.endif    
 
 .bss
 .org $4C7
@@ -92,12 +96,9 @@ READ_BYTE_FROM_OVERLAY_RAM
 .org $500
 STACK_BANK:
     .res SIZE_OF_STACK_BANK 
-kernel_ch376_current_mode_fs:
-    .res 1 ; FIXME
 
 kernel_end_of_variables_before_BUFNOM:
-KERNEL_TMP_XEXEC:
-    .res 1
+
 .if  kernel_end_of_variables_before_BUFNOM > BUFNOM
   .error  "Error BUFNOM is written by kernel variables try to move some variables in kernel.inc after BUFNOM or BUFEDT"
 .endif    
@@ -108,10 +109,6 @@ KERNEL_TMP_XEXEC:
 kernel_malloc:
     .tag    kernel_malloc_struct
 
-.ifdef WITH_DEBUG
-kernel_debug:
-    .tag   kernel_debug_struct
-.endif
 
 kernel_process:
     .tag    kernel_process_struct
@@ -132,7 +129,7 @@ TEMP_ORIX_1:
 ORIX_ARGC:
     .res 1
 KERNEL_DRIVER_MEMORY:
-    .res 163
+    .res 159
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
