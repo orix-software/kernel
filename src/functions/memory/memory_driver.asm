@@ -101,7 +101,7 @@ read_command_from_bank_driver_patch2:
 	lda     TR0
 	ldy     TR1                            ; send command line in A & Y
 read_command_from_bank_driver_to_patch:
-
+   ; jsr     $436
     jsr     VEXBNK
 
     lda     VIA2::PRA

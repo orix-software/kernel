@@ -64,16 +64,6 @@ ACIASR := $031D ; STATUS REGISTER
 ACIACR := $031E ; command register
 ACIACT := $031F ; control register
 
-KERNEL_KO_RAM_AVAILABLE           := $200 ; 16 bits
-KERNEL_KO_ROM_AVAILABLE           := $202 ; 16 bits
-KERNEL_CH376_MOUNT                := $203
-KERNEL_XFREE_TMP                  := $204
-KERNEL_XKERNEL_CREATE_PROCESS_TMP := $205
-KERNEL_KERNEL_XEXEC_TMP           := $206
-KERNEL_KERNEL_XEXEC_BNKOLD        := $207
-KERNEL_MALLOC_TYPE                := $208  ; One byte
-
-
 .org      $C000
 .code
 start_rom:
@@ -762,7 +752,7 @@ code_adress_436:
   pla
   tax
   pla
-  PLP
+  plp
   rts	
 
 code_adress_46A:
@@ -774,8 +764,9 @@ code_adress_46A:
   and     #$F8
   ora     FIXME_DUNNO
   sta     VIA2::PRA
-  PLP
+  plp
   rts
+
 code_adress_47E:  ; brk gestion 
   sta     IRQSVA
   lda     VIA2::PRA
@@ -1069,7 +1060,7 @@ adress_of_adiodb_vector:
   .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
   .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
   .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  
+
 brk_management:
   ; management of BRK $XX
   ; on the stack we have 
@@ -1141,7 +1132,7 @@ reset115_labels:
   ldy     IRQSVY
   ldx     IRQSVX
 .endif
-  RTI
+  rti
 next200
   lda     IRQSVP ; fetch P flag
   pha ; push P flag to return in correct state
@@ -1849,18 +1840,18 @@ test_if_all_buffers_are_empty:
 
   sec
   .byt    $24 ; jump
-XBUSY_ROUTINE  
+XBUSY_ROUTINE: 
   clc
   ror     ADDRESS_READ_BETWEEN_BANK
   ldx     #$00
-Lcfb6  
+@L1:  
   jsr     XTSTBU_ROUTINE 
   bcc     @S1 
   txa
   adc     #$0B
   tax
   cpx     #$30
-  bne     Lcfb6 
+  bne     @L1 
 @S1:
   php
   lda     #<table_to_define_prompt_charset

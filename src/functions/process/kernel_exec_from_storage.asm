@@ -19,7 +19,6 @@ RESE := DECCIB
     sty     RES+1
 
 
-
     lda     #<(.strlen("/bin/")+8+1) ; 5 because /bin/ & 8 because length can't be greater than 8 for the command
     ldy     #>(.strlen("/bin/")+8+1)
     jsr     XMALLOC_ROUTINE
@@ -134,11 +133,8 @@ RESE := DECCIB
     pha
     tya
     pha
-    ; free tmp string
-    lda     RESB
-    ldy     RESB+1
-    jsr     XFREE_ROUTINE
 
+; ps, lsmem, file, lsmem
 
     pla
     sta     RESC+1   ; save fp
@@ -149,6 +145,11 @@ RESE := DECCIB
     ; free fp
     lda     RESC
     ldy     RESC+1
+    jsr     XFREE_ROUTINE
+    
+    ; free tmp string
+    lda     RESB
+    ldy     RESB+1
     jsr     XFREE_ROUTINE
 
 

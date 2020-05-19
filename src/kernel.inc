@@ -66,6 +66,18 @@ ptr1:=$32
 .org $200
 KERNEL_ERRNO:
     .res 1
+KERNEL_CH376_MOUNT:
+    .res 1
+KERNEL_XFREE_TMP:
+    .res 1
+KERNEL_XKERNEL_CREATE_PROCESS_TMP:
+    .res 1
+KERNEL_KERNEL_XEXEC_TMP:
+    .res 1
+KERNEL_KERNEL_XEXEC_BNKOLD:
+    .res 1
+KERNEL_MALLOC_TYPE:
+    .res 1
 
 .bss
 .org $4C7
@@ -120,7 +132,7 @@ TEMP_ORIX_1:
 ORIX_ARGC:
     .res 1
 KERNEL_DRIVER_MEMORY:
-    .res 152
+    .res 163
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
