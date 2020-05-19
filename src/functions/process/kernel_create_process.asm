@@ -12,6 +12,9 @@
 
 ;  kernel_process+kernel_process_struct::kernel_current_process contains the index of the pid list not the PID value !
 
+; kernel_process+kernel_process_struct::kernel_current_process  doit contenir l'offset dans kernel_process+kernel_process_struct::kernel_pid_list
+; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
+
 
 .ifdef WITH_DEBUG
 jsr   xdebug_enter_create_process_XMALLOC
@@ -46,7 +49,7 @@ jsr   xdebug_enter_create_process_XMALLOC
   rts
 
 @found:
-
+ ; inx
   ;stx     kernel_process+kernel_process_struct::kernel_current_process
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   ;inx
@@ -99,9 +102,9 @@ jsr   xdebug_enter_create_process_XMALLOC
 ;                                          Save ppid
 ; ***********************************************************************************************************************
 
-  lda     kernel_process+kernel_process_struct::kernel_current_process  ; Is equal to $ff if it's init process
 
   ldy     #kernel_one_process_struct::ppid
+  lda     kernel_process+kernel_process_struct::kernel_current_process  
   sta     (RES),y
 
 @register_processname:
@@ -165,7 +168,7 @@ save_command_line:
   ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
   ;jmp     @initialize_to_slash
   ldx     kernel_process+kernel_process_struct::kernel_current_process
-  cpx     #$01
+  ;cpx     #$01
   beq     @initialize_to_slash
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     KERNEL_CREATE_PROCESS_PTR1
@@ -206,6 +209,7 @@ save_command_line:
 
   ; Set pid number in the struct
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  
   ;inx
   stx     kernel_process+kernel_process_struct::kernel_current_process
   rts
