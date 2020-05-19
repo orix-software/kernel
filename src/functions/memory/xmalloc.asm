@@ -9,17 +9,12 @@
 ; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine and kernel_try_to_find_command_in_bin_path
 ; Verify if there is enough memory
 ; 
-.ifdef WITH_DEBUG
- ;   jsr     xdebug_enter_XMALLOC
-  ;  jsr     xdebug_send_ay_to_printer
-.endif
+
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate                             
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
-.ifdef WITH_DEBUG
-    ;jsr     xdebug_end
-.endif
+
     lda     #NULL
     ldy     #NULL
 
@@ -41,10 +36,7 @@
     bne     @looking_for_busy_chunck_available
 
 @found:
-.ifdef WITH_DEBUG
-    ; Send id_free_chunk
- ;   jsr     xdebug_send_x_to_printer
-.endif
+
     lda     TR7 ; get low byte of size (store the size)
     ; Store the size in the busy table
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
@@ -112,14 +104,11 @@
     ;bne     @store
 
 ;@not_kernel_create_process_malloc:    
-    ;lda     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process+kernel_process_struct::kernel_current_process
 @store:      
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     
-.ifdef WITH_DEBUG
-    ;jsr     xdebug_send_ay_to_printer
-    ;jsr     xdebug_end
-.endif
+
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
