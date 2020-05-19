@@ -4,6 +4,10 @@ kernel_memory_driver_to_copy:
     and     KERNEL_TMP_XEXEC                 ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
     
+    lda     $FFFE
+    cmp     #$FA
+    bne     exit_to_kernel
+
     lda     $FFF7                          ; the is no command is the current rom ($fff7=0) then skip
     beq     exit_to_kernel
 
