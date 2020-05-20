@@ -24,6 +24,15 @@ RELEASE:=alpha
 endif
 endif
 
+ifdef $(TRAVIS_BRANCH)
+ifneq ($(TRAVIS_BRANCH), master)
+RELEASE=alpha
+endif
+else
+RELEASE:=$(shell cat VERSION)
+endif
+
+
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
 RELEASE_PATH=release/
 init:
@@ -67,6 +76,7 @@ test:
 	filepack  $(PROGRAM_NAME).tar $(PROGRAM_NAME).pkg
 	gzip $(PROGRAM_NAME).tar
 	mv $(PROGRAM_NAME).tar.gz $(PROGRAM_NAME).tgz
+	echo Release : $(RELEASE)
 	php buildTestAndRelease/publish/publish2repo.php $(PROGRAM_NAME).tgz ${hash} 6502 tgz $(RELEASE)
 
   
