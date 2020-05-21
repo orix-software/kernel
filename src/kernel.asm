@@ -1,9 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
 
-; reproduction du bug : 12 fois l
-
-
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
@@ -27,15 +24,17 @@
 
 
 .include   "orix.mac"
-.include   "orix.inc"
+.include   "kernel.inc"
 .include   "build.inc"
 
 
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 
-KERNEL_XOPEN_PTR1 := $04 ; DECBIN
-KERNEL_XOPEN_PTR2 := $06 ; DECFIN
+KERNEL_XOPEN_PTR1     := $04 ; DECBIN
+KERNEL_XOPEN_PTR2     := $06 ; DECFIN
+
+KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
 
 XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
 XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
@@ -64,15 +63,6 @@ ACIADR := $031C ; DATA REGISTER
 ACIASR := $031D ; STATUS REGISTER
 ACIACR := $031E ; command register
 ACIACT := $031F ; control register
-
-KERNEL_KO_RAM_AVAILABLE := $200 ; 16 bits
-KERNEL_KO_ROM_AVAILABLE := $202 ; 16 bits
-KERNEL_CH376_MOUNT      := $203
-KERNEL_XFREE_TMP      := $204
-KERNEL_XKERNEL_CREATE_PROCESS_TMP :=205
-KERNEL_KERNEL_XEXEC_TMP :=206
-KERNEL_KERNEL_XEXEC_BNKOLD :=207
-
 
 .org      $C000
 .code
@@ -113,6 +103,8 @@ start_rom:
 .endif
   ;sty     FLGTEL
 
+
+
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
@@ -137,6 +129,7 @@ start_rom:
   bne     @L1
 @L1:
 .endproc
+
 
 
 next1:
@@ -181,15 +174,18 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop2
 
-  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
-  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
+  ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+;  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
+ ; lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
+  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
+  
+; Bug here
+DEBUGME:
 
-  lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
-  lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
-  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
+  ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
+  ;lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
+  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
 
   ;sta     KERNEL_DRIVER_MEMORY,x
 
@@ -315,12 +311,6 @@ display_cursor:
   ; Init PID tables and structs
 
 
-
-  lda     #$00  ; Init
-  ; Set process foreground 
-
-  sta     kernel_process+kernel_process_struct::kernel_current_process 
-
   lda     #$00
   ldx     #(KERNEL_MAX_PROCESS-1)
 @loop:
@@ -329,6 +319,19 @@ display_cursor:
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   dex
   bpl     @loop
+
+
+; kernel_process+kernel_process_struct::kernel_current_process  doit contenir l'offset dans kernel_process+kernel_process_struct::kernel_pid_list
+; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
+
+
+  lda     #$00  ; Init
+  ; Set process foreground 
+
+  sta     kernel_process+kernel_process_struct::kernel_current_process 
+  ; register init process
+  lda     #$01
+  sta     kernel_process+kernel_process_struct::kernel_pid_list
 
 init_process_init_in_struct:
   ldx     #$00
@@ -352,8 +355,6 @@ init_process_init_cwd_in_struct:
 @S1:  
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
 
-  lda     #$FF   ; Init PID = 1 but index = 0
-  sta     kernel_process+kernel_process_struct::kernel_pid_list
   
   
   lda     #KERNEL_ERRNO_OK
@@ -435,22 +436,14 @@ launch_command:
 @S1:
   sta     BUFEDT,y
 
-
   lda     #<BUFEDT
   ldy     #>BUFEDT
 
-  ldx     #$05
-  stx     BNKCIB
   jmp     _XEXEC ; start shell
 
-;call_routine_in_another_bank  
-  ;sta     $0415 ; BNK_ADDRESS_TO_JUMP_LOW
-  ;sty     $0416 ; BNK_ADDRESS_TO_JUMP_HIGH
-  ;stx     BNKCIB
-  ;jmp     SWITCH_TO_BANK_ID
 
 routine_to_define_19:
-  CLI
+  cli
 .ifdef WITH_TWILIGHTE_BOARD
 .else  
   lda     #$02
@@ -598,10 +591,10 @@ IRQVECTOR_CODE:
   .byt    $00 ; will be stored in $2FF
 
 
-; **************************** END LOOP ON DEVELOPPR NAME !*/
+; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.1 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.2 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
@@ -615,7 +608,7 @@ kernel_memory_driver_to_copy_begin:
 .include "functions/memory/memory_driver.asm"
 kernel_memory_driver_to_copy_end:
   
-.warning     .sprintf("Size of memory driver  : %d bytes, verify in orix.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
+.warning     .sprintf("Size of memory driver  : %d bytes, verify in kernel.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
 
 str_KORAM:
   .ASCIIZ  " Ko RAM,"
@@ -744,8 +737,8 @@ code_adress_436:
   jsr     $046A ; see code_adress_46A  
  
   pla
-  PLP
-  jsr     VEXBNK
+  plp
+  jsr     VEXBNK ; Used in monitor
 
   php
   sei
@@ -759,7 +752,7 @@ code_adress_436:
   pla
   tax
   pla
-  PLP
+  plp
   rts	
 
 code_adress_46A:
@@ -771,8 +764,9 @@ code_adress_46A:
   and     #$F8
   ora     FIXME_DUNNO
   sta     VIA2::PRA
-  PLP
+  plp
   rts
+
 code_adress_47E:  ; brk gestion 
   sta     IRQSVA
   lda     VIA2::PRA
@@ -782,17 +776,18 @@ code_adress_47E:  ; brk gestion
   ora     #$07
   sta     VIA2::PRA
   jmp     brk_management   
-code_adress_493
+code_adress_493:
   lda     VIA2::PRA
   and     #$F8
   ora     BNKOLD
   sta     VIA2::PRA
   lda     IRQSVA
-  RTI
-code_adress_4A1
+  rti
+
+code_adress_4A1:
   pha
   lda     VIA2::PRA
-  and     #$F8
+  and     #%11111000 ;‭11111000‬
   ora     BNK_TO_SWITCH
   sta     VIA2::PRA
   pla
@@ -820,7 +815,7 @@ code_adress_4AF
   nop
   nop
   ; Stack used to switch from any bank
-code_adress_get
+code_adress_get:
 ; used in bank command in Oric
 
   lda     VIA2::PRA
@@ -838,11 +833,15 @@ code_adress_get
   sta     VIA2::PRA
   pla                                ; Get the value
   rts
-RETURN_BANK:
-  .res    1
+stack_bank_management:  
+  ;sta     BNKOLD ; store old bank before interrupt ?
+  ;lda     VIA2::PRA  ; Switch to telemon bank and jump  
+;RETURN_BANK:
+ ; .res    1
 end_of_copy_page4:
 ; THIS ROUTINE IS COPIED IN $700 and will be in overlay RAM
-data_to_define_4  
+; it can manage buffers
+data_to_define_4:
   ; should be length 256 bytes ?
   bcc     LC639  
   bvc     LC5FE  
@@ -881,7 +880,7 @@ LC5FE:
   dey
   bpl     @loop
 
-LC61E  
+LC61E:
   lda     #$00
   ; see page 4 of "Manuel Developpeur Telestrat"
   sta     BUFBUF+8,x ; get length low
@@ -943,9 +942,9 @@ LC661
   inc     BUFBUF+9,X 
 LC688:  
   ; 65C02 FIXME : use sta (XX)
-  ldy #$00
+  ldy     #$00
   pla
-  sta (IRQSVP),Y
+  sta     (IRQSVP),Y
   clc
   rts
 LC68F:
@@ -1061,7 +1060,7 @@ adress_of_adiodb_vector:
   .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
   .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
   .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  
+
 brk_management:
   ; management of BRK $XX
   ; on the stack we have 
@@ -1133,7 +1132,7 @@ reset115_labels:
   ldy     IRQSVY
   ldx     IRQSVX
 .endif
-  RTI
+  rti
 next200
   lda     IRQSVP ; fetch P flag
   pha ; push P flag to return in correct state
@@ -1781,16 +1780,18 @@ XDIVIS_ROUTINE
 XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "include/libs/ch376_verify.s"
 
+; Files
 .include  "functions/files/xclose.asm"  
 .include  "functions/files/xread.asm"
 .include  "functions/files/xgetcwd.asm"
 .include  "functions/files/xputcwd.asm"
 .include  "functions/files/xwrite.asm"
 .include  "functions/files/xfseek.asm"
-.include  "functions/xdecal.asm"
 .include  "functions/files/xmkdir.asm"  
 .include  "functions/files/xrm.asm"
-.include  "functions/xexec.asm"
+
+.include  "functions/xdecal.asm"
+
 .include  "functions/sound/xepsg.asm"
 .include  "functions/graphics/_xeffhi.asm"
 .include  "functions/clock/_xclcl.asm"
@@ -1799,6 +1800,8 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/xhires.asm"  
 .include  "functions/xtext.asm"
 .include  "functions/memory/xfree.asm"
+; Process
+.include  "functions/process/xexec.asm"
 .include  "functions/process/xfork.asm"
 .include  "functions/mainargs.asm"
 .include  "functions/getargc.asm"
@@ -1837,18 +1840,18 @@ test_if_all_buffers_are_empty:
 
   sec
   .byt    $24 ; jump
-XBUSY_ROUTINE  
+XBUSY_ROUTINE: 
   clc
   ror     ADDRESS_READ_BETWEEN_BANK
   ldx     #$00
-Lcfb6  
+@L1:  
   jsr     XTSTBU_ROUTINE 
   bcc     @S1 
   txa
   adc     #$0B
   tax
   cpx     #$30
-  bne     Lcfb6 
+  bne     @L1 
 @S1:
   php
   lda     #<table_to_define_prompt_charset
@@ -1881,15 +1884,15 @@ XVARS_ROUTINE:
   rts
 
 XVARS_TABLE:
-XVARS_TABLE_LOW;
-  .byt <kernel_process
-  .byt <kernel_malloc
-  .byt <KERNEL_CH376_MOUNT
+XVARS_TABLE_LOW:
+  .byt     <kernel_process
+  .byt     <kernel_malloc
+  .byt     <KERNEL_CH376_MOUNT
   
-XVARS_TABLE_HIGH
-  .byt >kernel_process
-  .byt >kernel_malloc
-  .byt >KERNEL_CH376_MOUNT
+XVARS_TABLE_HIGH:
+  .byt     >kernel_process
+  .byt     >kernel_malloc
+  .byt     >KERNEL_CH376_MOUNT
   
 XMINMA_ROUTINE:
   cmp     #"a" ; 'a'
@@ -1900,10 +1903,10 @@ XMINMA_ROUTINE:
 @skip:
   rts
 
-CTRL_G_KEYBOARD ; Send oups
+CTRL_G_KEYBOARD: ; Send oups
   jmp     XOUPS_ROUTINE 
 
-CTRL_O_KEYBOARD
+CTRL_O_KEYBOARD:
   rts
 
 .include "functions/_manage_keyboard.asm"
@@ -2315,24 +2318,24 @@ LDB2F
 .endif
 
   rts
-                           ;                                      < I
+                          ;                                      < I
 LDB3A
-  bcs     LDB53            ;     C=1 on ferme ==================================  I
+  bcs     LDB53           ;     C=1 on ferme ==================================  I
 
 .ifdef    WITH_ACIA
-  lda     ACIACR           ;     ouverture                                      > I
-  and     #$02             ;      ACIACR ? 0 sauf b1                             I I
-  ora     #$65             ;      %01101001, bits forc?s ? 1                     I I
+  lda     ACIACR          ;     ouverture                                      > I
+  and     #$02            ;      ACIACR à 0 sauf b1                             I I
+  ora     #$65            ;      %01101001, bits forcés ? 1                     I I
 Ldb43
-  sta     ACIACR           ;     dans ACIACR <----------------------------------+--
+  sta     ACIACR          ;     dans ACIACR <----------------------------------+--
 .endif
 
 .ifdef WITH_ACIA
-  lda     #$38             ;     %00111000 dans ACIACT                          I  
-  sta     ACIACT           ;                                                    I  
+  lda     #$38            ;     %00111000 dans ACIACT                          I  
+  sta     ACIACT          ;                                                    I  
 .endif
 LDB53
-  rts                      ;     et on sort--------------------------------------  
+  rts                     ;     et on sort--------------------------------------  
 
 .ifdef WITH_ACIA  
 init_rs232:
@@ -2405,7 +2408,7 @@ output_window2
 output_window3:
   pha                                                              
   php                                                              
-  lda     #$03     ; fen?tre 3
+  lda     #$03     ; Window 3
 skipme2000:
 
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
@@ -2414,7 +2417,7 @@ skipme2000:
   jmp     LDECE    ;  ouverture      I      
 @S1:
   pla          ;  on lit la donnée <
-  sta     SCRNB+1      ;  que l'on sauve
+ ; sta     SCRNB+1      ;  que l'on sauve
 
 Ldbb5:
 
@@ -2433,6 +2436,7 @@ Ldbb5:
   
   lda     SCRNB+1
   cmp     #" "       ; is it greater than space ?
+  ;jmp     Ldc4c      ;Caractère de controle possibles
   bcs     Ldc4c      ; yes let's displays it.
 Ldbce   ; $d27e
   lda     FLGSCR,X
@@ -2810,7 +2814,7 @@ CTRL_HOME_START:
   sta     SCRX,X   ;  dans SCRX                                         
   lda     SCRDY,X  ;  la première ligne dans                            
   sta     SCRY,X   ;  SCRY                                              
-LDE07
+LDE07:
   lda     SCRY,X   ;  et on calcule l'adresse                           
   jsr     LDE12    ;  de la ligne                                       
   sta     ADSCR    ;  dans ADSCR                                        
@@ -4415,11 +4419,9 @@ _strcpy:
   rts
  
 .include  "functions/process/kernel_exec_from_storage.asm"  
-.include  "functions/XOPEN.asm"
+.include  "functions/files/XOPEN.asm"
 .include  "functions/minitel/xligne.asm"
 .include  "functions/serial/xsout.asm"
-
-
   
 add_0_5_A_ACC1:
   lda     #<const_zero_dot_half 
@@ -4431,7 +4433,7 @@ Lef97:
   
 ACC2_ACC1:
   jsr     LF1EC 
-XA2NA1_ROUTINE  
+XA2NA1_ROUTINE:
   lda     ACC1S ;$65 
   eor     #$FF
   sta     ACC1S ; $65
@@ -5254,7 +5256,7 @@ LF487
   sta     MENX
   tay
   rts
-LF491 ; FIXME ??? label seul
+LF491: ; FIXME ??? label seul
   sta     ACC1M
   stx     MENDDY
   ldx     #$90
@@ -5271,29 +5273,29 @@ XA1DEC_ROUTINE:
   ldy     #$00
   lda     #$20
   bit     ACC1S
-  bpl     LF4AF 
+  bpl     @S1
   lda     #$2D
-LF4AF  
+@S1:
   sta     $0100,Y
   sta     ACC1S
   sty     FLSVY
   iny
   lda     #$30
   ldx     ACC1E
-  bne     LF4C0 
+  bne     @S2 
   
   jmp     LF5C8
-LF4C0  
+@S2:
   lda     #$00
   cpx     #$80
-  beq     LF4C8
-  bcs     LF4D1 
-LF4C8  
+  beq     @S3
+  bcs     @S4 
+@S3:
   lda     #<const_for_decimal_convert 
   ldy     #>const_for_decimal_convert
   jsr     LF184 
   lda     #$F7 ; Should be indexed ?.= FIXME
-LF4D1  
+@S4:  
   sta     ACC4M
 LF4D3  
   lda     #<const_999_999_999
@@ -6103,7 +6105,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.1"
+  .asciiz     "Kernel v2020.2"
   .byt     __DATE__
 .IFPC02
 .pc02
@@ -6113,12 +6115,6 @@ signature:
   .byt     " 6502"
 .endif  
   .byt     $00
-
-kernel_version:
-  .byt 0
-  .byt 0
-  .byt 1
-  .byt 1 ; patch
 
 free_bytes: ; 26 bytes
   .res     $FFF8-*

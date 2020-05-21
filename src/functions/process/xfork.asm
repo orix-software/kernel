@@ -13,7 +13,7 @@
 ; ***********************************************************************************************************************
 
   ldx     kernel_process+kernel_process_struct::kernel_current_process
- ; cpx     #$FF ; is it $FF = init ?
+  ;cpx     #$01 ; is it $FF = init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -47,6 +47,7 @@
    rts
 exit_to_kernel:
 ; pull from stack old pc
+
 
    pla
    pla

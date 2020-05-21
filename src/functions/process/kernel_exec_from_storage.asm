@@ -18,6 +18,7 @@ RESE := DECCIB
     sta     RES
     sty     RES+1
 
+
     lda     #<(.strlen("/bin/")+8+1) ; 5 because /bin/ & 8 because length can't be greater than 8 for the command
     ldy     #>(.strlen("/bin/")+8+1)
     jsr     XMALLOC_ROUTINE
@@ -25,7 +26,8 @@ RESE := DECCIB
     bne     @malloc_ok
     cpy     #NULL
     bne     @malloc_ok
-
+    lda     ENOMEM
+    sta     KERNEL_ERRNO
     
     rts
     ; FIX ME test OOM
@@ -131,16 +133,24 @@ RESE := DECCIB
     pha
     tya
     pha
-    ; free tmp string
-    lda     RESC
-    ldy     RESC+1
-    jsr     XFREE_ROUTINE
 
+; ps, lsmem, file, lsmem
 
     pla
     sta     RESC+1   ; save fp
     pla
     sta     RESC     ; save fp
+
+
+    ; free fp
+    lda     RESC
+    ldy     RESC+1
+    jsr     XFREE_ROUTINE
+    
+    ; free tmp string
+    lda     RESB
+    ldy     RESB+1
+    jsr     XFREE_ROUTINE
 
 
 
@@ -211,11 +221,11 @@ RESE := DECCIB
 
 @is_an_orix_file:
 
-
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE
     ; Storing address to load it
+
 
     ldy     #14
     lda     (RESD),y ; fixme 65c02
@@ -240,6 +250,7 @@ RESE := DECCIB
     ldy     RESD+1
     jsr     XFREE_ROUTINE
 
+
     lda     #$FF ; read all the binary
     ldy     #$FF
     jsr     XREADBYTES_ROUTINE
@@ -249,10 +260,8 @@ RESE := DECCIB
     jsr     XCLOSE_ROUTINE
 
 
-    ; free fp
-    lda     RESC
-    ldy     RESC+1
-    jsr     XFREE_ROUTINE
+
+
     jsr     execute
 
     lda     #EOK

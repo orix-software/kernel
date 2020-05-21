@@ -117,6 +117,7 @@
   
 @it_is_absolute:
 
+
   ; Pass arg to createfile_pointer
   lda     RES
   ldy     RES+1
@@ -162,7 +163,7 @@
   cmp     #"z"+1                        ; 'z'
   bcs     @do_not_uppercase
   sbc     #$1F
-@do_not_uppercase:    
+@do_not_uppercase:
   sta     CH376_DATA
   iny
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
@@ -211,12 +212,17 @@
 @file_not_found:
   ; 
 
+
+
   lda     XOPEN_FLAGS ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
 
 
 @exit_open_with_null:
+
+  ;lda     #$12
+  ;sta     $bd98
 
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1

@@ -65,7 +65,6 @@ jsr   xdebug_enter_create_fp_XMALLOC
   lda     (RES),y
   beq     @S2
   sta     (KERNEL_XOPEN_PTR2),y  
-
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH
   bne     @L1

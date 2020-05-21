@@ -4,6 +4,10 @@ kernel_memory_driver_to_copy:
     and     KERNEL_TMP_XEXEC                 ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
     
+    lda     $FFFE
+    cmp     #$FA
+    bne     exit_to_kernel
+
     lda     $FFF7                          ; the is no command is the current rom ($fff7=0) then skip
     beq     exit_to_kernel
 
@@ -74,11 +78,11 @@ read_command_from_bank_driver_command_found:
     lda     (RES),y
 
 read_command_from_bank_driver_patch1:    
-    sta     $dead           ; Will store in read_command_from_bank_driver_to_patch
+    sta     VEXBNK+1           ; Will store in read_command_from_bank_driver_to_patch
     iny
     lda     (RES),y
 read_command_from_bank_driver_patch2:        
-    sta     $dead           ; Will store in read_command_from_bank_driver_to_patch
+    sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
 
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
@@ -97,8 +101,8 @@ read_command_from_bank_driver_patch2:
 	lda     TR0
 	ldy     TR1                            ; send command line in A & Y
 read_command_from_bank_driver_to_patch:
-
-    jsr     $dead
+   ; jsr     $436
+    jsr     VEXBNK
 
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon

@@ -4,6 +4,19 @@
     ; A & Y contains the string command to execute
     sta     TR0        ; Save string pointer
     sty     TR1        ;
+    ; Copy in BUFEDT
+    ldy     #$00
+@L7:    
+    lda     (TR0),y
+    beq     @S6
+    sta     BUFEDT,y
+    iny
+    cpy     #110
+    bne     @L7
+
+@S6:
+    lda     #$00
+    sta     BUFEDT,y
 
 @S1:
     ; ok then execute
@@ -11,7 +24,12 @@
     ; RACE CONDITION FIXME BUG
     ; If there is a multitasking switch during this step, the process is not started, but kernel will try to execute it
     lda     BNKOLD
+    cmp     #$07
+    bne     @do_not_correct
+    lda     #$05 ; Shell by default
+@do_not_correct:    
     sta     KERNEL_KERNEL_XEXEC_BNKOLD
+
 
     ldx     #$05       ; start at bank 05
     stx     KERNEL_TMP_XEXEC
@@ -42,28 +60,25 @@ next:
     jsr     kernel_try_to_find_command_in_bin_path
 
     cmp     #EOK
-    beq     out1
+    beq     out_from_bin
 
-
-; Exit
-
-;    ldx     KERNEL_KERNEL_XEXEC_BNKOLD
- ;   stx     BNKOLD
 
     rts
 
+out_from_bin:
+    lda     KERNEL_KERNEL_XEXEC_BNKOLD
+    sta     BNK_TO_SWITCH    
+
+
+
 out1:
 
-;    ; Now kill the current process
     lda     kernel_process+kernel_process_struct::kernel_current_process
+
     jsr     kernel_kill_process
-;
-    ; Back to calling bank
-exit:  
-    lda     KERNEL_KERNEL_XEXEC_BNKOLD
-    sta     BNKOLD
-    sta     BNK_TO_SWITCH    
-  
+exit:   
+
     lda     #EOK
+
     rts
 .endproc

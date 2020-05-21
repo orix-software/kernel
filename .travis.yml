@@ -4,8 +4,8 @@ before_install:
     - sudo apt-get install -qq git
     - sudo apt-get install -y doxygen graphviz pandoc
     - sudo pip install --upgrade pip
-    - sudo pip install mkdocs 
-    - ls
+    - sudo apt-get install mkdocs -y
+    - echo Current branch ${TRAVIS_BRANCH}
     - cd tools/doxygen && doxygen && cd ../../
     - git clone https://github.com/oric-software/buildTestAndRelease.git
     - cd buildTestAndRelease/ && sh make.sh
