@@ -95,7 +95,7 @@ start_rom:
   lda     #$00
 @nloop:
   sta     $00,x 
- ; sta     $200,x 
+  sta     $200,x 
   sta     $400,x
   sta     $500,x
   inx
@@ -103,9 +103,8 @@ start_rom:
 .endif
   ;sty     FLGTEL
 
-  ; Fix bug for some RAM on atmos mother board
-  lda     #$00
-  sta     KBDKEY
+  lda     #$FF
+  sta     FLGRST
 
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
@@ -596,7 +595,7 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.2 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.3 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
@@ -6073,7 +6072,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.2"
+  .asciiz     "Kernel v2020.3"
   .byt     __DATE__
 .IFPC02
 .pc02
