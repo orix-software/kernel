@@ -28,7 +28,7 @@ kernel_malloc_busy_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
 
 kernel_malloc_free_chunk_size_high         .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_free_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
-
+kernel_malloc_type                         .res KERNEL_MAX_NUMBER_OF_MALLOC
 .endstruct
 
 .out     "=================================================================="

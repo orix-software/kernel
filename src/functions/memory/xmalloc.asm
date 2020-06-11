@@ -23,9 +23,11 @@
 @allocate:
 
     ; found first available busy table
-    ldx     #$00
+    
     sta     TR7                                  ; Save A (low value of the malloc), Y is not saved because we don't modify it
  
+    ldx     #$00
+
 @looking_for_busy_chunck_available:
     ; Try to find a place to set the pid value
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
@@ -95,6 +97,9 @@
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 @skip4:
     
+    lda     KERNEL_MALLOC_TYPE 
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_type,x
+
     ; register process in malloc table 
     ;lda     KERNEL_MALLOC_TYPE
     ;cmp     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE ; Is it a kernel create process ?
@@ -105,15 +110,73 @@
 
 ;@not_kernel_create_process_malloc:    
     lda     kernel_process+kernel_process_struct::kernel_current_process
+  ;  bne     @store
+  ;  lda     #$FF ; init
 @store:      
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-    
 
+    ; Restore type
+
+    lda     #KERNEL_UNKNOWN_MALLOC_TYPE
+    sta     KERNEL_MALLOC_TYPE  
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    ; Debug
+    rts
+    pha
+    ;sta     TR6
+    tya
+    pha
+
+    ; Y
+    
+    jsr     _print_hexa
+    lda     TR6
+    jsr     _print_hexa_no_sharp
+
+    lda     KERNEL_MALLOC_TYPE  
+    ldy     #$00
+    ldx     #$20 ;
+    stx     DEFAFF
+    ldx     #$00
+    ;jsr     XDECIM_ROUTINE
+
+
+    ;jsr     XCRLF_ROUTINE
+    pla 
+    tay
+    pla
+
+    ; Restore type
 
     
     rts
 .endproc
 
+_print_hexa:
+    pha
+    lda #'#'
+    jsr XWR0_ROUTINE
+    pla
+
+    jsr XHEXA_ROUTINE
+    sty TR7
+    
+    jsr XWR0_ROUTINE
+    lda TR7
+    jsr XWR0_ROUTINE
+    rts
+
+
+
+_print_hexa_no_sharp:
+
+
+    jsr XHEXA_ROUTINE
+    sty TR7
+    
+    jsr XWR0_ROUTINE
+    lda TR7
+    jsr XWR0_ROUTINE
+    rts    

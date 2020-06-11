@@ -10,6 +10,7 @@
 
     ldy     #$00
     lda     (RES),y
+
     cmp     #"/"    ; is it a slash ? Yes it's absolute then compute
     bne     @concat
     
@@ -28,6 +29,7 @@
 
     rts
 @concat:
+
     jsr     @compute
     ; let's concat now
     ldy     #$00    
@@ -71,7 +73,6 @@
 
 @compute:
     ldx     kernel_process+kernel_process_struct::kernel_current_process
-
 
 
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
