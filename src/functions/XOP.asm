@@ -12,9 +12,9 @@ XOP3_ROUTINE
 	ldx     #$0c
 	pha
 
-  @loop:
-    pla
-    cmp     IOTAB0,x
+@loop:
+  pla
+  cmp     IOTAB0,x
     beq     @skip2
     ldy     IOTAB0,x
     bpl     skip129

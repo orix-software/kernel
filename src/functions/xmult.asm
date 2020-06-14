@@ -1,30 +1,30 @@
-	sta $10
-	sty $11
-	ldx #00
-	stx TR0
-	stx TR1
-	stx $0E
-	stx $0F
+	sta     $10
+	sty     $11
+	ldx     #$00
+	stx     TR0
+	stx     TR1
+	stx     $0E
+	stx     $0F
 	stx RESB
 	stx RESB+1
-	ldx #$10
+	ldx     #$10
 LCEAB	
-	lsr $11
-	ror $10
-	bcc LCECA
+	lsr     $11
+	ror     $10
+	bcc     LCECA
 	clc
 	
-	lda RES
-	adc TR0
-	sta TR0
+	lda     RES
+	adc     TR0
+	sta     TR0
 	
-	lda RES+1
+	lda     RES+1
 	adc TR1
 	sta TR1
 	
 	lda RESB
-	adc $0e
-	sta $0e
+	adc $0F
+	sta $0F
 	
 	lda RESB+1
 	adc $0F
