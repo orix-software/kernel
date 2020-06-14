@@ -649,7 +649,7 @@ XDEFBU_ROUTINE:
 
 XINIBU_ROUTINE:
   bit     XLISBU_ROUTINE
-  BVC     skip2003
+  bvc     skip2003
 
 XVIDBU_ROUTINE: 
   lda     #$00
@@ -694,7 +694,7 @@ code_adress_40f:
 ; VECTOR to read byte in overlay ram
   jmp     $04AF
 ; 414  
-  .byt    $4c,$00,$00
+  .byt    $4C,$00,$00
 data_adress_417:   
   .byt    $00 ; Init BNKCIB with 0
 data_adress_418:
@@ -1276,7 +1276,7 @@ Lc973:
   sta     FLGCUR_STATE
   bit     FLGSCR
   bpl     @L3
-  BVS     @L3
+  bvs     @L3
   ldx     SCRNB
   jmp     LDE2D 
 @L3:
@@ -2071,7 +2071,7 @@ d930:
   beq     next22
 
 skipme2001:
-  DEX
+  dex
   txa
   pha
   and     #$07
@@ -2086,8 +2086,8 @@ skipme2001:
 next22  ;$D946
   pla
   sec
-  ROR
-  DEY
+  ror
+  dey
   bpl     loop21 ; D94A
 
   ldy     #$08
@@ -2776,13 +2776,13 @@ CTRL_L_START
   jmp     @loop               ; et on boucle  (Et bpl, non ?!?!)                  
 
 ;  CODE 19 - CTRL S                              
-CTRL_S_START
+CTRL_S_START:
   rts
 
-CTRL_R_START
+CTRL_R_START:
   rts        
   
-XOUPS_ROUTINE
+XOUPS_ROUTINE:
 ;                             CODE 7 - CTRL G                               
 ;
 ;Action:émet un OUPS
@@ -2796,7 +2796,7 @@ CTRL_G_START:
 @loop:
   dex         ;    I Délai d'une seconde                             
   bne     @loop     ;  I                                                 
-  DEY           ;  I                                                 
+  dey           ;  I                                                 
   bne     @loop     ;  I                                                 
   lda     #$07      ;  un jmp init_printer suffisait ...                        
   ldx     #$3F                                                         
@@ -2996,9 +2996,9 @@ next15:
   
 telemon_values_for_JCKTAB
   .byt     $0b,$0a,$20,$08,$09,$03,$03
-Ldffa
+Ldffa:
   rts
-Ldffb
+Ldffb:
   lda     JCGVAL
   and     #$04
   bne     @S1
@@ -3288,8 +3288,8 @@ LE29B
 LE2A0  
   ldx     TR2
 LE2A2  
-  LSR
-  DEX
+  lsr
+  dex
   bpl     LE2A2 
   rol     TR3
   tya
@@ -3298,9 +3298,9 @@ LE2A2
   tay
   bcc     LE2B1 
   inc     TR6
-LE2B1  
+LE2B1:
 
-LE2D0  
+LE2D0:
 
   rts
 Le2de
@@ -3482,7 +3482,7 @@ Le3e3:
   sta     (RES),Y
 
   bit     FLGTEL ; Minitel ?
-  BVC     Le405
+  bvc     Le405
   jsr     LE656
 Le405  
   tya
@@ -3499,7 +3499,7 @@ Le418
   bne     Le3e3
 Le41c  
   bit     FLGTEL ; Minitel ?
-  BVC     Le42a 
+  bvc     Le42a 
   ldx     SCRX
   ldy     SCRY
 
@@ -3604,7 +3604,7 @@ Le62a
   jsr     Ldbb5
 .ifdef WITH_MINITEL                                                         
   bit     FLGTEL     ; mode minitel ?                                    
-  BVC     @S1        ; non                                              
+  bvc     @S1        ; non                                              
   inx                ; on ajoute une colonne                             
   txa                ; dans A                                            
   dex                ; et on revient en arrière                          
@@ -3621,14 +3621,14 @@ Le62a
 ;       définitivement tout espoir de gestion d'entrée de commande sur une autre 
 ;       fenêtre.                                                                 
 
-Le648                                                                        
+Le648:
   bit     Le648    ;  V=0 et N=0 pour écriture <------------------------ 
   jmp     output_window0    ;  dans la fenêtre 0                               
                                                                                
 
 ;                 ENVOIE UN CODE AU BUFFER SERIE SORTIE                    
 
-LE656
+LE656:
   sta     TR0              ;  on sauve le code <--------------------------------
   tya                  ;  on sauve Y                                       I
   pha                  ;                                                   I
@@ -3934,8 +3934,8 @@ LE987
   ldy     SCRBAH,X  ;                                                   I
   jsr     XADRES_ROUTINE    ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I 
   ldy     SCRDX,X           ;  on prend la première colonne de la fenêtre       I
-  DEY                       ;   on enlève deux colonnes                          I
-  DEY         ;                                                    I
+  dey                       ;   on enlève deux colonnes                          I
+  dey         ;                                                    I
   sec         ;                                                    I
   lda     SCRFY,X           ;   on calcule le nombre de lignes                   I
   sbc     SCRDY,X           ;   de la fenêtre                                    I
@@ -3973,7 +3973,7 @@ LE9B8
 .include "functions/graphics/xcircl.asm"
 
 ;  
-XFILL_ROUTINE
+XFILL_ROUTINE:
   lda     ADHRS
   ldy     ADHRS+1
   sta     RES 
@@ -4003,7 +4003,7 @@ XSCHAR_ROUTINE:
   lda     #$40
   sta     HRSFB
   ldy     #$00
-Lea9f
+@L1:
   sty     HRS2+1
   cpy     HRS2
   bcs     Lea92 
@@ -4011,9 +4011,9 @@ Lea9f
   jsr     LEAB5 
   ldy     HRS2+1
   iny
-  bne     Lea9f
+  bne     @L1
 
-XCHAR_ROUTINE
+XCHAR_ROUTINE:
   lda     HRS1
   asl
   lsr     HRS2
@@ -4170,7 +4170,7 @@ Lec8b
   jsr     LECB4
   bcs     Lec6f
   bit     INDRS
-  BVS     LEC80 
+  bvs     LEC80 
   cmp     #$20
   bcs     LEC80
   pha
@@ -4869,7 +4869,7 @@ Lf287:
   
 XA2DA1_ROUTINE:
   beq     display_divide_per_0
-  TSX
+  tsx
   stx     FLSVS
   jsr     XAA1_ROUTINE
   lda     #$00
@@ -4985,15 +4985,15 @@ XAYA1_ROUTINE:
   dey
   lda     (FLTR0),Y
   sta     MENDFY
-  DEY
+  dey
   lda     (FLTR0),Y
   sta     TELEMON_UNKNWON_LABEL_62 ; FIXME
-  DEY
+  dey
   lda     (FLTR0),Y
   sta     ACC1S
   ora     #$80
   sta     ACC1M
-  DEY
+  dey
   lda     (FLTR0),Y
   sta     ACC1E
   sty     ACC1EX
@@ -5451,7 +5451,7 @@ LF60D
 
 XA2EA1_ROUTINE:
   beq     XEXP_ROUTINE  
-  TSX
+  tsx
   stx     FLSVS
   lda     ACC2E
   beq     LF60D 

@@ -13,22 +13,22 @@
 @L4:
 	inc     TR0
 	sec
-	LDA     TR1
-	TAY
-	SBC     const_10_decimal_low,X 
-	STA     TR1
-	LDA     TR2
-	PHA
-	SBC     const_10_decimal_high,X ; 
-	STA     TR2
-	PLA
-	BCS     @L4
-	STY     TR1
-	STA     TR2
-	LDA     TR0
-	BEQ     @L2
-	STA     TR3
-	BNE     @L3+1
+	lda     TR1
+	tay
+	sbc     const_10_decimal_low,X 
+	sta     TR1
+	lda     TR2
+	pha
+	sbc     const_10_decimal_high,X ; 
+	sta     TR2
+	pla
+	bcs     @L4
+	sty     TR1
+	sta     TR2
+	lda     TR0
+	beq     @L2
+	sta     TR3
+	bne     @L3+1
 @L2:
 	ldy     TR3
 	bne     @L3+1

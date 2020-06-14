@@ -42,8 +42,8 @@ LE29B
 LE2A0  
   ldx     TR2
 LE2A2  
-  LSR
-  DEX
+  lsr
+  dex
   bpl     LE2A2 
   rol     TR3
   tya

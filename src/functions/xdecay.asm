@@ -15,38 +15,38 @@
   sty     RESB
   sty     RESB+1                                                          
 loop:
-  LDA     (RES),Y  ;   on lit le code <------------------------------    
-  CMP     #$30     ;   inférieur ? 0 ?                              I    
-  BCC LE785    ;   oui -----------------------------------------+---- 
-  CMP #$3A     ;   supérieur ? 9 ?                              I   I
-  BCS LE785    ;   oui -----------------------------------------+---O 
-  AND #$0F     ;   on isole le chiffre                          I   I
-  PHA          ;    dans la pile                                I   I
-  ASL RESB     ;    RESB*2                                      I   I
-  ROL RESB+1   ;                                                I   I
-  LDA RESB     ;    AX=RESB*2                                   I   I
-  LDX RESB+1   ;                                                I   I
-  ASL RESB     ;   *4                                           I   I
-  ROL RESB+1   ;                                                I   I
-  ASL RESB     ;   *8                                           I   I
-  ROL RESB+1   ;                                                I   I
-  ADC RESB     ;   +RESB*2                                      I   I
-  STA RESB     ;                                                I   I
-  TXA          ;                                                I   I
-  ADC RESB+1   ;                                                I   I
-  STA RESB+1   ;   = RESB*10                                    I   I
-  PLA          ;   plus chiffre lu                              I   I
-  ADC RESB     ;                                                I   I
-  STA RESB     ;                                                I   I
-  BCC @S1    ;                                                I   I
-  INC RESB+1   ;                                                I   I
+  lda     (RES),Y  ;   on lit le code <------------------------------    
+  cmp     #$30     ;   inférieur ? 0 ?                              I    
+  bcc     @S2    ;   oui -----------------------------------------+---- 
+  cmp     #$3A     ;   supérieur ? 9 ?                              I   I
+  bcs     @S2    ;   oui -----------------------------------------+---O 
+  and     #$0F     ;   on isole le chiffre                          I   I
+  pha          ;    dans la pile                                I   I
+  asl     RESB     ;    RESB*2                                      I   I
+  rol     RESB+1   ;                                                I   I
+  lda     RESB     ;    AX=RESB*2                                   I   I
+  ldx     RESB+1   ;                                                I   I
+  asl     RESB     ;   *4                                           I   I
+  rol     RESB+1   ;                                                I   I
+  asl     RESB     ;   *8                                           I   I
+  rol     RESB+1   ;                                                I   I
+  adc     RESB     ;   +RESB*2                                      I   I
+  sta     RESB     ;                                                I   I
+  txa          ;                                                I   I
+  adc     RESB+1   ;                                                I   I
+  sta     RESB+1   ;   = RESB*10                                    I   I
+  pla          ;   plus chiffre lu                              I   I
+  adc     RESB     ;                                                I   I
+  sta     RESB     ;                                                I   I
+  bcc     @S1    ;                                                I   I
+  inc     RESB+1   ;                                                I   I
 @S1:
-  INY          ;   on ajoute un chiffre lu                      I   I
-  BNE loop    ;     et on recommence  ----------------------------   I
-LE785
-  TYA       ;     nombre de chiffres lus <--------------------------
-  TAX       ;     dans X                                            
-  LDA RESB   ;     nombre dans AY et RESB                            
-  LDY RESB+1    ;                                                      
-  RTS
+  iny          ;   on ajoute un chiffre lu                      I   I
+  bne     loop    ;     et on recommence  ----------------------------   I
+@S2:
+  tya       ;     nombre de chiffres lus <--------------------------
+  tax       ;     dans X                                            
+  lda     RESB   ;     nombre dans AY et RESB                            
+  ldy     RESB+1    ;                                                      
+  rts
 .endproc   
