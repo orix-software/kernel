@@ -228,7 +228,7 @@ skip:
 .ifdef    TWILIGHTE_CARD
   lda     #$40
 .else
-  lda     #$40-16                     ; store 48 Kbytes for roms
+  lda     #12                     ; store 48 Kbytes for roms
 .endif  
   sta     KOROM
 
@@ -279,13 +279,16 @@ next5:
   ; it's similar to lda #10 brk xwr0 lda #13 brk XWR0
   RETURN_LINE
   ; fetch KORAM and display
-  lda     KORAM
+  lda     #$00
+  ldy     #$02
   jsr     telemon_convert_to_decimal ; convert in decimal accumulator A
   ; display KORAM
   PRINT str_KORAM
 
 
   lda     KOROM
+  lda     #$00
+  ldy     #$02
   jsr     telemon_convert_to_decimal
   PRINT str_KOROM
 
@@ -474,7 +477,7 @@ str_default_path:         ; if you modify this default, you must change struct t
  
 telemon_convert_to_decimal:
 ; FIXME macro
-  ldy     #$00 ; 00
+  ;ldy     #$00 ; 00
   ldx     #$20 ;
   stx     DEFAFF
   ldx     #$01
