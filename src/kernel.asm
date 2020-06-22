@@ -95,7 +95,7 @@ start_rom:
   lda     #$00
 @nloop:
   sta     $00,x 
- ; sta     $200,x 
+  sta     $200,x 
   sta     $400,x
   sta     $500,x
   inx
@@ -103,7 +103,8 @@ start_rom:
 .endif
   ;sty     FLGTEL
 
-
+  lda     #$FF
+  sta     FLGRST
 
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
@@ -137,7 +138,7 @@ next1:
 @loop:
   lda     adress_of_adiodb_vector,X
   sta     ADIOB,X 
-  DEX
+  dex
   bpl     @loop
 
 set_todefine6:
@@ -145,7 +146,7 @@ set_todefine6:
 @loop:
   lda     data_to_define_6,X 
   sta     CSRND,X
-  DEX
+  dex
   bpl     @loop
 
   ldx     #$00
@@ -325,7 +326,7 @@ display_cursor:
 ; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
 
 
-  lda     #$00  ; Init
+  lda     #$01  ; Init
   ; Set process foreground 
 
   sta     kernel_process+kernel_process_struct::kernel_current_process 
@@ -594,7 +595,7 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.2 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.3 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
@@ -648,7 +649,7 @@ XDEFBU_ROUTINE:
 
 XINIBU_ROUTINE:
   bit     XLISBU_ROUTINE
-  BVC     skip2003
+  bvc     skip2003
 
 XVIDBU_ROUTINE: 
   lda     #$00
@@ -693,7 +694,7 @@ code_adress_40f:
 ; VECTOR to read byte in overlay ram
   jmp     $04AF
 ; 414  
-  .byt    $4c,$00,$00
+  .byt    $4C,$00,$00
 data_adress_417:   
   .byt    $00 ; Init BNKCIB with 0
 data_adress_418:
@@ -1275,7 +1276,7 @@ Lc973:
   sta     FLGCUR_STATE
   bit     FLGSCR
   bpl     @L3
-  BVS     @L3
+  bvs     @L3
   ldx     SCRNB
   jmp     LDE2D 
 @L3:
@@ -2070,7 +2071,7 @@ d930:
   beq     next22
 
 skipme2001:
-  DEX
+  dex
   txa
   pha
   and     #$07
@@ -2085,8 +2086,8 @@ skipme2001:
 next22  ;$D946
   pla
   sec
-  ROR
-  DEY
+  ror
+  dey
   bpl     loop21 ; D94A
 
   ldy     #$08
@@ -2096,7 +2097,7 @@ next22  ;$D946
   cpy     #$06
 
   bne     @skip
-  DEY
+  dey
 @skip:
 
   dey
@@ -2650,7 +2651,7 @@ LDD13:
 
 LDD14:
   tay           ; dans Y                                            
-  TSX           ;  on indexe FLGSCR dans la pile                     
+  tsx           ;  on indexe FLGSCR dans la pile                     
   eor     $0103,X   ;  on inverse le bit correspondant au code (bascule) 
   sta     $0103,X   ;  et on replace                                     
   sta     RES       ;  et dans $00                                       
@@ -2775,13 +2776,13 @@ CTRL_L_START
   jmp     @loop               ; et on boucle  (Et bpl, non ?!?!)                  
 
 ;  CODE 19 - CTRL S                              
-CTRL_S_START
+CTRL_S_START:
   rts
 
-CTRL_R_START
+CTRL_R_START:
   rts        
   
-XOUPS_ROUTINE
+XOUPS_ROUTINE:
 ;                             CODE 7 - CTRL G                               
 ;
 ;Action:émet un OUPS
@@ -2795,7 +2796,7 @@ CTRL_G_START:
 @loop:
   dex         ;    I Délai d'une seconde                             
   bne     @loop     ;  I                                                 
-  DEY           ;  I                                                 
+  dey           ;  I                                                 
   bne     @loop     ;  I                                                 
   lda     #$07      ;  un jmp init_printer suffisait ...                        
   ldx     #$3F                                                         
@@ -2838,7 +2839,7 @@ XCSSCR_ROUTINE
   sec
   php
   asl     FLGSCR,X
-  PLP
+  plp
   ror     FLGSCR,X
   bmi     lde53
   lda     #$80
@@ -2975,12 +2976,12 @@ next18
   
 .include "functions/init_screen.asm"
 
-Ldf90
+Ldf90:
   lda     VIA2::PRB
   and     #$3F
   ora     #$40
   bne     next15
-Ldf99
+Ldf99:
   lda     VIA2::PRB
   and     #$3F
   ora     #$80
@@ -2993,45 +2994,11 @@ next15:
   sec ; ????
   rts ; ????
   
-init_joystick:
-  lda     #%01000001 ; SET mouse and joystick flag
-  sta     FLGJCK
-; init JCKTAB values
-  ldx     #$06 ; 7 bytes 
-@loop:
-  lda     telemon_values_for_JCKTAB,X ; data_to_define_3
-  sta     JCKTAB,X
-  DEX
-  bpl     @loop
-
-  lda     #$01
-  sta     MOUSE_JOYSTICK_MANAGEMENT+6
-  sta     MOUSE_JOYSTICK_MANAGEMENT+11
-  lda     #$06
-  sta     MOUSE_JOYSTICK_MANAGEMENT+7
-  sta     MOUSE_JOYSTICK_MANAGEMENT+10
-  lda     #$01
-  sta     MOUSE_JOYSTICK_MANAGEMENT+8
-  lda     #$0A
-  sta     MOUSE_JOYSTICK_MANAGEMENT+9
-  lda     #$03
-  sta     JCKTAB+5
-  sta     JCKTAB+6
-  lda     #$10
-  ldy     #$27
-  sta     VIA_UNKNOWN
-  sty     VIA_UNKNOWN+1
-  sta     VIA::T2
-  sty     VIA::T2+1
-  lda     #$A0
-  sta     VIA::IER
-  rts
-
 telemon_values_for_JCKTAB
   .byt     $0b,$0a,$20,$08,$09,$03,$03
-Ldffa
+Ldffa:
   rts
-Ldffb
+Ldffb:
   lda     JCGVAL
   and     #$04
   bne     @S1
@@ -3107,7 +3074,7 @@ le085
 ;                            GESTION DE LA SOURIS                            
 
 ;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il  
-;       ne s'agit plus avec la souris de g?rer un délai de répétition (sauf pour 
+;       ne s'agit plus avec la souris de gérer un délai de répétition (sauf pour 
 ;       les boutons), mais plutot une vitesse de répétition. Dans le buffer      
 ;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1. 
 
@@ -3321,8 +3288,8 @@ LE29B
 LE2A0  
   ldx     TR2
 LE2A2  
-  LSR
-  DEX
+  lsr
+  dex
   bpl     LE2A2 
   rol     TR3
   tya
@@ -3331,9 +3298,9 @@ LE2A2
   tay
   bcc     LE2B1 
   inc     TR6
-LE2B1  
+LE2B1:
 
-LE2D0  
+LE2D0:
 
   rts
 Le2de
@@ -3515,7 +3482,7 @@ Le3e3:
   sta     (RES),Y
 
   bit     FLGTEL ; Minitel ?
-  BVC     Le405
+  bvc     Le405
   jsr     LE656
 Le405  
   tya
@@ -3532,7 +3499,7 @@ Le418
   bne     Le3e3
 Le41c  
   bit     FLGTEL ; Minitel ?
-  BVC     Le42a 
+  bvc     Le42a 
   ldx     SCRX
   ldy     SCRY
 
@@ -3637,7 +3604,7 @@ Le62a
   jsr     Ldbb5
 .ifdef WITH_MINITEL                                                         
   bit     FLGTEL     ; mode minitel ?                                    
-  BVC     @S1        ; non                                              
+  bvc     @S1        ; non                                              
   inx                ; on ajoute une colonne                             
   txa                ; dans A                                            
   dex                ; et on revient en arrière                          
@@ -3654,14 +3621,14 @@ Le62a
 ;       définitivement tout espoir de gestion d'entrée de commande sur une autre 
 ;       fenêtre.                                                                 
 
-Le648                                                                        
+Le648:
   bit     Le648    ;  V=0 et N=0 pour écriture <------------------------ 
   jmp     output_window0    ;  dans la fenêtre 0                               
                                                                                
 
 ;                 ENVOIE UN CODE AU BUFFER SERIE SORTIE                    
 
-LE656
+LE656:
   sta     TR0              ;  on sauve le code <--------------------------------
   tya                  ;  on sauve Y                                       I
   pha                  ;                                                   I
@@ -3967,8 +3934,8 @@ LE987
   ldy     SCRBAH,X  ;                                                   I
   jsr     XADRES_ROUTINE    ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I 
   ldy     SCRDX,X           ;  on prend la première colonne de la fenêtre       I
-  DEY                       ;   on enlève deux colonnes                          I
-  DEY         ;                                                    I
+  dey                       ;   on enlève deux colonnes                          I
+  dey         ;                                                    I
   sec         ;                                                    I
   lda     SCRFY,X           ;   on calcule le nombre de lignes                   I
   sbc     SCRDY,X           ;   de la fenêtre                                    I
@@ -4006,7 +3973,7 @@ LE9B8
 .include "functions/graphics/xcircl.asm"
 
 ;  
-XFILL_ROUTINE
+XFILL_ROUTINE:
   lda     ADHRS
   ldy     ADHRS+1
   sta     RES 
@@ -4036,7 +4003,7 @@ XSCHAR_ROUTINE:
   lda     #$40
   sta     HRSFB
   ldy     #$00
-Lea9f
+@L1:
   sty     HRS2+1
   cpy     HRS2
   bcs     Lea92 
@@ -4044,9 +4011,9 @@ Lea9f
   jsr     LEAB5 
   ldy     HRS2+1
   iny
-  bne     Lea9f
+  bne     @L1
 
-XCHAR_ROUTINE
+XCHAR_ROUTINE:
   lda     HRS1
   asl
   lsr     HRS2
@@ -4203,7 +4170,7 @@ Lec8b
   jsr     LECB4
   bcs     Lec6f
   bit     INDRS
-  BVS     LEC80 
+  bvs     LEC80 
   cmp     #$20
   bcs     LEC80
   pha
@@ -4902,7 +4869,7 @@ Lf287:
   
 XA2DA1_ROUTINE:
   beq     display_divide_per_0
-  TSX
+  tsx
   stx     FLSVS
   jsr     XAA1_ROUTINE
   lda     #$00
@@ -5018,15 +4985,15 @@ XAYA1_ROUTINE:
   dey
   lda     (FLTR0),Y
   sta     MENDFY
-  DEY
+  dey
   lda     (FLTR0),Y
   sta     TELEMON_UNKNWON_LABEL_62 ; FIXME
-  DEY
+  dey
   lda     (FLTR0),Y
   sta     ACC1S
   ora     #$80
   sta     ACC1M
-  DEY
+  dey
   lda     (FLTR0),Y
   sta     ACC1E
   sty     ACC1EX
@@ -5484,7 +5451,7 @@ LF60D
 
 XA2EA1_ROUTINE:
   beq     XEXP_ROUTINE  
-  TSX
+  tsx
   stx     FLSVS
   lda     ACC2E
   beq     LF60D 
@@ -6105,7 +6072,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.2"
+  .asciiz     "Kernel v2020.3"
   .byt     __DATE__
 .IFPC02
 .pc02

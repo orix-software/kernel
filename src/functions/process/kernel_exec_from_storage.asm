@@ -188,6 +188,10 @@ RESE := DECCIB
 
     sta     PTR_READ_DEST
     sty     PTR_READ_DEST+1
+    ; Save in order to compute nb_bytes_read
+    sta     RESC
+    sty     RESC+1
+    
     ; read 20 bytes in the header
 
  
@@ -255,6 +259,16 @@ RESE := DECCIB
     ldy     #$FF
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done
+
+    lda     PTR_READ_DEST+1
+    sec
+    sbc     RESC+1
+    tax
+    lda     PTR_READ_DEST
+    sec
+    sbc     RES
+    ; A and X contains the length of the file
+
 
     lda     #$00 ; don't update length
     jsr     XCLOSE_ROUTINE

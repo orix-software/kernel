@@ -12,11 +12,11 @@
 ;                    DEPLACE LE CURSEUR HIRES VERS LE BAS                      
 
   clc           ;     on ajoute 40                                      
-  LDA     ADHRS     ;    à ADHRS
-  ADC     #$28                                                         
-  STA     ADHRS                                                          
-  BCC     skip
-  INC     ADHRS+1                                                          
+  lda     ADHRS     ;    à ADHRS
+  adc     #$28                                                         
+  sta     ADHRS                                                          
+  bcc     skip
+  inc     ADHRS+1                                                          
 skip:  
-  RTS
+  rts
 .endproc  

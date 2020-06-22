@@ -2,11 +2,11 @@
 
 ;                   DEPLACE LE CURSEUR HIRES VERS LE HAUT        
   sec               ;     on soustrait 40                                   
-  LDA     ADHRS     ;     à ADHRS                                           
-  SBC     #$28                                                         
-  STA     ADHRS                                                          
-  BCS     @skip                                                     
-  DEC     ADHRS+1
+  lda     ADHRS     ;     à ADHRS                                           
+  sbc     #$28                                                         
+  sta     ADHRS                                                          
+  bcs     @skip                                                     
+  dec     ADHRS+1
 @skip:
-  RTS
+  rts
 .endproc   

@@ -11,7 +11,10 @@
 .define KERNEL_ERRNO_OK                            3
 
 .define KERNEL_PROCESS_STRUCT_MALLOC_TYPE            $10
+
 .define KERNEL_UNKNOWN_MALLOC_TYPE                   $11
+.define KERNEL_BINARY_MALLOC_TYPE                    $12
+.define KERNEL_PROCESS_MALLOC_TYPE                   $13
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 

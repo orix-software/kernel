@@ -69,8 +69,6 @@ out_from_bin:
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNK_TO_SWITCH    
 
-
-
 out1:
 
     lda     kernel_process+kernel_process_struct::kernel_current_process
