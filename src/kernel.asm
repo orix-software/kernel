@@ -598,7 +598,7 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.3 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.4 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
@@ -615,10 +615,10 @@ kernel_memory_driver_to_copy_end:
 .warning     .sprintf("Size of memory driver  : %d bytes, verify in kernel.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
 
 str_KORAM:
-  .ASCIIZ  " Ko RAM,"
+  .ASCIIZ  " KB RAM, "
 
 str_KOROM:
-  .byt     " Ko ROM"," - "
+  .byt     " KB ROM"," /"
   .byt    __DATE__
   .byt      $00
 
@@ -6075,7 +6075,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.3"
+  .asciiz     "Kernel v2020.4"
   .byt     __DATE__
 .IFPC02
 .pc02
