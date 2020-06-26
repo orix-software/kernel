@@ -717,8 +717,8 @@ code_adress_419:
   lda     VIA2::PRA
   ora     #$07
   sta     VIA2::PRA
-  ROR
-  PLP
+  ror
+  plp
   asl 
   tya
   rts
