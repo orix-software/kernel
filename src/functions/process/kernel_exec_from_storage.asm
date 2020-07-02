@@ -117,6 +117,10 @@ RESE := DECCIB
 
  
 
+    lda     RESB
+    ldy     RESB+1
+    jsr     XFREE_ROUTINE
+
 
     ; free string used for the strcat
     lda     RESC
