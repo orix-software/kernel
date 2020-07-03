@@ -1915,11 +1915,13 @@ XVARS_TABLE_LOW:
   .byt     <kernel_process
   .byt     <kernel_malloc
   .byt     <KERNEL_CH376_MOUNT
+  .byt     <KERNEL_CONF_BEGIN
   
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
   .byt     >kernel_malloc
   .byt     >KERNEL_CH376_MOUNT
+  .byt     >KERNEL_CONF_BEGIN
   
 XMINMA_ROUTINE:
   cmp     #"a" ; 'a'
