@@ -6,6 +6,7 @@
 .include   "stdio.inc"              ; from cc65
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
+.include   "signal.inc"             ; from cc65
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
 .include   "include/process.inc"
