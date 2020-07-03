@@ -294,7 +294,7 @@ next5:
 
 
 telemon_hot_reset
-  nop ; keep theses nops, because hot reset won't work (still don't know why)
+  ;nop ; keep theses nops, because hot reset won't work (still don't know why)
 
 don_t_display_telemon_signature:
   lda     #<str_tofix
