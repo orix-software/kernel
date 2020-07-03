@@ -294,7 +294,7 @@ next5:
 
 
 telemon_hot_reset
-  ;nop ; keep theses nops, because hot reset won't work (still don't know why)
+  
 
 don_t_display_telemon_signature:
   lda     #<str_tofix
@@ -816,8 +816,8 @@ code_adress_4AF
   sta     VIA2::PRA
   pla                                    ; Get the value
   rts
-  nop
-  nop
+  ;nop
+  ;nop
   ; Stack used to switch from any bank
 code_adress_get:
 ; used in bank command in Oric
@@ -1922,6 +1922,15 @@ XMINMA_ROUTINE:
   sbc     #$1F
 @skip:
   rts
+
+.proc _ch376_set_usb_mode_kernel
+    lda     #CH376_SET_USB_MODE ; $15
+    sta     CH376_COMMAND
+
+    lda     KERNEL_CH376_MOUNT
+    sta     CH376_DATA	
+    rts
+.endproc  
 
 CTRL_G_KEYBOARD: ; Send oups
   jmp     XOUPS_ROUTINE 

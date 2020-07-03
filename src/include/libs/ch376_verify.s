@@ -13,7 +13,7 @@
 	lda #$01 ; error
 	rts	
 @detected:
-	jsr _ch376_set_usb_mode
+	jsr _ch376_set_usb_mode_kernel
 
 	jsr _ch376_disk_mount
 	cmp #CH376_USB_INT_SUCCESS
