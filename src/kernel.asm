@@ -831,12 +831,19 @@ code_adress_get:
 ; switch to RAM overlay
   ora     tmp1                           ; but select a bank in $410
   sta     VIA2::PRA
+  cpx     #$01
+  beq     @write
   lda     (ptr1),y                       ; Read byte
+  .byte   $2C
+@write:  
+  sta     (ptr1),y                       ; write byte
+@exit:  
   pha   
   lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
   sta     VIA2::PRA
   pla                                ; Get the value
   rts
+
 stack_bank_management:  
   ;sta     BNKOLD ; store old bank before interrupt ?
   ;lda     VIA2::PRA  ; Switch to telemon bank and jump  
