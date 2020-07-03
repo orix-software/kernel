@@ -532,7 +532,7 @@ loading_code_to_page_6:
   inx
   bne     @loop ; copy 256 bytes to BUFROU in OVERLAY RAM
     ; Becare full, each time shell is executed it launch it
-.ifdef WITH_TWILIGHTE_BOARD
+.ifdef WITH_TWILIGHTE_BOARD2
   ; Fill all ram banks with empty ram string
   sei
   lda     $342 
@@ -978,9 +978,9 @@ next36
   rts
 
   
-orix_buffer_table  
+orix_buffer_table:
   .byt    <TELEMON_KEYBOARD_BUFFER_BEGIN,>TELEMON_KEYBOARD_BUFFER_BEGIN        ; Keyboard buffer begin $c5c4
-end_keyboard_buffer  
+end_keyboard_buffer:
   .byt    <TELEMON_KEYBOARD_BUFFER_END,>TELEMON_KEYBOARD_BUFFER_END            ; keyboard buffer end $c680
   .byt    <TELEMON_ACIA_BUFFER_INPUT_BEGIN,>TELEMON_ACIA_BUFFER_INPUT_BEGIN    ; buffer acia input begin
   .byt    <TELEMON_ACIA_BUFFER_INPUT_END,>TELEMON_ACIA_BUFFER_INPUT_END        ; buffer acia input end
@@ -2554,11 +2554,11 @@ Ldc5d:
   jsr     display_char 
   lda     #$09
   sta     SCRNB+1
-skip_code  
+skip_code:
   jmp     Ldbce
-LDC69
+LDC69:
   sta     SCRNB+1
-display_char  
+display_char:
   
   ldy     #$80
   lda     FLGSCR,x
@@ -2575,7 +2575,7 @@ display_char
   sta     (ADSCR),y
   rts
   
-Ldc9a
+Ldc9a:
   and     #$08
   beq     @S1 
   lda     SCRNB+1 
@@ -2694,7 +2694,7 @@ LDD14:
   dec     SCRDX,x ;   on autorise colonne 0 et 1 <----------------------
   dec     SCRDX,x                                                      
   rts       
-LDD43  
+LDD43:
   dec     SCRX,x  ;  on ramène le curseur un cran à gauche  <----------
   rts  ;                                                           I
 
@@ -2738,9 +2738,9 @@ CTRL_N_START:
 
 ;                             CODE 24 - CTRL X                              
 ;Action:efface la fin de la ligne courante                                       
-CTRL_X_START
+CTRL_X_START:
   ldy     SCRX,x    ;  on prend la colonne du curseur                    
-LDD7D
+LDD7D:
   lda     SCRFX,x   ;  et la dernière colonne de la fen?tre              
   sta     SCRNB+1       ;  dans $29 
 
@@ -2752,7 +2752,7 @@ LDD7D
   bcc     @loop                                                       
   sta     (ADSCR),y ; et à la dernière position aussi                   
   rts           ; (INC $29 avant la boucle aurait été mieux !)
-LDD8E
+LDD8E:
   inc     SCRX,x                                                      
   rts                                                              
   
@@ -2842,19 +2842,19 @@ LDE07:
   rts      
 
 ;  CALCULE L'ADRESSE DE LA LIGNE A                       
-;Action:En entrée, A contient le numèro de la ligne et en sortie, RES contient   
-;       l'adresse à l'écran de cette ligne.                                      
+;Action:En entrée, A contient le numèro de la ligne et en sortie, RES contient
+;       l'adresse à l'écran de cette ligne.
 
-LDE12
+LDE12:
   jsr     XMUL40_ROUTINE    ;  RES=A*40                                          
   lda     SCRBAL,x          ;  AY=adresse de la fenêtre
-  ldy     SCRBAH,x                                                      
+  ldy     SCRBAH,x
   jmp     XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne   
   
 XCOSCR_ROUTINE:
   clc
   .byt    $24
-XCSSCR_ROUTINE  
+XCSSCR_ROUTINE:
   sec
   php
   asl     FLGSCR,x
@@ -2862,7 +2862,7 @@ XCSSCR_ROUTINE
   ror     FLGSCR,x
   bmi     lde53
   lda     #$80
-LDE2D  
+LDE2D:
   and     FLGSCR,x
   and     #$80
   eor     CURSCR,x
@@ -3087,7 +3087,7 @@ Ldffb:
 Le084
   rts
 
-le085
+le085:
 
 
 ;                            GESTION DE LA SOURIS                            
@@ -3402,7 +3402,7 @@ LE34F:
   jsr     LE301 
   jmp     LE361
 
-send_the_end_of_line_in_bufedt  
+send_the_end_of_line_in_bufedt:
   ldx     SCRNB
   lda     SCRX,x
   sta     ACC1E ; FIXME label
@@ -3427,7 +3427,7 @@ Le378
   lda     #$00 ; FIXME 65C02
   sta     MENX
   lsr     ACC1EX ; FIXME label
-Le37e  
+Le37e:
   lda     ACC1S ; FIXME label
   jsr     LDE12
   ldy     ACC1E ; FIXME label
@@ -3436,12 +3436,12 @@ Le37e
   beq     Le390
   ldx     SCRNB
   ldy     SCRDX,x
-Le390  
+Le390:
   lda     (RES),y
   cmp     #$20
   bcs     Le398
   ora     #$80
-Le398  
+Le398:
   ldx     MENX
   bit     ACC1EX
   bpl     @S1
@@ -3455,7 +3455,7 @@ Le398
   bcc     Le3b1
   dec     MENX
   ror     ACC1EX
-Le3b1  
+Le3b1:
   tya
   iny
   ldx     ACC1S
@@ -3502,7 +3502,7 @@ Le3e3:
   bit     FLGTEL ; Minitel ?
   bvc     Le405
   jsr     LE656
-Le405  
+Le405:
   tya
   iny
   ldx     SCRNB
@@ -3530,31 +3530,31 @@ Le42a:
   rts
 
   
-Le45a  
-Le479  
+Le45a:
+Le479:
   rts
 
 
  
   
-manage_code_control
+manage_code_control:
   cmp     #$08
   bne     Le5d5
   pha
   lda     KBDSHT
   lsr
   bcs     Le5cb
-Le5c4  
+Le5c4:
   pla
   jsr     Le648 
   jmp     Le45a 
-Le5cb  
+Le5cb:
   jsr     LE301 
   ldx     ACC1E
-Le5d2  
+Le5d2:
   ldy     ACC1M
   jmp     LE5E7
-Le5d5
+Le5d5:
   cmp     #$09
   bne     Le5ee
   pha
@@ -3564,12 +3564,12 @@ Le5d5
   jsr     put_cursor_on_beginning_of_the_line
   ldx     MENDDY
   ldy     MENDFY
-LE5E7  
+LE5E7:
   pla
   
   jsr     Le62a 
   jmp     Le45a  
-Le5ee  
+Le5ee:
   cmp     #$0A
   bne     Le604
   ldx     SCRNB
@@ -3578,11 +3578,11 @@ Le5ee
   bne     Le615
   lda     #$0A
   .byt    $2C
-Le5ff  
+Le5ff:
   lda     #$0B
   
   jmp     Le479 
-Le604  
+Le604:
   cmp     #$0B
   bne     Le617
   ldx     SCRNB
@@ -3592,16 +3592,16 @@ Le604
   lda     #$0B
   
   .byt    $2C
-Le615  
+Le615:
   lda     #$0A
-Le617  
+Le617:
   cmp     #$0C
   bne     Le624
   
   jsr     Le648 
   jsr     XECRPR_ROUTINE 
   jmp     Le45a
-Le624  
+Le624:
   jsr     Le648 
   jmp     Le45a 
 
@@ -3611,7 +3611,7 @@ Le624
 ; Action:positionne le curseur à l'écran et sur le minitel s'il est actif en tant 
 ; que sortie vidéo.
 
-Le62a
+Le62a:
   lda     #$1F       ; on envoie un US                                   
   jsr     Le648                                                     
   tya                ;  on envoie Y+64                                    
@@ -3661,7 +3661,7 @@ LE656:
   tay                  ;                                                   I
   lda     TR0              ;                                                   I
   bcs     LE656            ;  si l'envoi s'est mal passé, on recommence --------
-LE66B
+LE66B:
   rts                     
 
 
@@ -3679,7 +3679,7 @@ XHRSSE_ROUTINE:
 @skip:
   rol     HRS5+1                                                          
   bcc     Le7c0      ;    si b7 de $56   ? 0, on saute <-------------------- 
-LE79C
+LE79C:
   ldy     HRSX40     ;   sinon on prend X/6                               I
   lda     (ADHRS),y  ;   on lit le code actuel                            I
   asl            ;   on sort b7                                       I
@@ -3701,7 +3701,7 @@ LE79C
   bvs     Le7c0      ;   FB=3, on sort -----------------------------------O 
   eor     (ADHRS),y  ;   FB=2, on inverse le bit                          I
   sta     (ADHRS),y  ;    et on sort       a                               I
-Le7c0
+Le7c0:
   rts  
 
 .include "functions/xhrscb.asm"
@@ -3798,7 +3798,7 @@ hires_put_coordinate:
   bne     LE8C0          ;   dX<>dY -----------------------------------  I    I 
   lda     #$FF           ;   dX=dY, la tangente est 1                 I  I    I
   sta     RES            ;   en fait, -1, mais c'est la même chose    I  I    I
-LE8C0  
+LE8C0:
   bit     HRS1+1         ; I
   bpl     @S2            ; I dX>0 -------------------------------------  I    I
   jsr     XHRSCG_ROUTINE ; I dX<0, on d?place le curseur à gauche     I  I    I 
@@ -3821,24 +3821,24 @@ LE8C0
   jsr     XHRSSE_ROUTINE    ;I-->on affiche le point <---------------------  I    I 
   dec     HRS1   ; I   on d?cremente dX,                           I    I
   bne     LE8C0 ; ----on n'a pas parcouru tout l'axe              I    I 
-LE8EA
+LE8EA:
   rts       ;  -->sinon, on sort                              I    I
-LE8EB
+LE8EB:
   plp      ;   I  <--------------------------------------------    I
   rts       ;  I                                                   I
-LE8ED
+LE8ED:
   lda     HRS2   ;  I  on trace la droite selon dY <---------------------
   beq     LE8EA  ; ---dY=0, on sort                                      
   ldx     HRS1   ;     X=dX                                              
   jsr     Le921 ;     on calcule dX/dY dans RES                          
-LE8F6
+LE8F6:
   bit     HRS2+1                                                          
   bpl     LE900  ;    dY>0 --------------------------------------------- 
   jsr     XHRSCH_ROUTINE ;    dY<0, on déplace vers le haut                    I 
   jmp     LE903  ; ---et on saute                                      I 
-LE900
+LE900:
   jsr     XHRSCB_ROUTINE  ; I  on déplace vers le bas <-------------------------- 
-LE903  
+LE903:
   clc       ;  -->a-t-on parcouru la tangente ?                     
   lda     RES                                                          
   adc     RESB                                                          
@@ -3848,7 +3848,7 @@ LE903
   bpl     LE916   ;   dX>0 ------------------------------------        I
   jsr     XHRSCG_ROUTINE   ;   dX<0, on déplace vers                   I        I 
   jmp     LE919  ; ---la gauche                               I        I 
-LE916  
+LE916:
   jsr     XHRSCD_ROUTINE  ; I  on déplace vers la droite <--------------        I 
 LE919  
   jsr     XHRSSE_ROUTINE   ; -->on affiche le point <----------------------------- 
@@ -3859,7 +3859,7 @@ LE919
 
 
   ;   CALCUL LA TANGENTE (*256) D'UN TRAIT                    
-Le921
+Le921:
 
   stx     RES+1             ;   dX (ou dY)*256 dans RES+1                         
   ldy     #$00              ;   dY (ou dX) dans AY                                 FIXME 65C02
@@ -3945,7 +3945,7 @@ XINK_ROUTINE:
   lda     #$1D      ;  et on passe en 38 colonnes                    I  I
   jsr     Ldbb5     ;  (on envoie CHR$(29))                          I  I 
   ldx     SCRNB     ;  on prend X=numéro de fenêtre                  I  I
-LE987  
+LE987:
   lda     SCRDY,x           ;  on prend la ligne 0 de la fenêtre <------------  I
   jsr     XMUL40_ROUTINE    ;  *40 dans RES                                     I 
   lda     SCRBAL,x          ;  AY=adresse de base de la fenêtre                 I
@@ -4077,7 +4077,7 @@ Leaed
   jsr     XHRSCD_ROUTINE 
   pla
   bne     Leae4 
-Leaf3  
+Leaf3:
   jsr     XHRSCB_ROUTINE
   pla
   sta     HRSX6
@@ -4096,7 +4096,7 @@ Leaf3
 .include  "functions/sound/sounds.asm"  
 
 
-READ_A_SERIAL_BUFFER_CODE_INPUT
+READ_A_SERIAL_BUFFER_CODE_INPUT:
   ldx     #$0c
   jmp     LDB5D 
 wait_code_on_SERIAL_BUFFER_INPUT:
@@ -4138,7 +4138,7 @@ next911:
   jsr     Lec49
   pla
 
-Lec49  
+Lec49:
   bit     Lec49
   jmp     Ldb12 
   
@@ -4151,7 +4151,7 @@ send_A_to_serial_output_with_check:
   bpl     Lec5e 
   jsr     send_a_to_minitel
   jmp     LEC61
-Lec5e  
+Lec5e:
   jsr     write_caracter_in_output_serial_buffer
 LEC61  
   pla
