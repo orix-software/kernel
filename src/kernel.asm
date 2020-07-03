@@ -832,18 +832,19 @@ code_adress_get:
 ; switch to RAM overlay
   ora     tmp1                           ; but select a bank in $410
   sta     VIA2::PRA
-  cpx     #$01
-  beq     @write
+  cpx     #$00
+  beq     @read
+  lda     RES
+  sta     (ptr1),y
+@read:
   lda     (ptr1),y                       ; Read byte
-  .byte   $2C
-@write:  
-  sta     (ptr1),y                       ; write byte
 @exit:  
   pha   
   lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
   sta     VIA2::PRA
   pla                                ; Get the value
   rts
+  ;nop
 
 stack_bank_management:  
   ;sta     BNKOLD ; store old bank before interrupt ?
