@@ -1857,7 +1857,6 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
   inc    RES+1
 @next:
   jmp    @L1
-  rts
 .endproc
 
 _multitasking:

@@ -1,9 +1,9 @@
 .proc XMKDIR_ROUTINE
-  ; [IN] AX contains the pointer of the path
+  ; [IN] AY contains the pointer of the path
   ; FIXME
   
     sta     ptr1
-    stx     ptr1+1
+    sty     ptr1+1
 
     jsr     _ch376_verify_SetUsbPort_Mount
     cmp     #$01
@@ -11,6 +11,7 @@
     lda     #ENODEV 
     rts
 @next:
+
     ; is it an absolute path ?
     ldy     #$00
     lda     (ptr1),y
@@ -21,22 +22,61 @@
 
     ldy     #$00
    
-@loop:
-    lda     (ptr1),y
-    beq     @end2
-    sta     BUFNOM,y
-    iny
-    bne     @loop
-@end2:
-    sta     BUFNOM,y
+;@loop:
+    ;lda     (ptr1),y
+    ;beq     @end2
+    ;sta     BUFNOM,y
+    ;sta     $bb80,y
+    ;iny
+    ;bne     @loop
+;@end2:
+;    sta     BUFNOM,y
+
+ ;   sta     ptr1
+    ;stx     ptr1+1
+    jsr     XGETCWD_ROUTINE
+    ; A & Y
+    sty     RES
+    ldy     #O_RDONLY
+    ldx     RES
+
+
+    jsr     XOPEN_ROUTINE
     
-    jsr     _ch376_set_file_name
+    lda     #CH376_SET_FILE_NAME 
+    sta     CH376_COMMAND
+    ldy     #$00
+@mloop:
+    lda     (ptr1),y 
+    beq     @mend                    ; we reached 0 value
+    jsr     XMINMA_ROUTINE
+    sta     CH376_DATA
+    iny
+    cpy     #13                    ; because we don't manage longfilename shortname =11
+    bne     @mloop
+    lda     #$00
+    ;rts
+@mend:    
+    sta     CH376_DATA
+
+    ;jsr     _ch376_set_file_name
     sta     KERNEL_ERRNO
     jsr     _ch376_dir_create    
     rts
     
  
 @isabsolute:
+    rts
+    lda     ptr1
+    ;sty     RES
+    ldy     #O_RDONLY
+    ldx     ptr1+1
+
+
+    jsr     XOPEN_ROUTINE
+    rts
+
+
     lda     #"/"
     sta     BUFNOM
 .IFPC02
