@@ -1853,10 +1853,11 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
   rts
 @trim:
   inc    RES
-  bcc    @next
+  bne    @next
   inc    RES+1
 @next:
-  bne    @L1    
+  jmp    @L1
+  rts
 .endproc
 
 _multitasking:
