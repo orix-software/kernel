@@ -55,6 +55,7 @@ next:
     
     bne     next_bank
 
+read_on_sdcard:
     lda     TR0
     ldy     TR1
     jsr     kernel_try_to_find_command_in_bin_path

@@ -24,14 +24,6 @@ RELEASE:=alpha
 endif
 endif
 
-ifdef $(TRAVIS_BRANCH)
-ifneq ($(TRAVIS_BRANCH), master)
-RELEASE=alpha
-endif
-else
-RELEASE:=$(shell cat VERSION)
-endif
-
 
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
 RELEASE_PATH=release/
