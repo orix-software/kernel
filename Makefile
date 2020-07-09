@@ -55,6 +55,15 @@ kernel: $(SOURCE)
 	@cp kernelsd.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.map $(PATH_PACKAGE_ROM)/
+
+	@echo Build kernelus.rom for Twilighte board
+	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65   $(SOURCE) $(ASFLAGS) 
+	@ld65 -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
+	sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym
+	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
+	@cp kernelus.sym  $(PATH_PACKAGE_ROM)/
+	@cp kernelus.map $(PATH_PACKAGE_ROM)/
+
 	
 test:
 	cp Makefile build/usr/src/kernel/

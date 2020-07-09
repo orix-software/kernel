@@ -22,18 +22,7 @@
 
     ldy     #$00
    
-;@loop:
-    ;lda     (ptr1),y
-    ;beq     @end2
-    ;sta     BUFNOM,y
-    ;sta     $bb80,y
-    ;iny
-    ;bne     @loop
-;@end2:
-;    sta     BUFNOM,y
 
- ;   sta     ptr1
-    ;stx     ptr1+1
     jsr     XGETCWD_ROUTINE
     ; A & Y
     sty     RES
@@ -47,8 +36,11 @@
     sta     CH376_COMMAND
     ldy     #$00
 @mloop:
-    lda     (ptr1),y 
-    beq     @mend                    ; we reached 0 value
+    lda     (ptr1),y
+    beq     @mend       
+    cmp     #"/"
+    beq     @launch_xopen 
+                 ; we reached 0 value
     jsr     XMINMA_ROUTINE
     sta     CH376_DATA
     iny
@@ -63,7 +55,11 @@
     sta     KERNEL_ERRNO
     jsr     _ch376_dir_create    
     rts
-    
+@launch_xopen:
+    lda     #$00
+    sta     CH376_DATA
+    jsr     _ch376_file_open    
+    rts
  
 @isabsolute:
     rts
