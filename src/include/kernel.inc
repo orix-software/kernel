@@ -23,7 +23,7 @@
 .define KERNEL_MAX_LENGTH_BUFEDT    ORIX_MAX_PATH_LENGTH+9
 
 ; command line
-.define KERNEL_MAX_ARGS_COMMAND_LINE   2       ;  Number of possible args in the command line
+.define KERNEL_MAX_ARGS_COMMAND_LINE   6       ;  Number of possible args in the command line
 
 ; path define
 ; KERNEL_PATH_CURRENT_MAX_LEVEL : 
