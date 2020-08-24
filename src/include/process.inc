@@ -1,4 +1,4 @@
-.define KERNEL_MAX_PROCESS	                       5 ; max 84 because kernel_process_struct is handle with 8 bits offsets
+.define KERNEL_MAX_PROCESS	                       4 ; max 84 because kernel_process_struct is handle with 8 bits offsets
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS         1
 .define KERNEL_MAX_LENGTH_COMMAND                  9
 .define KERNEL_MAX_FP_PER_PROCESS                  2

@@ -1,9 +1,7 @@
 
 .out          "BANK    LABEL                         BEGIN:END" 
 .out .sprintf("BANK 0  BUFBUF                           : $%x : $%x", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER)
-
 .out .sprintf("BANK 0  BUFROU                           : $%x : $%x", BUFROU,BUFROU+(end_BUFROU-data_to_define_4))
-
 .out .sprintf("BANK 0  TELEMON_KEYBOARD_BUFFER_BEGIN    : $%x : $%x", TELEMON_KEYBOARD_BUFFER_BEGIN,TELEMON_KEYBOARD_BUFFER_END)
 .out .sprintf("BANK 0  TELEMON_ACIA_BUFFER_INPUT_BEGIN  : $%x : $%x", TELEMON_ACIA_BUFFER_INPUT_BEGIN ,TELEMON_ACIA_BUFFER_INPUT_END)
 .out .sprintf("BANK 0  TELEMON_ACIA_BUFFER_OUTPUT_BEGIN : $%x : $%x", TELEMON_ACIA_BUFFER_OUTPUT_BEGIN ,TELEMON_ACIA_BUFFER_OUTPUT_END)
