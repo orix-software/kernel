@@ -905,6 +905,7 @@ LC61E:
   sta     BUFBUF+5,x 
   sta     BUFBUF+7,x 
   rts
+end_BUFROU:  
 
   
 LC639:
@@ -1907,23 +1908,8 @@ table_to_define_prompt_charset_empty:
 
 ; This primitive will get the address of variables built in telemon and orix.  
 
-XVARS_ROUTINE:
-  lda     XVARS_TABLE_LOW,x
-  ldy     XVARS_TABLE_HIGH,x
-  rts
 
-XVARS_TABLE:
-XVARS_TABLE_LOW:
-  .byt     <kernel_process
-  .byt     <kernel_malloc
-  .byt     <KERNEL_CH376_MOUNT
-  .byt     <KERNEL_CONF_BEGIN
-  
-XVARS_TABLE_HIGH:
-  .byt     >kernel_process
-  .byt     >kernel_malloc
-  .byt     >KERNEL_CH376_MOUNT
-  .byt     >KERNEL_CONF_BEGIN
+.include "functions/xvars.asm"
   
 XMINMA_ROUTINE:
   cmp     #"a" ; 'a'
@@ -6030,3 +6016,4 @@ RESET:
 BRK_IRQ:  
   .byt     <IRQVECTOR,>IRQVECTOR
 
+.include "memmap.asm"
