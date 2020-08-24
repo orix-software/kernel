@@ -61,14 +61,8 @@
 .proc _ch376_file_close
     ldx     #CH376_FILE_CLOSE
     stx     CH376_COMMAND
-.IFPC02
-.pc02    
-    stz     CH376_DATA
-.p02    
-.else
-    lda     #$00
+    lda     #$01
     sta     CH376_DATA
-.endif    
     jsr     _ch376_wait_response
     rts
 .endproc    

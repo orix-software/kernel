@@ -29,6 +29,7 @@
   kernel_init_string                   .res .strlen("init")+1
   kernel_cwd_str                       .res .strlen("/")+1
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
+  kernel_max_process_value             .res 1
 .endstruct
 
 .out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))

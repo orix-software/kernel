@@ -34,7 +34,8 @@
 
 
 
-
+; 4 systems Buffers 6 for user (telemon historical)
+.define KERNEL_NUMBER_BUFFER 4+6
 
 TELEMON_KEYBOARD_BUFFER_BEGIN    = $C5C4
 TELEMON_KEYBOARD_BUFFER_END      = $C680  

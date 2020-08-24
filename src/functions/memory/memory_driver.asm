@@ -1,11 +1,11 @@
 
 kernel_memory_driver_to_copy:
     lda     VIA2::PRA
-    and     KERNEL_TMP_XEXEC                 ; but select a bank in BNK_TO_SWITCH
+    and     KERNEL_TMP_XEXEC               ; but select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
     
     lda     $FFFE
-    cmp     #$FA
+    cmp     #$FA                           ; is it an Orix rom ?
     bne     exit_to_kernel
 
     lda     $FFF7                          ; the is no command is the current rom ($fff7=0) then skip
