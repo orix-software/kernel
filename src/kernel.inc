@@ -121,8 +121,10 @@ KERNEL_DRIVER_MEMORY:
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
+.ifdef DEBUG
 kernel_debug:
     .tag    kernel_debug_struct
+.endif    
 
 kernel_end_of_memory_for_kernel:
 
