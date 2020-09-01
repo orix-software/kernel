@@ -7,8 +7,56 @@
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte "XMALLOC",$0D,"=======================",$0D
-    .byte "SIZE  ID  START",$0D,0
+    .byte $0D,"[XMALLOC] Query size :",0
+.endproc
+
+
+.proc xdebug_enter_merge_free_table
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte $0D,"[XFREE] Merge Free table",0
+.endproc
+
+
+.proc xdebug_enter_not_found
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte $0D,"[XFREEE] not found",0
+.endproc
+
+.proc xdebug_enter_RETURNLINE
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte $0D,0
+.endproc
+
+
+
+.proc xdebug_enter_XMALLOC_return_adress
+    jsr    xdebug_save
+    lda    #<str_enter_found
+    ldy    #>str_enter_found
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_found:
+    .byte " return address :  "
+    .byte 0
 .endproc
 
 .proc xdebug_enter_create_process_XMALLOC
@@ -19,7 +67,7 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte "Create process : XMALLOC call",$0D,"=======================",$0D
+    .byte $0D,"[CREATE PROCESS] (Next malloc is for process struct)",0
 .endproc
 
 .proc xdebug_enter_create_fp_XMALLOC
@@ -30,7 +78,7 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte "Create fp : XMALLOC call",$0D,"=======================",$0D
+    .byte $0D,"[Create FP]  (Next malloc is for process struct)",0
 .endproc
 
 .proc xdebug_binhex
@@ -119,8 +167,35 @@ loopme:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_free:
-    .byte "XFREE",$0D,"=======================",$0D
-    .byte "",$0D,0
+    .byte $0D,"[XFREE] AY enter : "
+    .byte 0
+.endproc
+
+
+.proc xdebug_enter_XFREE_new_freechunk
+    jsr    xdebug_save
+    lda    #<str_enter_free
+    ldy    #>str_enter_free
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+
+str_enter_free:
+    .byte $0D,"[XFREE] new free chunk :"
+    .byte 0
+.endproc
+
+
+.proc xdebug_enter_xfree_found
+    jsr    xdebug_save
+    lda    #<str_enter_found
+    ldy    #>str_enter_found
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_found:
+    .byte " found :  "
+    .byte 0
 .endproc
 
 .proc xdebug_end

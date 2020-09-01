@@ -33,8 +33,8 @@
   bne     @L1
  
 @skip_save_zp:
-   lda     TR0
-   ldy     TR1
+  lda     TR0
+  ldy     TR1
 
 
 

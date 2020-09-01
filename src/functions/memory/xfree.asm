@@ -17,7 +17,8 @@
   jsr xdebug_enter_xfree_found
 .endif  
 
-
+; **************************************************************************************
+; Try to fund chunk
   ; Search which chunck is used
   ldx     #$00
 @search_busy_chunk:
@@ -58,6 +59,8 @@
   sta     RES
 
 ; Try to recursive  
+
+
   ldy     #$00
 @try_another_free_chunk:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
@@ -137,6 +140,9 @@
 
 ; at this step we can merge   
 @merge_with_free_table:
+  ; Y contains the id of the free chunk
+  sty     RES
+
 .ifdef WITH_DEBUG
   jsr   xdebug_enter_merge_free_table
 .endif
@@ -166,10 +172,27 @@
 
     ; move the busy malloc table
 ; FIXME
-  inx 
-  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
-  beq     @no_need_to_merge
+;  inx 
+ ; cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
+  ;beq     @no_need_to_merge
+  ;lda     #$01
+  ;rts
 @no_need_to_merge:
+
+  cpy     #$00 ; was it the main free chunk
+  beq     @main_free_no_action ; Yes we do not destroy it
+
+  ; we initialize free chunk used (set to 0)
+  ; we set only high to 00 because it's impossible to have a malloc with High adress equal to $00
+  lda     #$00
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+;@loopme:
+;jmp @loopme  
+  
+
+
+
+@main_free_no_action:
 
 .ifdef WITH_DEBUG
     jsr     xdebug_end

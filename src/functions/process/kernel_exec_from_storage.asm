@@ -146,12 +146,12 @@ RESE := DECCIB
     sta     RESC     ; save fp
 
 
-    ; free fp
+    ; free fp OK
     lda     RESC
     ldy     RESC+1
     jsr     XFREE_ROUTINE
     
-    ; free tmp string
+    ; free tmp string OK
     lda     RESB
     ldy     RESB+1
     jsr     XFREE_ROUTINE
