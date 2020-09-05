@@ -4,11 +4,23 @@
 .proc XMALLOC_ROUTINE
 
 ; IN [A & Y ] the length requested
+; 
 ; TR7 is modified
 ; OUT : NULL in A & Y or pointer in A & Y of the first byte of the allocated memory
 ; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine and kernel_try_to_find_command_in_bin_path
 ; Verify if there is enough memory
 ; 
+
+
+.ifdef WITH_DEBUG
+    jsr     xdebug_enter_XMALLOC
+    jsr xdebug_send_ay_to_printer
+    ;jsr xdebug_enter_xfree_found
+.endif  
+
+
+
+
 
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate                             
@@ -123,6 +135,14 @@
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     ; Debug
+
+.ifdef WITH_DEBUG
+    jsr     xdebug_enter_XMALLOC_return_adress
+    jsr     xdebug_send_ay_to_printer
+  ;  jsr     xdebug_enter_RETURNLINE
+
+.endif  
+
     rts
     pha
     ;sta     TR6

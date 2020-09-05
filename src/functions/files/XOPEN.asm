@@ -13,7 +13,7 @@
   ; Save string in 2 locations RES
   sta     RES
   stx     RES+1
-
+  ; Save ptr
   sta     XOPEN_RES_SAVE
   stx     XOPEN_RES_SAVE+1
   ; save flag
@@ -28,13 +28,23 @@
   bne     @L1
   ; impossible to mount return null and store errno
 
-
   lda     #ENODEV
   sta	    KERNEL_ERRNO
   ldx     #$00
   txa
   rts
 @L1:
+  ; trying to resolve
+ ; ldy     #$00
+;  lda     (RES),y
+  ;cmp     #'.'
+  ;
+  ;cmp     #"/"
+  ;beq     @it_is_absolute ; It's absolute then skip currentpath
+  ; concat
+
+
+
   ldy     #$00
   lda     (RES),y
   ;
@@ -44,15 +54,7 @@
   jsr     XGETCWD_ROUTINE ; Modify RESB
 
   jsr     _create_file_pointer ; Modify RES
-  
-  ;cmp     #NULL
-  ;bne     @not_null_2
-  ;cpy     #NULL
-  ;bne     @not_null_2
-  ;lda     #ENOMEM
-  ;sta     KERNEL_ERRNO
-  ;lda     #NULL
-  ;rts
+
 
 @not_null_2:
   sta     KERNEL_XOPEN_PTR1

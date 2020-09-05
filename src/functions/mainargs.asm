@@ -14,6 +14,73 @@ XMAINARGS_ROUTINE_ARGV_PTR            :=TR2 ; word
 XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
 
 .proc XMAINARGS_ROUTINE
+
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
+           
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+    sta     RES
+
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+    sta     RES+1
+
+
+    lda     RES
+    clc
+    adc     #kernel_one_process_struct::cmdline+1 ; 1 : number of args
+    bcc     @S7
+    inc     RES+1
+@S7:
+    sta     RESB
+    sty     RESB+1
+
+    lda     #<.sizeof(XMAINARGS_STRUCT)
+    ldy     #<.sizeof(XMAINARGS_STRUCT)
+    jsr     XMALLOC_ROUTINE
+    cmp     #$00
+    bne     @continue
+    cpy     #$00
+    bne     @continue
+    ; oom
+
+    rts 
+@continue:     
+    ; Save malloc
+    sta     RESB
+    sty     RESB+1
+
+    ldy     #$00
+@loop:    
+    lda     (RES),y
+    beq     @out
+    cmp     #' '
+    beq     @new_arg
+
+@out:
+    rts
+@new_arg:
+    sty     TR0
+    ldy     #XMAINARGS_STRUCT::argc
+    lda     (RESB),y
+    clc
+    adc     #$01
+    sta     (RESB),y
+    ldy     TR0
+    jmp     @loop
+
+    
+
+; now TR4 & TR5 are set the the beginning of cmdline
+
+;  ldy     #$00
+;@L10:  
+ ; lda     (RESB),y
+;  beq     @S8
+  ;sta     (TR4),y
+  ;iny
+  ;cpy     #KERNEL_LENGTH_MAX_CMDLINE
+  ;bne     @L10
+;
+        rts
         sta     RESB                    ; Contains command line pointer
         sty     RESB+1        
         

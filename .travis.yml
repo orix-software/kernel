@@ -10,4 +10,19 @@ before_install:
     - git clone https://github.com/oric-software/buildTestAndRelease.git
     - cd buildTestAndRelease/ && sh make.sh
     - cd ..
+after_success:
+    - mkdir -p build/usr/src/kernel/src/
+    - mkdir -p build/usr/share/man/
+    - mkdir -p build/usr/share/fonts/
+    - mkdir -p build/usr/share/kernel/
+    - cp Makefile build/usr/src/kernel/
+    - cp README.md build/usr/src/kernel/
+    - cp cp README.md build/usr/share/doc/kernel/
+    - sh tools/builddocs.sh
+    - cd build && tar -c * > ../kernel.tar && cd ..
+    - gzip kernel.tar
+    - mv kernel.tar.gz kernel.tgz
+    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" -a "$TRAVIS_BRANCH" = "master" ]; then VERSION=`cat VERSION`; else VERSION=alpha; fi'
+    - echo $VERSION
+    - curl -X POST --data-binary '@kernel.tgz' "https://cdn.oric.org/publish.php?hash=$hash&path=/home/oricoujr/www/ftp/orix/dists/$VERSION/tgz/6502/kernel.tgz"    
 

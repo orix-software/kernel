@@ -40,18 +40,18 @@ CH376_USB_INT_DISK_ERR		  = $1F
 
 CH376_ERR_OPEN_DIR          = $41
 CH376_ERR_MISS_FILE         = $42
-CH376_ERR_FOUND_NAME		    = $43
-CH376_ERR_DISK_DISCON		    = $82
-CH376_ERR_LARGE_SECTOR		  = $84
-CH376_ERR_TYPE_ERROR		    = $92
+CH376_ERR_FOUND_NAME	    = $43
+CH376_ERR_DISK_DISCON	    = $82
+CH376_ERR_LARGE_SECTOR	    = $84
+CH376_ERR_TYPE_ERROR	    = $92
 CH376_ERR_BPB_ERROR         = $A1
 CH376_ERR_DISK_FULL         = $B1
 CH376_ERR_FDT_OVER          = $B2
-CH376_ERR_FILE_CLOSE		    = $B4
+CH376_ERR_FILE_CLOSE	    = $B4
 
 CH376_GET_IC_VER            = $01
 CH376_SET_BAUDRATE          = $02
-CH376_GET_ENTER_SLEEP		    = $03
+CH376_GET_ENTER_SLEEP	    = $03
 CH376_RESET_ALL             = $05
 CH376_CHECK_EXIST           = $06
 CH376_GET_FILE_SIZE         = $0C
@@ -68,7 +68,7 @@ CH376_FILE_OPEN             = $32
 CH376_FILE_ENUM_GO          = $33
 CH376_FILE_CREATE           = $34
 CH376_FILE_ERASE            = $35
-CH376_FILE_CLOSE	 	        = $36
+CH376_FILE_CLOSE	        = $36
 CH376_BYTE_LOCATE           = $39
 CH376_BYTE_READ             = $3A
 CH376_BYTE_RD_GO            = $3B
@@ -142,7 +142,7 @@ CH376_DISK_RD_GO            = $55
 loop:
     lda     (ptr1),y 
     beq     end                    ; we reached 0 value
-    BRK_TELEMON     XMINMA
+    BRK_KERNEL     XMINMA
     sta     CH376_DATA
     iny
     cpy     #13                    ; because we don't manage longfilename shortname =11

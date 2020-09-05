@@ -117,6 +117,10 @@ RESE := DECCIB
 
  
 
+    lda     RESB
+    ldy     RESB+1
+    jsr     XFREE_ROUTINE
+
 
     ; free string used for the strcat
     lda     RESC
@@ -142,12 +146,12 @@ RESE := DECCIB
     sta     RESC     ; save fp
 
 
-    ; free fp
+    ; free fp OK
     lda     RESC
     ldy     RESC+1
     jsr     XFREE_ROUTINE
     
-    ; free tmp string
+    ; free tmp string OK
     lda     RESB
     ldy     RESB+1
     jsr     XFREE_ROUTINE
@@ -260,15 +264,20 @@ RESE := DECCIB
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done
 
+
+  ;  lda     #KERNEL_BINARY_MALLOC_TYPE
+  ;  sta     KERNEL_MALLOC_TYPE
+
     lda     PTR_READ_DEST+1
     sec
     sbc     RESC+1
-    tax
+    tay
     lda     PTR_READ_DEST
     sec
     sbc     RES
-    ; A and X contains the length of the file
+    ; A and Y contains the length of the file
 
+ ;   jsr     XMALLOC_ROUTINE
 
     lda     #$00 ; don't update length
     jsr     XCLOSE_ROUTINE

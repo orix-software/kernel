@@ -30,7 +30,7 @@ jsr   xdebug_enter_create_process_XMALLOC
 
 
 ; Get first pid
-  ldx     #$02   ; Because the first is init (
+  ldx     #$01   ; Because the first is init (
 
 @L3:  
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
