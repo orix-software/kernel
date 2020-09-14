@@ -44,7 +44,7 @@ jsr   xdebug_enter_create_process_XMALLOC
   sta     KERNEL_ERRNO
 
   lda     #NULL
-  ldy     #NULL  
+  tay
 
   rts
 
