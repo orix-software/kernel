@@ -3,12 +3,15 @@
 .define KERNEL_MAX_LENGTH_COMMAND                  9
 .define KERNEL_MAX_FP_PER_PROCESS                  2
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
-.define KERNEL_LENGTH_MAX_CMDLINE                  30
+.define KERNEL_LENGTH_MAX_CMDLINE                  37
 
-.define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    0
-.define KERNEL_ERRNO_XFREE_NO_CHUNK_FOUND          1
-.define KERNEL_ERRNO_MAX_PROCESS_REACHED           2
-.define KERNEL_ERRNO_OK                            3
+
+.define KERNEL_ERRNO_OK                            0
+; ERRNO KERNEL are set in errno.inc of cc65 from 1 to 18
+.define KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS    20
+.define KERNEL_ERRNO_XFREE_NO_CHUNK_FOUND          21
+.define KERNEL_ERRNO_MAX_PROCESS_REACHED           22
+
 
 .define KERNEL_PROCESS_STRUCT_MALLOC_TYPE          $10
 
