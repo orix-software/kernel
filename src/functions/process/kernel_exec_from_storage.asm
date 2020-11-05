@@ -282,8 +282,9 @@ RESE := DECCIB
     lda     #$00 ; don't update length
     jsr     XCLOSE_ROUTINE
 
-
-
+    ; send cmdline ptr 
+    lda     RES
+    ldy     RES+1
 
     jsr     execute
 
