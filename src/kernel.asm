@@ -1834,7 +1834,6 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/process/xexec.asm"
 .include  "functions/process/xfork.asm"
 .include  "functions/mainargs.asm"
-.include  "functions/getargc.asm"
 .include  "functions/getargv.asm"
 .include  "functions/text/xfwr.asm"
 
