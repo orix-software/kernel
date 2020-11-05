@@ -32,8 +32,8 @@
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 
-KERNEL_XOPEN_PTR1     := $04 ; DECBIN
-KERNEL_XOPEN_PTR2     := $06 ; DECFIN
+KERNEL_XOPEN_PTR1        := $04 ; DECBIN
+KERNEL_XOPEN_PTR2        := $06 ; DECFIN
 
 KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
 
@@ -602,13 +602,13 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.4 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90,"ORIX v2021.1",$90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     " CPU:6502"
+  .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
@@ -804,13 +804,9 @@ code_adress_4A1:
   
 ; this routine read a value in a bank
 ; 
-code_adress_4AF  
+code_adress_4AF:
   lda     VIA2::PRA
-.ifdef EXTEND_TO_31_BANK
-  and     #%11100000
-.else
   and     #%11111000                     ; switch to RAM overlay
-.endif
   ora     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
   sta     VIA2::PRA
   lda     (ADDRESS_READ_BETWEEN_BANK),y  ; Read byte
@@ -820,18 +816,15 @@ code_adress_4AF
   sta     VIA2::PRA
   pla                                    ; Get the value
   rts
-  ;nop
-  ;nop
   ; Stack used to switch from any bank
 code_adress_get:
 ; used in bank command in Oric
-
-  lda     VIA2::PRA
-.ifdef EXTEND_TO_31_BANK
-  and     #%11100000
-.else
-  and     #%11111000                     ; switch to RAM overlay
+.ifdef    TWILIGHTEBOARD_BANK_LINEAR
+  lda     #$00
+  sta     $343
 .endif
+  lda     VIA2::PRA
+  and     #%11111000                     ; switch to RAM overlay
 ; switch to RAM overlay
   ora     tmp1                           ; but select a bank in $410
   sta     VIA2::PRA
@@ -845,6 +838,10 @@ code_adress_get:
   pha   
   lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
   sta     VIA2::PRA
+.ifdef    TWILIGHTEBOARD_BANK_LINEAR
+  lda     #$00
+  sta     $343
+.endif
   pla                                ; Get the value
   rts
   ;nop
@@ -1533,7 +1530,7 @@ vectors_telemon:
   .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE           ; 2a
   .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2B
   .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE   ; $2C
-  .byt     <XGETARGC_ROUTINE,>XGETARGC_ROUTINE     ; $2D
+  .byt     <$00,>$00     ; $2D
   .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE     ; $2E
   .byt     $00,$00
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
@@ -2427,12 +2424,12 @@ output_window0:
 output_window1  
   pha                                                              
   php                                                              
-  lda     #$01    ;   fen?tre 1
+  lda     #$01    ;   fenêtre 1
   bne     skipme2000    ;                                                 
 output_window2
   pha                                                              
   php                                                              
-  lda     #$02    ;  fen?tre 2
+  lda     #$02    ;  fenêtre 2
   bne     skipme2000
 output_window3:
   pha                                                              
@@ -2441,9 +2438,9 @@ output_window3:
 skipme2000:
 
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
-  plp          ;  on lit la commande
-  bpl     @S1    ;  écriture -------    
-  jmp     LDECE    ;  ouverture      I      
+  plp                 ;  on lit la commande
+  bpl     @S1         ;  écriture -------    
+  jmp     LDECE       ;  ouverture      I      
 @S1:
   pla          ;  on lit la donnée <
  ; sta     SCRNB+1      ;  que l'on sauve
@@ -2527,12 +2524,12 @@ LDBED
     
 
 LDC2B
-  ldx     SCRNB
-  ldy     SCRX,x
-  lda     (ADSCR),y
-  sta     CURSCR,x
-  lda     ADSCR
-  sta     ADSCRL,x
+  ldx     SCRNB      ; Get screen number
+  ldy     SCRX,x     ; Get position X
+  lda     (ADSCR),y  ; get previous char on the cursor
+  sta     CURSCR,x   ; and save ot 
+  lda     ADSCR      ; get current addr (low)
+  sta     ADSCRL,x   ; save it
   lda     ADSCR+1
   sta     ADSCRH,x
   pla
@@ -5990,7 +5987,7 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.4"
+  .asciiz     "Kernel v2021.1"
   .byt     __DATE__
 .IFPC02
 .pc02
