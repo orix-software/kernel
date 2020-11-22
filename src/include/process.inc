@@ -14,10 +14,10 @@
 
 
 .define KERNEL_PROCESS_STRUCT_MALLOC_TYPE          $10
-
 .define KERNEL_UNKNOWN_MALLOC_TYPE                 $11
 .define KERNEL_BINARY_MALLOC_TYPE                  $12
 .define KERNEL_PROCESS_MALLOC_TYPE                 $13
+.define KERNEL_XMAINARG_MALLOC_TYPE                $14
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 
@@ -48,7 +48,7 @@
 
 ; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct 
 .struct kernel_one_process_struct
-  process_name               .res KERNEL_MAX_LENGTH_COMMAND+1
+  process_name               .res KERNEL_MAX_LENGTH_COMMAND+1 ; don't move it in the struct, because code handle process_name when it's at the first position. If it moves, the code will generate bugs
   cwd_str                    .res KERNEL_MAX_PATH_LENGTH
   child_pid                  .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
   fp_ptr                     .res KERNEL_MAX_FP_PER_PROCESS*2

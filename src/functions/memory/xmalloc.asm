@@ -14,7 +14,29 @@
 
 .ifdef WITH_DEBUG
     jsr     xdebug_enter_XMALLOC
-    jsr xdebug_send_ay_to_printer
+
+    jsr     xdebug_send_ay_to_printer
+    jsr     xdebug_enter_XMALLOC_TYPE
+    pha
+    lda     KERNEL_MALLOC_TYPE
+    cmp     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE
+    bne     @O2
+    jsr     xdebug_enter_XMALLOC_process_struct
+    jmp     @O1
+@O2:
+    cmp     #KERNEL_UNKNOWN_MALLOC_TYPE
+    bne     @O4
+    jsr     xdebug_enter_XMALLOC_unknown
+    jmp     @O1
+@O4:    
+    cmp     #KERNEL_XMAINARG_MALLOC_TYPE
+    bne     @O3
+    jsr     xdebug_enter_XMALLOC_xmainargs
+    jmp     @O1
+@O3:
+    jsr     xdebug_send_a_to_printer
+@O1:
+    pla
     ;jsr xdebug_enter_xfree_found
 .endif  
 
@@ -131,6 +153,7 @@
   ;  lda     #$FF ; init
 @store:      
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+
 
     ; Restore type
 
