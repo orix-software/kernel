@@ -33,8 +33,10 @@ XMAINARGSC      := TR0 ; 1 byte
 @S7:
     sta     RES
 
+    lda     #KERNEL_XMAINARG_MALLOC_TYPE
+    sta     KERNEL_MALLOC_TYPE
     lda     #<.sizeof(XMAINARGS_STRUCT)
-    ldy     #<.sizeof(XMAINARGS_STRUCT)
+    ldy     #>.sizeof(XMAINARGS_STRUCT)
     jsr     XMALLOC_ROUTINE
     cmp     #$00
     bne     @continue
