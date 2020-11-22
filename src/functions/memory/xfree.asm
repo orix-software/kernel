@@ -31,13 +31,14 @@
   
 @next_chunk:
   inx
-  cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
+  cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC+1)
   bne     @search_busy_chunk
   
   ; We did not found this busy chunk, return 0 in A
 .ifdef WITH_DEBUG  
   jsr xdebug_enter_not_found
 .endif
+
   lda     #NULL
   
   rts
