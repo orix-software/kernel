@@ -23,9 +23,13 @@
 
 
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
-    bcc     @allocate                             
+    bcc     @allocate    
+                          
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
+      
+    lda     #ENOMEM
+    sta     KERNEL_ERRNO
 
     lda     #NULL
     ldy     #NULL
@@ -45,7 +49,8 @@
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     beq     @found
     inx 
-    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
+    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC+1
+
     beq     @exit_null 
     bne     @looking_for_busy_chunck_available
 
@@ -160,10 +165,7 @@
     ldx     #$20 ;
     stx     DEFAFF
     ldx     #$00
-    ;jsr     XDECIM_ROUTINE
 
-
-    ;jsr     XCRLF_ROUTINE
     pla 
     tay
     pla
