@@ -57,6 +57,7 @@
   lda     #$00
   ; Erase pid reference
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+
   sta     RES
 
 ; Try to recursive  
@@ -129,6 +130,14 @@
 
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+
+  ; update size
+  
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
 
 
     
