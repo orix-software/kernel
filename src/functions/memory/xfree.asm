@@ -202,6 +202,8 @@
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
 
+  ; Y contains the current free chunk found, we destroy it now
+
 
     ; move the busy malloc table
 ; FIXME
@@ -210,7 +212,9 @@
   ;beq     @no_need_to_merge
   ;lda     #$01
   ;rts
+  ldy      RES+1 ; restore id chunk
 @no_need_to_merge:
+
 
   cpy     #$00 ; was it the main free chunk
   beq     @main_free_no_action ; Yes we do not destroy it
@@ -219,8 +223,8 @@
   ; we set only high to 00 because it's impossible to have a malloc with High adress equal to $00
   lda     #$00
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
-;@loopme:
-;jmp @loopme  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+
   
 
 
