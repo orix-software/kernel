@@ -12,6 +12,9 @@
 
   sta     KERNEL_XFREE_TMP    ; Save A (low)
 
+  lda     #$01
+  sta     TR0 ; TR0 contains the next free chunk
+
 .ifdef WITH_DEBUG
   jsr xdebug_send_ay_to_printer
   jsr xdebug_enter_xfree_found
@@ -82,8 +85,11 @@
   cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
   bne     @try_another_free_chunk
  
+
+  ;KERNEL_MALLOC_FREE_CHUNK_MAX
+
   ; Force first free chunk
-  ldy    #$01
+  ldy    TR0 ; get next free chunk
   sty    RES+1
 
   jmp    @create_new_freechunk
@@ -109,7 +115,24 @@
 
   jsr xdebug_enter_XFREE_new_freechunk  
 .endif
+
+  ; Looking for Free chunk available
   ldy     RES+1
+@find_a_free_chunk:
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+  beq     @free_chunk_is_available
+  iny
+  cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  bne     @find_a_free_chunk  
+  ; Panic
+  PRINT   str_can_not_find_any_free_chunk_available
+  PRINT   str_kernel_panic
+@panic:  
+  jmp     @panic
+
+
+
+@free_chunk_is_available:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
@@ -212,3 +235,9 @@ out:
   lda     #$01 
   rts
 .endproc
+str_can_not_find_any_free_chunk_available:
+  .asciiz "Can not find another free chunk slot"
+str_kernel_panic:
+  .byte  $0D
+  .byte "Kernel panic !"
+  .byte $00
