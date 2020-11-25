@@ -18,6 +18,7 @@
 .define KERNEL_BINARY_MALLOC_TYPE                  $12
 .define KERNEL_PROCESS_MALLOC_TYPE                 $13
 .define KERNEL_XMAINARG_MALLOC_TYPE                $14
+.define KERNEL_FP_MALLOC_TYPE                      $15
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 

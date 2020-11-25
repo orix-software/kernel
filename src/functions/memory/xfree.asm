@@ -3,6 +3,18 @@
 
 .proc XFREE_ROUTINE
 
+.ifdef WITH_DEBUG  
+    sta     RESB
+    sty     RESB+1
+    stx     TR4
+    jsr     xdebug_install  
+    jsr     xdebug_print
+    lda     RESB
+    ldy     RESB+1    
+    ldx     TR4
+
+.endif
+
 .ifdef WITH_DEBUG
     jsr     xdebug_enter_XFREE
 .endif
@@ -12,6 +24,9 @@
 
   sta     KERNEL_XFREE_TMP    ; Save A (low)
 
+
+
+  
   lda     #$01
   sta     TR0 ; TR0 contains the next free chunk
 
@@ -99,7 +114,7 @@
     
 @compare_high:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
-  sty     RES+1
+  sty     RES+1 ; Save current free chunk
   ldy     RES
   cpy     #$01
   bne     @don_t_inc_carry
@@ -239,6 +254,20 @@ out:
   lda     #$01 
   rts
 .endproc
+
+.ifdef WITH_DEBUG
+  .proc k_display_malloc_table
+    sta RESB
+    sty RESB+1
+    stx TR1
+    jsr xdebug_send_ay_to_printer
+    lda RESB
+    ldy RESB+1
+    ldx TR1
+    rts
+  .endproc
+.endif
+
 str_can_not_find_any_free_chunk_available:
   .asciiz "Can not find another free chunk slot"
 str_kernel_panic:

@@ -76,7 +76,7 @@ KERNEL_END_PROCESS_VARIABLES:
 FIXME_DUNNO:
 .res 1
 
-READ_BYTE_FROM_OVERLAY_RAM
+READ_BYTE_FROM_OVERLAY_RAM:
 ; this contains a routine length : 20 bytew
 .res 20
 
@@ -121,7 +121,7 @@ KERNEL_DRIVER_MEMORY:
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
-.ifdef DEBUG
+.ifdef WITH_DEBUG
 kernel_debug:
     .tag    kernel_debug_struct
 .endif    

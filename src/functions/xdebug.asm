@@ -1,3 +1,18 @@
+.proc xdebug_install
+    lda  #<$c000
+    sta  VEXBNK+1
+    lda  #>$c000
+    sta  VEXBNK+2
+    rts
+.endproc
+
+.proc xdebug_print
+    lda   #$01
+    sta   BNKCIB
+    jmp   $40c
+    rts
+.endproc
+
 .proc xdebug_enter_XMALLOC
     jsr    xdebug_save
     lda    #<str_enter_malloc
@@ -18,7 +33,7 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte "PROCESS_STRUCT",0
+    .byte "PROCESS_STRUCT(Kernel)",0
 .endproc
 
 .proc xdebug_enter_XMALLOC_xmainargs
@@ -29,7 +44,18 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte "XMAINARGS",0
+    .byte "MAINARGS(Kernel)",0
+.endproc
+
+.proc xdebug_enter_XMALLOC_fp
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "FP(Kernel)",0
 .endproc
 
 .proc xdebug_enter_XMALLOC_unknown
@@ -108,7 +134,7 @@ str_enter_found:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte $0D,"[CREATE PROCESS] (Next malloc is for process struct)",0
+    .byte $0D,"[CREATE PROCESS]",0
 .endproc
 
 .proc xdebug_enter_create_fp_XMALLOC
@@ -119,7 +145,7 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte $0D,"[Create FP]  (Next malloc is for process struct)",0
+    .byte $0D,"[Create FP]",0
 .endproc
 
 .proc xdebug_binhex
