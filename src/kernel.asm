@@ -434,18 +434,19 @@ launch_command:
   lda     #>str_binary_to_start
   sta     RES+1
   ; copy to BUFEDT
+  ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
   ldy     #$00
 @L1:  
   lda     (RES),y
   beq     @S1
-  sta     BUFEDT,y
+  sta     kernel_end_of_memory_for_kernel,y
   iny
   bne     @L1
 @S1:
-  sta     BUFEDT,y
+  sta     kernel_end_of_memory_for_kernel,y
 
-  lda     #<BUFEDT
-  ldy     #>BUFEDT
+  lda     #<kernel_end_of_memory_for_kernel
+  ldy     #>kernel_end_of_memory_for_kernel
 
   jmp     _XEXEC ; start shell
 
@@ -3425,7 +3426,7 @@ LE361:
   cmp     ACC1E ; FIXME label
   bcs     Le378
   lda     #$00    ; FIXME 65c02
-  sta     BUFEDT
+ ; sta     BUFEDT
   rts
 Le378  
 
@@ -3454,7 +3455,7 @@ Le398:
   sta     (RES),y
   bne     Le3b1
 @S1:
-  sta     BUFEDT,x
+;  sta     BUFEDT,x
   inc     MENX
   cpx     ACC1J
   bcc     Le3b1
@@ -3470,7 +3471,7 @@ Le3b1:
   bne     Le390
   ldx     MENX
   lda     #$00        ; FIXME 65C02
-  sta     BUFEDT,x
+  ;sta     BUFEDT,x
   rts
 Le3c5:
   ldx     SCRNB
@@ -3491,12 +3492,12 @@ display_bufedt_content:
   ldy     SCRX,x
 Le3e3:
   ldx     MENX ; fixme
-  lda     BUFEDT,x
+  ;lda     BUFEDT,x
   beq     Le41c 
   lda     #$20
   bit     ACC1EX
   bmi     @S1
-  lda     BUFEDT,x
+  ;lda     BUFEDT,x
   bpl     @S1
   cmp     #$A0
   bcs     @S1
@@ -4170,7 +4171,7 @@ LECFF
   sta     TR2
   ldx     #$00
 LED12  
-  lda     BUFNOM+1,x
+  ;lda     BUFNOM+1,x
   jsr     send_A_to_serial_output_with_check 
   inx
   cpx     #$0C

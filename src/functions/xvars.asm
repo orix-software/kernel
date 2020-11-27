@@ -11,6 +11,7 @@ XVARS_TABLE_LOW:
   .byt     <KERNEL_CH376_MOUNT
   .byt     <KERNEL_CONF_BEGIN
   .byt     <KERNEL_ERRNO
+  .byt     KERNEL_MAX_NUMBER_OF_MALLOC
   
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
@@ -18,5 +19,6 @@ XVARS_TABLE_HIGH:
   .byt     >KERNEL_CH376_MOUNT
   .byt     >KERNEL_CONF_BEGIN
   .byt     >KERNEL_ERRNO
+  .byt     KERNEL_MALLOC_FREE_CHUNK_MAX
   
   

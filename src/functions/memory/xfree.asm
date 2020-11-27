@@ -8,7 +8,6 @@
     sty     RESB+1
     stx     TR4
     jsr     xdebug_install  
-    jsr     xdebug_print
     lda     RESB
     ldy     RESB+1    
     ldx     TR4
@@ -16,29 +15,35 @@
 .endif
 
 .ifdef WITH_DEBUG
-    jsr     xdebug_enter_XFREE
+    ldx     #XDEBUG_XFREE_ENTER_PRINT
+    jsr     xdebug_print
+    jsr     xdebug_load
+
 .endif
 
   ;jsr     xfree_debug_enter
 ; [A & Y] the first adress of the pointer.
 
   sta     KERNEL_XFREE_TMP    ; Save A (low)
-
-
-
   
   lda     #$01
   sta     TR0 ; TR0 contains the next free chunk
 
 .ifdef WITH_DEBUG
+
+  lda     KERNEL_XFREE_TMP    ; Save A (low)
   jsr xdebug_send_ay_to_printer
   jsr xdebug_enter_xfree_found
+
+  ;jsr xdebug_lsmem
+
 .endif  
 
 ; **************************************************************************************
 ; Try to fund chunk
   ; Search which chunck is used
   ldx     #$00
+
 @search_busy_chunk:
   lda     KERNEL_XFREE_TMP
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x ; Looking if low is available.
@@ -56,7 +61,10 @@
 .ifdef WITH_DEBUG  
   jsr xdebug_enter_not_found
 .endif
-
+    
+.ifdef WITH_DEBUG
+  jsr xdebug_lsmem
+.endif
   lda     #NULL
   
   rts
@@ -137,7 +145,7 @@
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
   beq     @free_chunk_is_available
   iny
-  cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  cpy     #(KERNEL_MALLOC_FREE_FRAGMENT_MAX)
   bne     @find_a_free_chunk  
   ; Panic
   PRINT   str_can_not_find_any_free_chunk_available
@@ -180,7 +188,7 @@
 
     
 .ifdef WITH_DEBUG
-   ; jsr     xdebug_end
+  jsr xdebug_lsmem
 .endif
   lda     #$01 ; Chunk found
 
@@ -202,7 +210,7 @@
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
   
   ; update size
-  
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   clc
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
@@ -251,22 +259,38 @@
 .endif
 
 out:
+.ifdef WITH_DEBUG
+  jsr xdebug_lsmem
+.endif  
   lda     #$01 
   rts
 .endproc
 
-.ifdef WITH_DEBUG
-  .proc k_display_malloc_table
-    sta RESB
-    sty RESB+1
-    stx TR1
-    jsr xdebug_send_ay_to_printer
-    lda RESB
-    ldy RESB+1
-    ldx TR1
-    rts
-  .endproc
-.endif
+.proc garbage_collector
+
+  ldy     #$00
+@try_another_free_chunk:
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+  ; FIXME 65C02, use 'dec A'
+  sec
+  sbc     #$01
+  ;bcs     @skip_inc_high
+  inc     RES
+  ; X contains the index of the busy chunk found
+@skip_inc_high:  
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+  ;beq     @compare_high
+  ; At this step it's not the first free chunk
+  lda     #$00
+  sta     RES
+  iny 
+  cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  bne     @try_another_free_chunk
+ 
+
+  rts
+.endproc
+
 
 str_can_not_find_any_free_chunk_available:
   .asciiz "Can not find another free chunk slot"

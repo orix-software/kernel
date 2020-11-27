@@ -6,12 +6,25 @@
     rts
 .endproc
 
-.proc xdebug_print
+.proc xdebug_lsmem
+    lda  #<$c003
+    sta  VEXBNK+1
+    lda  #>$c003
+    sta  VEXBNK+2
     lda   #$01
     sta   BNKCIB
-    jmp   $40c
-    rts
+    jmp   $40C
 .endproc
+
+.proc xdebug_print
+    jsr    xdebug_save
+    lda   #$01
+    sta   BNKCIB
+ 
+    jmp   $40C
+.endproc
+
+
 
 .proc xdebug_enter_XMALLOC
     jsr    xdebug_save
@@ -238,17 +251,7 @@ loopme:
     rts  
 .endproc
 
-.proc xdebug_enter_XFREE
-    jsr    xdebug_save
-    lda    #<str_enter_free
-    ldy    #>str_enter_free
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_free:
-    .byte $0D,"[XFREE] AY enter : "
-    .byte 0
-.endproc
+
 
 
 .proc xdebug_enter_XFREE_new_freechunk
@@ -260,7 +263,7 @@ str_enter_free:
     jmp    xdebug_enter
 
 str_enter_free:
-    .byte $0D,"[XFREE] new free chunk :"
+    .byte $0D,"[XFREE] new free chunk",$0D
     .byte 0
 .endproc
 
