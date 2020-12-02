@@ -103,7 +103,6 @@ loop:
     bcs     skip
     sbc     #$1F
 skip:
-   ; sta $bb80,x
     sta     CH376_DATA
     inx
     cpx     #13                         ; because we don't manage longfilename shortname =13 8+3 and dot and \0
@@ -198,13 +197,13 @@ _ch376_set_bytes_write:
     sty     CH376_DATA
 .IFPC02
 .pc02    
-    stz     CH376_DATA
-    stz     CH376_DATA
+    ;stz     CH376_DATA
+    ;stz     CH376_DATA
 .p02    
 .else
-    lda     #$00
-    sta     CH376_DATA
-    sta     CH376_DATA
+    ;lda     #$00
+    ;sta     CH376_DATA
+    ;sta     CH376_DATA
 .endif	
     jsr     _ch376_wait_response
     rts
