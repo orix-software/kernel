@@ -15,6 +15,8 @@
 jsr   xdebug_enter_create_fp_XMALLOC
 .endif
 
+  lda     #KERNEL_FP_MALLOC_TYPE
+  sta     KERNEL_MALLOC_TYPE
   lda     #<.sizeof(_KERNEL_FILE)
   ldy     #>.sizeof(_KERNEL_FILE)
   jsr     XMALLOC_ROUTINE               ; Malloc Size of kernel_file MODIFY TR7

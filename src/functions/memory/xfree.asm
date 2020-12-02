@@ -40,7 +40,7 @@
 .endif  
 
 ; **************************************************************************************
-; Try to fund chunk
+; Try to find chunk
   ; Search which chunck is used
   ldx     #$00
 
@@ -109,7 +109,6 @@
   bne     @try_another_free_chunk
  
 
-  ;KERNEL_MALLOC_FREE_CHUNK_MAX
 
   ; Force first free chunk
   ldy    TR0 ; get next free chunk
@@ -288,6 +287,13 @@ out:
   bne     @try_another_free_chunk
  
 
+  rts
+.endproc
+
+.define KERNEL_CREATE_FREE_CHUNK $01
+
+.proc XFREE_merge_free_chunk
+  
   rts
 .endproc
 

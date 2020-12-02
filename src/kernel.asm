@@ -389,13 +389,9 @@ init_process_init_cwd_in_struct:
 
   lda     #<kernel_end_of_memory_for_kernel             ; First byte available when Orix Kernel has started
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
-
   
   lda     #>kernel_end_of_memory_for_kernel
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
-
-
-    
 
   lda     #<KERNEL_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low
@@ -543,12 +539,7 @@ end_proc_init_rams:
   ldx     #$07 ; loops with all banks
   stx     VIA2::PRA ; Switch to each Bank ;
   rts
-.ifdef WITH_TWILIGHTE_BOARD
-str_ram_kernel:
-    .asciiz "Kernel reserved"
-str_ram_empty:
-    .asciiz "Empty RAM"
-.endif
+
 
 data_vectors_VNMI_IRQVECTOR_VAPLIC:
   ; 12 bytes
@@ -782,10 +773,6 @@ code_adress_4AF:
   ; Stack used to switch from any bank
 code_adress_get:
 ; used in bank command in Oric
-.ifdef    TWILIGHTEBOARD_BANK_LINEAR
-  lda     #$00
-  sta     $343
-.endif
   lda     VIA2::PRA
   and     #%11111000                     ; switch to RAM overlay
 ; switch to RAM overlay
@@ -801,10 +788,7 @@ code_adress_get:
   pha   
   lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
   sta     VIA2::PRA
-.ifdef    TWILIGHTEBOARD_BANK_LINEAR
-  lda     #$00
-  sta     $343
-.endif
+
   pla                                ; Get the value
   rts
   ;nop

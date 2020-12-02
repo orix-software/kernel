@@ -49,11 +49,8 @@ jsr   xdebug_enter_create_process_XMALLOC
   rts
 
 @found:
- ; inx
-  ;stx     kernel_process+kernel_process_struct::kernel_current_process
+ 
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-
-  ;inx
   txa
   tay
   iny
@@ -119,6 +116,7 @@ jsr   xdebug_enter_create_process_XMALLOC
   sta     (RES),y
   
   iny
+  cpy     #(KERNEL_MAX_LENGTH_COMMAND+1)
   bne     @L2
 @S1:
   lda     #$00

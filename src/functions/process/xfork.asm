@@ -38,21 +38,17 @@
 
 
 
-   jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
+  jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
    
-   ; we reached max process to launch ?
-   lda     KERNEL_ERRNO
-   cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-   beq     exit_to_kernel    ; Yes we
-   rts
+  ; we reached max process to launch ?
+  lda     KERNEL_ERRNO
+  cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
+  beq     exit_to_kernel    ; Yes we
+  rts
 exit_to_kernel:
 ; pull from stack old pc
-
-
-   pla
-   pla
-   rts
-
-
+  pla
+  pla
+  rts
 .endproc 
 

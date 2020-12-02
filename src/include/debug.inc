@@ -1,3 +1,6 @@
+.define XDEBUG_CREATE_PROCESS_PRINT $00
+.define XDEBUG_XFREE_ENTER_PRINT    $01
+
 .struct kernel_debug_struct
 RA           .res 1
 RY           .res 1

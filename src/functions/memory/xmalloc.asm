@@ -34,22 +34,23 @@
     jsr     xdebug_enter_XMALLOC_xmainargs
     jmp     @O1
 @O3:
+    cmp     #KERNEL_FP_MALLOC_TYPE
+    bne     @O5
+    jsr     xdebug_enter_XMALLOC_fp
+    jmp     @O1
+@O5:
     jsr     xdebug_send_a_to_printer
 @O1:
     pla
     ;jsr xdebug_enter_xfree_found
 .endif  
 
-
-
-
-
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate    
-                          
+                     
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
-      
+
     lda     #ENOMEM
     sta     KERNEL_ERRNO
 
@@ -71,7 +72,7 @@
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     beq     @found
     inx 
-    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC+1
+    cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
 
     beq     @exit_null 
     bne     @looking_for_busy_chunck_available
@@ -114,21 +115,23 @@
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
     
     ; update now the memory available in the chunk memory free
-    
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+
+; $c67c   
+; 
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
     sec
-    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x ; X=3 X=4 $24 $EB
     bcs     @skip3
-    dec     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+    dec     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $561
 @skip3:
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $45 $24
     
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $561 $84 $84
     sec
-    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x ; $557 X=3
 
     ; FIXME 32 bits
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $84 ; $84
     
     ; Ok now inc the next free memory offset 
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
@@ -159,7 +162,12 @@
 
     lda     #KERNEL_UNKNOWN_MALLOC_TYPE
     sta     KERNEL_MALLOC_TYPE  
+.ifdef WITH_DEBUG
 
+  ;jsr  xdebug_save
+  ;jsr xdebug_lsmem
+
+.endif
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     ; Debug
