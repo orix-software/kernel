@@ -27,7 +27,7 @@
   sta     KERNEL_XFREE_TMP    ; Save A (low)
   
   lda     #$01
-  sta     TR0 ; TR0 contains the next free chunk
+  sta     TR5 ; TR0 contains the next free chunk
 
 .ifdef WITH_DEBUG
 
@@ -54,7 +54,7 @@
   
 @next_chunk:
   inx
-  cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC+1)
+  cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
   bne     @search_busy_chunk
   
   ; We did not found this busy chunk, return 0 in A
@@ -111,7 +111,7 @@
 
 
   ; Force first free chunk
-  ldy    TR0 ; get next free chunk
+  ldy    TR5 ; get next free chunk
   sty    RES+1
 
   jmp    @create_new_freechunk
@@ -185,6 +185,7 @@
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
 
 
+  jsr     garbage_collector
     
 .ifdef WITH_DEBUG
   jsr xdebug_lsmem
@@ -258,36 +259,111 @@
 .endif
 
 out:
+
 .ifdef WITH_DEBUG
   jsr xdebug_lsmem
 .endif  
+  jsr     garbage_collector
   lda     #$01 
   rts
 .endproc
 
 .proc garbage_collector
+  rts
+;Free:#2F47:B3FF #84BE
+;Free:#07DB:07FB #0020
+;Free:#07FC:0835 #0039
+;Busy:#06C0:0739 #0079
+;Busy:#073A:0760 #0026
+;Busy:#0761:07DA #0079
+;Busy:#0836:2F46 #2710
+.ifdef WITH_DEBUG
+  ldx  #XDEBUG_GARBAGE_IN
+  jsr     xdebug_print
+  jsr xdebug_lsmem
+.endif  
+  
 
   ldy     #$00
+  sty     RES
+
+  ldx     #$01  
 @try_another_free_chunk:
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
   ; FIXME 65C02, use 'dec A'
   sec
   sbc     #$01
-  ;bcs     @skip_inc_high
+  bcs     @skip_inc_high
   inc     RES
   ; X contains the index of the busy chunk found
 @skip_inc_high:  
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
-  ;beq     @compare_high
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  beq     @compare_high
   ; At this step it's not the first free chunk
+@continue:
   lda     #$00
   sta     RES
+  inx
   iny 
   cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
   bne     @try_another_free_chunk
- 
+
+.ifdef WITH_DEBUG
+  ldx  #XDEBUG_GARBAGE_OUT
+  jsr     xdebug_print  
+  jsr xdebug_lsmem
+.endif  
 
   rts
+
+@compare_high:
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+  sty     RES+1 ; Save current free chunk
+  ldy     RES
+  cpy     #$01
+  bne     @don_t_inc_carry
+  sec
+  sbc     #$01
+@don_t_inc_carry:
+  ; X contains the index of the busy chunk found
+  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  beq     @merge_with_free_table
+  ldy     RES+1
+
+  jmp     @continue
+
+@merge_with_free_table:
+
+ ; add in the free malloc table
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+	
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+  
+  ; update size
+
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  clc
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  bcc     @do_not_inc
+  stx     RES
+  sta     RES+1
+  tya 
+  tax
+  inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+
+  ldx     RES
+  lda     RES+1
+@do_not_inc:
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+
+
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  clc
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  jmp     @continue
 .endproc
 
 .define KERNEL_CREATE_FREE_CHUNK $01
