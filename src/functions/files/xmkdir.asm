@@ -71,7 +71,7 @@
 
     jmp     XOPEN_ROUTINE
     
-    
+
     lda     #CH376_SET_FILE_NAME        ;$2f
     sta     CH376_COMMAND
     lda     #"/"
@@ -97,7 +97,7 @@
     cmp     #"a"                        ; 'a'
     bcc     @skip
     cmp     #$7B                        ; 'z'
-    bcs     skip
+    bcs     @skip
     sbc     #$1F
 @skip:
     sta     CH376_DATA

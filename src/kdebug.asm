@@ -236,15 +236,22 @@ hex_table:
 table_low:        
         .byte <str_create_process
         .byte <str_xfree_enter
+        .byte <str_xfree_garbage_collector_in
+        .byte <str_xfree_garbage_collector_out        
 table_high:        
         .byte >str_create_process
         .byte >str_xfree_enter
+        .byte >str_xfree_garbage_collector_in
+        .byte >str_xfree_garbage_collector_out        
 
 str_create_process:
         .byte "[CREATE PROCESS]",$0D,0
 str_xfree_enter:
         .byte $0D,"[XFREE] AY enter : ",0
-
+str_xfree_garbage_collector_in:        
+        .byte $0D,"[GARBAGE COLLECTOR IN]",0
+str_xfree_garbage_collector_out:        
+        .byte $0D,"[GARBAGE COLLECTOR OUT]",0
 .proc xdebug_send_string_to_printer
     ldy    #$00
 @L1:    

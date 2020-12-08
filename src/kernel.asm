@@ -1,5 +1,7 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
+.define VERSION "2021.1"
+
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -556,7 +558,9 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90,"ORIX v2021.1",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90,"ORIX v"
+  .byte     VERSION
+  .byte     $90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
@@ -5922,6 +5926,8 @@ kernel_compile_option:
   .byt    KERN_ACIA_CONFIG+KERN_SDCARD_FOR_ROOT_CONFIG
 
 
+version:
+  .asciiz VERSION
 
 ;$fff8-9 : copyright address
 ;$fffa : software version BCD : 1.4 -> $14
@@ -5933,8 +5939,8 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2021.1"
-  .byt     __DATE__
+  .byte     "Kernel v"
+  .asciiz VERSION  
 .IFPC02
 .pc02
   .byt     " 65C02"
