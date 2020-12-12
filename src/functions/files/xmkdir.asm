@@ -69,22 +69,21 @@
     ldx     ptr1+1
 
 
-    jsr     XOPEN_ROUTINE
-    rts
+    jmp     XOPEN_ROUTINE
+    
 
-
+    lda     #CH376_SET_FILE_NAME        ;$2f
+    sta     CH376_COMMAND
     lda     #"/"
-    sta     BUFNOM
-.IFPC02
-.pc02
-    stz     BUFNOM+1 ; INIT  
-.p02    
-.else  
-    lda     #$00 ; used to write in BUFNOM
-    sta     BUFNOM+1 ; INIT  
-.endif
-    jsr     _ch376_set_file_name
+    sta     CH376_DATA
+
+    lda     #$00
+    sta     CH376_DATA
+
     jsr     _ch376_file_open
+
+    lda     #CH376_SET_FILE_NAME        ;$2f
+    sta     CH376_COMMAND
 
     ldy     #$00                   ; skip /
 @next_folder:
@@ -95,26 +94,30 @@
     beq     @end
     cmp     #"/"
     beq     @create_dir
-    sta     BUFNOM,x
+    cmp     #"a"                        ; 'a'
+    bcc     @skip
+    cmp     #$7B                        ; 'z'
+    bcs     @skip
+    sbc     #$1F
+@skip:
+    sta     CH376_DATA
+    
 
     inx
     bne     @next_char
 @end:
     ; Create last folder
     ; Store 0
+    sta     CH376_DATA
 
-    sta     BUFNOM,x
-    jsr     _ch376_set_file_name
     jsr     _ch376_dir_create
     lda     #$00
     rts
   
 @create_dir:
-    lda     #$00
-    sta     BUFNOM,x
+    sta     CH376_DATA
     sty     TR7   ; save Y
-    jsr     _ch376_set_file_name
-    sta     KERNEL_ERRNO
+;    sta     KERNEL_ERRNO
     jsr     _ch376_dir_create
     ldy     TR7
     jmp     @next_folder ; FIXME 65c02

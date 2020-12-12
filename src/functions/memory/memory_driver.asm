@@ -105,7 +105,7 @@ read_command_from_bank_driver_to_patch:
     jsr     VEXBNK
 
     lda     VIA2::PRA
-    ora     #%00000111                     ; Return to telemon
+    ora     #%00000111                     ; Return to kernel
     sta     VIA2::PRA
     lda     #EOK
 

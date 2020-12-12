@@ -1,30 +1,29 @@
 
 
 ;.struct XMAINARGS_STRUCT
-;__argc       .byte    ; number of args
-;next_arg_ptr .word
-;argv_ptr      .res     (3 * 2)
-;argv_value    .res     
+;argc              .byte    ; number of args 
+;argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
+;argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 ;.endstruct
-
-; Contain the id of the argument
+; X Contain the id of the argument
 .proc XGETARGV_ROUTINE
-    sta     RES
+ 
+   ; lda     RES
     sty     RES+1
-    ; X contains the ID of the param
-	txa
-    asl
-	sta		TR4
+    sty     RESB+1
+    sta     RES
 
-    lda     #XMAINARGS_STRUCT::argv_ptr+1
-	clc
-	adc		TR4
+    txa
+    tay
+
+    lda     (RES),y ; get id arg
     clc
     adc     RES
-    bcc     skip
-    inc     RES+1
-skip:
-    ldy     RES+1
+    bcc     @S1
+    inc     RESB+1
+@S1:    
+    ldy     RESB+1
+    ; A & Y return ptr of the param
 
 	rts
 .endproc        

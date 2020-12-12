@@ -1,17 +1,18 @@
 .struct XMAINARGS_STRUCT
-argc              .byte    ; number of args
-argv_ptr          .res     (KERNEL_MAX_ARGS_COMMAND_LINE * 2)
-argv_value_ptr    .res     (KERNEL_MAX_LENGTH_BUFEDT)
+argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
+argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 .endstruct
 
-; Register Modify : A,X,Y
-; Register Save : 
-; Memory modify : RES,RESB,TR0,TR1
-; Memory save : RES,RESB,TR0,TR1
+.if     .sizeof(XMAINARGS_STRUCT) > 255
+  .error  "XMAINARGS_STRUCT size is greater than 255. It's impossible because code does not handle a struct greater than 255"
+.endif
 
-XMAINARGS_ROUTINE_SPLIT_VALUE         :=TR1
-XMAINARGS_ROUTINE_ARGV_PTR            :=TR2 ; word
-XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
+; Register Modify : A,X,Y
+; Memory modify : RES,RESB,TR0,TR1,TR2,TR3,TR4
+
+XMAINARGS_SPACEFOUND  := TR4 ; 1 byte
+XMAINARGSV      := TR1 ; 2 byte
+XMAINARGSC      := TR0 ; 1 byte 
 
 .proc XMAINARGS_ROUTINE
 
@@ -26,20 +27,25 @@ XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
 
     lda     RES
     clc
-    adc     #kernel_one_process_struct::cmdline+1 ; 1 : number of args
+    adc     #kernel_one_process_struct::cmdline ; 1 : number of args
     bcc     @S7
     inc     RES+1
 @S7:
-    sta     RESB
-    sty     RESB+1
+    sta     RES
 
+    lda     #KERNEL_XMAINARG_MALLOC_TYPE
+    sta     KERNEL_MALLOC_TYPE
     lda     #<.sizeof(XMAINARGS_STRUCT)
-    ldy     #<.sizeof(XMAINARGS_STRUCT)
+    ldy     #>.sizeof(XMAINARGS_STRUCT)
     jsr     XMALLOC_ROUTINE
     cmp     #$00
     bne     @continue
     cpy     #$00
     bne     @continue
+    lda     #ENOMEM
+    sta     KERNEL_ERRNO
+    ldx     #$00 ; Return argc=0
+
     ; oom
 
     rts 
@@ -48,176 +54,84 @@ XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR :=TR4 ; word
     sta     RESB
     sty     RESB+1
 
+    ; Compute offsets
+    ; Get first offset 
+    ldy     #XMAINARGS_STRUCT::argv_ptr
+    lda     #XMAINARGS_STRUCT::argv_value_ptr
+    sta     (RESB),y 
+
+    
+    lda     RESB+1
+    sta     XMAINARGSV+1
+    
+    lda     #XMAINARGS_STRUCT::argv_value_ptr
+    clc
+    adc     RESB
+    bcc     @S3
+    inc     XMAINARGSV+1
+@S3:    
+    sta     XMAINARGSV ; TR2 contains the first offset
+
+    lda     #$00
+    sta     XMAINARGS_SPACEFOUND
+
+    lda     #$01 ; 1 because there is at least the binary
+    sta     XMAINARGSC ; TR0 contains number of args
+
     ldy     #$00
+
 @loop:    
     lda     (RES),y
+
     beq     @out
     cmp     #' '
     beq     @new_arg
+    ; store the string
+    sta     (XMAINARGSV),y
+
+    lda     #$00
+    sta     XMAINARGS_SPACEFOUND
+  
+    iny
+    bne     @loop
 
 @out:
+    lda     #$00
+    sta     (XMAINARGSV),y
+    
+    ldx     XMAINARGSC
+    ; return ptr
+    lda     RESB ; $7C9
+    ldy     RESB+1
+
+
     rts
 @new_arg:
-    sty     TR0
-    ldy     #XMAINARGS_STRUCT::argc
-    lda     (RESB),y
-    clc
-    adc     #$01
+    lda     XMAINARGS_SPACEFOUND
+    bne     @no_new_arg    
+    
+    lda     #$01
+    sta     XMAINARGS_SPACEFOUND
+
+    lda     #$00
+    sta     (XMAINARGSV),y
+
+    tya
+    tax
+    sec     ; add 1 in order to be after \0
+    adc     #XMAINARGS_STRUCT::argv_value_ptr
+    
+    ldy     XMAINARGSC
     sta     (RESB),y
-    ldy     TR0
+    
+    txa
+    tay
+  
+    inc     XMAINARGSC 
+
+@no_new_arg:
+    iny
     jmp     @loop
 
     
-
-; now TR4 & TR5 are set the the beginning of cmdline
-
-;  ldy     #$00
-;@L10:  
- ; lda     (RESB),y
-;  beq     @S8
-  ;sta     (TR4),y
-  ;iny
-  ;cpy     #KERNEL_LENGTH_MAX_CMDLINE
-  ;bne     @L10
-;
-        rts
-        sta     RESB                    ; Contains command line pointer
-        sty     RESB+1        
-        
-        lda     #<.sizeof(XMAINARGS_STRUCT)
-        ldy     #>.sizeof(XMAINARGS_STRUCT)
-        jsr     XMALLOC_ROUTINE
-
-        sta     RES                     ; Contains address of mainargs struct
-        sty     RES+1
-
-        lda     #" " ; Split value 
-        sta     XMAINARGS_ROUTINE_SPLIT_VALUE
-
-; ************************* init XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
-        lda     RES+1
-        sta     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
-        sta     XMAINARGS_ROUTINE_ARGV_PTR+1
-        ;sta     $5003
-
-        ldy     #(XMAINARGS_STRUCT::argv_value_ptr)
-        tya
-        clc        
-        adc     RES
-        bcc     S3
-        inc     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
-        inc     XMAINARGS_ROUTINE_ARGV_PTR+1
-S3:
-        sta     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
-        sta     XMAINARGS_ROUTINE_ARGV_PTR
-        ;sta     $5002
-
-; ************************* init XMAINARGS_ROUTINE_ARGV_PTR
-        
-
-        lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
-        sta     XMAINARGS_ROUTINE_ARGV_PTR
-        lda     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
-        sta     XMAINARGS_ROUTINE_ARGV_PTR+1
-
-
-        ldy     #$00
-        lda     #$00
-
-        ; init  ARGV to 0
-.ifpc02 
-.pc02
-        sta     (RES)
-.p02    
-.else
-        sta     (RES),y
-        ;iny 
-.endif     
-
-        ldy     #$00
-L0:     lda     (RESB),y
-        beq     L3
-        cmp     XMAINARGS_ROUTINE_SPLIT_VALUE     ; Split value is store in TR1
-        bne     L1
-        jsr     terminate_param
-        iny
-        jsr     inc_argv
-        
-.ifpc02 
-.pc02
-        bra     L0
-.p02    
-.else
-        jmp     L0                                ; FIXME could be replace by bne
-.endif        
-
-L1:  
-
-        sta     (XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR),y
-		
-        iny
-        cpy     #MAX_BUFEDT_LENGTH ; MAX_BUFEDT_LENGTH
-        bne     L0
-        lda     #$00
-L3:	
-        jsr     terminate_param
-        jsr     inc_argv   
-        ; Return pointer
-        lda     RES
-        ldy     RES+1
-        rts
-
-inc_argv:
-
-.ifpc02
-.pc02
-        lda     (RES)                   ; get argc
-        inc     a
-        sta     (RES)                   ; get argc
-.p02
-.else
-.p02    
-        tya                             ; FIXME 65C02
-        pha
-        ; argc++
-        ldy     #$00
-        lda     (RES),y                 ; get argc
-        
-        sec
-        adc     #$00                    ; inc a
-        
-        sta     (RES),y                 ; get argc
-
-        pla
-        tay
-.endif    
-
-        rts
-
-terminate_param:
-        sty     TR0
-
-
-        lda     #$00
-        sta     (XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR),y
-        iny
-        tya
-        clc        
-        adc     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
-        bcc     S4
-        inc     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR+1
-S4:
-        sta     XMAINARGS_ROUTINE_NEXT_ARGV_VALUE_PTR
-
-        lda     XMAINARGS_ROUTINE_ARGV_PTR
-        clc
-        adc     #02
-        bcc     S5
-        inc     XMAINARGS_ROUTINE_ARGV_PTR+1
-S5:     
-        sta     XMAINARGS_ROUTINE_ARGV_PTR
-
-        ldy     TR0
-        rts
-
 .endproc        

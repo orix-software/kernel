@@ -4,6 +4,8 @@
     ; A & Y contains the string command to execute
     sta     TR0        ; Save string pointer
     sty     TR1        ;
+
+
     ; Copy in BUFEDT
     ldy     #$00
 @L7:    
@@ -30,7 +32,6 @@
 @do_not_correct:    
     sta     KERNEL_KERNEL_XEXEC_BNKOLD
 
-
     ldx     #$05       ; start at bank 05
     stx     KERNEL_TMP_XEXEC
 
@@ -43,6 +44,7 @@ next_bank:
     ldy     TR1
     sta     RES
     sty     RES+1
+
 
     jsr     KERNEL_DRIVER_MEMORY
 
@@ -63,7 +65,6 @@ read_on_sdcard:
 
     cmp     #EOK
     beq     out_from_bin
-
 
     rts
 

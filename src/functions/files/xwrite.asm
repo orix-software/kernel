@@ -1,14 +1,12 @@
+.export XWRITEBYTES_ROUTINE
 .proc XWRITEBYTES_ROUTINE
 ; [IN] AY contains the length to write
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [MODIFIED] TR0,PTR_READ_DEST, YA
-
+; fwrite( void * restrict buffer, size_t blocSize, FILE * restrict stream );
 ; [UNCHANGED] X
   jsr     _ch376_set_bytes_write
 
-  cmp     #CH376_USB_INT_SUCCESS    ; finished
-  beq     @writeme
-  rts     
 @continue:
   cmp     #CH376_USB_INT_DISK_WRITE  ; something to read
   beq     @writeme

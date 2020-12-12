@@ -1,3 +1,30 @@
+.proc xdebug_install
+    lda  #<$c000
+    sta  VEXBNK+1
+    lda  #>$c000
+    sta  VEXBNK+2
+    rts
+.endproc
+
+.proc xdebug_lsmem
+    lda  #<$c003
+    sta  VEXBNK+1
+    lda  #>$c003
+    sta  VEXBNK+2
+    lda   #$01
+    sta   BNKCIB
+    jmp   $40C
+.endproc
+
+.proc xdebug_print
+    jsr    xdebug_save
+    lda   #$01
+    sta   BNKCIB
+ 
+    jmp   $40C
+.endproc
+
+
 
 .proc xdebug_enter_XMALLOC
     jsr    xdebug_save
@@ -11,6 +38,62 @@ str_enter_malloc:
 .endproc
 
 
+.proc xdebug_enter_XMALLOC_process_struct
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "PROCESS_STRUCT(Kernel)",0
+.endproc
+
+.proc xdebug_enter_XMALLOC_xmainargs
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "MAINARGS(Kernel)",0
+.endproc
+
+.proc xdebug_enter_XMALLOC_fp
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "FP(Kernel)",0
+.endproc
+
+.proc xdebug_enter_XMALLOC_unknown
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "UNKNOWN",0
+.endproc
+
+
+.proc xdebug_enter_XMALLOC_TYPE
+    jsr    xdebug_save
+    lda    #<str_enter_malloc
+    ldy    #>str_enter_malloc
+    sta    RES 
+    sty    RES+1
+    jmp    xdebug_enter
+str_enter_malloc:
+    .byte "Type:",0
+.endproc
+
 .proc xdebug_enter_merge_free_table
     jsr    xdebug_save
     lda    #<str_enter_malloc
@@ -22,7 +105,6 @@ str_enter_malloc:
     .byte $0D,"[XFREE] Merge Free table",0
 .endproc
 
-
 .proc xdebug_enter_not_found
     jsr    xdebug_save
     lda    #<str_enter_malloc
@@ -31,7 +113,7 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte $0D,"[XFREEE] not found",0
+    .byte $0D,"[XFREE] not found",0
 .endproc
 
 .proc xdebug_enter_RETURNLINE
@@ -44,8 +126,6 @@ str_enter_malloc:
 str_enter_malloc:
     .byte $0D,0
 .endproc
-
-
 
 .proc xdebug_enter_XMALLOC_return_adress
     jsr    xdebug_save
@@ -67,7 +147,7 @@ str_enter_found:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte $0D,"[CREATE PROCESS] (Next malloc is for process struct)",0
+    .byte $0D,"[CREATE PROCESS]",0
 .endproc
 
 .proc xdebug_enter_create_fp_XMALLOC
@@ -78,7 +158,7 @@ str_enter_malloc:
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
-    .byte $0D,"[Create FP]  (Next malloc is for process struct)",0
+    .byte $0D,"[Create FP]",0
 .endproc
 
 .proc xdebug_binhex
@@ -114,6 +194,18 @@ hex_table:
 .byte "0123456789ABCDEF"                  
 .endproc     
 
+.proc xdebug_send_y_to_printer
+    jsr        xdebug_save
+    lda        #'#'
+    jsr        xdebug_send_printer
+    lda        kernel_debug+kernel_debug_struct::RY
+   
+    jsr        xdebug_binhex
+    lda        #' '
+    jsr        xdebug_send_printer
+    jsr        xdebug_load
+    rts  
+.endproc
 
 .proc xdebug_send_x_to_printer
     jsr        xdebug_save
@@ -159,17 +251,7 @@ loopme:
     rts  
 .endproc
 
-.proc xdebug_enter_XFREE
-    jsr    xdebug_save
-    lda    #<str_enter_free
-    ldy    #>str_enter_free
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_free:
-    .byte $0D,"[XFREE] AY enter : "
-    .byte 0
-.endproc
+
 
 
 .proc xdebug_enter_XFREE_new_freechunk
@@ -181,7 +263,7 @@ str_enter_free:
     jmp    xdebug_enter
 
 str_enter_free:
-    .byte $0D,"[XFREE] new free chunk :"
+    .byte $0D,"[XFREE] new free chunk",$0D
     .byte 0
 .endproc
 

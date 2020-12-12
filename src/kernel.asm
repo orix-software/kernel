@@ -1,5 +1,7 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
+.define VERSION "2021.1"
+
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -32,8 +34,8 @@
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 
-KERNEL_XOPEN_PTR1     := $04 ; DECBIN
-KERNEL_XOPEN_PTR2     := $06 ; DECFIN
+KERNEL_XOPEN_PTR1        := $04 ; DECBIN
+KERNEL_XOPEN_PTR2        := $06 ; DECFIN
 
 KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
 
@@ -389,13 +391,9 @@ init_process_init_cwd_in_struct:
 
   lda     #<kernel_end_of_memory_for_kernel             ; First byte available when Orix Kernel has started
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
-
   
   lda     #>kernel_end_of_memory_for_kernel
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
-
-
-    
 
   lda     #<KERNEL_MALLOC_MAX_MEM_ADRESS          ; Get the max memory adress (in oric.h)
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low
@@ -434,18 +432,19 @@ launch_command:
   lda     #>str_binary_to_start
   sta     RES+1
   ; copy to BUFEDT
+  ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
   ldy     #$00
 @L1:  
   lda     (RES),y
   beq     @S1
-  sta     BUFEDT,y
+  sta     kernel_end_of_memory_for_kernel,y
   iny
   bne     @L1
 @S1:
-  sta     BUFEDT,y
+  sta     kernel_end_of_memory_for_kernel,y
 
-  lda     #<BUFEDT
-  ldy     #>BUFEDT
+  lda     #<kernel_end_of_memory_for_kernel
+  ldy     #>kernel_end_of_memory_for_kernel
 
   jmp     _XEXEC ; start shell
 
@@ -536,56 +535,13 @@ loading_code_to_page_6:
   inx
   bne     @loop ; copy 256 bytes to BUFROU in OVERLAY RAM
     ; Becare full, each time shell is executed it launch it
-.ifdef WITH_TWILIGHTE_BOARD2
-  ; Fill all ram banks with empty ram string
-  sei
-  lda     $342 
-  ora     #$20
-  sta     $342
 
-  lda     #$00
-  sta     $600
-
-  ldx     $600
-next_ram_bank:
-  stx     $343
-  
-  ldx     #$C0
-  stx     $C001
-  ldx     #$00
-  stx     $C000
-@L1:
-  lda     $0600+(str_ram_empty-loading_code_to_page_6),x
-  sta     $C000,x
-  inx
-  cpx     #(str_ram_empty_end-str_ram_empty)
-  bne     @L1
-
-  ldx     $343
-  inx
-  cpx     #14
-  bne     next_ram_bank
-
-@out: 
-  lda     #$00
-  sta     $343
-
-  lda     $342
-  and     #%11011111
-  sta     $342
-  cli
-.endif
 
 end_proc_init_rams:
   ldx     #$07 ; loops with all banks
   stx     VIA2::PRA ; Switch to each Bank ;
   rts
-.ifdef WITH_TWILIGHTE_BOARD
-str_ram_kernel:
-    .asciiz "Kernel reserved"
-str_ram_empty:
-    .asciiz "Empty RAM"
-.endif
+
 
 data_vectors_VNMI_IRQVECTOR_VAPLIC:
   ; 12 bytes
@@ -602,13 +558,15 @@ IRQVECTOR_CODE:
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
 str_telestrat:  
-  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90," ORIX v2020.4 ",$90,$91,$92,$93,$94,$95,$96,$97,$90
+  .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90,"ORIX v"
+  .byte     VERSION
+  .byte     $90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     " CPU:6502"
+  .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
@@ -804,13 +762,9 @@ code_adress_4A1:
   
 ; this routine read a value in a bank
 ; 
-code_adress_4AF  
+code_adress_4AF:
   lda     VIA2::PRA
-.ifdef EXTEND_TO_31_BANK
-  and     #%11100000
-.else
   and     #%11111000                     ; switch to RAM overlay
-.endif
   ora     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
   sta     VIA2::PRA
   lda     (ADDRESS_READ_BETWEEN_BANK),y  ; Read byte
@@ -820,18 +774,11 @@ code_adress_4AF
   sta     VIA2::PRA
   pla                                    ; Get the value
   rts
-  ;nop
-  ;nop
   ; Stack used to switch from any bank
 code_adress_get:
 ; used in bank command in Oric
-
   lda     VIA2::PRA
-.ifdef EXTEND_TO_31_BANK
-  and     #%11100000
-.else
   and     #%11111000                     ; switch to RAM overlay
-.endif
 ; switch to RAM overlay
   ora     tmp1                           ; but select a bank in $410
   sta     VIA2::PRA
@@ -845,6 +792,7 @@ code_adress_get:
   pha   
   lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
   sta     VIA2::PRA
+
   pla                                ; Get the value
   rts
   ;nop
@@ -1533,7 +1481,7 @@ vectors_telemon:
   .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE           ; 2a
   .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2B
   .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE   ; $2C
-  .byt     <XGETARGC_ROUTINE,>XGETARGC_ROUTINE     ; $2D
+  .byt     <$00,>$00     ; $2D
   .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE     ; $2E
   .byt     $00,$00
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
@@ -1837,7 +1785,6 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/process/xexec.asm"
 .include  "functions/process/xfork.asm"
 .include  "functions/mainargs.asm"
-.include  "functions/getargc.asm"
 .include  "functions/getargv.asm"
 .include  "functions/text/xfwr.asm"
 
@@ -2427,12 +2374,12 @@ output_window0:
 output_window1  
   pha                                                              
   php                                                              
-  lda     #$01    ;   fen?tre 1
+  lda     #$01    ;   fenêtre 1
   bne     skipme2000    ;                                                 
 output_window2
   pha                                                              
   php                                                              
-  lda     #$02    ;  fen?tre 2
+  lda     #$02    ;  fenêtre 2
   bne     skipme2000
 output_window3:
   pha                                                              
@@ -2441,9 +2388,9 @@ output_window3:
 skipme2000:
 
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
-  plp          ;  on lit la commande
-  bpl     @S1    ;  écriture -------    
-  jmp     LDECE    ;  ouverture      I      
+  plp                 ;  on lit la commande
+  bpl     @S1         ;  écriture -------    
+  jmp     LDECE       ;  ouverture      I      
 @S1:
   pla          ;  on lit la donnée <
  ; sta     SCRNB+1      ;  que l'on sauve
@@ -2527,12 +2474,12 @@ LDBED
     
 
 LDC2B
-  ldx     SCRNB
-  ldy     SCRX,x
-  lda     (ADSCR),y
-  sta     CURSCR,x
-  lda     ADSCR
-  sta     ADSCRL,x
+  ldx     SCRNB      ; Get screen number
+  ldy     SCRX,x     ; Get position X
+  lda     (ADSCR),y  ; get previous char on the cursor
+  sta     CURSCR,x   ; and save ot 
+  lda     ADSCR      ; get current addr (low)
+  sta     ADSCRL,x   ; save it
   lda     ADSCR+1
   sta     ADSCRH,x
   pla
@@ -3429,7 +3376,7 @@ LE361:
   cmp     ACC1E ; FIXME label
   bcs     Le378
   lda     #$00    ; FIXME 65c02
-  sta     BUFEDT
+ ; sta     BUFEDT
   rts
 Le378  
 
@@ -3458,7 +3405,7 @@ Le398:
   sta     (RES),y
   bne     Le3b1
 @S1:
-  sta     BUFEDT,x
+;  sta     BUFEDT,x
   inc     MENX
   cpx     ACC1J
   bcc     Le3b1
@@ -3474,7 +3421,7 @@ Le3b1:
   bne     Le390
   ldx     MENX
   lda     #$00        ; FIXME 65C02
-  sta     BUFEDT,x
+  ;sta     BUFEDT,x
   rts
 Le3c5:
   ldx     SCRNB
@@ -3495,12 +3442,12 @@ display_bufedt_content:
   ldy     SCRX,x
 Le3e3:
   ldx     MENX ; fixme
-  lda     BUFEDT,x
+  ;lda     BUFEDT,x
   beq     Le41c 
   lda     #$20
   bit     ACC1EX
   bmi     @S1
-  lda     BUFEDT,x
+  ;lda     BUFEDT,x
   bpl     @S1
   cmp     #$A0
   bcs     @S1
@@ -4174,7 +4121,7 @@ LECFF
   sta     TR2
   ldx     #$00
 LED12  
-  lda     BUFNOM+1,x
+  ;lda     BUFNOM+1,x
   jsr     send_A_to_serial_output_with_check 
   inx
   cpx     #$0C
@@ -5979,6 +5926,8 @@ kernel_compile_option:
   .byt    KERN_ACIA_CONFIG+KERN_SDCARD_FOR_ROOT_CONFIG
 
 
+version:
+  .asciiz VERSION
 
 ;$fff8-9 : copyright address
 ;$fffa : software version BCD : 1.4 -> $14
@@ -5990,8 +5939,8 @@ kernel_compile_option:
 ;$fffe-f :  IRQ (02fa)
 
 signature:
-  .asciiz     "Kernel v2020.4"
-  .byt     __DATE__
+  .byte     "Kernel v"
+  .asciiz VERSION  
 .IFPC02
 .pc02
   .byt     " 65C02"

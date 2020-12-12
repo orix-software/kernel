@@ -212,19 +212,12 @@
 
  
 @file_not_found:
-  ; 
-
-
 
   lda     XOPEN_FLAGS ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
 
-
 @exit_open_with_null:
-
-  ;lda     #$12
-  ;sta     $bd98
 
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1
@@ -233,8 +226,6 @@
   lda     #ENOENT
   sta     KERNEL_ERRNO
   
-
-
   ; return null 
   ldy     #NULL
   lda     #NULL
