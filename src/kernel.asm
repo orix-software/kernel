@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2021.1"
+.define VERSION "2021.2"
 
 
 .include   "telestrat.inc"          ; from cc65
@@ -2384,7 +2384,7 @@ output_window2
 output_window3:
   pha                                                              
   php                                                              
-  lda     #$03     ; Window 3
+  lda     #$03        ; Window 3
 skipme2000:
 
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
@@ -2670,11 +2670,11 @@ CTRL_H_START:
 CTRL_K_START:
   lda     SCRY,x            ;   et si on est pas                                  
   cmp     SCRDY,x           ; au sommet de la fenêtre,                          
-  bne     LDD6E             ;   on remonte d'une ligne ---------------------------
-  lda     SCRDY,x           ;   X et Y contiennent le début et la                I
+  bne     LDD6E             ; on remonte d'une ligne ---------------------------
+  lda     SCRDY,x           ; X et Y contiennent le début et la                I
   ldy     SCRFY,x           ;  fin de la fentre X                              I
-  tax                       ;                                                   I
-  jsr     XSCROB_ROUTINE    ;  on scrolle l'écran vers le bas ligne X ? Y       I
+  tax                       ;                                                  I
+  jsr     XSCROB_ROUTINE    ; on scrolle l'écran vers le bas ligne X à Y       I
 CTRL_M_START:
   lda     SCRDX,x           ;  on place début de la fenêtre dans X              I
   sta     SCRX,x            ;                                                   I
@@ -2689,7 +2689,7 @@ LDD6E:
                                                                                 
 ;Action:efface la ligne courante                                                 
 CTRL_N_START:
-  ldy     SCRDX,x ;    on prend la premi?re colonne de la fenetre        
+  ldy     SCRDX,x ;    on prend la première colonne de la fenetre        
   jmp     LDD7D   ;    et on efface ce qui suit (bpl aurait été mieux...)
 
 ;                             CODE 24 - CTRL X                              
@@ -5951,8 +5951,11 @@ signature:
   .byt     $00
 
 free_bytes: ; 26 bytes
-  .res     $FFF8-*
-  .org     $FFF8
+  .res     $FFF0-*
+  .org     $FFF0
+  .byt     $01 ; Kernel type  
+
+  .res     7
 
   .byt     <signature
   .byt     >signature
