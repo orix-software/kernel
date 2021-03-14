@@ -54,7 +54,15 @@
   jsr     XGETCWD_ROUTINE ; Modify RESB
 
   jsr     _create_file_pointer ; Modify RES
+  ; Check if oom or other too much busy chunk
+  cmp     #$00
+  bne     @not_null_2
+  cpy     #$00
+  bne     @not_null_2
+  ; For cc65 compatibility
+  tax
 
+  rts
 
 @not_null_2:
   sta     KERNEL_XOPEN_PTR1
@@ -133,11 +141,13 @@
 
 
    ; Already set in _create_file_pointer
-;  lda     #ENOMEM
+ ; lda     #ENOMEM
  ; sta     KERNEL_ERRNO
 
   ; and Y equals to NULL
-  lda     #NULL
+  lda     #$FF
+  tax
+
   rts
 @not_null_1:
   sta     KERNEL_XOPEN_PTR1
