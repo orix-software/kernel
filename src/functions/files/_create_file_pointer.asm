@@ -8,6 +8,7 @@
 ; Output : A,Y the pointer
 
 .proc     _create_file_pointer
+
   sta     RES
   sty     RES+1
 
