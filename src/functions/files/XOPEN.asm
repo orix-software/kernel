@@ -60,6 +60,7 @@
   cpy     #$00
   bne     @not_null_2
   ; For cc65 compatibility
+  lda     #$FF
   tax
 
   rts
