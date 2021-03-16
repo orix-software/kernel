@@ -7,7 +7,7 @@
 ;.endstruct
 ; X Contain the id of the argument
 .proc XGETARGV_ROUTINE
- 
+
    ; lda     RES
     sty     RES+1
     sty     RESB+1

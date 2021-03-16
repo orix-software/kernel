@@ -102,8 +102,9 @@ jsr   xdebug_enter_create_process_XMALLOC
 
 
   ldy     #kernel_one_process_struct::ppid
-  lda     kernel_process+kernel_process_struct::kernel_current_process  
-  sta     (RES),y
+
+  lda     kernel_process+kernel_process_struct::kernel_current_process   ; $57A
+  sta     (RES),y ; $6AE
 
 @register_processname:
   ldy     #kernel_one_process_struct::process_name ; It works because it's the first item

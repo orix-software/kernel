@@ -46,6 +46,7 @@
              
 @all_chunk_are_free:
   ; get the PPID  
+
   lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   tax
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -55,6 +56,7 @@
   sta     RES+1
 
   ldy     #kernel_one_process_struct::ppid
+
   lda     (RES),y   ; A contains the PPID
 
   ; X contains the current PID to kill here clear struct

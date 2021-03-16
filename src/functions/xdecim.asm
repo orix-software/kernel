@@ -8,7 +8,7 @@
 	jsr     XBINDX_ROUTINE
 	ldy     #$00
 @loop:
-	lda     FUFTRV,Y
+	lda     FUFTRV,y
 	jsr     XWR0_ROUTINE
 	iny
 	cpy     TR4

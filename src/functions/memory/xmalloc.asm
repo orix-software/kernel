@@ -209,16 +209,16 @@
 
 _print_hexa:
     pha
-    lda #'#'
-    jsr XWR0_ROUTINE
+    lda     #'#'
+    jsr     XWR0_ROUTINE
     pla
 
-    jsr XHEXA_ROUTINE
-    sty TR7
+    jsr     XHEXA_ROUTINE
+    sty     TR7
     
-    jsr XWR0_ROUTINE
-    lda TR7
-    jsr XWR0_ROUTINE
+    jsr     XWR0_ROUTINE
+    lda     TR7
+    jsr     XWR0_ROUTINE
     rts
 
 
@@ -226,10 +226,10 @@ _print_hexa:
 _print_hexa_no_sharp:
 
 
-    jsr XHEXA_ROUTINE
-    sty TR7
+    jsr     XHEXA_ROUTINE
+    sty     TR7
     
-    jsr XWR0_ROUTINE
-    lda TR7
-    jsr XWR0_ROUTINE
+    jsr     XWR0_ROUTINE
+    lda     TR7
+    jsr     XWR0_ROUTINE
     rts    

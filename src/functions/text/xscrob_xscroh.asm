@@ -18,7 +18,7 @@ XSCROB_ROUTINE
   lda     #$D8                                                         
 scroll_XSCROB_ROUTINE:
   sta     DECFIN     ;   $06-07 contiennent le déplacement                 
-  stx     RES        ;    on met la ligne de d?part en RES                  
+  stx     RES        ;    on met la ligne de départ en RES                  
   tya                                                              
   sec                                                              
   sbc     RES        ;   on calcule le nombre de lignes                    
@@ -31,13 +31,13 @@ scroll_XSCROB_ROUTINE:
   ldx     SCRNB                                                          
   jsr     LDE12      ;   on calcule l'adresse de la ligne                 
   clc                                                              
-  adc     SCRDX,X    ;   l'adresse exacte de la ligne dans la fen?tre      
+  adc     SCRDX,X    ;   l'adresse exacte de la ligne dans la fenêtre      
   bcc     @skip2                                                       
   iny
 @skip2:
   sta     DECCIB     ;  est dans $08-09                                   
   sty     DECCIB+1                                                          
-  clc                ; on ajoute le d?placement                          
+  clc                ; on ajoute le déplacement                          
   adc     DECFIN                                                          
   sta     DECDEB
   tya                                                              
@@ -49,7 +49,7 @@ scroll_XSCROB_ROUTINE:
   bmi     LDECD      ;  si négatif, on sort ------------------------------
   sec                ;  on calcule                                       I
   ldx     SCRNB      ;                                                   I
-  lda     SCRFX,X    ; la largeur de la fenètre                          I
+  lda     SCRFX,X    ; la largeur de la fenêtre                          I
   sbc     SCRDX,X    ;                                                   I
   sta     RES+1      ;  dans RES+1                                       I
 LDE9D
