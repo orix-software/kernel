@@ -1,7 +1,10 @@
 .define XDEBUG_CREATE_PROCESS_PRINT $00
 .define XDEBUG_XFREE_ENTER_PRINT    $01
-.define XDEBUG_GARBAGE_IN    $02
-.define XDEBUG_GARBAGE_OUT    $03
+.define XDEBUG_GARBAGE_IN           $02
+.define XDEBUG_GARBAGE_OUT          $03
+.define XDEBUG_FOUND                $04
+.define XDEBUG_FSEEK                $05
+.define XDEBUG_FCLOSE               $06
 
 .struct kernel_debug_struct
 RA           .res 1

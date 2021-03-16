@@ -40,8 +40,8 @@ print_routine:
 
     ldx     #$00
 @loop:
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
-    beq        @next_chunk
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+    beq     @next_chunk
     lda     #<str_free
     sta     ACC2M
     lda     #>str_free
@@ -82,11 +82,11 @@ print_routine:
 @loop2:
     lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     beq        @next_chunk2
-    lda     #<str_busy
-    sta     ACC2M
-    lda     #>str_busy
-    sta     ACC2M+1
-    jsr     xdebug_send_string_to_printer
+    lda        #<str_busy
+    sta        ACC2M
+    lda        #>str_busy
+    sta        ACC2M+1
+    jsr        xdebug_send_string_to_printer
 
     lda        #'#'
     jsr        xdebug_send_printer
@@ -114,10 +114,10 @@ print_routine:
     jsr        xdebug_send_printer
 @next_chunk2:         
     inx
-    cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
-    bne     @loop2
+    cpx        #(KERNEL_MAX_NUMBER_OF_MALLOC)
+    bne        @loop2
 
-    jsr    xdebug_load
+    jsr        xdebug_load
     rts
 str_lsmem:
 .byte  "[lsmem state]",$0D,$00   
@@ -231,23 +231,39 @@ hex_table:
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
 
-
-
 table_low:        
         .byte <str_create_process
         .byte <str_xfree_enter
         .byte <str_xfree_garbage_collector_in
-        .byte <str_xfree_garbage_collector_out        
+        .byte <str_xfree_garbage_collector_out
+        .byte <str_found_chunk     
+        .byte <str_fseek
+        .byte <str_fclose
 table_high:        
         .byte >str_create_process
         .byte >str_xfree_enter
         .byte >str_xfree_garbage_collector_in
         .byte >str_xfree_garbage_collector_out        
+        .byte >str_found_chunk
+        .byte >str_fseek        
+        .byte >str_fclose        
+
+str_found_chunk:
+        .byte "Found Chunk",0
+
+str_fclose:
+        .byte $0D,"########################################################"
+        .byte "[XCLOSE] ",$0D,0   
+str_fseek:
+        .byte $0D,"########################################################"
+        .byte "[FSEEK] ",$0D,0   
+        
 
 str_create_process:
         .byte "[CREATE PROCESS]",$0D,0
 str_xfree_enter:
-        .byte $0D,"[XFREE] AY enter : ",0
+        .byte $0D,"########################################################"
+        .byte "[XFREE] AY enter : ",$0D,0
 str_xfree_garbage_collector_in:        
         .byte $0D,"[GARBAGE COLLECTOR IN]",0
 str_xfree_garbage_collector_out:        

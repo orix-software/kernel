@@ -61,7 +61,7 @@
   
   ; We did not found this busy chunk, return 0 in A
 .ifdef WITH_DEBUG  
-  jsr xdebug_enter_not_found
+  jsr   xdebug_enter_not_found
 .endif
     
 .ifdef WITH_DEBUG

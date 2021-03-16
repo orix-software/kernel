@@ -11,20 +11,18 @@
     sta  VEXBNK+1
     lda  #>$c003
     sta  VEXBNK+2
-    lda   #$01
-    sta   BNKCIB
-    jmp   $40C
+    lda  #$01
+    sta  BNKCIB
+    jmp  $40C
 .endproc
 
 .proc xdebug_print
-    jsr    xdebug_save
+    jsr   xdebug_save
     lda   #$01
     sta   BNKCIB
  
     jmp   $40C
 .endproc
-
-
 
 .proc xdebug_enter_XMALLOC
     jsr    xdebug_save
