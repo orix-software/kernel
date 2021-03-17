@@ -5,6 +5,15 @@
 .define XDEBUG_FOUND                $04
 .define XDEBUG_FSEEK                $05
 .define XDEBUG_FCLOSE               $06
+.define XDEBUG_XOPEN_ENTER          $07
+.define XDEBUG_XOPEN_ALLOCATE_FP    $08
+.define XDEBUG_XCLOSE_FD_NOT_FOUND  $09
+
+
+.define XDEBUG_FD                   $00
+.define XDEBUG_ERROR_FP_REACH       $01
+.define XDEBUG_FCLOSE_ENTER         $02
+.define XDEBUG_KILL_PROCESS_ENTER   $03
 
 .struct kernel_debug_struct
 RA           .res 1

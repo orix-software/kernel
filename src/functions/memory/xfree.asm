@@ -3,39 +3,37 @@
 
 .proc XFREE_ROUTINE
 
-.ifdef WITH_DEBUG  
-    sta     RESB
-    sty     RESB+1
-    stx     TR4
-    jsr     xdebug_install  
-    lda     RESB
-    ldy     RESB+1    
-    ldx     TR4
+    sta     KERNEL_XFREE_TMP    ; Save A (low)
 
+.ifdef WITH_DEBUG  
+    sty     RESB+1
+    jsr     xdebug_install  
+    ldy     RESB+1    
 .endif
 
 .ifdef WITH_DEBUG
+    sty     RESB+1
     ldx     #XDEBUG_XFREE_ENTER_PRINT
     jsr     xdebug_print
-    jsr     xdebug_load
-
+    ldy     RESB+1
 .endif
 
   ;jsr     xfree_debug_enter
 ; [A & Y] the first adress of the pointer.
 
-  sta     KERNEL_XFREE_TMP    ; Save A (low)
+  
   
   lda     #$01
   sta     TR5 ; TR0 contains the next free chunk
 
 .ifdef WITH_DEBUG
 
-  jsr     xdebug_lsmem
-
   lda     KERNEL_XFREE_TMP    ; Save A (low)
   jsr     xdebug_send_ay_to_printer
-  jsr     xdebug_enter_xfree_found
+
+  ldx     #XDEBUG_FOUND
+  jsr     xdebug_print
+  ;jsr     xdebug_enter_xfree_found
 
   jsr     xdebug_lsmem
 
@@ -162,6 +160,7 @@
 
 
 @free_chunk_is_available:
+  ;jmp     @free_chunk_is_available
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 

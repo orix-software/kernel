@@ -1,7 +1,8 @@
-.define KERNEL_MAX_PROCESS	                       4 ; max 84 because kernel_process_struct is handle with 8 bits offsets
+.define KERNEL_MAX_PROCESS	                       4  ; max 84 because kernel_process_struct is handle with 8 bits offsets
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS         1
 .define KERNEL_MAX_LENGTH_COMMAND                  9
-.define KERNEL_MAX_FP_PER_PROCESS                  2
+.define KERNEL_MAX_FP_PER_PROCESS                  2  ; Can't be greater than KERNEL_MAX_FP
+.define KERNEL_MAX_FP                              2  ; Max filepointer available can
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
 .define KERNEL_LENGTH_MAX_CMDLINE                  37
 
@@ -30,9 +31,12 @@
   kernel_current_process               .res 1                  ; id of the current pid (French, contient l'index et non pas la valeur, l'index sur la table kernel_pid_list)
   kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
   kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
-  kernel_init_string                   .res .strlen("init")+1
+ ; kernel_init_string                   .res .strlen("init")+1
   kernel_cwd_str                       .res .strlen("/")+1
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
+  ; kernel_fd contains ...
+  kernel_fd                            .res KERNEL_MAX_FP
+  ;kernel_next_fd                       .res 1
   kernel_max_process_value             .res 1
 .endstruct
 

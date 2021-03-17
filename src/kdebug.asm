@@ -14,21 +14,115 @@
 
 .code
 rom_start:
+    ; $c000
+    jmp     print_routine
+    jmp     display_lsmem_state
+    jmp     print_msg_and_a
+
+
+
+table_low:        
+    .byte <str_create_process
+    .byte <str_xfree_enter
+    .byte <str_xfree_garbage_collector_in
+    .byte <str_xfree_garbage_collector_out
+    .byte <str_found_chunk     
+    .byte <str_fseek
+    .byte <str_fclose
+    .byte <str_xopen_enter
+    .byte <str_xopen_allocate_fp
+    .byte <str_fclose_not_found    
+table_high:        
+    .byte >str_create_process
+    .byte >str_xfree_enter
+    .byte >str_xfree_garbage_collector_in
+    .byte >str_xfree_garbage_collector_out        
+    .byte >str_found_chunk
+    .byte >str_fseek        
+    .byte >str_fclose
+    .byte >str_xopen_enter   
+    .byte >str_xopen_allocate_fp
+    .byte >str_fclose_not_found
+
+
+table_str_low:        
+    .byte <str_fd_id
+    .byte <str_max_fd_reached
+    .byte <str_fclose_enter
+    .byte <str_kill_process
+
+table_str_high:        
+    .byte >str_fd_id
+    .byte >str_max_fd_reached
+    .byte >str_fclose_enter
+    .byte >str_kill_process
+
+str_max_fd_reached:
+        .byte $0D,"[XOPEN] Free FP pointer, return $FFFF, because KERNEL_MAX_FP reached :",0
+
+str_fd_id:
+        .byte $0D,"[XOPEN] open the file : OK, return FD id : ",0
+str_xopen_enter:
+        .byte $0D,"[XOPEN] Enter ",0
+str_xopen_allocate_fp:
+    .byte $0D,"[XOPEN] Allocate FP : XMALLOC call",0
+
+str_kill_process:
+    .byte $0D,"[XKILL] Enter kill process : ",0
+
+str_found_chunk:
+        .byte "Found Chunk",0
+
+str_fclose_enter:
+        .byte $0D
+        .byte "[XCLOSE] Enter with FD id : ",0   
+
+str_fclose_not_found:
+        .byte $0D
+        .byte "[XCLOSE] FD id not found [ERROR] ",0           
+
+str_fclose:
+        .byte $0D
+        .byte "[XCLOSE]  ",0   
+str_fseek:
+        .byte $0D
+        .byte "[FSEEK] ",0   
         
-        ; $c000
-        jmp     print_routine
-        jmp     display_lsmem_state
 
-print_routine:      
-        ; X contains id of the string
-        lda     table_low,x
-        sta     ACC2M
-        lda     table_high,x
-        sta     ACC2M+1
-        jsr     xdebug_send_string_to_printer
-        ;jsr     display_lsmem_state
+str_create_process:
+        .byte $0D,"[CREATE PROCESS] Create process struct ...",0
+str_xfree_enter:
+        .byte $0D
+        .byte "[XFREE] AY enter : ",0
 
-        rts
+str_xfree_garbage_collector_in:        
+        .byte $0D,"[GARBAGE COLLECTOR IN]",0
+str_xfree_garbage_collector_out:        
+        .byte $0D,"[GARBAGE COLLECTOR OUT]",0
+
+.proc print_routine
+    ; X contains id of the string
+    lda     table_low,x
+    sta     ACC2M
+    lda     table_high,x
+    sta     ACC2M+1
+    jsr     xdebug_send_string_to_printer
+    rts
+.endproc
+
+.proc print_msg_and_a  
+    ; X contains id of the string
+    pha
+    lda     table_str_low,x
+    sta     ACC2M
+    lda     table_str_high,x
+    sta     ACC2M+1
+    jsr     xdebug_send_string_to_printer
+    pla
+    jsr     xdebug_send_a_to_printer
+
+    rts
+.endproc
 
 .proc display_lsmem_state
 
@@ -48,30 +142,30 @@ print_routine:
     sta     ACC2M+1
     jsr     xdebug_send_string_to_printer
 
-    lda        #'#'
-    jsr        xdebug_send_printer
+    lda     #'#'
+    jsr     xdebug_send_printer
     
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
-    jsr        xdebug_binhex
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
-    jsr        xdebug_binhex
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+    jsr     xdebug_binhex
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+    jsr     xdebug_binhex
 
-    lda        #':'
-    jsr        xdebug_send_printer    
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
-    jsr        xdebug_binhex
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
-    jsr        xdebug_binhex    
-    lda        #' '
-    jsr        xdebug_send_printer
-    lda        #'#'
-    jsr        xdebug_send_printer       
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
-    jsr        xdebug_binhex
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
-    jsr        xdebug_binhex   
-    lda        #$0D
-    jsr        xdebug_send_printer
+    lda     #':'
+    jsr     xdebug_send_printer    
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+    jsr     xdebug_binhex
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+    jsr     xdebug_binhex    
+    lda     #' '
+    jsr     xdebug_send_printer
+    lda     #'#'
+    jsr     xdebug_send_printer       
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+    jsr     xdebug_binhex
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+    jsr     xdebug_binhex   
+    lda     #$0D
+    jsr     xdebug_send_printer
 @next_chunk:         
     inx
     cpx     #(KERNEL_MALLOC_FREE_FRAGMENT_MAX)
@@ -80,15 +174,15 @@ print_routine:
 
     ldx     #$00
 @loop2:
-    lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
-    beq        @next_chunk2
-    lda        #<str_busy
-    sta        ACC2M
-    lda        #>str_busy
-    sta        ACC2M+1
-    jsr        xdebug_send_string_to_printer
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    beq     @next_chunk2
+    lda     #<str_busy
+    sta     ACC2M
+    lda     #>str_busy
+    sta     ACC2M+1
+    jsr     xdebug_send_string_to_printer
 
-    lda        #'#'
+    lda     #'#'
     jsr        xdebug_send_printer
     
     lda        kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
@@ -120,7 +214,7 @@ print_routine:
     jsr        xdebug_load
     rts
 str_lsmem:
-.byte  "[lsmem state]",$0D,$00   
+.byte  $0D,"[lsmem state]",$0D,$00   
 str_free:
 .byte  "Free:",$00
 str_busy:
@@ -128,14 +222,21 @@ str_busy:
 .endproc
 
 
+.proc xdebug_send_a_to_printer
+    pha
+    lda     #'#'
+    jsr     xdebug_send_printer
+    pla
+  
+    jsr     xdebug_binhex
+    lda     #' '
+    jsr     xdebug_send_printer
+    rts  
+.endproc
+
 .proc xdebug_load
    
-    ;lda    #<str_line
-    ;ldy    #>str_line
-    ;sta    RES
-    ;sty    RES+1
 
-    ;jsr     xdebug_send_string_to_printer
 
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES
@@ -155,7 +256,7 @@ str_busy:
     lda    kernel_debug+kernel_debug_struct::TR1
     sta    TR1
 
-    lda    kernel_debug+kernel_debug_struct::TR2
+    lda     kernel_debug+kernel_debug_struct::TR2
     sta    TR2
     
     lda    kernel_debug+kernel_debug_struct::TR3
@@ -186,26 +287,25 @@ str_line:
 .endproc
 
 .proc xdebug_binhex
-
-         pha                   ;save byte
-         lsr                   ;extract...
-         lsr                   ;MSN
-         lsr
-         lsr
-         tay     
-         jsr r0000010
-                 ;save ASCII
-         pla                   ;recover byte
-         and #%00001111 
-         tay
+    pha                   ;save byte
+    lsr                   ;extract...
+    lsr                   ;MSN
+    lsr
+    lsr
+    tay     
+    jsr r0000010
+            ;save ASCII
+    pla                   ;recover byte
+    and #%00001111 
+    tay
 r0000010:
 
-         lda    hex_table,y
+    lda    hex_table,y
          
-         jsr    xdebug_send_printer
-         rts                   ;done
+    jsr    xdebug_send_printer
+    rts                   ;done
 hex_table:
-.byte "0123456789ABCDEF"                  
+    .byte "0123456789ABCDEF"                  
 .endproc     
 
 
@@ -231,43 +331,6 @@ hex_table:
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
 
-table_low:        
-        .byte <str_create_process
-        .byte <str_xfree_enter
-        .byte <str_xfree_garbage_collector_in
-        .byte <str_xfree_garbage_collector_out
-        .byte <str_found_chunk     
-        .byte <str_fseek
-        .byte <str_fclose
-table_high:        
-        .byte >str_create_process
-        .byte >str_xfree_enter
-        .byte >str_xfree_garbage_collector_in
-        .byte >str_xfree_garbage_collector_out        
-        .byte >str_found_chunk
-        .byte >str_fseek        
-        .byte >str_fclose        
-
-str_found_chunk:
-        .byte "Found Chunk",0
-
-str_fclose:
-        .byte $0D,"########################################################"
-        .byte "[XCLOSE] ",$0D,0   
-str_fseek:
-        .byte $0D,"########################################################"
-        .byte "[FSEEK] ",$0D,0   
-        
-
-str_create_process:
-        .byte "[CREATE PROCESS]",$0D,0
-str_xfree_enter:
-        .byte $0D,"########################################################"
-        .byte "[XFREE] AY enter : ",$0D,0
-str_xfree_garbage_collector_in:        
-        .byte $0D,"[GARBAGE COLLECTOR IN]",0
-str_xfree_garbage_collector_out:        
-        .byte $0D,"[GARBAGE COLLECTOR OUT]",0
 .proc xdebug_send_string_to_printer
     ldy    #$00
 @L1:    

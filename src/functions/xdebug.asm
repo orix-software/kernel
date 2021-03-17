@@ -6,6 +6,19 @@
     rts
 .endproc
 
+.proc xdebug_print_with_a
+    pha
+    lda  #<$c006
+    sta  VEXBNK+1
+    lda  #>$c006
+    sta  VEXBNK+2
+    lda  #$01
+    sta  BNKCIB
+    pla
+    jmp  $40C    
+    rts
+.endproc
+
 .proc xdebug_lsmem
     lda  #<$c003
     sta  VEXBNK+1
@@ -137,27 +150,7 @@ str_enter_found:
     .byte 0
 .endproc
 
-.proc xdebug_enter_create_process_XMALLOC
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,"[CREATE PROCESS]",0
-.endproc
 
-.proc xdebug_enter_create_fp_XMALLOC
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,"[Create FP]",0
-.endproc
 
 .proc xdebug_binhex
 
@@ -261,22 +254,21 @@ loopme:
     jmp    xdebug_enter
 
 str_enter_free:
-    .byte $0D,"[XFREE] new free chunk",$0D
-    .byte 0
+    .byte $0D,"[XFREE] new free chunk",0
 .endproc
 
 
-.proc xdebug_enter_xfree_found
-    jsr    xdebug_save
-    lda    #<str_enter_found
-    ldy    #>str_enter_found
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_found:
-    .byte " found :  "
-    .byte 0
-.endproc
+;.proc xdebug_enter_xfree_found
+    ;jsr    xdebug_save
+    ;lda    #<str_enter_found
+    ;ldy    #>str_enter_found
+    ;sta    RES 
+    ;sty    RES+1
+    ;jmp    xdebug_enter
+;str_enter_found:
+ ;   .byte " found :  "
+    ;.byte 0
+;.endproc
 
 .proc xdebug_end
     jsr    xdebug_save

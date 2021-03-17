@@ -18,7 +18,14 @@
   stx     XOPEN_RES_SAVE+1
   ; save flag
   sty     XOPEN_FLAGS
-  
+
+
+.ifdef WITH_DEBUG
+    jsr     xdebug_install
+    ldx     #XDEBUG_XOPEN_ENTER
+    jsr     xdebug_print
+.endif
+
   lda     #EOK
   sta	    KERNEL_ERRNO
 
@@ -238,9 +245,10 @@
   sta     KERNEL_ERRNO
   
   ; return null 
-  ldy     #NULL
-  lda     #NULL
-  ldx     #NULL
+  ;ldy     #NULL
+  lda     #$FF
+  tax
+  ;ldx     #NULL
   rts
 
 @could_be_created:
@@ -258,16 +266,15 @@
  ; register fp in process struct
   
   ;       store pointer in process struct
-  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
 
-  ;kernel_process+kernel_process_struct
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct 
   sta     RES
-  ;tya
+
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sta     RES+1
 
-  ;Fill the address of the fp
+  ; Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
   ldy     #kernel_one_process_struct::fp_ptr
 @try_to_find_a_free_fp_for_current_process:
@@ -280,6 +287,7 @@
   iny
   cpy     #KERNEL_MAX_FP_PER_PROCESS*2
   bne     @try_to_find_a_free_fp_for_current_process
+
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
 
@@ -295,10 +303,50 @@
   sta     (RES),y
   ;kernel_process
   ;return fp
+  ; Now try to find an available FD
+
+  ldx     #$00
+@init_fp:  
+  lda     kernel_process+kernel_process_struct::kernel_fd,x
+  beq     @found_fp_slot
+  inx
+  cpx     #KERNEL_MAX_FP
+  bne     @init_fp
 
   lda     KERNEL_XOPEN_PTR1
-  ldy     KERNEL_XOPEN_PTR1+1 
-  ldx     KERNEL_XOPEN_PTR1+1 
+  ldy     KERNEL_XOPEN_PTR1+1
+  jsr     XFREE_ROUTINE
+
+.ifdef    WITH_DEBUG
+  ldx     #XDEBUG_ERROR_FP_REACH
+  lda     #KERNEL_MAX_FP
+  jsr     xdebug_print_with_a
+.endif
+
+
+  lda     #$FF
+  tax
+  rts  
+  ; not found
+@found_fp_slot:
+  lda     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process+kernel_process_struct::kernel_fd,x
+  txa
+  clc
+  adc     #KERNEL_FIRST_FD
+
+  
+.ifdef WITH_DEBUG
+  pha
+  ldx     #XDEBUG_FD
+  jsr     xdebug_print_with_a
+  pla
+.endif  
+  ldx     #$00
+
+  ;lda     KERNEL_XOPEN_PTR1
+;  ldy     KERNEL_XOPEN_PTR1+1 
+  ;ldx     KERNEL_XOPEN_PTR1+1 
 
   rts
 .endproc

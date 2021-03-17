@@ -16,9 +16,7 @@
 ; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
 
 
-.ifdef WITH_DEBUG
-jsr   xdebug_enter_create_process_XMALLOC
-.endif
+
 
   sta     RESB
   sta     TR4
@@ -27,6 +25,12 @@ jsr   xdebug_enter_create_process_XMALLOC
   sty     TR5
 
 
+.ifdef WITH_DEBUG
+   ; jsr     xdebug_install
+    ldx     #XDEBUG_CREATE_PROCESS_PRINT
+  ;  jsr     xdebug_print
+
+.endif
 
 
 ; Get first pid

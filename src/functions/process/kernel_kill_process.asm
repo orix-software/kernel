@@ -12,6 +12,20 @@
   
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
 
+
+.ifdef WITH_DEBUG
+  ldx     #XDEBUG_KILL_PROCESS_ENTER
+  jsr     xdebug_print_with_a
+.endif  
+  ; Try to close fp from this process
+
+  jsr     close_all_fp
+
+
+
+
+
+@continue:
   ; destroy it's own memory chunks
   ;sta     RES
 
@@ -109,4 +123,27 @@
   rts
 ;str_destroyed:
   ;.asciiz "Destroyed" 
+
+
+close_all_fp:
+  ldx     #$00
+@init_fp:  
+  cmp     kernel_process+kernel_process_struct::kernel_fd,x
+  bne     @next
+  
+  txa 
+  pha
+  jsr     XCLOSE_ROUTINE ; Close
+  pla
+  tax
+  lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  
+
+@next:
+  inx
+  cpx     #KERNEL_MAX_FP
+  bne     @init_fp
+  rts
+
+
 .endproc
