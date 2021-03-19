@@ -283,7 +283,7 @@
   tax
   iny
   lda     (RES),y
-  bne     @fp_not_busy
+  bne     @fp_is_not_busy
   iny
   cpy     #KERNEL_MAX_FP_PER_PROCESS*2
   bne     @try_to_find_a_free_fp_for_current_process
@@ -297,10 +297,12 @@
 @fp_is_not_busy:
   lda     KERNEL_XOPEN_PTR1
   sta     (RES),y
+
   iny
-  lda    KERNEL_XOPEN_PTR1
-@fp_not_busy:
+  lda    KERNEL_XOPEN_PTR1+1
+
   sta     (RES),y
+
   ;kernel_process
   ;return fp
   ; Now try to find an available FD
