@@ -8,6 +8,9 @@
 .define XDEBUG_XOPEN_ENTER          $07
 .define XDEBUG_XOPEN_ALLOCATE_FP    $08
 .define XDEBUG_XCLOSE_FD_NOT_FOUND  $09
+.define XDEBUG_XCLOSE_FD_FOUND      $0A
+.define XDEBUG_XOPEN_FILE_NOT_FOUND $0B
+.define XDEBUG_XFORK_TRYING_DEVICE  $0C
 
 
 .define XDEBUG_FD                   $00
@@ -33,3 +36,4 @@ DDRA         .res 1
 PRA          .res 1
 ID_PRIMITIVE .res 1
 .endstruct
+

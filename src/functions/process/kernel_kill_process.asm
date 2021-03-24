@@ -21,10 +21,6 @@
 
   jsr     close_all_fp
 
-
-
-
-
 @continue:
   ; destroy it's own memory chunks
   ;sta     RES

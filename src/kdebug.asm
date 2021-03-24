@@ -19,8 +19,6 @@ rom_start:
     jmp     display_lsmem_state
     jmp     print_msg_and_a
 
-
-
 table_low:        
     .byte <str_create_process
     .byte <str_xfree_enter
@@ -32,6 +30,10 @@ table_low:
     .byte <str_xopen_enter
     .byte <str_xopen_allocate_fp
     .byte <str_fclose_not_found    
+    .byte <str_fclose_found
+    .byte <str_max_xopen_file_not_found
+    .byte <str_fork
+
 table_high:        
     .byte >str_create_process
     .byte >str_xfree_enter
@@ -43,6 +45,9 @@ table_high:
     .byte >str_xopen_enter   
     .byte >str_xopen_allocate_fp
     .byte >str_fclose_not_found
+    .byte >str_fclose_found
+    .byte >str_max_xopen_file_not_found
+    .byte >str_fork
 
 
 table_str_low:        
@@ -58,14 +63,18 @@ table_str_high:
     .byte >str_kill_process
 
 str_max_fd_reached:
-        .byte $0D,"[XOPEN] Free FP pointer, return $FFFF, because KERNEL_MAX_FP reached :",0
+        .byte $0D,"[XOPEN] Free FP pointer, return $FFFF in AX, because KERNEL_MAX_FP reached :",0
+
+str_max_xopen_file_not_found:
+        .byte $0D,"[XOPEN] File not found",0
+
 
 str_fd_id:
         .byte $0D,"[XOPEN] open the file : OK, return FD id : ",0
 str_xopen_enter:
         .byte $0D,"[XOPEN] Enter ",0
 str_xopen_allocate_fp:
-    .byte $0D,"[XOPEN] Allocate FP : XMALLOC call",0
+    .byte $0D,"[XOPEN] Allocate FP : XMALLOC call, returns ptr FD in AX",0
 
 str_kill_process:
     .byte $0D,"[XKILL] Enter kill process : ",0
@@ -81,12 +90,20 @@ str_fclose_not_found:
         .byte $0D
         .byte "[XCLOSE] FD id not found [ERROR] ",0           
 
+str_fclose_found:
+        .byte $0D
+        .byte "[XCLOSE] FD found [OK] ",0       
+
 str_fclose:
         .byte $0D
         .byte "[XCLOSE]  ",0   
 str_fseek:
         .byte $0D
         .byte "[FSEEK] ",0   
+
+str_fork:
+        .byte $0D
+        .byte "[XFORK] Trying to find binary on device ...",0           
         
 
 str_create_process:

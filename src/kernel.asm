@@ -370,8 +370,8 @@ init_process_init_cwd_in_struct:
   lda     #KERNEL_ERRNO_OK
   sta     KERNEL_ERRNO
 
-  lda     #KERNEL_MAX_PROCESS
-  sta     kernel_process+kernel_process_struct::kernel_max_process_value
+  ;lda     #KERNEL_MAX_PROCESS
+  ;sta     kernel_process+kernel_process_struct::kernel_max_process_value
 
   ; Init FD
   ;lda     #KERNEL_FIRST_FD                                      ; initialise to first FD available

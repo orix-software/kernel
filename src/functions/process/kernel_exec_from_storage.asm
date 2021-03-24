@@ -7,6 +7,7 @@
 RESC := DECDEB 
 RESD := DECFIN
 RESE := DECCIB
+RESF := DECTRV
 
 
 
@@ -108,23 +109,18 @@ RESE := DECCIB
     lda     RESB
     ldx     RESB+1
     jsr     XOPEN_ROUTINE
-    
-    cmp     #NULL
+
+    cpx     #$FF
     bne     @not_null
 
-    cpy     #NULL
+    cmp     #$FF
     bne     @not_null
 
- 
-
-    lda     RESB
-    ldy     RESB+1
-    jsr     XFREE_ROUTINE
 
 
     ; free string used for the strcat
-    lda     RESC
-    ldy     RESC+1
+    lda     RESB
+    ldy     RESB+1
     jsr     XFREE_ROUTINE
 
     ; error not found
@@ -133,33 +129,11 @@ RESE := DECCIB
     rts
 @not_null:
 
-    ; save fp
-    pha
-    tya
-    pha
-
-; ps, lsmem, file, lsmem
-
-    pla
-    sta     RESC+1   ; save fp
-    pla
-    sta     RESC     ; save fp
-
-
-    ; free fp OK
-    lda     RESC
-    ldy     RESC+1
-    jsr     XFREE_ROUTINE
-    
-    ; free tmp string OK
-    lda     RESB
-    ldy     RESB+1
-    jsr     XFREE_ROUTINE
-
-
+    sta     RESF       ; save fp
+    stx     RESF+1     ; save fp
 
     ; Found let's fork
-    jsr     _XFORK
+
     ; RESC contains file pointer
     ; RES can be used
     ; RESB too
@@ -212,19 +186,8 @@ RESE := DECCIB
     cmp     #$01
     beq     @is_an_orix_file
 
-
     rts
-@undebug:
-    lda     RESD
-    ldy     RESD+1
-    
-    jsr     XFREE_ROUTINE
-    lda     #$00 ; don't update length
-    jsr     XCLOSE_ROUTINE
-    lda     #ENOENT 
-    ; not found it means that we display error message
 
-    rts
 
 
 @is_an_orix_file:
@@ -242,7 +205,7 @@ RESE := DECCIB
     ldy     #15
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1
-		
+
     ; init RES to start code
 
     ldy     #18
@@ -258,9 +221,11 @@ RESE := DECCIB
     ldy     RESD+1
     jsr     XFREE_ROUTINE
 
+    jsr     _XFORK
 
     lda     #$FF ; read all the binary
     ldy     #$FF
+
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done
 
@@ -278,9 +243,13 @@ RESE := DECCIB
     ; A and Y contains the length of the file
 
  ;   jsr     XMALLOC_ROUTINE
-
-    lda     #$00 ; don't update length
+    lda     RESF
+    ldy     RESF+1
     jsr     XCLOSE_ROUTINE
+
+    lda     RESB
+    ldy     RESB+1
+    jsr     XFREE_ROUTINE
 
     ; send cmdline ptr 
     lda     RES
@@ -289,6 +258,7 @@ RESE := DECCIB
     jsr     execute
 
     lda     #EOK
+    
     rts
 
 execute:

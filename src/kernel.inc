@@ -96,8 +96,6 @@ kernel_end_of_variables_before_BUFNOM:
 .res 14
 kernel_malloc:
     .tag    kernel_malloc_struct
-
-
 kernel_process:
     .tag    kernel_process_struct
     
@@ -107,7 +105,9 @@ kernel_end_of_variables_before_BUFEDT:
 .endif    
 
 .bss
+
 .org BUFEDT
+;ORIX_ARGV:
 .res 110
 ORIX_ARGV:
 	.res    KERNEL_MAX_LENGTH_OF_FILES*BASH_MAX_ARGS

@@ -7,7 +7,7 @@
         f_pushback  .byte
         f_path      .res KERNEL_MAX_PATH_LENGTH
         ; When f_path is after f_seek_file here , XOPEN is broken ... BUG, FIXME
-        f_seek_file .res 4 ; 32 bits offset        
+       ; f_seek_file .res 4 ; 32 bits offset        
 .endstruct
 
 .if     KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path > 255

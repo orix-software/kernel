@@ -243,12 +243,18 @@
   ; No such file_or_directy
   lda     #ENOENT
   sta     KERNEL_ERRNO
-  
-  ; return null 
-  ;ldy     #NULL
+
+.ifdef    WITH_DEBUG
+  ldx     #XDEBUG_XOPEN_FILE_NOT_FOUND
+  lda     #$FF
+  jsr     xdebug_print_with_a
+.endif
+
+
+
   lda     #$FF
   tax
-  ;ldx     #NULL
+
   rts
 
 @could_be_created:
@@ -274,18 +280,25 @@
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sta     RES+1
 
+
+  
+  
+
   ; Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
-  ldy     #kernel_one_process_struct::fp_ptr
+  ldx     #$00
+  ldy     #(kernel_one_process_struct::fp_ptr+1)
 @try_to_find_a_free_fp_for_current_process:
-  lda     (RES),y
-  bne     @fp_is_not_busy 
-  tax
+  lda     (RES),y                             ; Load high
+  beq     @fp_is_not_busy                     ; If it's equal to $00, it means that it's empty because it's impossible to have a fp registered in zp
+
   iny
-  lda     (RES),y
-  bne     @fp_is_not_busy
   iny
-  cpy     #KERNEL_MAX_FP_PER_PROCESS*2
+
+;  lda     (RES),y
+ ; bne     @fp_is_not_busy
+  inx
+  cpx     #KERNEL_MAX_FP_PER_PROCESS
   bne     @try_to_find_a_free_fp_for_current_process
 
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
@@ -295,13 +308,14 @@
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:
-  lda     KERNEL_XOPEN_PTR1
-  sta     (RES),y
-
-  iny
   lda    KERNEL_XOPEN_PTR1+1
+  sta    (RES),y
+  dey
+  lda    KERNEL_XOPEN_PTR1
+  sta    (RES),y
 
-  sta     (RES),y
+  
+  
 
   ;kernel_process
   ;return fp
@@ -324,7 +338,6 @@
   lda     #KERNEL_MAX_FP
   jsr     xdebug_print_with_a
 .endif
-
 
   lda     #$FF
   tax

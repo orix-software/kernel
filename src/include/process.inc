@@ -1,11 +1,10 @@
 .define KERNEL_MAX_PROCESS	                       4  ; max 84 because kernel_process_struct is handle with 8 bits offsets
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS         1
-.define KERNEL_MAX_LENGTH_COMMAND                  9
-.define KERNEL_MAX_FP_PER_PROCESS                  2  ; Can't be greater than KERNEL_MAX_FP
-.define KERNEL_MAX_FP                              2  ; Max filepointer available can
+.define KERNEL_MAX_LENGTH_COMMAND                  8
+.define KERNEL_MAX_FP_PER_PROCESS                  1  ; Can't be greater than KERNEL_MAX_FP
+.define KERNEL_MAX_FP                              1  ; Max filepointer available can
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
 .define KERNEL_LENGTH_MAX_CMDLINE                  37
-
 
 .define KERNEL_ERRNO_OK                            0
 ; ERRNO KERNEL are set in errno.inc of cc65 from 1 to 18
@@ -37,7 +36,7 @@
   ; kernel_fd contains ...
   kernel_fd                            .res KERNEL_MAX_FP
   ;kernel_next_fd                       .res 1
-  kernel_max_process_value             .res 1
+  ;kernel_max_process_value             .res 1
 .endstruct
 
 .out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
@@ -55,19 +54,19 @@
 .struct kernel_one_process_struct
   process_name               .res KERNEL_MAX_LENGTH_COMMAND+1 ; don't move it in the struct, because code handle process_name when it's at the first position. If it moves, the code will generate bugs
   cwd_str                    .res KERNEL_MAX_PATH_LENGTH
-  child_pid                  .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
+ ; child_pid                  .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
   fp_ptr                     .res KERNEL_MAX_FP_PER_PROCESS*2
   zp_save_userzp             .res KERNEL_USERZP_SAVE_LENGTH
   cmdline                    .res KERNEL_LENGTH_MAX_CMDLINE
   ppid                       .res 1
-  bank_id                    .res 1
-  is_rom_command             .res 1 ; 0 is file in memory, else it's ROM (1)
-  twilighte_register_command .res 1  
+  ;bank_id                    .res 1
+  ;is_rom_command             .res 1 ; 0 is file in memory, else it's ROM (1)
+ ; twilighte_register_command .res 1  
   .ifdef WITH_KERNEL_PROCESS_UID
-  uid                        .res 1
+ ; uid                        .res 1
   .endif
   .ifdef WITH_KERNEL_PROCESS_GID
-  gid                        .res 1
+  ;gid                        .res 1
   .endif
 .endstruct 
 
