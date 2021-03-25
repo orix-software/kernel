@@ -30,7 +30,7 @@
   kernel_current_process               .res 1                  ; id of the current pid (French, contient l'index et non pas la valeur, l'index sur la table kernel_pid_list)
   kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
   kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
- ; kernel_init_string                   .res .strlen("init")+1
+  ;kernel_init_string                   .res .strlen("init")+1
   kernel_cwd_str                       .res .strlen("/")+1
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
   ; kernel_fd contains ...

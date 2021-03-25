@@ -175,9 +175,9 @@
 .ifdef WITH_DEBUG
     jsr     xdebug_enter_XMALLOC_return_adress
     jsr     xdebug_send_ay_to_printer
-  ;  jsr     xdebug_enter_RETURNLINE
-
-.endif  
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  .endif  
 
     rts
     pha

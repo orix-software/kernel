@@ -11,6 +11,7 @@
 .define XDEBUG_XCLOSE_FD_FOUND      $0A
 .define XDEBUG_XOPEN_FILE_NOT_FOUND $0B
 .define XDEBUG_XFORK_TRYING_DEVICE  $0C
+.define XDEBUG_XFORK_STARTING       $0D
 
 
 .define XDEBUG_FD                   $00

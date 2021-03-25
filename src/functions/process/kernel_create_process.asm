@@ -33,6 +33,7 @@
 .endif
 
 
+
 ; Get first pid
   ldx     #$01   ; Because the first is init (
 
@@ -53,7 +54,7 @@
   rts
 
 @found:
- 
+
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   txa
   tay
@@ -105,9 +106,11 @@
 ; ***********************************************************************************************************************
 
 
+
   ldy     #kernel_one_process_struct::ppid
 
   lda     kernel_process+kernel_process_struct::kernel_current_process   ; $57A
+
   sta     (RES),y ; $6AE
 
 @register_processname:
@@ -160,7 +163,7 @@ save_command_line:
   ldy     #kernel_one_process_struct::fp_ptr 
   lda     #$00
 @L5:
-  sta     (RES),y
+  ;sta     (RES),y
   iny
   cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS*2)
   bne     @L5
@@ -214,7 +217,7 @@ save_command_line:
 
   ; Set pid number in the struct
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  
+
   ;inx
   stx     kernel_process+kernel_process_struct::kernel_current_process
   rts

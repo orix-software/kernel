@@ -2,15 +2,16 @@
 
 .proc _XFORK
 
-;;
-; This procedure reads data.
-; @param CX - number of bytes
-; @return DI - address of data
-;;
+.ifdef WITH_DEBUG
+  ldx     #XDEBUG_XFORK_STARTING
+  ;jsr     xdebug_print_with_a
+.endif
 
 ; ***********************************************************************************************************************
 ;                                          Save ZP of the current process
 ; ***********************************************************************************************************************
+
+
 
   ldx     kernel_process+kernel_process_struct::kernel_current_process
   cpx     #$01 ; is it init ?
@@ -21,7 +22,7 @@
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sta     RES+1
-   
+
   ldx     #$00
   ldy     #kernel_one_process_struct::zp_save_userzp
 @L1:  
@@ -51,4 +52,3 @@ exit_to_kernel:
   pla
   rts
 .endproc 
-

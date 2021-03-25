@@ -33,6 +33,7 @@ table_low:
     .byte <str_fclose_found
     .byte <str_max_xopen_file_not_found
     .byte <str_fork
+    .byte <str_fork_starting
 
 table_high:        
     .byte >str_create_process
@@ -48,6 +49,7 @@ table_high:
     .byte >str_fclose_found
     .byte >str_max_xopen_file_not_found
     .byte >str_fork
+    .byte >str_fork_starting
 
 
 table_str_low:        
@@ -104,7 +106,10 @@ str_fseek:
 str_fork:
         .byte $0D
         .byte "[XFORK] Trying to find binary on device ...",0           
-        
+
+str_fork_starting:
+    .byte $0D
+    .byte "[XFORK] Starting process",0       
 
 str_create_process:
         .byte $0D,"[CREATE PROCESS] Create process struct ...",0
@@ -124,6 +129,7 @@ str_xfree_garbage_collector_out:
     lda     table_high,x
     sta     ACC2M+1
     jsr     xdebug_send_string_to_printer
+    jsr     display_pid
     rts
 .endproc
 
@@ -137,9 +143,26 @@ str_xfree_garbage_collector_out:
     jsr     xdebug_send_string_to_printer
     pla
     jsr     xdebug_send_a_to_printer
+    jsr     display_pid
 
     rts
 .endproc
+
+.proc display_pid
+    lda     #<pid
+    sta     ACC2M
+    lda     #>pid
+    sta     ACC2M+1
+
+    jsr     xdebug_send_string_to_printer
+    lda     kernel_process+kernel_process_struct::kernel_current_process
+    clc
+    adc     #'0'
+    jsr     xdebug_send_printer 
+    rts
+pid:
+    .asciiz "/pid:"
+.endproc    
 
 .proc display_lsmem_state
 
@@ -231,11 +254,11 @@ str_xfree_garbage_collector_out:
     jsr        xdebug_load
     rts
 str_lsmem:
-.byte  $0D,"[lsmem state]",$0D,$00   
+    .byte  $0D,"[lsmem state]",$0D,$00   
 str_free:
-.byte  "Free:",$00
+    .byte  "Free:",$00
 str_busy:
-.byte  "Busy:",$00
+    .byte  "Busy:",$00
 .endproc
 
 
@@ -252,8 +275,6 @@ str_busy:
 .endproc
 
 .proc xdebug_load
-   
-
 
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES

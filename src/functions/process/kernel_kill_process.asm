@@ -14,8 +14,10 @@
 
 
 .ifdef WITH_DEBUG
+  pha
   ldx     #XDEBUG_KILL_PROCESS_ENTER
   jsr     xdebug_print_with_a
+  pla
 .endif  
   ; Try to close fp from this process
 
@@ -57,8 +59,10 @@
 @all_chunk_are_free:
   ; get the PPID  
 
-  lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  tax
+
+
+  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  ;tax
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
 
@@ -73,7 +77,7 @@
   sta     kernel_process+kernel_process_struct::kernel_current_process
 
 
-  ; remove refence of process struct in the main struct
+  ; remove reference of process struct in the main struct
   lda     #$00
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
@@ -88,7 +92,7 @@
   ; at this step process struct is clear and does not exists again
   
   ; restore zp of the PPID
-  
+
   ldy     kernel_process+kernel_process_struct::kernel_current_process
   
   ;dey

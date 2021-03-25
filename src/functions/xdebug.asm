@@ -127,17 +127,6 @@ str_enter_malloc:
     .byte $0D,"[XFREE] not found",0
 .endproc
 
-.proc xdebug_enter_RETURNLINE
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,0
-.endproc
-
 .proc xdebug_enter_XMALLOC_return_adress
     jsr    xdebug_save
     lda    #<str_enter_found
