@@ -17,8 +17,6 @@
     lda     (ptr1),y
     cmp     #"/"
     beq     @isabsolute
-    ; FOPEN cwd
-;    FOPEN_INTO_BANK7 ORIX_PATH_CURRENT,O_RDONLY
 
     ldy     #$00
    
@@ -64,7 +62,6 @@
 @isabsolute:
     rts
     lda     ptr1
-    ;sty     RES
     ldy     #O_RDONLY
     ldx     ptr1+1
 
@@ -116,9 +113,8 @@
   
 @create_dir:
     sta     CH376_DATA
-    sty     TR7   ; save Y
-;    sta     KERNEL_ERRNO
+    sty     TR7               ; Save Y
     jsr     _ch376_dir_create
     ldy     TR7
-    jmp     @next_folder ; FIXME 65c02
+    jmp     @next_folder      ; FIXME 65c02
 .endproc

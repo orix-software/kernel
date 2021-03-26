@@ -59,6 +59,7 @@
     sta     RESB+1
 
 
+
     ldy     #kernel_one_process_struct::fp_ptr
 @try_to_find_a_free_fp_for_current_process:
     lda     (RESB),y

@@ -280,10 +280,6 @@
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sta     RES+1
 
-
-  
-  
-
   ; Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
   ldx     #$00
@@ -295,8 +291,6 @@
   iny
   iny
 
-;  lda     (RES),y
- ; bne     @fp_is_not_busy
   inx
   cpx     #KERNEL_MAX_FP_PER_PROCESS
   bne     @try_to_find_a_free_fp_for_current_process
@@ -308,14 +302,15 @@
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:
-  lda    KERNEL_XOPEN_PTR1+1
-  sta    (RES),y
-  dey
-  lda    KERNEL_XOPEN_PTR1
+  lda     KERNEL_XOPEN_PTR1+1
+
+
   sta    (RES),y
 
-  
-  
+  dey
+  lda    KERNEL_XOPEN_PTR1
+
+  sta    (RES),y
 
   ;kernel_process
   ;return fp
