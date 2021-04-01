@@ -13,36 +13,45 @@
 
 
 .ifdef WITH_DEBUG
-    jsr     xdebug_enter_XMALLOC
+    jsr     kdebug_save
 
-    jsr     xdebug_send_ay_to_printer
-    jsr     xdebug_enter_XMALLOC_TYPE
-    pha
+    ldx     #XDEBUG_XMALLOC_ENTER_AY
+
+    jsr     xdebug_print_with_ay
+
+    ldx     #XDEBUG_TYPE
+    jsr     xdebug_print 
+
+
     lda     KERNEL_MALLOC_TYPE
     cmp     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE
     bne     @O2
-    jsr     xdebug_enter_XMALLOC_process_struct
+    ldx     #XDEBUG_TYPE_PROCESSSTRUCT
+    jsr     xdebug_print
     jmp     @O1
 @O2:
     cmp     #KERNEL_UNKNOWN_MALLOC_TYPE
     bne     @O4
-    jsr     xdebug_enter_XMALLOC_unknown
+    ldx     #XDEBUG_UNKNOWN
+    jsr     xdebug_print
+    
     jmp     @O1
 @O4:    
     cmp     #KERNEL_XMAINARG_MALLOC_TYPE
     bne     @O3
-    jsr     xdebug_enter_XMALLOC_xmainargs
+    ldx     #XDEBUG_TYPE_MAINARGS
+    jsr     xdebug_print
     jmp     @O1
 @O3:
     cmp     #KERNEL_FP_MALLOC_TYPE
     bne     @O5
-    jsr     xdebug_enter_XMALLOC_fp
+    ldx     #XDEBUG_TYPE_FPSTRUCT
+    jsr     xdebug_print
     jmp     @O1
 @O5:
-    jsr     xdebug_send_a_to_printer
+    ; others
 @O1:
-    pla
-    ;jsr xdebug_enter_xfree_found
+    jsr     kdebug_restore
 .endif  
 
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
@@ -180,31 +189,7 @@
   .endif  
 
     rts
-    pha
-    ;sta     TR6
-    tya
-    pha
-
-    ; Y
     
-    jsr     _print_hexa
-    lda     TR6
-    jsr     _print_hexa_no_sharp
-
-    lda     KERNEL_MALLOC_TYPE  
-    ldy     #$00
-    ldx     #$20 ;
-    stx     DEFAFF
-    ldx     #$00
-
-    pla 
-    tay
-    pla
-
-    ; Restore type
-
-    
-    rts
 .endproc
 
 _print_hexa:

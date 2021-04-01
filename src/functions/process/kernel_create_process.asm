@@ -1,7 +1,7 @@
 .proc kernel_create_process
 
 ; [in]     => A & Y : pointer of the string command
-; [modify] => TR4, TR5, A, X, Y, RESB, RES
+; [modify] => TR4, TR5, TR7 (XMALLOC), A, X, Y, RESB, RES, KERNEL_ERRNO, kernel_process+kernel_process_struct::kernel_pid_list, KERNEL_MALLOC_TYPE
 ; [out]    => A contains the id of the process created if 0 then error.
 
 ; RESB contains the ptr of the string name of the comamnd
@@ -15,9 +15,6 @@
 ; kernel_process+kernel_process_struct::kernel_current_process  doit contenir l'offset dans kernel_process+kernel_process_struct::kernel_pid_list
 ; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
 
-
-
-
   sta     RESB
   sta     TR4
 
@@ -26,16 +23,14 @@
 
 
 .ifdef WITH_DEBUG
-   ; jsr     xdebug_install
     ldx     #XDEBUG_CREATE_PROCESS_PRINT
   ;  jsr     xdebug_print
-
 .endif
 
-
+; Try to find the next PID available
 
 ; Get first pid
-  ldx     #$01   ; Because the first is init (
+  ldx     #$00   ; Because the first is init (
 
 @L3:  
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
@@ -54,18 +49,13 @@
   rts
 
 @found:
-
+  ; At this step KERNEL_XKERNEL_CREATE_PROCESS_TMP contains the current PID
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  txa
-  tay
-  iny
-  tya
+
+  lda     #$01
   sta     kernel_process+kernel_process_struct::kernel_pid_list,x
 
-  
-
-
-; Malloc process for init process
+  ; Malloc process for init process
   lda     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE
   sta     KERNEL_MALLOC_TYPE
 
@@ -74,7 +64,7 @@
 
   jsr     XMALLOC_ROUTINE
 
-  ;       get current process entry
+  ;       Get current process entry
   cmp     #NULL
   bne     @S2
   cpy     #NULL
@@ -145,7 +135,8 @@ save_command_line:
   inc     TR5
 @S7:
   sta     TR4
-; now TR4 & TR5 are set the the beginning of cmdline
+
+; Now TR4 & TR5 are set the the beginning of cmdline
 
   ldy     #$00
 @L10:  
@@ -159,19 +150,18 @@ save_command_line:
 @S8:
   sta     (TR4),y
 
-;   init fp to $00
+  ; Init fp to $00
   ldy     #kernel_one_process_struct::fp_ptr 
   lda     #$00
 @L5:
-  ;sta     (RES),y
+  sta     (RES),y
   iny
   cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS*2)
   bne     @L5
 
-  ; set to "/" cwd of init process
-  ; get the offset
+  ; Set to "/" cwd of init process
+  ; Get the offset
   ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
-  ;jmp     @initialize_to_slash
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   cpx     #$01  ; First process after init (should be sh)
   beq     @initialize_to_slash
@@ -204,21 +194,11 @@ save_command_line:
   lda     #$00
   sta     (RES),y  ; Store 0 for the last string
 @skip:
-  ; init child list to $00
-  ;ldy     #kernel_one_process_struct::child_pid
-  ;ldx     #$00
-  ;lda     #$00
-;@L1:  
-  ;sta     (RES),y
-  ;iny
-  ;inx
-  ;cpx     #KERNEL_NUMBER_OF_CHILD_PER_PROCESS
 
 
   ; Set pid number in the struct
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
-  ;inx
   stx     kernel_process+kernel_process_struct::kernel_current_process
   rts
 

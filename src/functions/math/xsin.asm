@@ -1,7 +1,7 @@
 XSIN_ROUTINE:
 
   jsr     LF8B1
-LF791  
+LF791:
   jsr     XA1A2_ROUTINE
   lda     #<const_pi_mult_by_two
   ldy     #>const_pi_mult_by_two

@@ -12,7 +12,16 @@
 .define XDEBUG_XOPEN_FILE_NOT_FOUND $0B
 .define XDEBUG_XFORK_TRYING_DEVICE  $0C
 .define XDEBUG_XFORK_STARTING       $0D
+.define XDEBUG_UNKNOWN              $0E
+.define XDEBUG_TYPE                 $0F
+.define XDEBUG_TYPE_MAINARGS        $10
+.define XDEBUG_TYPE_PROCESSSTRUCT   $11
+.define XDEBUG_TYPE_FPSTRUCT        $12
 
+.define XDEBUG_XMALLOC_ENTER_AY     $02
+
+
+.define XDEBUG_XEXEC_ENTER          $00
 
 .define XDEBUG_FD                   $00
 .define XDEBUG_ERROR_FP_REACH       $01
@@ -25,16 +34,10 @@ RY           .res 1
 RX           .res 1
 RES          .res 2
 RESB         .res 2
-TR0          .res 1
-TR1          .res 1
-TR2          .res 1
-TR3          .res 1
-TR4          .res 1
-TR5          .res 1
-TR6          .res 1
-TR7          .res 1
-DDRA         .res 1
-PRA          .res 1
-ID_PRIMITIVE .res 1
+BNKCIB       .res 1
+BNKOLD       .res 1
+VEXBNK       .res 2
+FIXME_DUNNO  .res 1
 .endstruct
+
 

@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2021.2"
+.define VERSION "2021.2b"
 
 
 .include   "telestrat.inc"          ; from cc65
@@ -335,7 +335,7 @@ display_cursor:
 ; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
 
 
-  lda     #$01  ; Init
+  lda     #$FF  ; Init
   ; Set process foreground 
 
   sta     kernel_process+kernel_process_struct::kernel_current_process 
@@ -710,16 +710,16 @@ code_adress_436:
   lda     VIA2::PRA
   ldx     NEXT_STACK_BANK
   
-  sta     STACK_BANK,x ; FIXME
+  sta     STACK_BANK,x      ; FIXME
   inc     NEXT_STACK_BANK   ; FIXME
   pla
   tax
   lda     BNKCIB
-  jsr     $046A ; see code_adress_46A  
+  jsr     $046A             ; See code_adress_46A  
  
   pla
   plp
-  jsr     VEXBNK ; Used in monitor
+  jsr     VEXBNK            ; Used in monitor
 
   php
   sei

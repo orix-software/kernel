@@ -21,9 +21,10 @@
 
 
 .ifdef WITH_DEBUG
-    jsr     xdebug_install
+    jsr     kdebug_save
     ldx     #XDEBUG_XOPEN_ENTER
     jsr     xdebug_print
+    jsr     kdebug_restore
 .endif
 
   lda     #EOK
@@ -302,13 +303,15 @@
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:
+
+
+
   lda     KERNEL_XOPEN_PTR1+1
-
-
   sta    (RES),y
 
   dey
   lda    KERNEL_XOPEN_PTR1
+
 
   sta    (RES),y
 

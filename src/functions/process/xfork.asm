@@ -1,5 +1,15 @@
 .export _XFORK
 
+; Enter TR0,TR1
+
+; Modify 
+; RES,
+
+; Calls : proc kernel_create_process
+; Modify TR4,TR5,RES, RESB, kernel_create_process,KERNEL_XKERNEL_CREATE_PROCESS_TMP, kernel_process+kernel_process_struct::kernel_pid_list, KERNEL_MALLOC_TYPE
+; kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low, kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high
+; KERNEL_CREATE_PROCESS_PTR1
+
 .proc _XFORK
 
 .ifdef WITH_DEBUG
@@ -14,7 +24,7 @@
 
 
   ldx     kernel_process+kernel_process_struct::kernel_current_process
-  cpx     #$01 ; is it init ?
+  cpx     #$FF ; is it init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x

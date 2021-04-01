@@ -1,20 +1,14 @@
 .export XFREE_ROUTINE
-
-
 .proc XFREE_ROUTINE
 
     sta     KERNEL_XFREE_TMP    ; Save A (low)
 
-.ifdef WITH_DEBUG  
-    sty     RESB+1
-    jsr     xdebug_install  
-    ldy     RESB+1    
-.endif
 
 .ifdef WITH_DEBUG
     sty     RESB+1
+    lda     KERNEL_XFREE_TMP
     ldx     #XDEBUG_XFREE_ENTER_PRINT
-    jsr     xdebug_print
+    jsr     xdebug_print_with_ay
     ldy     RESB+1
 .endif
 
@@ -27,16 +21,9 @@
   sta     TR5 ; TR0 contains the next free chunk
 
 .ifdef WITH_DEBUG
-
-  lda     KERNEL_XFREE_TMP    ; Save A (low)
-  jsr     xdebug_send_ay_to_printer
-
-  ldx     #XDEBUG_FOUND
-  jsr     xdebug_print
-  ;jsr     xdebug_enter_xfree_found
-
+  jsr     kdebug_save
   jsr     xdebug_lsmem
-
+  jsr     kdebug_restore
 .endif  
 
 ; **************************************************************************************
@@ -59,11 +46,13 @@
   
   ; We did not found this busy chunk, return 0 in A
 .ifdef WITH_DEBUG  
-  jsr   xdebug_enter_not_found
+  jsr     xdebug_enter_not_found
 .endif
     
 .ifdef WITH_DEBUG
-  jsr xdebug_lsmem
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif
   lda     #NULL
   
@@ -194,7 +183,9 @@
   jsr     garbage_collector
     
 .ifdef WITH_DEBUG
-  jsr xdebug_lsmem
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif
   lda     #$01 ; Chunk found
 
@@ -285,8 +276,11 @@
 out:
 
 .ifdef WITH_DEBUG
-  jsr xdebug_lsmem
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
+
   jsr     garbage_collector
   lda     #$01 
   rts
@@ -302,9 +296,11 @@ out:
 ;Busy:#0761:07DA #0079
 ;Busy:#0836:2F46 #2710
 .ifdef WITH_DEBUG
-  ldx  #XDEBUG_GARBAGE_IN
+  jsr     kdebug_save
+  ldx     #XDEBUG_GARBAGE_IN
   jsr     xdebug_print
-  jsr xdebug_lsmem
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
   
 
@@ -333,9 +329,11 @@ out:
   bne     @try_another_free_chunk
 
 .ifdef WITH_DEBUG
-  ldx  #XDEBUG_GARBAGE_OUT
+  jsr     kdebug_save
+  ldx     #XDEBUG_GARBAGE_OUT
   jsr     xdebug_print  
-  jsr xdebug_lsmem
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
 
   rts

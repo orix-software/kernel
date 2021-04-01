@@ -4,7 +4,7 @@ XPLAY_ROUTINE:
 	asl
 	asl
 
-	ora $4d
+	ora $4D
 	eor #$3f
 	tax
 	
@@ -14,7 +14,7 @@ XPLAY_ROUTINE:
 	rol $54
 
 	ldx $53
-	lda #$0b
+	lda #$0B
 	jsr XEPSG_ROUTINE
 	
 

@@ -13,9 +13,10 @@
   sty     RES+1
 
 .ifdef WITH_DEBUG
-    jsr     xdebug_install
+    jsr     kdebug_save
     ldx     #XDEBUG_XOPEN_ALLOCATE_FP
     jsr     xdebug_print
+    jsr     kdebug_restore
 .endif
 
   lda     #KERNEL_FP_MALLOC_TYPE

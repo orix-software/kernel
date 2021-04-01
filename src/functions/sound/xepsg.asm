@@ -1,7 +1,7 @@
 .proc XEPSG_ROUTINE
-	PHA
-	STA VIA::PRA2
-	CMP #$07
+	pha
+	sta VIA::PRA2
+	cmp #$07
 	BNE @skip
 	TXA
 	ORA #$40

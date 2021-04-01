@@ -4,8 +4,10 @@
     ; A & Y contains the string command to execute
     sta     TR0        ; Save string pointer
     sty     TR1        ;
-
-
+.ifdef WITH_DEBUG
+    ldx    #XDEBUG_XEXEC_ENTER
+    jsr    xdebug_print_with_ay_string
+.endif    
     ; Copy in BUFEDT
     ldy     #$00
 @L7:    
@@ -21,7 +23,7 @@
     sta     BUFEDT,y
 
 @S1:
-    ; ok then execute
+    ; Ok then execute
     ; now it's the current process
     ; RACE CONDITION FIXME BUG
     ; If there is a multitasking switch during this step, the process is not started, but kernel will try to execute it
@@ -37,7 +39,6 @@
 
 next_bank:
     ; We says that we return to Bank 7 
-   ; BRK_KERNEL XRDW0
     ldx     KERNEL_TMP_XEXEC
 
     lda     TR0

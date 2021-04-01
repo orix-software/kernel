@@ -8,6 +8,7 @@ RESC := DECDEB
 RESD := DECFIN
 RESE := DECCIB
 RESF := DECTRV
+RESG := ACCPS
 
 
 
@@ -16,9 +17,16 @@ RESF := DECTRV
     ; A & Y contains the command
 	; here we found no command, let's go trying to find it in /bin
     ; Malloc
-    sta     RES
-    sty     RES+1
+    sta     RESG
+    sty     RESG+1
 
+    jsr     _XFORK    
+
+    lda     RESG
+    sta     RES
+    
+    ldy     RESG+1
+    sty     RES+1
 
     lda     #<(.strlen("/bin/")+8+1) ; 5 because /bin/ & 8 because length can't be greater than 8 for the command
     ldy     #>(.strlen("/bin/")+8+1)
@@ -29,7 +37,7 @@ RESF := DECTRV
     bne     @malloc_ok
     lda     ENOMEM
     sta     KERNEL_ERRNO
-    
+ 
     rts
     ; FIX ME test OOM
 @malloc_ok:
@@ -43,8 +51,8 @@ RESF := DECTRV
 
     
 
-    ; copy /bin
-    ; do a strcat
+    ; Copy /bin
+    ; Do a strcat
     ldy     #$00
 @L1:
     lda     str_root_bin,y
@@ -83,9 +91,9 @@ RESF := DECTRV
 
 
 
-    ; at this step RES (only) can be used again     
+    ; At this step RES (only) can be used again     
 
-    ; at this step RESB contains the beginning of the string
+    ; At this step RESB contains the beginning of the string
 
     lda     RESB
     sta     RESC
@@ -105,6 +113,9 @@ RESF := DECTRV
 
 
 @S1:
+
+
+
     ldy     #O_RDONLY
     lda     RESB
     ldx     RESB+1
@@ -118,12 +129,15 @@ RESF := DECTRV
 
 
 
-    ; free string used for the strcat
+    ; Free string used for the strcat
     lda     RESB
     ldy     RESB+1
     jsr     XFREE_ROUTINE
 
-    ; error not found
+    lda     kernel_process+kernel_process_struct::kernel_current_process
+    jsr     kernel_kill_process
+
+    ; Error not found
     lda     #ENOENT 
 
     rts
@@ -131,6 +145,10 @@ RESF := DECTRV
 
     sta     RESF       ; save fp
     stx     RESF+1     ; save fp
+
+    lda     RESB
+    ldy     RESB+1
+    jsr     XFREE_ROUTINE
 
     ; Found let's fork
 
@@ -170,10 +188,7 @@ RESF := DECTRV
     sta     RESC
     sty     RESC+1
     
-    ; read 20 bytes in the header
-
- 
-
+    ; Read 20 bytes in the header
 
     lda     #20
     ldy     #$00
@@ -196,6 +211,7 @@ RESF := DECTRV
     ldx     #$00
     jsr     XCOSCR_ROUTINE
     ; Storing address to load it
+
 
 
     ldy     #14
@@ -221,7 +237,7 @@ RESF := DECTRV
     ldy     RESD+1
     jsr     XFREE_ROUTINE
 
-    jsr     _XFORK
+
 
     lda     #$FF ; read all the binary
     ldy     #$FF
@@ -242,7 +258,9 @@ RESF := DECTRV
     sbc     RES
     ; A and Y contains the length of the file
 
+
  ;   jsr     XMALLOC_ROUTINE
+
     lda     RESF
     ldy     RESF+1
     jsr     XCLOSE_ROUTINE

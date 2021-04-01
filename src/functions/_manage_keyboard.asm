@@ -18,7 +18,7 @@
   lda     KBDVRR 
   jmp     @S5
 @S2:  
-  DEC     KBDVRL+1  ; CORRECTME
+  dec     KBDVRL+1  ; CORRECTME
   bne     @S6
   jsr     XKBDAS_ROUTINE
   jmp     @S4

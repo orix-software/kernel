@@ -24,11 +24,7 @@ ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
 work_channel  :=$19     ; 1 byte
 KBD_UNKNOWN   :=$271  ;FIXME
 
-; ORIX_PATH_CURRENT:=$0525  ;FIXME
 FUFTRV=$0100; working Buffer 
-
-
-
 
 NULL = 0
 ;#define FILE_OPEN_TABLE $D000 
@@ -39,7 +35,7 @@ NULL = 0
 BUFROU:= $C500 ; Routines for buffers gestion
 
 
-SIZE_OF_STACK_BANK = 1
+SIZE_OF_STACK_BANK = 3
 
 BNKOLD:=$40F 
 
