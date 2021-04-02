@@ -7,7 +7,7 @@
 ; ***********************************************************************************************************************
   ; at this step, it's not possible to kill init (ID = 0)
 
-  ;cmp     #$00 ; is it init 
+  cmp     #$FF ; is it init 
   beq     @skip_load_zp  ; For instance, we don't load zp because all are reserved for init
   
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
@@ -133,6 +133,8 @@ close_all_fp:
   
   txa 
   pha
+  clc
+  adc     #KERNEL_FIRST_FD
   jsr     XCLOSE_ROUTINE ; Close
   pla
   tax

@@ -267,7 +267,7 @@ RESG := ACCPS
 
     lda     RESB
     ldy     RESB+1
-    jsr     XFREE_ROUTINE
+   ; jsr     XFREE_ROUTINE
 
     ; send cmdline ptr 
     lda     RES

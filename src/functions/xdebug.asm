@@ -1,5 +1,5 @@
 .proc xdebug_print_with_a
-    rts
+
     pha
     lda  #<$c006
     sta  VEXBNK+1

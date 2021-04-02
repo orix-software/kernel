@@ -28,11 +28,13 @@ rom_start:
 table_low_ay:
     .byte <str_unknown
     .byte <str_xfree_enter
-    .byte <str_xmalloc_enter     
+    .byte <str_xmalloc_enter
+
 table_high_ay:
     .byte >str_unknown
     .byte >str_xfree_enter   
     .byte >str_xmalloc_enter     
+
 
 str_unknown: 
     .asciiz "Unknown"
@@ -45,7 +47,7 @@ table_low_noparam:
     .byte <str_found_chunk     
     .byte <str_fseek
     .byte <str_fclose
-    .byte <str_xopen_enter
+    .byte <str_unknown
     .byte <str_xopen_allocate_fp
     .byte <str_fclose_not_found    
     .byte <str_fclose_found
@@ -66,7 +68,7 @@ table_high_noparam:
     .byte >str_found_chunk
     .byte >str_fseek        
     .byte >str_fclose
-    .byte >str_xopen_enter   
+    .byte >str_unknown   
     .byte >str_xopen_allocate_fp
     .byte >str_fclose_not_found
     .byte >str_fclose_found
@@ -81,9 +83,11 @@ table_high_noparam:
 
 table_low_ay_string:
     .byte <str_xexec_enter
+    .byte <str_xopen_enter
 
 table_high_ay_string:
     .byte >str_xexec_enter
+    .byte >str_xopen_enter
 
 table_str_low:        
     .byte <str_fd_id
@@ -234,6 +238,7 @@ str_type_fp:
 .proc print_msg_and_a  
     ; X contains id of the string
     pha
+    
     lda     table_str_low,x
     sta     ACC2M
     lda     table_str_high,x

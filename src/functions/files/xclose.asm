@@ -44,7 +44,8 @@
 .ifdef WITH_DEBUG
     lda     RESB
     ldx     #XDEBUG_XCLOSE_FD_FOUND
-    jsr     xdebug_print_with_a
+    jsr     xdebug_print
+        
 .endif
 
  

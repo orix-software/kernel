@@ -22,8 +22,9 @@
 
 .ifdef WITH_DEBUG
     jsr     kdebug_save
+    ldy     XOPEN_RES_SAVE+1
     ldx     #XDEBUG_XOPEN_ENTER
-    jsr     xdebug_print
+    jsr     xdebug_print_with_ay_string
     jsr     kdebug_restore
 .endif
 

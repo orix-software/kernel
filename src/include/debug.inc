@@ -5,7 +5,7 @@
 .define XDEBUG_FOUND                $04
 .define XDEBUG_FSEEK                $05
 .define XDEBUG_FCLOSE               $06
-.define XDEBUG_XOPEN_ENTER          $07
+
 .define XDEBUG_XOPEN_ALLOCATE_FP    $08
 .define XDEBUG_XCLOSE_FD_NOT_FOUND  $09
 .define XDEBUG_XCLOSE_FD_FOUND      $0A
@@ -18,10 +18,12 @@
 .define XDEBUG_TYPE_PROCESSSTRUCT   $11
 .define XDEBUG_TYPE_FPSTRUCT        $12
 
+
 .define XDEBUG_XMALLOC_ENTER_AY     $02
 
 
 .define XDEBUG_XEXEC_ENTER          $00
+.define XDEBUG_XOPEN_ENTER          $01
 
 .define XDEBUG_FD                   $00
 .define XDEBUG_ERROR_FP_REACH       $01
