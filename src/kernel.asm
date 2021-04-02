@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2021.2b"
+.define VERSION "2021.2"
 
 
 .include   "telestrat.inc"          ; from cc65
@@ -113,8 +113,10 @@ start_rom:
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
   jsr     init_screens
-  jsr     init_via
+  
   jsr     XLOADCHARSET_ROUTINE
+  
+  jsr     init_via
   jsr     init_printer 
   jsr     XALLKB_ROUTINE
  
