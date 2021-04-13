@@ -113,10 +113,14 @@ start_rom:
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
   jsr     init_screens
-  jsr     init_via
+  
   jsr     XLOADCHARSET_ROUTINE
-  jsr     init_printer 
+
   jsr     XALLKB_ROUTINE
+
+  jsr     init_via
+  jsr     init_printer 
+
  
 
   ldx     #$0F
@@ -177,6 +181,8 @@ loading_vectors_telemon:
   sta     KERNEL_DRIVER_MEMORY,x
   inx                                 ; loop until 256 bytes are filled
   bne     @loop2
+
+
 
   ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
 ;  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
@@ -328,11 +334,12 @@ display_cursor:
   bpl     @loop
 
 
+
 ; kernel_process+kernel_process_struct::kernel_current_process  doit contenir l'offset dans kernel_process+kernel_process_struct::kernel_pid_list
 ; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
 
 
-  lda     #$01  ; Init
+  lda     #$FF  ; Init
   ; Set process foreground 
 
   sta     kernel_process+kernel_process_struct::kernel_current_process 
@@ -340,16 +347,16 @@ display_cursor:
   lda     #$01
   sta     kernel_process+kernel_process_struct::kernel_pid_list
 
-init_process_init_in_struct:
-  ldx     #$00
-@L1:  
-  lda     str_name_process_kernel,x
-  beq     @S1
-  sta     kernel_process+kernel_process_struct::kernel_init_string,x
-  inx     
-  bne     @L1
-@S1:  
-  sta     kernel_process+kernel_process_struct::kernel_init_string,x
+;init_process_init_in_struct:
+ ; ldx     #$00
+;@L1:  
+;  lda     str_name_process_kernel,x
+  ;beq     @S1
+  ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
+ ; inx     
+  ;bne     @L1
+;@S1:  
+  ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
 
 init_process_init_cwd_in_struct:
   ldx     #$00
@@ -367,8 +374,20 @@ init_process_init_cwd_in_struct:
   lda     #KERNEL_ERRNO_OK
   sta     KERNEL_ERRNO
 
-  lda     #KERNEL_MAX_PROCESS
-  sta     kernel_process+kernel_process_struct::kernel_max_process_value
+  ;lda     #KERNEL_MAX_PROCESS
+  ;sta     kernel_process+kernel_process_struct::kernel_max_process_value
+
+  ; Init FD
+  ;lda     #KERNEL_FIRST_FD                                      ; initialise to first FD available
+  ;sta     kernel_process+kernel_process_struct::kernel_next_fd
+  ; init FD
+  lda     #$00
+  ldx     #$00
+@init_fp:  
+  sta     kernel_process+kernel_process_struct::kernel_fd,x
+  inx
+  cpx     #KERNEL_MAX_FP
+  bne     @init_fp  
 
 ;**************************************************************************************************************************/
 ;*                                                     init malloc table in memory                                        */
@@ -695,16 +714,16 @@ code_adress_436:
   lda     VIA2::PRA
   ldx     NEXT_STACK_BANK
   
-  sta     STACK_BANK,x ; FIXME
+  sta     STACK_BANK,x      ; FIXME
   inc     NEXT_STACK_BANK   ; FIXME
   pla
   tax
   lda     BNKCIB
-  jsr     $046A ; see code_adress_46A  
+  jsr     $046A             ; See code_adress_46A  
  
   pla
   plp
-  jsr     VEXBNK ; Used in monitor
+  jsr     VEXBNK            ; Used in monitor
 
   php
   sei

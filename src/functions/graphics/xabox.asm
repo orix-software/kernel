@@ -13,19 +13,19 @@
 
 XABOX_ROUTINE:
   ldy     #$06    ;   on place les 4 paramètres (poids faible seulement)
-  ldx #$03 
+  ldx     #$03 
 LE830
-  lda HRS1,Y  ;  de HRSx                                           
-  sta DECFIN,X    ;  dans $06-7-8-9                                    
-  DEY                                                              
-  DEY                                                              
+  lda     HRS1,Y  ;  de HRSx                                           
+  sta     DECFIN,X    ;  dans $06-7-8-9                                    
+  dey                                                              
+  dey                                                              
   dex                                                              
-  bpl LE830
+  bpl     LE830
 LE83A  
-  ldx #$03     ;  on va tracer 4 traits                             
+  ldx     #$03     ;  on va tracer 4 traits                             
 LE83C
-  stx DECDEB+1      ;  dans $05 <----------------------------------------
-  lda table_for_rect,X   ; on lit le code coordonn?es                       I 
+  stx     DECDEB+1      ;  dans $05 <----------------------------------------
+  lda     table_for_rect,X   ; on lit le code coordonn?es                       I 
   sta DECDEB      ;  dans $04                                         I
   ldx #$06     ;  on va extraire 8 bits                            I
 LE845
@@ -36,11 +36,11 @@ LE845
   lsr DECDEB     ;                                               I    I
   rol         ;                                               I    I
   tay         ;   et Y                                        I    I
-  lda $0006,Y  ;  on lit la coordonn?e correspondante         I    I
+  lda $0006,Y  ;  on lit la coordonnée correspondante         I    I
   sta HRS1,X    ;  et on stocke dans HRSx                      I    I
   dex         ;                                               I    I
   dex          ;                                              I    I
-  bpl LE845   ;   on fait les 4 coordonn?es ADRAW -------------    I 
+  bpl LE845   ;   on fait les 4 coordonnées ADRAW -------------    I 
   jsr XDRAWA_ROUTINE  ;   on trace le trait en absolu                      I 
   ldx DECDEB+1    ;                                                     I
   dex        ;                                                     I

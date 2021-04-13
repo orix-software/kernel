@@ -13,7 +13,10 @@
   sty     RES+1
 
 .ifdef WITH_DEBUG
-jsr   xdebug_enter_create_fp_XMALLOC
+    jsr     kdebug_save
+    ldx     #XDEBUG_XOPEN_ALLOCATE_FP
+    jsr     xdebug_print
+    jsr     kdebug_restore
 .endif
 
   lda     #KERNEL_FP_MALLOC_TYPE
@@ -50,6 +53,13 @@ jsr   xdebug_enter_create_fp_XMALLOC
   lda     XOPEN_FLAGS
   sta     (KERNEL_XOPEN_PTR1),y  
 
+
+  ; set FD
+  
+  ;ldy     #_KERNEL_FILE::f_fd      ; get Offset
+  ;lda     kernel_process+kernel_process_struct::kernel_next_fd
+  ;sta     (KERNEL_XOPEN_PTR1),y  
+  
 
   ; FIXME put readonly/writeonly etc mode
 

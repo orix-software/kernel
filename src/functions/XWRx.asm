@@ -1,17 +1,17 @@
-XWR0_ROUTINE
+XWR0_ROUTINE:
 	pha                     ; Push byte to write
 	lda     #$00
 
 	beq     skip2_XWR0_ROUTINE
-XWR1_ROUTINE	
+XWR1_ROUTINE:	
 	pha
 	lda     #$04
 	bne     skip2_XWR0_ROUTINE
-XWR2_ROUTINE
+XWR2_ROUTINE:
 	pha
 	lda     #$08
 	bne     skip2_XWR0_ROUTINE
-XWR3_ROUTINE	
+XWR3_ROUTINE:	
 	pha
 	lda     #$0C
 skip2_XWR0_ROUTINE:

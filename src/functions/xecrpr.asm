@@ -1,5 +1,5 @@
 .proc XECRPR_ROUTINE 
 ;                             AFFICHE LE PROMPT
-  lda     #"#"    ;    on affiche un prompt <----------------------------
-  jmp     Ldbb5   ;   à l'écran               
+  lda     #"#"    ;    On affiche un prompt <----------------------------
+  jmp     Ldbb5   ;    A l'écran               
 .endproc
