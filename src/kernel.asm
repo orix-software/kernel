@@ -984,6 +984,7 @@ end_keyboard_buffer:
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
 .include  "functions/xinteg.asm"
+; .include  "functions/exe/ori3.asm"
 
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
