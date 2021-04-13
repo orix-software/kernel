@@ -182,10 +182,12 @@
     ; Debug
 
 .ifdef WITH_DEBUG
+    jsr     kdebug_save
     jsr     xdebug_enter_XMALLOC_return_adress
     jsr     xdebug_send_ay_to_printer
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    jsr     kdebug_restore
   .endif  
 
     rts

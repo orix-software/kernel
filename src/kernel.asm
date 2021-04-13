@@ -115,10 +115,12 @@ start_rom:
   jsr     init_screens
   
   jsr     XLOADCHARSET_ROUTINE
-  
+
+  jsr     XALLKB_ROUTINE
+
   jsr     init_via
   jsr     init_printer 
-  jsr     XALLKB_ROUTINE
+
  
 
   ldx     #$0F

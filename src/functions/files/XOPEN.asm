@@ -126,7 +126,7 @@
 
   bne     @L4
   ; Bof return NULL
-
+  ;jmp     @exit_open_with_null
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -166,17 +166,20 @@
 @open_from_device:
   ldy     #_KERNEL_FILE::f_path ; skip /
 
+
   ; Reset flag to say that end of string is reached
   lda     #$01
   sta     XOPEN_SAVEA
 
- @next_filename:
+@next_filename:
+
   lda     #CH376_SET_FILE_NAME        ;$2F
   sta     CH376_COMMAND
 
 @next_char:
 
   lda     (KERNEL_XOPEN_PTR1),y
+  ;sta     $6000,y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
@@ -227,6 +230,13 @@
   lda     XOPEN_SAVEA
   beq     @could_be_created
   iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  bne     @next_filename
+  cpy    #_KERNEL_FILE::f_path+1
+  beq    @open_and_register_fp
+  
+
+  
   bne     @next_filename
 
 
@@ -251,6 +261,7 @@
   lda     #$FF
   jsr     xdebug_print_with_a
 .endif
+
 
 
 
@@ -328,6 +339,7 @@
   cpx     #KERNEL_MAX_FP
   bne     @init_fp
 
+  ; No available fd
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
@@ -337,6 +349,8 @@
   lda     #KERNEL_MAX_FP
   jsr     xdebug_print_with_a
 .endif
+
+
 
   lda     #$FF
   tax
