@@ -15,6 +15,8 @@
 .include   "include/process_bss.inc"
 .include   "include/memory.inc"
 .include   "include/files.inc"
+.include   "include/ori3.inc"
+
 
 .out   "=================================================================="
 .out   "Resume"
@@ -694,7 +696,7 @@ code_adress_419:
   sta     VIA2::PRA
   pla
   jsr     BUFROU     ; Read buffer
-  tay            ; A contains the value read in the buffer, backup it
+  tay                ; A contains the value read in the buffer, backup it
   lda     VIA2::PRA
   ora     #$07
   sta     VIA2::PRA
@@ -984,7 +986,7 @@ end_keyboard_buffer:
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
 .include  "functions/xinteg.asm"
-; .include  "functions/exe/ori3.asm"
+.include  "functions/exe/ori3.asm"
 
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
@@ -2112,7 +2114,7 @@ manage_I_O_keyboard:
   ldx     #$00
   jsr     XLISBU_ROUTINE ; Read if we have data in keyboard buffer
   bcs     @S1
-  sta     KBDKEY ; A contains a key, we store it on KBDKEY
+  sta     KBDKEY         ; A contains a key, we store it on KBDKEY
   ldx     #$00
   jsr     XLISBU_ROUTINE 
   bcs     @S1

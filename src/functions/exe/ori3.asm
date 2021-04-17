@@ -1,7 +1,6 @@
-.define Z00 RES
-.define Z02 RESB
-.define Z04 DECFIN
-.define Z06 DECDEB
+
+
+
 
 ;
 ; Relocation
@@ -19,15 +18,16 @@
 ;	06	: Inchangé
 .proc relocate_ori3
 
-	dec Z06									; Page -1 = Offset
+	dec ORI3_PAGE_LOAD									; Page -1 = Offset
 	beq rel_end								; Fin si chargement en page 1 (adresse par défaut -> rien à faire)
 
+    rts
 	ldy #$00								; Au cas ou on parte directement vers "reste"
-	lda Z04+1
+	lda ORI3_LENGTH_MAP+1
 	beq reste
 
 boucle:
-	lda (Z02),y								; On prend un octet de la MAP
+	lda (ORI3_MAP_ADRESS),y								; On prend un octet de la MAP
 	beq skip8								; 0 -> On saute directement 8 octets du programme
 
 	tax									; Sauvegarde ACC
@@ -42,9 +42,9 @@ reloc:
 
 	tax									; Sauvegarde ACC
 	clc									; On ajuste l'adresse
-	lda (Z00),y
-	adc Z06
-	sta (Z00),y
+	lda (ORI3_PROGRAM_ADRESS),y
+	adc ORI3_PAGE_LOAD
+	sta (ORI3_PROGRAM_ADRESS),y
 	txa									; Restaure ACC
 next:
 	dey
@@ -56,20 +56,20 @@ next:
 	;
 skip8:
 	clc									; On saute 8 octets du programme
-	lda Z00
+	lda ORI3_PROGRAM_ADRESS
 	adc #$08
-	sta Z00
+	sta ORI3_PROGRAM_ADRESS
 	bcc *+4
-	inc Z00+1
+	inc ORI3_PROGRAM_ADRESS+1
 suite:
-;	inc Z02									; Octet suivant dans la MAP
+;	inc ORI3_MAP_ADRESS									; Octet suivant dans la MAP
 ;	bne *+4
-;	inc Z02+1
+;	inc ORI3_MAP_ADRESS+1
 
 	iny
 	bne *+6
-	inc Z02+1								; Page suivante dans la MAP
-	dec Z04+1
+	inc ORI3_MAP_ADRESS+1								; Page suivante dans la MAP
+	dec ORI3_LENGTH_MAP+1
 	bne boucle
 
 	;
@@ -79,11 +79,11 @@ suite:
 	; On arrive ici avec Y=0
 	;
 reste:
-	lda Z04
+	lda ORI3_LENGTH_MAP
 	beq rel_end
 
 boucle2:
-	lda (Z02),y								; On prend un octet de la MAP
+	lda (ORI3_MAP_ADRESS),y								; On prend un octet de la MAP
 	beq skip82								; 0 -> On saute directement 8 octets du programme
 
 	tax									; Sauvegarde ACC
@@ -98,9 +98,9 @@ reloc2:
 
 	tax									; Sauvegarde ACC
 	clc									; On ajuste l'adresse
-	lda (Z00),y
-	adc Z06
-	sta (Z00),y
+	lda (ORI3_PROGRAM_ADRESS),y
+	adc ORI3_PAGE_LOAD
+	sta (ORI3_PROGRAM_ADRESS),y
 	txa									; Restaure ACC
 next2:
 	dey
@@ -112,22 +112,22 @@ next2:
 	;
 skip82:
 	clc									; On saute 8 octets du programme
-	lda Z00
+	lda ORI3_PROGRAM_ADRESS
 	adc #$08
-	sta Z00
+	sta ORI3_PROGRAM_ADRESS
 	bcc *+4
-	inc Z00+1
+	inc ORI3_PROGRAM_ADRESS+1
 suite2:
-;	inc Z02									; Octet suivant dans la MAP
+;	inc ORI3_MAP_ADRESS									; Octet suivant dans la MAP
 ;	bne *+4
-;	inc Z02+1
+;	inc ORI3_MAP_ADRESS+1
 
 	iny
-	dec Z04
+	dec ORI3_LENGTH_MAP
 	bne boucle2
 
 rel_end:
-	inc Z06									; On remet la page de chargement à sa valeur initiale
+	inc ORI3_PAGE_LOAD									; On remet la page de chargement à sa valeur initiale
 	rts									; Pour utilisation éventuelle par une autre routine
 .endproc
 
