@@ -1,8 +1,85 @@
-.proc xdebug_install
-    lda  #<$c000
+.proc xdebug_print_with_a
+
+    pha
+    lda  #<$c006
     sta  VEXBNK+1
-    lda  #>$c000
+    lda  #>$c006
     sta  VEXBNK+2
+    lda  #$01
+    sta  BNKCIB
+    pla
+    jmp  $40C    
+    
+.endproc
+
+.proc xdebug_print_with_ay
+
+    pha
+    
+
+    lda  #<$c009
+    sta  VEXBNK+1
+    lda  #>$c009
+    sta  VEXBNK+2
+    lda  #$01
+    sta  BNKCIB
+    pla
+
+    jmp  $40C    
+    
+    
+.endproc
+
+.proc xdebug_print_with_ay_string
+
+    pha
+    
+
+    lda  #<$c00C
+    sta  VEXBNK+1
+    lda  #>$c00C
+    sta  VEXBNK+2
+    lda  #$01
+    sta  BNKCIB
+    pla
+
+    jmp  $40C    
+    
+    
+.endproc
+
+.proc kdebug_restore
+    lda  kernel_debug+kernel_debug_struct::BNKCIB
+    sta  BNKCIB
+    lda  kernel_debug+kernel_debug_struct::VEXBNK
+    sta  VEXBNK+1
+    lda  kernel_debug+kernel_debug_struct::VEXBNK+1
+    sta  VEXBNK+2
+    lda  kernel_debug+kernel_debug_struct::BNKOLD
+    sta  BNKOLD
+    lda  kernel_debug+kernel_debug_struct::FIXME_DUNNO
+    sta  FIXME_DUNNO
+    lda  kernel_debug+kernel_debug_struct::RA
+    ldx  kernel_debug+kernel_debug_struct::RX
+    ldy  kernel_debug+kernel_debug_struct::RY
+    rts
+.endproc
+
+.proc kdebug_save
+    sta  kernel_debug+kernel_debug_struct::RA
+    stx  kernel_debug+kernel_debug_struct::RX
+    sty  kernel_debug+kernel_debug_struct::RY
+    lda  BNKCIB
+    sta  kernel_debug+kernel_debug_struct::BNKCIB
+    lda  VEXBNK+1
+    sta  kernel_debug+kernel_debug_struct::VEXBNK
+    lda  VEXBNK+2
+    sta  kernel_debug+kernel_debug_struct::VEXBNK+1
+    lda  BNKOLD
+    sta  kernel_debug+kernel_debug_struct::BNKOLD
+    lda  FIXME_DUNNO
+    sta  kernel_debug+kernel_debug_struct::FIXME_DUNNO
+    lda  kernel_debug+kernel_debug_struct::RA
     rts
 .endproc
 
@@ -11,54 +88,21 @@
     sta  VEXBNK+1
     lda  #>$c003
     sta  VEXBNK+2
-    lda   #$01
-    sta   BNKCIB
-    jmp   $40C
+    lda  #$01
+    sta  BNKCIB
+    jmp  $40C
 .endproc
 
 .proc xdebug_print
-    jsr    xdebug_save
+    lda   #<$c000
+    sta   VEXBNK+1
+    lda   #>$c000
+    sta   VEXBNK+2
     lda   #$01
     sta   BNKCIB
- 
     jmp   $40C
 .endproc
 
-
-
-.proc xdebug_enter_XMALLOC
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,"[XMALLOC] Query size :",0
-.endproc
-
-
-.proc xdebug_enter_XMALLOC_process_struct
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte "PROCESS_STRUCT(Kernel)",0
-.endproc
-
-.proc xdebug_enter_XMALLOC_xmainargs
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte "MAINARGS(Kernel)",0
-.endproc
 
 .proc xdebug_enter_XMALLOC_fp
     jsr    xdebug_save
@@ -69,29 +113,6 @@ str_enter_malloc:
     jmp    xdebug_enter
 str_enter_malloc:
     .byte "FP(Kernel)",0
-.endproc
-
-.proc xdebug_enter_XMALLOC_unknown
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte "UNKNOWN",0
-.endproc
-
-
-.proc xdebug_enter_XMALLOC_TYPE
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte "Type:",0
 .endproc
 
 .proc xdebug_enter_merge_free_table
@@ -116,17 +137,6 @@ str_enter_malloc:
     .byte $0D,"[XFREE] not found",0
 .endproc
 
-.proc xdebug_enter_RETURNLINE
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,0
-.endproc
-
 .proc xdebug_enter_XMALLOC_return_adress
     jsr    xdebug_save
     lda    #<str_enter_found
@@ -137,28 +147,6 @@ str_enter_malloc:
 str_enter_found:
     .byte " return address :  "
     .byte 0
-.endproc
-
-.proc xdebug_enter_create_process_XMALLOC
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,"[CREATE PROCESS]",0
-.endproc
-
-.proc xdebug_enter_create_fp_XMALLOC
-    jsr    xdebug_save
-    lda    #<str_enter_malloc
-    ldy    #>str_enter_malloc
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_malloc:
-    .byte $0D,"[Create FP]",0
 .endproc
 
 .proc xdebug_binhex
@@ -175,84 +163,30 @@ str_enter_malloc:
          pla                   ;recover byte
          and #%00001111 
          tax  
-r0000010
-    ; cmp #15               ; 0 to 9 ?
-         ;bcc r0000020          ; b: yes - must set bits 4 and 5
-;
-         ;adc #103-1            ; 10 to 15 -> 113 to 118
-;
-; $71 to $76
-; %01110001 to %01110110
-; - must clear bits 4 and 5
-;         
-;r0000020 ;eor #%00110000        ;set or clear bits 4 and 5
+r0000010:
+ 
          lda    hex_table,x
          
          jsr    xdebug_send_printer
          rts                   ;done
 hex_table:
-.byte "0123456789ABCDEF"                  
+    .byte "0123456789ABCDEF"                  
 .endproc     
 
-.proc xdebug_send_y_to_printer
-    jsr        xdebug_save
-    lda        #'#'
-    jsr        xdebug_send_printer
-    lda        kernel_debug+kernel_debug_struct::RY
-   
-    jsr        xdebug_binhex
-    lda        #' '
-    jsr        xdebug_send_printer
-    jsr        xdebug_load
-    rts  
-.endproc
-
-.proc xdebug_send_x_to_printer
-    jsr        xdebug_save
-    lda        #'#'
-    jsr        xdebug_send_printer
-    lda        kernel_debug+kernel_debug_struct::RX
-   
-    jsr        xdebug_binhex
-    lda        #' '
-    jsr        xdebug_send_printer
-    jsr        xdebug_load
-    rts  
-.endproc
-
-.proc xdebug_send_a_to_printer
-    jsr        xdebug_save
-    lda        #'#'
-    jsr        xdebug_send_printer
-    lda        kernel_debug+kernel_debug_struct::RA
-   
-    jsr        xdebug_binhex
-    lda        #' '
-    jsr        xdebug_send_printer
-    jsr        xdebug_load
-    rts  
-.endproc
 
 .proc xdebug_send_ay_to_printer
     jsr        xdebug_save
     lda        #'#'
     jsr        xdebug_send_printer
     lda        kernel_debug+kernel_debug_struct::RY
-   ; sta        $5000
     jsr        xdebug_binhex
     lda        kernel_debug+kernel_debug_struct::RA
-    ;sta        $5001
-loopme:
-    ;jmp loopme        
     jsr        xdebug_binhex
     lda        #' '
     jsr        xdebug_send_printer
     jsr        xdebug_load
     rts  
 .endproc
-
-
-
 
 .proc xdebug_enter_XFREE_new_freechunk
     jsr    xdebug_save
@@ -263,21 +197,7 @@ loopme:
     jmp    xdebug_enter
 
 str_enter_free:
-    .byte $0D,"[XFREE] new free chunk",$0D
-    .byte 0
-.endproc
-
-
-.proc xdebug_enter_xfree_found
-    jsr    xdebug_save
-    lda    #<str_enter_found
-    ldy    #>str_enter_found
-    sta    RES 
-    sty    RES+1
-    jmp    xdebug_enter
-str_enter_found:
-    .byte " found :  "
-    .byte 0
+    .byte $0D,"[XFREE] new free chunk",0
 .endproc
 
 .proc xdebug_end
@@ -335,41 +255,11 @@ str_enter_found:
     lda    RESB+1
     sta    kernel_debug+kernel_debug_struct::RESB+1
 
-    lda    TR0
-    sta    kernel_debug+kernel_debug_struct::TR0
-
-    lda    TR1
-    sta    kernel_debug+kernel_debug_struct::TR1
-
-    lda    TR2
-    sta    kernel_debug+kernel_debug_struct::TR2
-    
-    lda    TR3
-    sta    kernel_debug+kernel_debug_struct::TR3
-
-    lda    TR4
-    sta    kernel_debug+kernel_debug_struct::TR4
-
-    lda    TR5
-    sta    kernel_debug+kernel_debug_struct::TR5
-
-    lda    TR6
-    sta    kernel_debug+kernel_debug_struct::TR6
-
-    lda    TR7
-    sta    kernel_debug+kernel_debug_struct::TR7
-
     rts
 .endproc
 
 .proc xdebug_load
-   
-    ;lda    #<str_line
-    ;ldy    #>str_line
-    ;sta    RES
-    ;sty    RES+1
 
-    ;jsr     xdebug_send_string_to_printer
 
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES
@@ -383,38 +273,9 @@ str_enter_found:
     lda    kernel_debug+kernel_debug_struct::RESB+1
     sta    RESB+1
 
-    lda    kernel_debug+kernel_debug_struct::TR0
-    sta    TR0
-
-    lda    kernel_debug+kernel_debug_struct::TR1
-    sta    TR1
-
-    lda    kernel_debug+kernel_debug_struct::TR2
-    sta    TR2
-    
-    lda    kernel_debug+kernel_debug_struct::TR3
-    sta    TR3
-
-    lda    kernel_debug+kernel_debug_struct::TR4
-    sta    TR4
-
-    lda    kernel_debug+kernel_debug_struct::TR5
-    sta    TR5
-
-    lda    kernel_debug+kernel_debug_struct::TR6
-    sta    TR6
-
-    lda    kernel_debug+kernel_debug_struct::TR7
-    sta    TR7
-
-
-
-
     lda    kernel_debug+kernel_debug_struct::RA 
     ldy    kernel_debug+kernel_debug_struct::RY
     ldx    kernel_debug+kernel_debug_struct::RX
     rts
-str_line:
-    .byte $0D,"=======================",$0D
-    .byte 0
+
 .endproc

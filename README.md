@@ -22,12 +22,12 @@ You need at least "shell" bank to use this kernel
 Pass to ca65 command line : -DWITH_SDCARD_FOR_ROOT=1
 or else it will reads en usb key
 
-here is the list of available "compile option" 
+here is the list of available "compile option"
 
 * CPU_65C02
 * WITH_MULTITASKING
 * WITH_ACIA
-* WITH_DEBUG
+* WITH_DEBUG : In that case, somes primitives send their debug to printer with a help of kdebug ROM.
 * WITH_TWILIGHTE_BOARD
 
 ## How does it starts

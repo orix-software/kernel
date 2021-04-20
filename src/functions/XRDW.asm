@@ -1,13 +1,13 @@
-XRD0_ROUTINE
+XRD0_ROUTINE:
 	lda     #$00
 	.byt    $2C
-XRD1_ROUTINE	
+XRD1_ROUTINE:	
 	lda     #$04
 	.byt    $2C
-XRD2_ROUTINE		
+XRD2_ROUTINE:		
 	lda     #$08
 	.byt    $2C
-XRD3_ROUTINE		
+XRD3_ROUTINE:		
 	lda     #$0C
 ; read keyboard	
 Lc7da:

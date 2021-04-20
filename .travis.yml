@@ -17,7 +17,6 @@ after_success:
     - mkdir -p build/usr/share/kernel/
     - cp Makefile build/usr/src/kernel/
     - cp README.md build/usr/src/kernel/
-    - cp cp README.md build/usr/share/doc/kernel/
     - sh tools/builddocs.sh
     - cd build && tar -c * > ../kernel.tar && cd ..
     - gzip kernel.tar

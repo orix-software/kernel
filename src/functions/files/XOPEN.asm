@@ -18,7 +18,16 @@
   stx     XOPEN_RES_SAVE+1
   ; save flag
   sty     XOPEN_FLAGS
-  
+
+
+.ifdef WITH_DEBUG
+    jsr     kdebug_save
+    ldy     XOPEN_RES_SAVE+1
+    ldx     #XDEBUG_XOPEN_ENTER
+    jsr     xdebug_print_with_ay_string
+    jsr     kdebug_restore
+.endif
+
   lda     #EOK
   sta	    KERNEL_ERRNO
 
@@ -54,7 +63,16 @@
   jsr     XGETCWD_ROUTINE ; Modify RESB
 
   jsr     _create_file_pointer ; Modify RES
+  ; Check if oom or other too much busy chunk
+  cmp     #$00
+  bne     @not_null_2
+  cpy     #$00
+  bne     @not_null_2
+  ; For cc65 compatibility
+  lda     #$FF
+  tax
 
+  rts
 
 @not_null_2:
   sta     KERNEL_XOPEN_PTR1
@@ -108,7 +126,7 @@
 
   bne     @L4
   ; Bof return NULL
-
+  ;jmp     @exit_open_with_null
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -133,11 +151,13 @@
 
 
    ; Already set in _create_file_pointer
-;  lda     #ENOMEM
+ ; lda     #ENOMEM
  ; sta     KERNEL_ERRNO
 
   ; and Y equals to NULL
-  lda     #NULL
+  lda     #$FF
+  tax
+
   rts
 @not_null_1:
   sta     KERNEL_XOPEN_PTR1
@@ -146,17 +166,20 @@
 @open_from_device:
   ldy     #_KERNEL_FILE::f_path ; skip /
 
+
   ; Reset flag to say that end of string is reached
   lda     #$01
   sta     XOPEN_SAVEA
 
- @next_filename:
+@next_filename:
+
   lda     #CH376_SET_FILE_NAME        ;$2F
   sta     CH376_COMMAND
 
 @next_char:
 
   lda     (KERNEL_XOPEN_PTR1),y
+  ;sta     $6000,y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
@@ -207,6 +230,13 @@
   lda     XOPEN_SAVEA
   beq     @could_be_created
   iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  bne     @next_filename
+  cpy    #_KERNEL_FILE::f_path+1
+  beq    @open_and_register_fp
+  
+
+  
   bne     @next_filename
 
 
@@ -225,11 +255,19 @@
   ; No such file_or_directy
   lda     #ENOENT
   sta     KERNEL_ERRNO
-  
-  ; return null 
-  ldy     #NULL
-  lda     #NULL
-  ldx     #NULL
+
+.ifdef    WITH_DEBUG
+  ldx     #XDEBUG_XOPEN_FILE_NOT_FOUND
+  lda     #$FF
+  jsr     xdebug_print_with_a
+.endif
+
+
+
+
+  lda     #$FF
+  tax
+
   rts
 
 @could_be_created:
@@ -247,28 +285,29 @@
  ; register fp in process struct
   
   ;       store pointer in process struct
-  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
 
-  ;kernel_process+kernel_process_struct
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct 
   sta     RES
-  ;tya
+
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sta     RES+1
 
-  ;Fill the address of the fp
+  ; Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
-  ldy     #kernel_one_process_struct::fp_ptr
+  ldx     #$00
+  ldy     #(kernel_one_process_struct::fp_ptr+1)
 @try_to_find_a_free_fp_for_current_process:
-  lda     (RES),y
-  bne     @fp_is_not_busy 
-  tax
+  lda     (RES),y                             ; Load high
+  beq     @fp_is_not_busy                     ; If it's equal to $00, it means that it's empty because it's impossible to have a fp registered in zp
+
   iny
-  lda     (RES),y
-  bne     @fp_not_busy
   iny
-  cpy     #KERNEL_MAX_FP_PER_PROCESS*2
+
+  inx
+  cpx     #KERNEL_MAX_FP_PER_PROCESS
   bne     @try_to_find_a_free_fp_for_current_process
+
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
 
@@ -276,18 +315,66 @@
   beq     @exit_open_with_null
   ;       
 @fp_is_not_busy:
-  lda     KERNEL_XOPEN_PTR1
-  sta     (RES),y
-  iny
+
+
+
+  lda     KERNEL_XOPEN_PTR1+1
+  sta    (RES),y
+
+  dey
   lda    KERNEL_XOPEN_PTR1
-@fp_not_busy:
-  sta     (RES),y
+
+
+  sta    (RES),y
+
   ;kernel_process
   ;return fp
+  ; Now try to find an available FD
 
+  ldx     #$00
+@init_fp:  
+  lda     kernel_process+kernel_process_struct::kernel_fd,x
+  beq     @found_fp_slot
+  inx
+  cpx     #KERNEL_MAX_FP
+  bne     @init_fp
+
+  ; No available fd
   lda     KERNEL_XOPEN_PTR1
-  ldy     KERNEL_XOPEN_PTR1+1 
-  ldx     KERNEL_XOPEN_PTR1+1 
+  ldy     KERNEL_XOPEN_PTR1+1
+  jsr     XFREE_ROUTINE
+
+.ifdef    WITH_DEBUG
+  ldx     #XDEBUG_ERROR_FP_REACH
+  lda     #KERNEL_MAX_FP
+  jsr     xdebug_print_with_a
+.endif
+
+
+
+  lda     #$FF
+  tax
+  rts  
+  ; not found
+@found_fp_slot:
+  lda     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process+kernel_process_struct::kernel_fd,x
+  txa
+  clc
+  adc     #KERNEL_FIRST_FD
+
+  
+.ifdef WITH_DEBUG
+  pha
+  ldx     #XDEBUG_FD
+  jsr     xdebug_print_with_a
+  pla
+.endif  
+  ldx     #$00
+
+  ;lda     KERNEL_XOPEN_PTR1
+;  ldy     KERNEL_XOPEN_PTR1+1 
+  ;ldx     KERNEL_XOPEN_PTR1+1 
 
   rts
 .endproc

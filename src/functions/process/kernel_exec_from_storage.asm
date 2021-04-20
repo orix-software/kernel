@@ -7,6 +7,8 @@
 RESC := DECDEB 
 RESD := DECFIN
 RESE := DECCIB
+RESF := DECTRV
+RESG := ACCPS
 
 
 
@@ -15,9 +17,16 @@ RESE := DECCIB
     ; A & Y contains the command
 	; here we found no command, let's go trying to find it in /bin
     ; Malloc
-    sta     RES
-    sty     RES+1
+    sta     RESG
+    sty     RESG+1
 
+    jsr     _XFORK    
+
+    lda     RESG
+    sta     RES
+    
+    ldy     RESG+1
+    sty     RES+1
 
     lda     #<(.strlen("/bin/")+8+1) ; 5 because /bin/ & 8 because length can't be greater than 8 for the command
     ldy     #>(.strlen("/bin/")+8+1)
@@ -28,7 +37,7 @@ RESE := DECCIB
     bne     @malloc_ok
     lda     ENOMEM
     sta     KERNEL_ERRNO
-    
+ 
     rts
     ; FIX ME test OOM
 @malloc_ok:
@@ -42,8 +51,8 @@ RESE := DECCIB
 
     
 
-    ; copy /bin
-    ; do a strcat
+    ; Copy /bin
+    ; Do a strcat
     ldy     #$00
 @L1:
     lda     str_root_bin,y
@@ -82,9 +91,9 @@ RESE := DECCIB
 
 
 
-    ; at this step RES (only) can be used again     
+    ; At this step RES (only) can be used again     
 
-    ; at this step RESB contains the beginning of the string
+    ; At this step RESB contains the beginning of the string
 
     lda     RESB
     sta     RESC
@@ -104,62 +113,45 @@ RESE := DECCIB
 
 
 @S1:
+
+
+
     ldy     #O_RDONLY
     lda     RESB
     ldx     RESB+1
     jsr     XOPEN_ROUTINE
-    
-    cmp     #NULL
+
+    cpx     #$FF
     bne     @not_null
 
-    cpy     #NULL
+    cmp     #$FF
     bne     @not_null
 
- 
 
+
+    ; Free string used for the strcat
     lda     RESB
     ldy     RESB+1
     jsr     XFREE_ROUTINE
 
+    lda     kernel_process+kernel_process_struct::kernel_current_process
+    jsr     kernel_kill_process
 
-    ; free string used for the strcat
-    lda     RESC
-    ldy     RESC+1
-    jsr     XFREE_ROUTINE
-
-    ; error not found
+    ; Error not found
     lda     #ENOENT 
 
     rts
 @not_null:
 
-    ; save fp
-    pha
-    tya
-    pha
+    sta     RESF       ; save fp
+    stx     RESF+1     ; save fp
 
-; ps, lsmem, file, lsmem
-
-    pla
-    sta     RESC+1   ; save fp
-    pla
-    sta     RESC     ; save fp
-
-
-    ; free fp OK
-    lda     RESC
-    ldy     RESC+1
-    jsr     XFREE_ROUTINE
-    
-    ; free tmp string OK
     lda     RESB
     ldy     RESB+1
     jsr     XFREE_ROUTINE
 
-
-
     ; Found let's fork
-    jsr     _XFORK
+
     ; RESC contains file pointer
     ; RES can be used
     ; RESB too
@@ -196,10 +188,7 @@ RESE := DECCIB
     sta     RESC
     sty     RESC+1
     
-    ; read 20 bytes in the header
-
- 
-
+    ; Read 20 bytes in the header
 
     lda     #20
     ldy     #$00
@@ -212,19 +201,8 @@ RESE := DECCIB
     cmp     #$01
     beq     @is_an_orix_file
 
-
     rts
-@undebug:
-    lda     RESD
-    ldy     RESD+1
-    
-    jsr     XFREE_ROUTINE
-    lda     #$00 ; don't update length
-    jsr     XCLOSE_ROUTINE
-    lda     #ENOENT 
-    ; not found it means that we display error message
 
-    rts
 
 
 @is_an_orix_file:
@@ -235,6 +213,7 @@ RESE := DECCIB
     ; Storing address to load it
 
 
+
     ldy     #14
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST
@@ -242,7 +221,7 @@ RESE := DECCIB
     ldy     #15
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1
-		
+
     ; init RES to start code
 
     ldy     #18
@@ -259,8 +238,10 @@ RESE := DECCIB
     jsr     XFREE_ROUTINE
 
 
+
     lda     #$FF ; read all the binary
     ldy     #$FF
+
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done
 
@@ -277,10 +258,16 @@ RESE := DECCIB
     sbc     RES
     ; A and Y contains the length of the file
 
+
  ;   jsr     XMALLOC_ROUTINE
 
-    lda     #$00 ; don't update length
+    lda     RESF
+    ldy     RESF+1
     jsr     XCLOSE_ROUTINE
+
+    lda     RESB
+    ldy     RESB+1
+   ; jsr     XFREE_ROUTINE
 
     ; send cmdline ptr 
     lda     RES
@@ -289,6 +276,7 @@ RESE := DECCIB
     jsr     execute
 
     lda     #EOK
+    
     rts
 
 execute:

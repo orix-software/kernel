@@ -43,9 +43,11 @@ kernel: $(SOURCE)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@echo Build kernelsd.rom for Telestrat
 	
+	
 	$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS)
 	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 	@echo Build kernelsd.rom for Twilighte board
+
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym
@@ -53,13 +55,25 @@ kernel: $(SOURCE)
 	@cp kernelsd.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.map $(PATH_PACKAGE_ROM)/
 
+	
 	@echo Build kernelus.rom for Twilighte board
+	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelus.sym| sort > kernelus2.sym
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelus.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelus.map $(PATH_PACKAGE_ROM)/
+
+	@echo Build kernelu0.rom for Twilighte board -ACIA
+	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelu0.lst
+	@echo "WITH_ACIA=">>$(PATH_PACKAGE_ROM)/kernelu0.lst
+	@$(AS) --verbose -s -tnone --debug-info -o kernelu0.ld65 -DWITH_ACIA=1  $(SOURCE) $(ASFLAGS) 
+	@ld65 -tnone kernelu0.ld65 -m kernelu0.map -o kernelu0.rom -DWITH_TWILIGHTE_BOARD=1 -DWITH_ACIA=1 -Ln kernelu0.sym
+	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelu0.sym| sort > kernelu02.sym
+	@cp kernelu0.rom $(PATH_PACKAGE_ROM)/
+	@cp kernelu0.sym  $(PATH_PACKAGE_ROM)/
+	@cp kernelu0.map $(PATH_PACKAGE_ROM)/
 
 	
 test:

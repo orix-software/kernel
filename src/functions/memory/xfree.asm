@@ -1,42 +1,29 @@
 .export XFREE_ROUTINE
-
-
 .proc XFREE_ROUTINE
 
-.ifdef WITH_DEBUG  
-    sta     RESB
-    sty     RESB+1
-    stx     TR4
-    jsr     xdebug_install  
-    lda     RESB
-    ldy     RESB+1    
-    ldx     TR4
+    sta     KERNEL_XFREE_TMP    ; Save A (low)
 
-.endif
 
 .ifdef WITH_DEBUG
+    sty     RESB+1
+    lda     KERNEL_XFREE_TMP
     ldx     #XDEBUG_XFREE_ENTER_PRINT
-    jsr     xdebug_print
-    jsr     xdebug_load
-
+    jsr     xdebug_print_with_ay
+    ldy     RESB+1
 .endif
 
   ;jsr     xfree_debug_enter
 ; [A & Y] the first adress of the pointer.
 
-  sta     KERNEL_XFREE_TMP    ; Save A (low)
+  
   
   lda     #$01
   sta     TR5 ; TR0 contains the next free chunk
 
 .ifdef WITH_DEBUG
-
-  lda     KERNEL_XFREE_TMP    ; Save A (low)
-  jsr xdebug_send_ay_to_printer
-  jsr xdebug_enter_xfree_found
-
-  ;jsr xdebug_lsmem
-
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
 
 ; **************************************************************************************
@@ -59,11 +46,13 @@
   
   ; We did not found this busy chunk, return 0 in A
 .ifdef WITH_DEBUG  
-  jsr xdebug_enter_not_found
+  jsr     xdebug_enter_not_found
 .endif
     
 .ifdef WITH_DEBUG
-  jsr xdebug_lsmem
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif
   lda     #NULL
   
@@ -71,8 +60,9 @@
 
 @busy_chunk_found:
   lda     KERNEL_XFREE_TMP
+
 .ifdef WITH_DEBUG
-  jsr xdebug_send_ay_to_printer
+  jsr     xdebug_send_ay_to_printer
 .endif  
 
   ; Free now 
@@ -82,16 +72,18 @@
   ; FIXME BUG
   lda     #$00
   ; Erase pid reference
+  ; FR : On set 0 dans la table de malloc (dans la liste des pid de malloc) pour dire que le chunk "busy" est libre
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
 
   sta     RES
 
 ; Try to recursive  
 
-
+  ; FR : on essaie de trouver un chunk libre
   ldy     #$00
 @try_another_free_chunk:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+
   ; FIXME 65C02, use 'dec A'
   sec
   sbc     #$01
@@ -102,6 +94,7 @@
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
   beq     @compare_high
   ; At this step it's not the first free chunk
+@next_free_chunk:  
   lda     #$00
   sta     RES
   iny 
@@ -123,10 +116,11 @@
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
   sty     RES+1 ; Save current free chunk
   ldy     RES
-  cpy     #$01
-  bne     @don_t_inc_carry
-  sec
-  sbc     #$01
+  ;cpy     #$01
+  bne     @next_free_chunk
+
+  ;sec
+  ;sbc     #$01
 @don_t_inc_carry:
   ; X contains the index of the busy chunk found
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
@@ -155,6 +149,7 @@
 
 
 @free_chunk_is_available:
+  ;jmp     @free_chunk_is_available
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
@@ -188,7 +183,9 @@
   jsr     garbage_collector
     
 .ifdef WITH_DEBUG
-  jsr xdebug_lsmem
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif
   lda     #$01 ; Chunk found
 
@@ -200,32 +197,50 @@
   sty     RES
 
 .ifdef WITH_DEBUG
-  jsr   xdebug_enter_merge_free_table
+;  jsr   xdebug_enter_merge_free_table ; Ne pas décommenter, cela surcharge X ...
 .endif
   ; add in the free malloc table
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
-	
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
   
+
+  
+	
+
   ; update size
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
-  inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high	
+  pha
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y ;  it should be better here but inc does not manage inc $xx,y	
+  clc
+  adc     #$01
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  pla
 @do_not_inc:
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
 
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
 
-  ; Y contains the current free chunk found, we destroy it now
+
+
+
+  lda     #$00
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+
+    ; Y contains the current free chunk found, we destroy it now
 
 
     ; move the busy malloc table
@@ -261,8 +276,11 @@
 out:
 
 .ifdef WITH_DEBUG
-  jsr xdebug_lsmem
+  jsr     kdebug_save
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
+
   jsr     garbage_collector
   lda     #$01 
   rts
@@ -278,9 +296,11 @@ out:
 ;Busy:#0761:07DA #0079
 ;Busy:#0836:2F46 #2710
 .ifdef WITH_DEBUG
-  ldx  #XDEBUG_GARBAGE_IN
+  jsr     kdebug_save
+  ldx     #XDEBUG_GARBAGE_IN
   jsr     xdebug_print
-  jsr xdebug_lsmem
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
   
 
@@ -309,9 +329,11 @@ out:
   bne     @try_another_free_chunk
 
 .ifdef WITH_DEBUG
-  ldx  #XDEBUG_GARBAGE_OUT
+  jsr     kdebug_save
+  ldx     #XDEBUG_GARBAGE_OUT
   jsr     xdebug_print  
-  jsr xdebug_lsmem
+  jsr     xdebug_lsmem
+  jsr     kdebug_restore
 .endif  
 
   rts

@@ -1,13 +1,13 @@
-XRDW0_ROUTINE
+XRDW0_ROUTINE:
 	lda     #$00
 	.byt    $2C
-XRDW1_ROUTINE
+XRDW1_ROUTINE:
 	lda     #$04
 	.byt    $2C
-XRDW2_ROUTINE
+XRDW2_ROUTINE:
 	lda     #$08
 	.byt    $2C
-XRDW3_ROUTINE
+XRDW3_ROUTINE:
 	lda     #$0C
 	sta     $1B
 @loop:

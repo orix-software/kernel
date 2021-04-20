@@ -7,11 +7,23 @@
 ; ***********************************************************************************************************************
   ; at this step, it's not possible to kill init (ID = 0)
 
-  ;cmp     #$00 ; is it init 
+  cmp     #$FF ; is it init 
   beq     @skip_load_zp  ; For instance, we don't load zp because all are reserved for init
   
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
 
+
+.ifdef WITH_DEBUG
+  pha
+  ldx     #XDEBUG_KILL_PROCESS_ENTER
+  jsr     xdebug_print_with_a
+  pla
+.endif  
+  ; Try to close fp from this process
+
+  jsr     close_all_fp
+
+@continue:
   ; destroy it's own memory chunks
   ;sta     RES
 
@@ -45,9 +57,12 @@
   jmp     @L2
              
 @all_chunk_are_free:
-  ; get the PPID  
-  lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  tax
+  ; Get the PPID  
+
+
+
+  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  ;tax
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
 
@@ -55,13 +70,14 @@
   sta     RES+1
 
   ldy     #kernel_one_process_struct::ppid
+
   lda     (RES),y   ; A contains the PPID
 
   ; X contains the current PID to kill here clear struct
   sta     kernel_process+kernel_process_struct::kernel_current_process
 
 
-  ; remove refence of process struct in the main struct
+  ; remove reference of process struct in the main struct
   lda     #$00
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
@@ -76,7 +92,7 @@
   ; at this step process struct is clear and does not exists again
   
   ; restore zp of the PPID
-  
+
   ldy     kernel_process+kernel_process_struct::kernel_current_process
   
   ;dey
@@ -107,4 +123,29 @@
   rts
 ;str_destroyed:
   ;.asciiz "Destroyed" 
+
+
+close_all_fp:
+  ldx     #$00
+@init_fp:  
+  cmp     kernel_process+kernel_process_struct::kernel_fd,x
+  bne     @next
+  
+  txa 
+  pha
+  clc
+  adc     #KERNEL_FIRST_FD
+  jsr     XCLOSE_ROUTINE ; Close
+  pla
+  tax
+  lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  
+
+@next:
+  inx
+  cpx     #KERNEL_MAX_FP
+  bne     @init_fp
+  rts
+
+
 .endproc

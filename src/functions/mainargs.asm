@@ -1,6 +1,6 @@
 .struct XMAINARGS_STRUCT
-argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
-argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
+    argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
+    argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 .endstruct
 
 .if     .sizeof(XMAINARGS_STRUCT) > 255
@@ -11,8 +11,8 @@ argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LIN
 ; Memory modify : RES,RESB,TR0,TR1,TR2,TR3,TR4
 
 XMAINARGS_SPACEFOUND  := TR4 ; 1 byte
-XMAINARGSV      := TR1 ; 2 byte
-XMAINARGSC      := TR0 ; 1 byte 
+XMAINARGSV            := TR1 ; 2 byte
+XMAINARGSC            := TR0 ; 1 byte 
 
 .proc XMAINARGS_ROUTINE
 

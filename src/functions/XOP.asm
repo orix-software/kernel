@@ -1,20 +1,20 @@
 ; A contains channel
-XOP0_ROUTINE
-	ldx     #$00 ; Channel 0
-	.byt    $2c ; Jump 2 next bytes
-XOP1_ROUTINE
-	ldx     #$04 ; Channel 1
-	.byt    $2c ; Jump 2 next bytes
-XOP2_ROUTINE	
-	ldx     #$08 ; Channel 2
-	.byt    $2c ; Jump 2 next bytes
-XOP3_ROUTINE	
-	ldx     #$0c
-	pha
+XOP0_ROUTINE:
+    ldx     #$00 ; Channel 0
+    .byt    $2c  ; Jump 2 next bytes
+XOP1_ROUTINE:
+    ldx     #$04 ; Channel 1
+    .byt    $2c  ; Jump 2 next bytes
+XOP2_ROUTINE:	
+    ldx     #$08 ; Channel 2
+    .byt    $2c  ; Jump 2 next bytes
+XOP3_ROUTINE:	
+    ldx     #$0c
+    pha
 
 @loop:
-  pla
-  cmp     IOTAB0,x
+    pla
+    cmp     IOTAB0,x
     beq     @skip2
     ldy     IOTAB0,x
     bpl     skip129
@@ -29,7 +29,7 @@ XOP3_ROUTINE
 
 skip129:
 
-    ldy     #$0f
+    ldy     #$0F
   @loop:
     cmp     IOTAB0,y
     beq     @skip2

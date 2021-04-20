@@ -1,13 +1,13 @@
-XWSTR0_ROUTINE
-	ldx     #$00
+XWSTR0_ROUTINE:
+    ldx     #$00
 	.byt    $2C
-XWSTR1_ROUTINE	
+XWSTR1_ROUTINE:	
 	ldx     #$04
 	.byt    $2C
-XWSTR2_ROUTINE		
+XWSTR2_ROUTINE:		
 	ldx     #$08
 	.byt    $2C
-XWSTR3_ROUTINE
+XWSTR3_ROUTINE:
 	ldx     #$0C
 	stx     i_o_save+1
 	sta     ADDRESS_READ_BETWEEN_BANK
