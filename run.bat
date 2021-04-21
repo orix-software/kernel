@@ -1,7 +1,7 @@
 @echo off
 
 rem SET ORICUTRON="..\..\..\..\oricutron-iss2-debug\"
-SET ORICUTRON="D:\Onedrive\oric\oricutron_twilighte"
+SET ORICUTRON="D:\users\plifp\Onedrive\oric\oricutron_twilighte"
 
 SET RELEASE="30"
 SET UNITTEST="NO"

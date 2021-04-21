@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2021.2"
+.define VERSION "2021.3"
 
 
 .include   "telestrat.inc"          ; from cc65
