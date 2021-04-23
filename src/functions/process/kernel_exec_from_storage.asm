@@ -127,8 +127,6 @@ RESG := ACCPS
     cmp     #$FF
     bne     @not_null
 
-
-
     ; Free string used for the strcat
     lda     RESB
     ldy     RESB+1
@@ -138,8 +136,10 @@ RESG := ACCPS
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
 
+    lda     KERNEL_ERRNO
+
     ; Error not found
-    lda     #ENOENT 
+    ;lda     #ENOENT 
 
     rts
 @not_null:
@@ -172,7 +172,6 @@ RESG := ACCPS
     ; drop others values
     ldx     CH376_DATA 
     ldx     CH376_DATA
-
 
     jsr     XMALLOC_ROUTINE
     
@@ -211,10 +210,9 @@ RESG := ACCPS
 
     cmp     #$01
     beq     @is_an_orix_file
+    ; Don't know the format
+    lda     #ENOEXEC
     rts
-
-
-
 
 @is_an_orix_file:
     ; Checking version
@@ -223,14 +221,15 @@ RESG := ACCPS
     ldx     #$00
     jsr     XCOSCR_ROUTINE
   
-    ldy     #$05                ; Ger binary version
+    ldy     #$05                ; Get binary version
     lda     (RESD),y
-    cmp     #$01                ; binary version, it's not a relocatable binary
+    cmp     #$01                ; Binary version, it's not a relocatable binary
     beq     @static_file
     cmp     #$03
     beq     @relocate_ori3
-
-    ;rts
+    lda     #ENOEXEC
+    sta     KERNEL_ERRNO
+    rts
 @free:
     lda     RESD
     ldy     RESD+1
@@ -246,11 +245,11 @@ RESG := ACCPS
 
     ldy     RESD+1
     iny
+
     sty     ORI3_PROGRAM_ADRESS+1
     sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
-    sty     ORI3_PAGE_LOAD          ; Adress to load
-    sty     RESE+1            ; Set address execution
-    sty     PTR_READ_DEST+1 ; Set address to load the next part of the program    
+    sty     RESE+1                     ; Set address execution
+    sty     PTR_READ_DEST+1            ; Set address to load the next part of the program    
 ;    .define Z00 DECCIB
 ;.define Z02 RESB
 ;.define Z04 DECFIN
@@ -267,9 +266,10 @@ RESG := ACCPS
     sta     RESE             ; Set address execution
     sta     PTR_READ_DEST
 
-    
+    sta     ORI3_PAGE_LOAD             ; diff
 
-    jsr     @read_program
+
+
 
     ; set map length
     ldy     #7
@@ -294,6 +294,9 @@ RESG := ACCPS
     clc
     adc     ORI3_MAP_ADRESS+1
     sta     ORI3_MAP_ADRESS+1
+
+    jsr     @read_program
+
 
     jsr     relocate_ori3
 
