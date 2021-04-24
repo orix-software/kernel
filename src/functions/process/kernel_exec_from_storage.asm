@@ -281,10 +281,7 @@ RESG := ACCPS
     adc     ORI3_MAP_ADRESS+1
     sta     ORI3_MAP_ADRESS+1
 
-    ; free header
-    lda     RESD
-    ldy     RESD+1
-    jsr     XFREE_ROUTINE
+
 
 
     jsr     @read_program
@@ -316,10 +313,7 @@ RESG := ACCPS
     lda     (RESD),y ; fixme 65c02    
     sta     RESE+1
 
-    ; free header
-    lda     RESD
-    ldy     RESD+1
-    jsr     XFREE_ROUTINE
+
 
 
     jsr     @read_program
@@ -331,6 +325,17 @@ RESG := ACCPS
     ldy     RES+1
 
     jsr     @execute
+    
+
+    ; free header
+    lda     RESD
+    ldy     RESD+1
+    jsr     XFREE_ROUTINE
+
+    lda     RESF
+    ldy     RESF+1
+    jsr     XCLOSE_ROUTINE
+
 
     lda     #EOK
     
@@ -357,9 +362,7 @@ RESG := ACCPS
 
     ; Save length of the file
 
-    lda     RESF
-    ldy     RESF+1
-    jsr     XCLOSE_ROUTINE
+
     rts
 
 
