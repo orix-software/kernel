@@ -246,30 +246,20 @@ RESG := ACCPS
     ldy     RESD+1
     iny
 
+    
+
     sty     ORI3_PROGRAM_ADRESS+1
     sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
     sty     RESE+1                     ; Set address execution
     sty     PTR_READ_DEST+1            ; Set address to load the next part of the program    
-;    .define Z00 DECCIB
-;.define Z02 RESB
-;.define Z04 DECFIN
-;.define Z06 DECDEB    
-; Entrée:
-;	00-01	: Adresse Programme
-;	02-03	: Adresse MAP
-;	04-05	: Longueur MAP
-;	06	: Page de chargement
+    sty     ORI3_PROGRAM_ADRESS+1
 ;
     lda     #$00
     sta     ORI3_PROGRAM_ADRESS
     sta     ORI3_MAP_ADRESS
     sta     RESE             ; Set address execution
     sta     PTR_READ_DEST
-
     sta     ORI3_PAGE_LOAD             ; diff
-
-
-
 
     ; set map length
     ldy     #7
@@ -297,24 +287,7 @@ RESG := ACCPS
 
     jsr     @read_program
 
-
     jsr     relocate_ori3
-
-    ; Set map address
-
-;    .define Z00 DECCIB
-;.define Z02 RESB
-;.define Z04 DECFIN
-;.define Z06 DECDEB
-
-;
-; Relocation
-;
-; Entrée:
-;	00-01	: Adresse Programme
-;	02-03	: Adresse MAP
-;	04-05	: Longueur MAP
-;	06	: Page de chargement
 ;
     jmp     @run
     
@@ -325,24 +298,11 @@ RESG := ACCPS
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
 
- ;   cmp     RESD+1
-
-  ;  bcs     @continue_loading  ; Register is less than or equal to data
-
-    ;PRINT   @str_binary_err_format,TELEMON
-   
-   ; jmp     @free
-;@str:    
-    ;.asciiz "Binary is not a reloc code, and 0x800 is busy"
 @continue_loading:
-  
-
 
     ldy     #14
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST
-
-
 
     ; init RES to start code
 
