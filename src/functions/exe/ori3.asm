@@ -13,7 +13,7 @@
 ;	04-05	: 00 00
 ;	06	: Inchangé
 .proc relocate_ori3
-
+	jmp     relocate_ori3
   ; On suppose que A = page de chargement du programme (chargé en début de page)
       ; On suppose également que z02-z05 ont été mis à jour par l'appelant (adresse et longueur de la bitmap)
     lda     ORI3_PAGE_LOAD            ; offset à appliquer
@@ -84,7 +84,8 @@ boucle2:
 
 	tax									; Sauvegarde ACC
 	tya									; Sauvegarde Y
-	pla
+	pha
+;	pla
 
 	ldx     #$07								; 8 Bits
 	txa									; Restaure ACC
@@ -121,7 +122,8 @@ suite2:
 
 rel_end:
 	inc     ORI3_PAGE_LOAD									; On remet la page de chargement à sa valeur initiale
-
+@tme:
+	jmp		@tme 
 	rts									; Pour utilisation éventuelle par une autre routine
 .endproc
 
