@@ -89,8 +89,6 @@ RESG := ACCPS
     lda     #$00
     sta     (RESC),y
 
-
-
     ; At this step RES (only) can be used again     
 
     ; At this step RESB contains the beginning of the string
@@ -99,8 +97,6 @@ RESG := ACCPS
     sta     RESC
     lda     RESB+1
     sta     RESC+1
-
-
 
 @out:
     ldy     #$00
@@ -284,6 +280,12 @@ RESG := ACCPS
     clc
     adc     ORI3_MAP_ADRESS+1
     sta     ORI3_MAP_ADRESS+1
+
+    ; free header
+    lda     RESD
+    ldy     RESD+1
+    jsr     XFREE_ROUTINE
+
 
     jsr     @read_program
 
