@@ -221,7 +221,7 @@ RESG := ACCPS
     lda     (RESD),y
     cmp     #$01                ; Binary version, it's not a relocatable binary
     beq     @static_file
-    cmp     #$03
+    cmp     #$02
     beq     @relocate_ori3
     lda     #ENOEXEC
     sta     KERNEL_ERRNO
