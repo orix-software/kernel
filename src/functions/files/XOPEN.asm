@@ -43,17 +43,6 @@
   txa
   rts
 @L1:
-  ; trying to resolve
- ; ldy     #$00
-;  lda     (RES),y
-  ;cmp     #'.'
-  ;
-  ;cmp     #"/"
-  ;beq     @it_is_absolute ; It's absolute then skip currentpath
-  ; concat
-
-
-
   ldy     #$00
   lda     (RES),y
   ;
@@ -126,7 +115,6 @@
 
   bne     @L4
   ; Bof return NULL
-  ;jmp     @exit_open_with_null
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -150,9 +138,7 @@
   bne     @not_null_1
 
 
-   ; Already set in _create_file_pointer
- ; lda     #ENOMEM
- ; sta     KERNEL_ERRNO
+   ; OOM in kernel_errno set in _create_file_pointer
 
   ; and Y equals to NULL
   lda     #$FF
@@ -179,7 +165,6 @@
 @next_char:
 
   lda     (KERNEL_XOPEN_PTR1),y
-  ;sta     $6000,y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
@@ -214,30 +199,30 @@
 
 .IFPC02
 .pc02
-  stz     CH376_DATA ; INIT  
+  stz    CH376_DATA ; INIT  
 .p02  
 .else  
-  lda     #$00 ; used to write in BUFNOM
-  sta     CH376_DATA ; INIT  
+  lda    #$00 ; used to write in BUFNOM
+  sta    CH376_DATA ; INIT  
 .endif
 
-  sty     XOPEN_SAVEY
-  jsr     _ch376_file_open
-  cmp     #CH376_ERR_MISS_FILE
-  beq     @file_not_found
+  sty    XOPEN_SAVEY
+  jsr    _ch376_file_open
+  cmp    #CH376_ERR_MISS_FILE
+  beq    @file_not_found
   
-  ldy     XOPEN_SAVEY ; reload Y
-  lda     XOPEN_SAVEA
-  beq     @could_be_created
+  ldy    XOPEN_SAVEY ; reload Y
+  lda    XOPEN_SAVEA
+  beq    @could_be_created
   iny
-  lda     (KERNEL_XOPEN_PTR1),y
-  bne     @next_filename
+  lda    (KERNEL_XOPEN_PTR1),y
+  bne    @next_filename
   cpy    #_KERNEL_FILE::f_path+1
   beq    @open_and_register_fp
   
 
   
-  bne     @next_filename
+  bne    @next_filename
 
 
  
@@ -262,9 +247,6 @@
   jsr     xdebug_print_with_a
 .endif
 
-
-
-
   lda     #$FF
   tax
 
@@ -282,7 +264,7 @@
 @open_and_register_fp:
 
 
- ; register fp in process struct
+  ; Register fp in process struct
   
   ;       store pointer in process struct
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
@@ -350,7 +332,8 @@
   jsr     xdebug_print_with_a
 .endif
 
-
+  lda     #EMFILE
+  sta     KERNEL_ERRNO
 
   lda     #$FF
   tax
@@ -371,10 +354,7 @@
   pla
 .endif  
   ldx     #$00
-
-  ;lda     KERNEL_XOPEN_PTR1
-;  ldy     KERNEL_XOPEN_PTR1+1 
-  ;ldx     KERNEL_XOPEN_PTR1+1 
+  
 
   rts
 .endproc

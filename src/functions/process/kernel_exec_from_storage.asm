@@ -89,8 +89,6 @@ RESG := ACCPS
     lda     #$00
     sta     (RESC),y
 
-
-
     ; At this step RES (only) can be used again     
 
     ; At this step RESB contains the beginning of the string
@@ -99,8 +97,6 @@ RESG := ACCPS
     sta     RESC
     lda     RESB+1
     sta     RESC+1
-
-
 
 @out:
     ldy     #$00
@@ -127,18 +123,19 @@ RESG := ACCPS
     cmp     #$FF
     bne     @not_null
 
-
-
     ; Free string used for the strcat
     lda     RESB
     ldy     RESB+1
     jsr     XFREE_ROUTINE
 
+@kill_and_exit:
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
 
+    lda     KERNEL_ERRNO
+
     ; Error not found
-    lda     #ENOENT 
+    ;lda     #ENOENT 
 
     rts
 @not_null:
@@ -158,10 +155,19 @@ RESG := ACCPS
 
 
 
-   
-    ; Malloc 20 bytes for the header
-    lda     #20
-    ldy     #00
+    ; Get length of the file
+    lda     #CH376_GET_FILE_SIZE
+    sta     CH376_COMMAND
+    lda     #$68
+    sta     CH376_DATA ; ????
+    ; store file length
+    lda     CH376_DATA
+    ldy     CH376_DATA
+    iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
+
+    ; drop others values
+    ldx     CH376_DATA 
+    ldx     CH376_DATA
 
     jsr     XMALLOC_ROUTINE
     
@@ -200,27 +206,102 @@ RESG := ACCPS
 
     cmp     #$01
     beq     @is_an_orix_file
-
+    ; Don't know the format
+    lda     #ENOEXEC
     rts
 
-
-
 @is_an_orix_file:
-
+    ; Checking version
+ 
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE
-    ; Storing address to load it
+  
+    ldy     #$05                ; Get binary version
+    lda     (RESD),y
+    cmp     #$01                ; Binary version, it's not a relocatable binary
+    beq     @static_file
+    cmp     #$02
+    beq     @relocate_ori3
+    lda     #ENOEXEC
+    sta     KERNEL_ERRNO
+    rts
+@free:
+    lda     RESD
+    ldy     RESD+1
+    jsr     XFREE_ROUTINE
+
+    lda     RESF
+    ldy     RESF+1
+    jsr     XCLOSE_ROUTINE
+
+    jmp     @kill_and_exit
+
+@relocate_ori3:
+
+    ldy     RESD+1
+    iny
+
+    
+
+    sty     ORI3_PROGRAM_ADRESS+1
+    sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
+    sty     RESE+1                     ; Set address execution
+    sty     PTR_READ_DEST+1            ; Set address to load the next part of the program    
+    sty     ORI3_PROGRAM_ADRESS+1
+;
+    lda     #$00
+    sta     ORI3_PROGRAM_ADRESS
+    sta     ORI3_MAP_ADRESS
+    sta     RESE             ; Set address execution
+    sta     PTR_READ_DEST
+    sta     ORI3_PAGE_LOAD             ; diff
+
+    ; set map length
+    ldy     #7
+    lda     (RESD),y ; fixme 65c02
+    sta     ORI3_LENGTH_MAP
+
+    ldy     #8
+    lda     (RESD),y ; fixme 65c02
+    sta     ORI3_LENGTH_MAP+1
+
+    ldy     #18
+    lda     (RESD),y ; fixme 65c02
+    clc
+    adc     ORI3_MAP_ADRESS
+    bcc     @S2
+    inc     ORI3_MAP_ADRESS+1
+@S2:
+    sta     ORI3_MAP_ADRESS   
+
+    ldy     #19
+    lda     (RESD),y ; fixme 65c02
+    clc
+    adc     ORI3_MAP_ADRESS+1
+    sta     ORI3_MAP_ADRESS+1
 
 
+
+
+    jsr     @read_program
+
+    jsr     relocate_ori3
+;
+    jmp     @run
+    
+    
+@static_file:
+    
+    ldy     #15
+    lda     (RESD),y ; fixme 65c02
+    sta     PTR_READ_DEST+1 ; 08
+
+@continue_loading:
 
     ldy     #14
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST
-
-    ldy     #15
-    lda     (RESD),y ; fixme 65c02
-    sta     PTR_READ_DEST+1
 
     ; init RES to start code
 
@@ -232,22 +313,43 @@ RESG := ACCPS
     lda     (RESD),y ; fixme 65c02    
     sta     RESE+1
 
+
+
+
+    jsr     @read_program
+
+
+@run:
+    ; send cmdline ptr 
+    lda     RES
+    ldy     RES+1
+
+    jsr     @execute
+    
+
     ; free header
     lda     RESD
     ldy     RESD+1
     jsr     XFREE_ROUTINE
 
+    lda     RESF
+    ldy     RESF+1
+    jsr     XCLOSE_ROUTINE
 
 
+    lda     #EOK
+    
+    rts
+
+@execute:
+    jmp     (RESE) ; jmp : it means that if program launched do an rts, it returns to interpreter
+
+@read_program:
     lda     #$FF ; read all the binary
     ldy     #$FF
 
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done
-
-
-  ;  lda     #KERNEL_BINARY_MALLOC_TYPE
-  ;  sta     KERNEL_MALLOC_TYPE
 
     lda     PTR_READ_DEST+1
     sec
@@ -258,30 +360,10 @@ RESG := ACCPS
     sbc     RES
     ; A and Y contains the length of the file
 
+    ; Save length of the file
 
- ;   jsr     XMALLOC_ROUTINE
 
-    lda     RESF
-    ldy     RESF+1
-    jsr     XCLOSE_ROUTINE
-
-    lda     RESB
-    ldy     RESB+1
-   ; jsr     XFREE_ROUTINE
-
-    ; send cmdline ptr 
-    lda     RES
-    ldy     RES+1
-
-    jsr     execute
-
-    lda     #EOK
-    
     rts
-
-execute:
-    jmp     (RESE) ; jmp : it means that if program launched do an rts, it returns to interpreter
-
 
 
 str_root_bin:

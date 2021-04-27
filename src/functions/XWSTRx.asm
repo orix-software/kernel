@@ -1,3 +1,7 @@
+; Modify : 
+; i_o_save
+; ADDRESS_READ_BETWEEN_BANK
+
 XWSTR0_ROUTINE:
     ldx     #$00
 	.byt    $2C
