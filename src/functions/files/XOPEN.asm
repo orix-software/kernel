@@ -39,7 +39,7 @@
 
   lda     #ENODEV
   sta	    KERNEL_ERRNO
-  ldx     #$00
+  ldx     #$FF
   txa
   rts
 @L1:
@@ -58,6 +58,10 @@
   cpy     #$00
   bne     @not_null_2
   ; For cc65 compatibility
+
+  lda     #ENOMEM
+  sta	    KERNEL_ERRNO
+
   lda     #$FF
   tax
 
@@ -139,6 +143,8 @@
 
 
    ; OOM in kernel_errno set in _create_file_pointer
+  lda     #ENOMEM
+  sta	    KERNEL_ERRNO
 
   ; and Y equals to NULL
   lda     #$FF
