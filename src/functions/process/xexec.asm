@@ -7,7 +7,20 @@
 .ifdef WITH_DEBUG
     ldx    #XDEBUG_XEXEC_ENTER
     jsr    xdebug_print_with_ay_string
-.endif    
+.endif 
+    ; Save current set
+    lda     $343
+    sta     KERNEL_SAVE_XEXEC_CURRENT_SET
+    
+    lda     $342
+    sta     KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM
+    ; Force eeprom set
+    and     #%11011111
+    sta     $342
+
+    lda     #$00
+    sta     $343
+
     ; Copy in BUFEDT
     ldy     #$00
 @L7:    
@@ -24,7 +37,7 @@
 
 @S1:
     ; Ok then execute
-    ; now it's the current process
+    ; Now it's the current process
     ; RACE CONDITION FIXME BUG
     ; If there is a multitasking switch during this step, the process is not started, but kernel will try to execute it
     lda     BNKOLD
@@ -46,7 +59,6 @@ next_bank:
     sta     RES
     sty     RES+1
 
-
     jsr     KERNEL_DRIVER_MEMORY
 
     cmp     #EOK
@@ -55,8 +67,42 @@ next_bank:
 next:
     ; Here continue
     dec     KERNEL_TMP_XEXEC
-    
+
     bne     next_bank
+    
+    jmp     read_on_sdcard
+    
+    ldx     $343
+    inx
+    cpx     #04
+    beq     no_04
+    
+    cpx     #$08
+    beq     check_memory_bank
+    bne     store
+no_04:
+    inx
+store:         
+    stx     $343 
+
+    ldx     #$04       ; start at bank 05
+    stx     KERNEL_TMP_XEXEC
+
+    jmp     next_bank   
+check_memory_bank:
+    ; Is it already memory bank  ?
+    lda     $342
+    and     #%00100000    
+    cmp     #%00100000
+    beq     read_on_sdcard
+    lda     $342
+    ora     #%00100000    
+    sta     $342
+    lda     #$04
+    sta     KERNEL_TMP_XEXEC
+    jmp     next_bank
+    
+
 
 read_on_sdcard:
 
@@ -79,7 +125,12 @@ out1:
 
     jsr     kernel_kill_process
 exit:   
+    ; Restore current set
+    lda     KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM
+    sta     $342
 
+    lda     KERNEL_SAVE_XEXEC_CURRENT_SET    
+    sta     $343
     lda     #EOK
 
     rts

@@ -58,7 +58,7 @@
   cpy     #$00
   bne     @not_null_2
   ; For cc65 compatibility
-
+@oom_error:
   lda     #ENOMEM
   sta	    KERNEL_ERRNO
 
@@ -140,17 +140,10 @@
   bne     @not_null_1
   cpy     #NULL
   bne     @not_null_1
+  ; oom error
+  jmp     @oom_error
 
 
-   ; OOM in kernel_errno set in _create_file_pointer
-  lda     #ENOMEM
-  sta	    KERNEL_ERRNO
-
-  ; and Y equals to NULL
-  lda     #$FF
-  tax
-
-  rts
 @not_null_1:
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1

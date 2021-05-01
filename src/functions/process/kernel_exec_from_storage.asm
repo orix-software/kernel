@@ -341,10 +341,6 @@ RESG := ACCPS
     ldy     RESG+1
 
     jsr     @execute
-    
-
-
-
 
     lda     #EOK
     

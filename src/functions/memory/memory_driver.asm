@@ -1,14 +1,17 @@
+; This routine check if IRQ vector is set to $fffe, if yes we continue or else, we proceed to next bank
+; Also if $FFF7 contains 0, it means that there is no command, then we skip
+
 
 kernel_memory_driver_to_copy:
     lda     VIA2::PRA
-    and     KERNEL_TMP_XEXEC               ; but select a bank in BNK_TO_SWITCH
+    and     KERNEL_TMP_XEXEC               ; But select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
     
     lda     $FFFE
-    cmp     #$FA                           ; is it an Orix rom ?
+    cmp     #$FA                           ; Is it an Orix rom ?
     bne     exit_to_kernel
 
-    lda     $FFF7                          ; the is no command is the current rom ($fff7=0) then skip
+    lda     $FFF7                          ; The bank contains no any command in the current rom ($fff7=0) then skip
     beq     exit_to_kernel
 
 test_debug:
@@ -23,7 +26,7 @@ read_command_from_bank_driver_mloop:
     ldy     #$00
 read_command_from_bank_driver_next_char:
     lda     (RES),y
-    cmp     (RESB),y        ; same character?
+    cmp     (RESB),y         ; Same character?
     beq     read_command_from_bank_driver_no_space
     cmp     #' '             ; space?
     bne     command_not_found_no_inc
@@ -92,24 +95,20 @@ read_command_from_bank_driver_patch2:
     ; we reached max process to launch ?
     lda     KERNEL_ERRNO
     cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-    beq     exit_to_kernel    ; Yes we reached max process we exit
+    beq     exit_to_kernel                    ; Yes we reached max process we exit
 
     lda     VIA2::PRA
-    and     KERNEL_TMP_XEXEC                  ; but select a bank in BNK_TO_SWITCH
+    and     KERNEL_TMP_XEXEC                  ; But select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
     
 	lda     TR0
-	ldy     TR1                            ; send command line in A & Y
+	ldy     TR1                               ; Send command line in A & Y
 read_command_from_bank_driver_to_patch:
-   ; jsr     $436
     jsr     VEXBNK
 
     lda     VIA2::PRA
-    ora     #%00000111                     ; Return to kernel
+    ora     #%00000111                        ; Return to kernel
     sta     VIA2::PRA
     lda     #EOK
 
     rts
-
-
-
