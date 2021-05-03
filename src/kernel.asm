@@ -796,6 +796,8 @@ code_adress_4AF:
   pla                                    ; Get the value
   rts
   ; Stack used to switch from any bank
+  ; let this res !!!
+;.res 1   ; Let this res because, it's FIXME_DUNNO var here
 code_adress_get:
 ; used in bank command in Oric
   lda     VIA2::PRA

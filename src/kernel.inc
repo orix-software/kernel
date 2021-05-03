@@ -52,10 +52,12 @@ KERNEL_ERRNO:
     .res 1
 KERNEL_CH376_MOUNT:
     .res 1
+ 
 KERNEL_XFREE_TMP:
     .res 1
 KERNEL_XKERNEL_CREATE_PROCESS_TMP:
     .res 1
+
 KERNEL_TMP_XEXEC:
     .res 1
 KERNEL_KERNEL_XEXEC_BNKOLD:
@@ -73,12 +75,15 @@ KERNEL_END_PROCESS_VARIABLES:
 
 .bss
 .org $4C7
-FIXME_DUNNO:
-.res 1
+ 
+.res 1 ;Was before FIXME_DUNNO, it could remove when READ_BYTE_FROM_OVERLAY_RAM will be aligned correctly with kernel load
 
 READ_BYTE_FROM_OVERLAY_RAM:
 ; this contains a routine length : 20 bytew
 .res 20
+.org $4FF
+FIXME_DUNNO:  
+    .res  1
 
 .bss
 .org $500
