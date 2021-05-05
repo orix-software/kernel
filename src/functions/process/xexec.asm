@@ -70,8 +70,9 @@ next:
 
     bne     next_bank
     
-    jmp     read_on_sdcard
-    
+    ;jmp     read_on_sdcard
+
+
     ldx     $343
     inx
     cpx     #04
@@ -81,7 +82,7 @@ next:
     beq     check_memory_bank
     bne     store
 no_04:
-    inx
+   ; inx
 store:         
     stx     $343 
 
@@ -90,11 +91,15 @@ store:
 
     jmp     next_bank   
 check_memory_bank:
+;jmp check_memory_bank
     ; Is it already memory bank  ?
     lda     $342
     and     #%00100000    
     cmp     #%00100000
     beq     read_on_sdcard
+    lda     #$00
+    sta     $343
+
     lda     $342
     ora     #%00100000    
     sta     $342
@@ -126,10 +131,15 @@ out1:
     jsr     kernel_kill_process
 exit:   
     ; Restore current set
+    lda     KERNEL_KERNEL_XEXEC_BNKOLD
+    sta     BNK_TO_SWITCH    
+
     lda     KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM
+
     sta     $342
 
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET    
+    
     sta     $343
     lda     #EOK
 

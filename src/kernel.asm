@@ -445,6 +445,29 @@ init_malloc_busy_table:
   dex
   bpl     @loop
 
+.ifdef WITH_SYSTEMD_AT_BOOT_TIME
+launch_systemd:
+  lda     #<str_binary_systemd
+  sta     RES
+  lda     #>str_binary_systemd
+  sta     RES+1
+  ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
+  ldy     #$00
+@L1:  
+  lda     (RES),y
+  beq     @S1
+  sta     kernel_end_of_memory_for_kernel,y
+  iny
+  bne     @L1
+@S1:
+  sta     kernel_end_of_memory_for_kernel,y
+
+  lda     #<kernel_end_of_memory_for_kernel
+  ldy     #>kernel_end_of_memory_for_kernel
+
+  jsr     _XEXEC ; start shell
+.endif
+
 
 launch_command:
   jsr     XCRLF_ROUTINE
@@ -492,6 +515,12 @@ routine_to_define_19:
 .endif
 
   rts
+
+.ifdef WITH_SYSTEMD_AT_BOOT_TIME  
+str_binary_systemd:
+  .asciiz "systemd -s"  
+.endif
+
 str_binary_to_start:
   .asciiz "sh"
 str_name_process_kernel:  ; if you modify this default, you must change struct too in process.inc
@@ -5994,5 +6023,5 @@ RESET:
 ; fffe
 BRK_IRQ:  
   .byt     <IRQVECTOR,>IRQVECTOR
-
+; Displays map 
 .include "memmap.asm"
