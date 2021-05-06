@@ -47,6 +47,10 @@ kernel: $(SOURCE)
 	$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS)
 	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 	@echo Build kernelsd.rom for Twilighte board
+	# Build kernel header roh
+	@cat src/headerorixcfg.bin > kernelsd.roh
+	@cat kernelsd.rom >> kernelsd.roh
+	@cp kernelsd.roh $(PATH_PACKAGE_ROM)/
 
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
@@ -60,6 +64,10 @@ kernel: $(SOURCE)
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
+	# Build kernel header roh
+	@cat src/headerorixcfg.bin > kernelus.roh
+	@cat kernelus.rom >> kernelus.roh
+	@cp kernelus.roh $(PATH_PACKAGE_ROM)/
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelus.sym| sort > kernelus2.sym
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelus.sym  $(PATH_PACKAGE_ROM)/

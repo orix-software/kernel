@@ -53,6 +53,16 @@
 next_bank:
     ; We says that we return to Bank 7 
     ldx     KERNEL_TMP_XEXEC
+    ;lda     $343
+    ;clc
+    ;adc     #$30
+    ;sta     $bb81
+
+    ; debug
+;    lda     KERNEL_TMP_XEXEC
+    ;clc
+    ;adc     #$30
+    ;sta     $bb80
 
     lda     TR0
     ldy     TR1
