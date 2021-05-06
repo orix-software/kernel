@@ -18,6 +18,8 @@ test_debug:
     lda     $FFF5  ; List command
     sta     RESB
     lda     $FFF6  ; List command
+    cmp     #$C0
+    bcc     exit_to_kernel
     sta     RESB+1  
 ; d15E
     ldx     #$00
@@ -35,6 +37,7 @@ read_command_from_bank_driver_no_space:                   ; FIXME
     cmp     #$00            ; Test end of command name or EOL
     beq     read_command_from_bank_driver_command_found
     iny
+    cpy     #$08
     bne     read_command_from_bank_driver_next_char
  
 command_not_found:
