@@ -5,13 +5,6 @@
     sta     ptr1
     sty     ptr1+1
 
-    jsr     _ch376_verify_SetUsbPort_Mount
-    cmp     #$01
-    bne     @next  
-    lda     #ENODEV 
-    rts
-@next:
-
     ; is it an absolute path ?
     ldy     #$00
     lda     (ptr1),y
@@ -27,9 +20,14 @@
     ldy     #O_RDONLY
     ldx     RES
 
-
     jsr     XOPEN_ROUTINE
-    
+    cpx     #$FF
+    bne     @skip
+    cmp     #$FF
+    bne     @skip
+    lda     KERNEL_ERRNO
+    rts
+@skip:    
     lda     #CH376_SET_FILE_NAME 
     sta     CH376_COMMAND
     ldy     #$00
@@ -42,22 +40,20 @@
     jsr     XMINMA_ROUTINE
     sta     CH376_DATA
     iny
-    cpy     #13                    ; because we don't manage longfilename shortname =11
+    cpy     #13                    ; Because we don't manage longfilename shortname =11
     bne     @mloop
     lda     #$00
-    ;rts
 @mend:    
     sta     CH376_DATA
 
-    ;jsr     _ch376_set_file_name
     sta     KERNEL_ERRNO
-    jsr     _ch376_dir_create    
-    rts
+    jmp     _ch376_dir_create    
+    
 @launch_xopen:
     lda     #$00
     sta     CH376_DATA
-    jsr     _ch376_file_open    
-    rts
+    jmp     _ch376_file_open    
+    
  
 @isabsolute:
     rts
