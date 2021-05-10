@@ -216,14 +216,6 @@
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
 
 
-
-
-  ;iny
-  ;cpy     #$02
-  ;beq     @main_free_no_action
-  ;jmp     @try_another_free_chunk
-    
-
 @main_free_no_action:
 
 .ifdef WITH_DEBUG
@@ -343,6 +335,17 @@ out:
   clc
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+
+  ; Clear the free chunk
+  lda     #$00
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
 
 
 
