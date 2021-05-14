@@ -12,7 +12,6 @@
     beq     @isabsolute
 
     ldy     #$00
-   
 
     jsr     XGETCWD_ROUTINE
     ; A & Y
@@ -22,12 +21,14 @@
 
     jsr     XOPEN_ROUTINE
     cpx     #$FF
-    bne     @skip
+    bne     @skip2
     cmp     #$FF
-    bne     @skip
+    bne     @skip2
     lda     KERNEL_ERRNO
+
     rts
-@skip:    
+@skip2:    
+
     lda     #CH376_SET_FILE_NAME 
     sta     CH376_COMMAND
     ldy     #$00

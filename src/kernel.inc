@@ -126,6 +126,7 @@ KERNEL_DRIVER_MEMORY:
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
+.out     .sprintf("Malloc table begin : %x",kernel_malloc)
 .ifdef WITH_DEBUG
 kernel_debug:
     .tag    kernel_debug_struct

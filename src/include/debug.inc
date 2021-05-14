@@ -40,6 +40,8 @@ BNKCIB       .res 1
 BNKOLD       .res 1
 VEXBNK       .res 2
 FIXME_DUNNO  .res 1
+NEXT_STACK_BANK  .res 1
+VALUE_NEXT_STACK_BANK  .res 1
 .endstruct
 
 

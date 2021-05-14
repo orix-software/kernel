@@ -237,7 +237,7 @@ no_error:
     rts
 
 .endproc    
-
-str_usbdrive_controller_not_found:
-	.byte "Usb drive controller not found !",$0D,$0A,0
+;
+;str_usbdrive_controller_not_found:
+;	.byte "Usb drive controller not found !",$0D,$0A,0
 

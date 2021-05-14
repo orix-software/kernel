@@ -20,7 +20,7 @@
   sty     XOPEN_FLAGS
 
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     kdebug_save
     ldy     XOPEN_RES_SAVE+1
     ldx     #XDEBUG_XOPEN_ENTER
@@ -37,7 +37,7 @@
   bne     @L1
   ; impossible to mount return null and store errno
 
-  lda     #ENODEV
+  lda     #EIO
   sta	    KERNEL_ERRNO
   ldx     #$FF
   txa
@@ -240,7 +240,7 @@
   lda     #ENOENT
   sta     KERNEL_ERRNO
 
-.ifdef    WITH_DEBUG
+.ifdef    WITH_DEBUG2
   ldx     #XDEBUG_XOPEN_FILE_NOT_FOUND
   lda     #$FF
   jsr     xdebug_print_with_a
@@ -325,7 +325,7 @@
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
 
-.ifdef    WITH_DEBUG
+.ifdef    WITH_DEBUG2
   ldx     #XDEBUG_ERROR_FP_REACH
   lda     #KERNEL_MAX_FP
   jsr     xdebug_print_with_a
@@ -346,7 +346,7 @@
   adc     #KERNEL_FIRST_FD
 
   
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   pha
   ldx     #XDEBUG_FD
   jsr     xdebug_print_with_a

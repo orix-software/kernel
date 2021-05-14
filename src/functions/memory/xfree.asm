@@ -7,11 +7,13 @@
     sta     KERNEL_XFREE_TMP    ; Save A (low)
 
 .ifdef WITH_DEBUG
-    sty     RESB+1
+    jsr     kdebug_save
+    
     lda     KERNEL_XFREE_TMP
     ldx     #XDEBUG_XFREE_ENTER_PRINT
     jsr     xdebug_print_with_ay
-    ldy     RESB+1
+    
+    jsr     kdebug_restore
 .endif
 
 ; [A & Y] the first adress of the pointer.
@@ -44,7 +46,7 @@
   bne     @search_busy_chunk
   
   ; We did not found this busy chunk, return 0 in A
-.ifdef WITH_DEBUG  
+.ifdef WITH_DEBUG
   jsr     xdebug_enter_not_found
 .endif
     
@@ -58,10 +60,14 @@
   rts
 
 @busy_chunk_found:
-  lda     KERNEL_XFREE_TMP
+  lda     KERNEL_XFREE_TMP ; ????
 
 .ifdef WITH_DEBUG
+  jsr     kdebug_save
+
   jsr     xdebug_send_ay_to_printer
+
+  jsr     kdebug_restore  
 .endif  
 
   ; Free now 
@@ -119,7 +125,7 @@
   ; at this step we can not merge the chunk, we needs to create a new free chunk
 
 @create_new_freechunk:
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   jsr xdebug_enter_XFREE_new_freechunk  
 .endif
 
