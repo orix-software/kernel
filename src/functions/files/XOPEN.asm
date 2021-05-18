@@ -226,7 +226,16 @@
 
  
 @file_not_found:
+  ; Checking if filesys is found 
 
+  lda     FILESYS_BANK
+  beq     @filesys_bank_not_found
+
+  ;lda     #'A'
+  ;sta     $bb80
+
+
+@filesys_bank_not_found:
   lda     XOPEN_FLAGS ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
@@ -300,13 +309,13 @@
 
 
   lda     KERNEL_XOPEN_PTR1+1
-  sta    (RES),y
+  sta     (RES),y
 
   dey
-  lda    KERNEL_XOPEN_PTR1
+  lda     KERNEL_XOPEN_PTR1
 
 
-  sta    (RES),y
+  sta     (RES),y
 
   ;kernel_process
   ;return fp

@@ -108,6 +108,10 @@ start_rom:
 .endif
   ;sty     FLGTEL
 
+  ; Mapping FILESYS
+  lda     #$00
+  sta     FILESYS_BANK
+
   lda     #$FF
   sta     FLGRST
 
@@ -1535,9 +1539,9 @@ vectors_telemon:
   .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE           ; 2a
   .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2B
   .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE   ; $2C
-  .byt     <$00,>$00     ; $2D
+  .byt     <XVALUES_ROUTINE,>XVALUES_ROUTINE     ; $2D
   .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE     ; $2E
-  .byt     $00,$00
+  .byt     <XOPENDIR_READDIR_CLOSEDIR,>XOPENDIR_READDIR_CLOSEDIR
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
 
   .byt     <$00,>$00 ; Open from current path $31
@@ -1824,6 +1828,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/files/xfseek.asm"
 .include  "functions/files/xmkdir.asm"  
 .include  "functions/files/xrm.asm"
+.include  "functions/files/xopendir.asm"
 
 .include  "functions/xdecal.asm"
 

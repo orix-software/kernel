@@ -4,7 +4,14 @@ XVARS_ROUTINE:
   ldy     XVARS_TABLE_HIGH,x
   rts
 
-.proc XVALUES_ROUTINE:
+
+; 
+
+.define WHO_AM_IAM $01
+
+.proc XVALUES_ROUTINE
+  cpx     #$00
+  bne     @check_who_am_i
 
   lda     XVARS_TABLE_LOW,x
   sta     RES
@@ -16,7 +23,56 @@ XVARS_ROUTINE:
   lda     (RES),y
   
   rts
+
+@check_who_am_i:
+  cpx     #$01
+  bne     @out
+
+  lda     #$00
+  sta     RES
+
+  lda     $342
+  and     #%00100000
+  cmp     #%00100000  
+  bne     @rom 
+  lda     #32
+  sta     RES
+@rom:  
+
+  lda     $343
+  beq     @do_not_compute
+  cmp     #$04
+  bne     @not_set_4
+  
+  lda     #$00
+  
+@not_set_4:
+
+    
+  tax
+  ;dex
+  lda     #$00
+@L1:
+  clc
+  adc     #$04  
+  dex
+  bne     @L1
+
+@do_not_compute:
+  clc 
+  adc     BNK_TO_SWITCH
+  clc 
+  adc     RES
+
+  rts
+
+@out:
+  lda     #$01
+  rts
+
 .endproc  
+
+
 
 XVARS_TABLE_VALUE_LOW:
   .byt     <KERNEL_ERRNO

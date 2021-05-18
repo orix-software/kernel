@@ -141,6 +141,7 @@ out1:
     jsr     kernel_kill_process
 exit:   
     ; Restore current set
+
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNK_TO_SWITCH    
 
