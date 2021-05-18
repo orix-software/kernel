@@ -6,12 +6,14 @@
 
     sta     KERNEL_XFREE_TMP    ; Save A (low)
 
-.ifdef WITH_DEBUG
-    sty     RESB+1
+.ifdef WITH_DEBUG2
+    jsr     kdebug_save
+    
     lda     KERNEL_XFREE_TMP
     ldx     #XDEBUG_XFREE_ENTER_PRINT
     jsr     xdebug_print_with_ay
-    ldy     RESB+1
+    
+    jsr     kdebug_restore
 .endif
 
 ; [A & Y] the first adress of the pointer.
@@ -19,7 +21,7 @@
   lda     #$01
   sta     TR5 ; TR0 contains the next free chunk
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   jsr     kdebug_save
   jsr     xdebug_lsmem
   jsr     kdebug_restore
@@ -43,12 +45,12 @@
   cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
   bne     @search_busy_chunk
   
-  ; We did not found this busy chunk, return 0 in A
-.ifdef WITH_DEBUG  
+  ; We did not found2 this busy chunk, return 0 in A
+.ifdef WITH_DEBUG2
   jsr     xdebug_enter_not_found
 .endif
     
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   jsr     kdebug_save
   jsr     xdebug_lsmem
   jsr     kdebug_restore
@@ -58,10 +60,14 @@
   rts
 
 @busy_chunk_found:
-  lda     KERNEL_XFREE_TMP
+  lda     KERNEL_XFREE_TMP ; ????
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
+  jsr     kdebug_save
+
   jsr     xdebug_send_ay_to_printer
+
+  jsr     kdebug_restore  
 .endif  
 
   ; Free now 
@@ -119,7 +125,7 @@
   ; at this step we can not merge the chunk, we needs to create a new free chunk
 
 @create_new_freechunk:
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   jsr xdebug_enter_XFREE_new_freechunk  
 .endif
 
@@ -146,7 +152,7 @@
   ; Y contains the id of the free chunk
   sty     RES
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
 ;  jsr   xdebug_enter_merge_free_table ; Ne pas décommenter, cela surcharge X ...
 .endif
   ; add in the free malloc table
@@ -216,17 +222,9 @@
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
 
 
-
-
-  ;iny
-  ;cpy     #$02
-  ;beq     @main_free_no_action
-  ;jmp     @try_another_free_chunk
-    
-
 @main_free_no_action:
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     xdebug_end
 .endif
 
@@ -238,7 +236,7 @@ out:
 ; Don't move this proc
 .proc xfree_exit
   jsr     xfree_garbage
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   jsr     kdebug_save
   jsr     xdebug_lsmem
   jsr     kdebug_restore
@@ -343,6 +341,17 @@ out:
   clc
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+
+  ; Clear the free chunk
+  lda     #$00
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
 
 
 

@@ -1,5 +1,5 @@
 .proc xdebug_print_with_a
-
+    rts
     pha
     lda  #<$c006
     sta  VEXBNK+1
@@ -8,12 +8,13 @@
     lda  #$01
     sta  BNKCIB
     pla
+    rts
     jmp  $40C    
     
 .endproc
 
 .proc xdebug_print_with_ay
-
+    rts
     pha
     
 
@@ -31,7 +32,7 @@
 .endproc
 
 .proc xdebug_print_with_ay_string
-
+    rts
     pha
     
 
@@ -49,6 +50,13 @@
 .endproc
 
 .proc kdebug_restore
+
+    ldx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
+    stx  NEXT_STACK_BANK
+
+    lda  kernel_debug+kernel_debug_struct::VALUE_NEXT_STACK_BANK
+    sta  STACK_BANK,x
+
     lda  kernel_debug+kernel_debug_struct::BNKCIB
     sta  BNKCIB
     lda  kernel_debug+kernel_debug_struct::VEXBNK
@@ -62,10 +70,13 @@
     lda  kernel_debug+kernel_debug_struct::RA
     ldx  kernel_debug+kernel_debug_struct::RX
     ldy  kernel_debug+kernel_debug_struct::RY
+
+
     rts
 .endproc
 
 .proc kdebug_save
+
     sta  kernel_debug+kernel_debug_struct::RA
     stx  kernel_debug+kernel_debug_struct::RX
     sty  kernel_debug+kernel_debug_struct::RY
@@ -79,27 +90,43 @@
     sta  kernel_debug+kernel_debug_struct::BNKOLD
     lda  FIXME_DUNNO
     sta  kernel_debug+kernel_debug_struct::FIXME_DUNNO
+
+    ldx  NEXT_STACK_BANK
+    stx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
+
+    lda  STACK_BANK,x
+    sta  kernel_debug+kernel_debug_struct::VALUE_NEXT_STACK_BANK
+
+    ldx  kernel_debug+kernel_debug_struct::RX
     lda  kernel_debug+kernel_debug_struct::RA
+
+
+
     rts
 .endproc
 
 .proc xdebug_lsmem
+ 
     lda  #<$c003
     sta  VEXBNK+1
     lda  #>$c003
     sta  VEXBNK+2
     lda  #$01
     sta  BNKCIB
+
+
     jmp  $40C
 .endproc
 
 .proc xdebug_print
+    rts
     lda   #<$c000
     sta   VEXBNK+1
     lda   #>$c000
     sta   VEXBNK+2
     lda   #$01
     sta   BNKCIB
+
     jmp   $40C
 .endproc
 

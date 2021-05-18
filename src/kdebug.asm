@@ -19,6 +19,7 @@ rom_start:
     ; $c003
     jmp     display_lsmem_state
     ; $c006
+
     jmp     print_msg_and_a
     ; $c009
     jmp     print_msg_and_ay
@@ -180,6 +181,7 @@ str_type_fp:
 
 .proc print_routine_noparam
     ; X contains id of the string
+    rts
     lda     table_low_noparam,x
     sta     ACC2M
     lda     table_high_noparam,x
@@ -236,6 +238,7 @@ str_type_fp:
 .endproc
 
 .proc print_msg_and_a  
+    
     ; X contains id of the string
     pha
     

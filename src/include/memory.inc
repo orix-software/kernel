@@ -40,4 +40,3 @@ kernel_malloc_type                         .res KERNEL_MAX_NUMBER_OF_MALLOC
 .if     .sizeof(kernel_malloc_struct) > 255
   .error  "kernel_malloc_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
-  

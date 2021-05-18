@@ -320,13 +320,14 @@ RESG := ACCPS
 
 
 @run:
-    ; send cmdline ptr 
+    ; save RES
     lda     RES
     ldy     RES+1
-
-    jsr     @execute
     
+    sta     RESG
+    sty     RESG+1
 
+    ; send cmdline ptr 
     ; free header
     lda     RESD
     ldy     RESD+1
@@ -336,6 +337,10 @@ RESG := ACCPS
     ldy     RESF+1
     jsr     XCLOSE_ROUTINE
 
+    lda     RESG
+    ldy     RESG+1
+
+    jsr     @execute
 
     lda     #EOK
     

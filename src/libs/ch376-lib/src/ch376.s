@@ -1,15 +1,14 @@
 .proc _ch376_file_create
     lda     #CH376_CMD_FILE_CREATE
     sta     CH376_COMMAND
-    jsr     _ch376_wait_response
-    rts
+    jmp     _ch376_wait_response
+
 .endproc
 
 .proc _ch376_dir_create
     lda     #CH376_DIR_CREATE
     sta     CH376_COMMAND
-    jsr     _ch376_wait_response
-    rts
+    jmp     _ch376_wait_response
 .endproc
 
 .proc _ch376_disk_query
@@ -53,8 +52,7 @@
 .proc _ch376_file_erase
     lda     #CH376_FILE_ERASE
     sta     CH376_COMMAND
-    jsr     _ch376_wait_response
-    rts
+    jmp     _ch376_wait_response
 .endproc
 
 ; A contains 0 if it needs to update length
@@ -63,8 +61,7 @@
     stx     CH376_COMMAND
     lda     #$01
     sta     CH376_DATA
-    jsr     _ch376_wait_response
-    rts
+    jmp     _ch376_wait_response
 .endproc    
 	
 ; [IN] AY : ptr
@@ -114,10 +111,9 @@ end
 .endproc    
 
 .proc _ch376_file_open
-    lda #CH376_FILE_OPEN
-    sta CH376_COMMAND
-    jsr _ch376_wait_response
-    rts
+    lda     #CH376_FILE_OPEN
+    sta     CH376_COMMAND
+    jmp     _ch376_wait_response
 .endproc
 
 .proc _ch376_get_file_size
@@ -205,15 +201,15 @@ _ch376_set_bytes_write:
     ;sta     CH376_DATA
     ;sta     CH376_DATA
 .endif	
-    jsr     _ch376_wait_response
-    rts
+    jmp     _ch376_wait_response
+
 	
 .proc _ch376_disk_mount
     lda     #CH376_DISK_MOUNT
     sta     CH376_COMMAND
-    jsr     _ch376_wait_response
     ; if we read data value, we have then length of the volume name
-    rts	
+    jmp     _ch376_wait_response
+
 .endproc
 
 .proc _ch376_wait_response
@@ -239,10 +235,9 @@ no_error:
     sta     CH376_COMMAND
     lda     CH376_DATA
     rts
-good_message:
-    rts
-.endproc    
 
-str_usbdrive_controller_not_found:
-	.byte "Usb drive controller not found !",$0D,$0A,0
+.endproc    
+;
+;str_usbdrive_controller_not_found:
+;	.byte "Usb drive controller not found !",$0D,$0A,0
 

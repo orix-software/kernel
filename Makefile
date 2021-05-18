@@ -48,6 +48,7 @@ kernel: $(SOURCE)
 	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 	@echo Build kernelsd.rom for Twilighte board
 
+
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym
@@ -60,6 +61,7 @@ kernel: $(SOURCE)
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) 
 	@ld65 -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
+
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelus.sym| sort > kernelus2.sym
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelus.sym  $(PATH_PACKAGE_ROM)/

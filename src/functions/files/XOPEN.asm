@@ -20,7 +20,7 @@
   sty     XOPEN_FLAGS
 
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     kdebug_save
     ldy     XOPEN_RES_SAVE+1
     ldx     #XDEBUG_XOPEN_ENTER
@@ -37,9 +37,9 @@
   bne     @L1
   ; impossible to mount return null and store errno
 
-  lda     #ENODEV
+  lda     #EIO
   sta	    KERNEL_ERRNO
-  ldx     #$00
+  ldx     #$FF
   txa
   rts
 @L1:
@@ -58,6 +58,10 @@
   cpy     #$00
   bne     @not_null_2
   ; For cc65 compatibility
+@oom_error:
+  lda     #ENOMEM
+  sta	    KERNEL_ERRNO
+
   lda     #$FF
   tax
 
@@ -136,15 +140,10 @@
   bne     @not_null_1
   cpy     #NULL
   bne     @not_null_1
+  ; oom error
+  jmp     @oom_error
 
 
-   ; OOM in kernel_errno set in _create_file_pointer
-
-  ; and Y equals to NULL
-  lda     #$FF
-  tax
-
-  rts
 @not_null_1:
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
@@ -227,7 +226,16 @@
 
  
 @file_not_found:
+  ; Checking if filesys is found 
 
+  lda     FILESYS_BANK
+  beq     @filesys_bank_not_found
+
+  ;lda     #'A'
+  ;sta     $bb80
+
+
+@filesys_bank_not_found:
   lda     XOPEN_FLAGS ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
@@ -241,7 +249,7 @@
   lda     #ENOENT
   sta     KERNEL_ERRNO
 
-.ifdef    WITH_DEBUG
+.ifdef    WITH_DEBUG2
   ldx     #XDEBUG_XOPEN_FILE_NOT_FOUND
   lda     #$FF
   jsr     xdebug_print_with_a
@@ -301,13 +309,13 @@
 
 
   lda     KERNEL_XOPEN_PTR1+1
-  sta    (RES),y
+  sta     (RES),y
 
   dey
-  lda    KERNEL_XOPEN_PTR1
+  lda     KERNEL_XOPEN_PTR1
 
 
-  sta    (RES),y
+  sta     (RES),y
 
   ;kernel_process
   ;return fp
@@ -326,7 +334,7 @@
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
 
-.ifdef    WITH_DEBUG
+.ifdef    WITH_DEBUG2
   ldx     #XDEBUG_ERROR_FP_REACH
   lda     #KERNEL_MAX_FP
   jsr     xdebug_print_with_a
@@ -347,7 +355,7 @@
   adc     #KERNEL_FIRST_FD
 
   
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   pha
   ldx     #XDEBUG_FD
   jsr     xdebug_print_with_a

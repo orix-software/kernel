@@ -108,6 +108,10 @@ start_rom:
 .endif
   ;sty     FLGTEL
 
+  ; Mapping FILESYS
+  lda     #$00
+  sta     FILESYS_BANK
+
   lda     #$FF
   sta     FLGRST
 
@@ -445,6 +449,29 @@ init_malloc_busy_table:
   dex
   bpl     @loop
 
+.ifdef WITH_SYSTEMD_AT_BOOT_TIME
+launch_systemd:
+  lda     #<str_binary_systemd
+  sta     RES
+  lda     #>str_binary_systemd
+  sta     RES+1
+  ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
+  ldy     #$00
+@L1:  
+  lda     (RES),y
+  beq     @S1
+  sta     kernel_end_of_memory_for_kernel,y
+  iny
+  bne     @L1
+@S1:
+  sta     kernel_end_of_memory_for_kernel,y
+
+  lda     #<kernel_end_of_memory_for_kernel
+  ldy     #>kernel_end_of_memory_for_kernel
+
+  jsr     _XEXEC ; start shell
+.endif
+
 
 launch_command:
   jsr     XCRLF_ROUTINE
@@ -492,6 +519,12 @@ routine_to_define_19:
 .endif
 
   rts
+
+.ifdef WITH_SYSTEMD_AT_BOOT_TIME  
+str_binary_systemd:
+  .asciiz "systemd -s"  
+.endif
+
 str_binary_to_start:
   .asciiz "sh"
 str_name_process_kernel:  ; if you modify this default, you must change struct too in process.inc
@@ -707,6 +740,7 @@ code_adress_419:
   rts
 
 code_adress_436:
+
   php
   sei
   pha
@@ -796,6 +830,8 @@ code_adress_4AF:
   pla                                    ; Get the value
   rts
   ; Stack used to switch from any bank
+  ; let this res !!!
+;.res 1   ; Let this res because, it's FIXME_DUNNO var here
 code_adress_get:
 ; used in bank command in Oric
   lda     VIA2::PRA
@@ -1503,9 +1539,9 @@ vectors_telemon:
   .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE           ; 2a
   .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2B
   .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE   ; $2C
-  .byt     <$00,>$00     ; $2D
+  .byt     <XVALUES_ROUTINE,>XVALUES_ROUTINE     ; $2D
   .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE     ; $2E
-  .byt     $00,$00
+  .byt     <XOPENDIR_READDIR_CLOSEDIR,>XOPENDIR_READDIR_CLOSEDIR
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
 
   .byt     <$00,>$00 ; Open from current path $31
@@ -1792,6 +1828,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/files/xfseek.asm"
 .include  "functions/files/xmkdir.asm"  
 .include  "functions/files/xrm.asm"
+.include  "functions/files/xopendir.asm"
 
 .include  "functions/xdecal.asm"
 
@@ -5992,5 +6029,5 @@ RESET:
 ; fffe
 BRK_IRQ:  
   .byt     <IRQVECTOR,>IRQVECTOR
-
+; Displays map 
 .include "memmap.asm"
