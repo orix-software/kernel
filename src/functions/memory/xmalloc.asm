@@ -11,8 +11,7 @@
 ; Verify if there is enough memory
 ; 
 
-
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     kdebug_save
 
     ldx     #XDEBUG_XMALLOC_ENTER_AY
@@ -171,24 +170,19 @@
 
     lda     #KERNEL_UNKNOWN_MALLOC_TYPE
     sta     KERNEL_MALLOC_TYPE  
-.ifdef WITH_DEBUG
 
-  ;jsr  xdebug_save
-  ;jsr xdebug_lsmem
-
-.endif
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     ; Debug
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     kdebug_save
     jsr     xdebug_enter_XMALLOC_return_adress
     jsr     xdebug_send_ay_to_printer
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     jsr     kdebug_restore
-  .endif  
+.endif  
 
     rts
     

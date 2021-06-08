@@ -12,7 +12,7 @@
   sta     RES
   sty     RES+1
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     kdebug_save
     ldx     #XDEBUG_XOPEN_ALLOCATE_FP
     jsr     xdebug_print

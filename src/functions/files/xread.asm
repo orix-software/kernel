@@ -2,12 +2,12 @@
 ; [IN] AY contains the length to read
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [IN] TR0 contains the fd id 
+; [IN] RES contains the FD (not managed)
 
 ; [OUT]  PTR_READ_DEST updated
 ; [OUT]  A could contains 0 or the CH376 state
 ; [OUT]  Y contains the last size of bytes 
 
-; [UNCHANGED] X
 
 
   jsr     _ch376_set_bytes_read

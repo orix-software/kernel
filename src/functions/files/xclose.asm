@@ -6,6 +6,7 @@
     sty     RESB+1 ; save fp
 
 
+
 .ifdef WITH_DEBUG
     pha
     ldx     #XDEBUG_FCLOSE_ENTER
@@ -30,9 +31,11 @@
 
 
 .ifdef WITH_DEBUG
+    jsr     kdebug_save
     txa
     ldx     #XDEBUG_XCLOSE_FD_NOT_FOUND
     jsr     xdebug_print_with_a
+    jsr     kdebug_restore
 .endif
     rts
 @found_fp_slot:
@@ -42,9 +45,11 @@
 
     ; Process should be called here
 .ifdef WITH_DEBUG
+    pha
     lda     RESB
     ldx     #XDEBUG_XCLOSE_FD_FOUND
     jsr     xdebug_print
+    pla
         
 .endif
 

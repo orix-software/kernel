@@ -12,6 +12,8 @@ i_o_counter     := $1A ; 1 byte
 i_o_save        := $1B ; 3 bytes ?
 TRANSITION_RS232:= $1E;  3 bytes
 
+FILESYS_BANK := $20C
+
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
 VIA_UNKNOWN     :=$028F ; seems tobe a backup of timer  2 bytes
 
@@ -52,16 +54,22 @@ KERNEL_ERRNO:
     .res 1
 KERNEL_CH376_MOUNT:
     .res 1
+ 
 KERNEL_XFREE_TMP:
     .res 1
 KERNEL_XKERNEL_CREATE_PROCESS_TMP:
     .res 1
+
 KERNEL_TMP_XEXEC:
     .res 1
 KERNEL_KERNEL_XEXEC_BNKOLD:
     .res 1
 KERNEL_MALLOC_TYPE:
     .res 1
+KERNEL_SAVE_XEXEC_CURRENT_SET:
+    .res 1    
+KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM:
+    .res 1    
 KERNEL_END_PROCESS_VARIABLES:
 .if  KERNEL_END_PROCESS_VARIABLES > FLGTEL
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
@@ -69,12 +77,15 @@ KERNEL_END_PROCESS_VARIABLES:
 
 .bss
 .org $4C7
-FIXME_DUNNO:
-.res 1
+ 
+.res 1 ;Was before FIXME_DUNNO, it could remove when READ_BYTE_FROM_OVERLAY_RAM will be aligned correctly with kernel load
 
 READ_BYTE_FROM_OVERLAY_RAM:
 ; this contains a routine length : 20 bytew
 .res 20
+.org $4FF
+FIXME_DUNNO:  
+    .res  1
 
 .bss
 .org $500
@@ -113,10 +124,11 @@ TEMP_ORIX_1:
 ORIX_ARGC:
     .res 1
 KERNEL_DRIVER_MEMORY:
-    .res 159
+    .res 165
 
 .out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
 .out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
+.out     .sprintf("Malloc table begin : %x",kernel_malloc)
 .ifdef WITH_DEBUG
 kernel_debug:
     .tag    kernel_debug_struct

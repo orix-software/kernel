@@ -3,10 +3,11 @@
 	cmp #CH376_DETECTED
 	beq @detected
 
-	BRK_TELEMON XCRLF
-	lda #<str_usbdrive_controller_not_found
-	ldy #>str_usbdrive_controller_not_found
-	BRK_TELEMON XWSTR0
+	;BRK_TELEMON XCRLF
+;	lda #<str_usbdrive_controller_not_found
+;	ldy #>str_usbdrive_controller_not_found
+;	jsr  XWSTR0_ROUTINE
+	;BRK_TELEMON XWSTR0
 
 	; let's start reset
 	jsr _ch376_reset_all
@@ -20,6 +21,7 @@
 	beq @ok
 	clc
 	lda #$01
+	rts
 @ok:
 	sec ; Carry = 1
 	lda #$00

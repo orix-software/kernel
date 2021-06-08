@@ -20,7 +20,7 @@
   sty     XOPEN_FLAGS
 
 
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
     jsr     kdebug_save
     ldy     XOPEN_RES_SAVE+1
     ldx     #XDEBUG_XOPEN_ENTER
@@ -37,23 +37,12 @@
   bne     @L1
   ; impossible to mount return null and store errno
 
-  lda     #ENODEV
+  lda     #EIO
   sta	    KERNEL_ERRNO
-  ldx     #$00
+  ldx     #$FF
   txa
   rts
 @L1:
-  ; trying to resolve
- ; ldy     #$00
-;  lda     (RES),y
-  ;cmp     #'.'
-  ;
-  ;cmp     #"/"
-  ;beq     @it_is_absolute ; It's absolute then skip currentpath
-  ; concat
-
-
-
   ldy     #$00
   lda     (RES),y
   ;
@@ -69,6 +58,10 @@
   cpy     #$00
   bne     @not_null_2
   ; For cc65 compatibility
+@oom_error:
+  lda     #ENOMEM
+  sta	    KERNEL_ERRNO
+
   lda     #$FF
   tax
 
@@ -126,7 +119,6 @@
 
   bne     @L4
   ; Bof return NULL
-  ;jmp     @exit_open_with_null
   beq     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -148,17 +140,10 @@
   bne     @not_null_1
   cpy     #NULL
   bne     @not_null_1
+  ; oom error
+  jmp     @oom_error
 
 
-   ; Already set in _create_file_pointer
- ; lda     #ENOMEM
- ; sta     KERNEL_ERRNO
-
-  ; and Y equals to NULL
-  lda     #$FF
-  tax
-
-  rts
 @not_null_1:
   sta     KERNEL_XOPEN_PTR1
   sty     KERNEL_XOPEN_PTR1+1
@@ -179,7 +164,6 @@
 @next_char:
 
   lda     (KERNEL_XOPEN_PTR1),y
-  ;sta     $6000,y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
   beq     @slash_found_or_end_of_string
@@ -214,35 +198,44 @@
 
 .IFPC02
 .pc02
-  stz     CH376_DATA ; INIT  
+  stz    CH376_DATA ; INIT  
 .p02  
 .else  
-  lda     #$00 ; used to write in BUFNOM
-  sta     CH376_DATA ; INIT  
+  lda    #$00 ; used to write in BUFNOM
+  sta    CH376_DATA ; INIT  
 .endif
 
-  sty     XOPEN_SAVEY
-  jsr     _ch376_file_open
-  cmp     #CH376_ERR_MISS_FILE
-  beq     @file_not_found
+  sty    XOPEN_SAVEY
+  jsr    _ch376_file_open
+  cmp    #CH376_ERR_MISS_FILE
+  beq    @file_not_found
   
-  ldy     XOPEN_SAVEY ; reload Y
-  lda     XOPEN_SAVEA
-  beq     @could_be_created
+  ldy    XOPEN_SAVEY ; reload Y
+  lda    XOPEN_SAVEA
+  beq    @could_be_created
   iny
-  lda     (KERNEL_XOPEN_PTR1),y
-  bne     @next_filename
+  lda    (KERNEL_XOPEN_PTR1),y
+  bne    @next_filename
   cpy    #_KERNEL_FILE::f_path+1
   beq    @open_and_register_fp
   
 
   
-  bne     @next_filename
+  bne    @next_filename
 
 
  
 @file_not_found:
+  ; Checking if filesys is found 
 
+  lda     FILESYS_BANK
+  beq     @filesys_bank_not_found
+
+  ;lda     #'A'
+  ;sta     $bb80
+
+
+@filesys_bank_not_found:
   lda     XOPEN_FLAGS ; Get flags
   cmp     #O_RDONLY
   bne     @could_be_created
@@ -256,14 +249,11 @@
   lda     #ENOENT
   sta     KERNEL_ERRNO
 
-.ifdef    WITH_DEBUG
+.ifdef    WITH_DEBUG2
   ldx     #XDEBUG_XOPEN_FILE_NOT_FOUND
   lda     #$FF
   jsr     xdebug_print_with_a
 .endif
-
-
-
 
   lda     #$FF
   tax
@@ -282,7 +272,7 @@
 @open_and_register_fp:
 
 
- ; register fp in process struct
+  ; Register fp in process struct
   
   ;       store pointer in process struct
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
@@ -319,13 +309,13 @@
 
 
   lda     KERNEL_XOPEN_PTR1+1
-  sta    (RES),y
+  sta     (RES),y
 
   dey
-  lda    KERNEL_XOPEN_PTR1
+  lda     KERNEL_XOPEN_PTR1
 
 
-  sta    (RES),y
+  sta     (RES),y
 
   ;kernel_process
   ;return fp
@@ -344,13 +334,14 @@
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
 
-.ifdef    WITH_DEBUG
+.ifdef    WITH_DEBUG2
   ldx     #XDEBUG_ERROR_FP_REACH
   lda     #KERNEL_MAX_FP
   jsr     xdebug_print_with_a
 .endif
 
-
+  lda     #EMFILE
+  sta     KERNEL_ERRNO
 
   lda     #$FF
   tax
@@ -364,17 +355,14 @@
   adc     #KERNEL_FIRST_FD
 
   
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG2
   pha
   ldx     #XDEBUG_FD
   jsr     xdebug_print_with_a
   pla
 .endif  
   ldx     #$00
-
-  ;lda     KERNEL_XOPEN_PTR1
-;  ldy     KERNEL_XOPEN_PTR1+1 
-  ;ldx     KERNEL_XOPEN_PTR1+1 
+  
 
   rts
 .endproc
