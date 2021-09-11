@@ -1050,11 +1050,11 @@ adress_of_adiodb_vector:
   ; length must be $30 (48)
   ; used to set I/O vectors
   ; 0
-  .byt     <manage_I_O_keyboard,>manage_I_O_keyboard ; 0
+  .byt     <manage_I_O_keyboard,>manage_I_O_keyboard ; 0 CODE : $80
   ; 1 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
+  .byt     <_ch395_write_send_buf_sn,>_ch395_write_send_buf_sn ; network send
   ; 2 
-  .byt     <LDAF7,>LDAF7                             ; MINITEL (mde) 
+  .byt     <LDAF7,>LDAF7                             ; MINITEL (Xmde)  CODE : $82 input
   ; 3
   .byt     <LDB5D,>LDB5D                             ; RSE 
   ; 4
@@ -1846,6 +1846,10 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/mainargs.asm"
 .include  "functions/getargv.asm"
 .include  "functions/text/xfwr.asm"
+
+; Network
+
+.include "functions/network/_ch395_write_send_buf_sn.s"
 
 
 .proc _trim
