@@ -13,7 +13,7 @@ Lc7da:
 	lda     IOTAB0,x
 	bpl     @skip
 
-	cmp     #$88
+	cmp     #$82
 	bcs     @skip
 
 	tax

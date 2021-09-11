@@ -147,7 +147,7 @@ start_rom:
 
 
 next1:
-  ldx     #$11 ; Now only 18 ADIODB vectors
+  ldx     #$07 ; Now only 18 ADIODB vectors
 @loop:
   lda     adress_of_adiodb_vector,x
   sta     ADIOB,x
@@ -273,7 +273,7 @@ next5:
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
   
-  lda     #XSCR ; Setup screen !  on channel 0
+  lda     #$82 ; Setup screen !  on channel 0
   BRK_TELEMON XOP0 
 
   BRK_TELEMON XRECLK  ; Don't know this vector
@@ -1057,17 +1057,7 @@ adress_of_adiodb_vector:
   .byt     <output_window0,>output_window0                             ; MINITEL (Xmde)  CODE : $82 input
   ; 3
   .byt     <output_window0,>output_window0                             ; RSE 
-  ; 4
-  .byt     <output_window0,>output_window0 ;  not used  
-  ; 5
-  .byt     <output_window0,>output_window0 ; not used 
-  ; 6
-  .byt     <output_window0,>output_window0 ; not used 
-  ; 7
-  .byt     <output_window0,>output_window0 ; not used 
-  ; 8
-  .byt     <output_window0,>output_window0
-
+ 
  
 brk_management:
   ; management of BRK $XX

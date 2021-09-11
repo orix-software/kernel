@@ -15,7 +15,7 @@ XWSTR0_re_enter_from_XDECAL:
 @loop2:
 	ldx     work_channel    ; It contains the value of the I/O 
 	lda     IOTAB0,X        ; X contains 0, 4, 8 $0c
-	cmp     #$88
+	cmp     #$82
 	bcc     @skip            ; If it's higher than $88, it means that it's not an input 
 	asl                     ; It's an input set it *2
 	tax                     ; 
