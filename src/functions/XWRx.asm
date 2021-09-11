@@ -1,24 +1,6 @@
-XWR3_ROUTINE:	
-XWR2_ROUTINE:
-XWR1_ROUTINE:	
 XWR0_ROUTINE:
 	pha                     ; Push byte to write
 	lda     #$00
-
-	;beq     skip2_XWR0_ROUTINE
-
-	;pha
-	;lda     #$04
-	;bne     skip2_XWR0_ROUTINE
-
-;	pha
-;	lda     #$08
-;	bne     skip2_XWR0_ROUTINE
-
-;	pha
-;	lda     #$0C
-;skip2_XWR0_ROUTINE:
-
 	sta     work_channel
 	pla                      ; Get byte to write
 XWSTR0_re_enter_from_XDECAL:

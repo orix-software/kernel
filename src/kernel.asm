@@ -147,7 +147,7 @@ start_rom:
 
 
 next1:
-  ldx     #$2F
+  ldx     #$11 ; Now only 18 ADIODB vectors
 @loop:
   lda     adress_of_adiodb_vector,x
   sta     ADIOB,x
@@ -1054,36 +1054,21 @@ adress_of_adiodb_vector:
   ; 1 
   .byt     <_ch395_write_send_buf_sn,>_ch395_write_send_buf_sn ; network send
   ; 2 
-  .byt     <LDAF7,>LDAF7                             ; MINITEL (Xmde)  CODE : $82 input
+  .byt     <output_window0,>output_window0                             ; MINITEL (Xmde)  CODE : $82 input
   ; 3
-  .byt     <LDB5D,>LDB5D                             ; RSE 
+  .byt     <output_window0,>output_window0                             ; RSE 
   ; 4
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ;  not used  
+  .byt     <output_window0,>output_window0 ;  not used  
   ; 5
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
+  .byt     <output_window0,>output_window0 ; not used 
   ; 6
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
+  .byt     <output_window0,>output_window0 ; not used 
   ; 7
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING; not used 
+  .byt     <output_window0,>output_window0 ; not used 
   ; 8
   .byt     <output_window0,>output_window0
-  .byt     <output_window1,>output_window1
-  .byt     <output_window2,>output_window2
-  .byt     <output_window3,>output_window3
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING 
-  .byt     <Lda70,>Lda70 ;30
-  .byt     <Ldb12,>Ldb12
-  .byt     <LDB79,>LDB79 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-  .byt     <ROUTINE_I_O_NOTHING,>ROUTINE_I_O_NOTHING ; not used 
-
+ 
 brk_management:
   ; management of BRK $XX
   ; on the stack we have 
@@ -1488,34 +1473,34 @@ telemon_display_clock_chars:
 vectors_telemon:
 ;0
   .byt     <XOP0_ROUTINE,>XOP0_ROUTINE ; $00
-  .byt     <XOP1_ROUTINE,>XOP1_ROUTINE ; $1
-  .byt     <XOP2_ROUTINE,>XOP2_ROUTINE ; 2
-  .byt     <XOP3_ROUTINE,>XOP3_ROUTINE
+  .byt     <$00,>$00 ; $1
+  .byt     <$00,>$00 ; 2
+  .byt     <$00,>$00
 
   .byt     <XCL0_ROUTINE,>XCL0_ROUTINE ; 4  
-  .byt     <XCL1_ROUTINE,>XCL1_ROUTINE ; 5
-  .byt     <XCL2_ROUTINE,>XCL2_ROUTINE ; 6
-  .byt     <XCL3_ROUTINE,>XCL3_ROUTINE ; 7
+  .byt     <$00,>$00 ; 5
+  .byt     <$00,>$00 ; 6
+  .byt     <$00,>$00 ; 7
   
   .byt     <XRD0_ROUTINE,>XRD0_ROUTINE ; 8
-  .byt     <XRD1_ROUTINE,>XRD1_ROUTINE ; 9
-  .byt     <XRD2_ROUTINE,>XRD2_ROUTINE ; 0a
-  .byt     <XRD3_ROUTINE,>XRD3_ROUTINE ; 0b
+  .byt     <$00,>$00 ; 9
+  .byt     <$00,>$00 ; 0a
+  .byt     <$00,>$00 ; 0b
   
   .byt     <XRDW0_ROUTINE,>XRDW0_ROUTINE ; 0c XRDW0
-  .byt     <XRDW1_ROUTINE,>XRDW1_ROUTINE ; 0d
-  .byt     <XRDW2_ROUTINE,>XRDW2_ROUTINE ; 0e
-  .byt     <XRDW3_ROUTINE,>XRDW3_ROUTINE ; 0f
+  .byt     <$00,>$00; 0d
+  .byt     <$00,>$00 ; 0e
+  .byt     <$00,>$00 ; 0f
   
   .byt     <XWR0_ROUTINE,>XWR0_ROUTINE ; ;10  
-  .byt     <XWR1_ROUTINE,>XWR1_ROUTINE  ; 
-  .byt     <XWR2_ROUTINE,>XWR2_ROUTINE ; 
-  .byt     <XWR3_ROUTINE,>XWR3_ROUTINE ; 
+  .byt     <$00,>$00  ; 
+  .byt     <$00,>$00 ; 
+  .byt     <$00,>$00 ; 
 ; 18  
   .byt     <XWSTR0_ROUTINE,>XWSTR0_ROUTINE ; 14 
-  .byt     <XWSTR1_ROUTINE,>XWSTR1_ROUTINE ;
-  .byt     <XWSTR2_ROUTINE,>XWSTR2_ROUTINE  ; 
-  .byt     <XWSTR3_ROUTINE,>XWSTR3_ROUTINE 
+  .byt     <$00,>$00 ;
+  .byt     <$00,>$00  ; 
+  .byt     <$00,>$00 
 ; 
   .byt     <XDECAL_ROUTINE,>XDECAL_ROUTINE  ; $18
   .byt     <XTEXT_ROUTINE,>XTEXT_ROUTINE    ; XTEXT ; 19
@@ -1760,7 +1745,7 @@ put_cursor_in_61_x
   
 
 
-data_for_decimal_conversion
+data_for_decimal_conversion:
 const_10_decimal_low
   .byt     $0A ; 19
 const_100_decimal_low

@@ -1,20 +1,9 @@
 ; Modify : 
 ; i_o_save
 ; ADDRESS_READ_BETWEEN_BANK
-XWSTR3_ROUTINE:
-XWSTR2_ROUTINE:		
-XWSTR1_ROUTINE:	
+	
 XWSTR0_ROUTINE:
     ldx     #$00
-	;.byt    $2C
-
-	;ldx     #$04
-	;.byt    $2C
-
-	;ldx     #$08
-	;.byt    $2C
-
-	;ldx     #$0C
 	stx     i_o_save+1
 	sta     ADDRESS_READ_BETWEEN_BANK
 	sty     ADDRESS_READ_BETWEEN_BANK+1

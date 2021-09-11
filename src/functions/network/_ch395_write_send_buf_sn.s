@@ -18,6 +18,7 @@ CH395_WRITE_SEND_BUF_SN       = $39
     stx     CH395_DATA_PORT ; set length
     dex
     stx     CH395_DATA_PORT ; set length
+    
     sta     $bb80+120
     sta     CH395_DATA_PORT 
 
