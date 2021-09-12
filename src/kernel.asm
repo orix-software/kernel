@@ -3,6 +3,9 @@
 .define VERSION "2021.4"
 
 
+ADIODB_LENGTH=$08
+.define KERNEL_SIZE_IOTAB $04
+
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
 .include   "stdio.inc"              ; from cc65
@@ -127,9 +130,9 @@ start_rom:
   jsr     init_via
   jsr     init_printer 
 
- 
 
-  ldx     #$0F
+
+  ldx     #(KERNEL_SIZE_IOTAB-1)
 @loop:
   lsr     IOTAB0,x ; init channels (0 to 3)
   dex
@@ -146,8 +149,10 @@ start_rom:
 
 
 
+
+
 next1:
-  ldx     #$07 ; Now only 18 ADIODB vectors
+  ldx     #(ADIODB_LENGTH-1) ; Now only 18 ADIODB vectors
 @loop:
   lda     adress_of_adiodb_vector,x
   sta     ADIOB,x
@@ -223,15 +228,6 @@ compute_rom_ram:
  
   jsr     XDEFBU_ROUTINE 
 skip:
-
-
-
-  lda     #$00                        ; INIT VALUE of the rom to 0 bytes
-  sta     KOROM
-
-  lda     #$40                        ; INIT VALUE of the RAM to 64 KBytes
-  sta     KORAM
- 
   ;kernel_malloc_max_memory_main
 
   ldy     #(kernel_malloc_struct::kernel_malloc_max_memory_main)
@@ -1056,7 +1052,7 @@ adress_of_adiodb_vector:
   ; 2 
   .byt     <output_window0,>output_window0                             ; MINITEL (Xmde)  CODE : $82 input
   ; 3
-  .byt     <output_window0,>output_window0                             ; RSE 
+  .byt     <_ch395_write_send_buf_sn,>_ch395_write_send_buf_sn                             ; RSE 
  
  
 brk_management:

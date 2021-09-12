@@ -1,21 +1,12 @@
 ; A contains channel
 XOP0_ROUTINE:
     ldx     #$00 ; Channel 0
-    .byt    $2c  ; Jump 2 next bytes
-XOP1_ROUTINE:
-    ldx     #$04 ; Channel 1
-    .byt    $2c  ; Jump 2 next bytes
-XOP2_ROUTINE:	
-    ldx     #$08 ; Channel 2
-    .byt    $2c  ; Jump 2 next bytes
-XOP3_ROUTINE:	
-    ldx     #$0c
     pha
 
 @loop:
     pla
-    cmp     IOTAB0,x
-    beq     @skip2
+    cmp     IOTAB0,x    ; Already open with the same IO ?
+    beq     @skip2      ; Yes exit
     ldy     IOTAB0,x
     bpl     skip129
     inx
@@ -29,7 +20,7 @@ XOP3_ROUTINE:
 
 skip129:
 
-    ldy     #$0F
+    ldy     #(KERNEL_SIZE_IOTAB-1)
   @loop:
     cmp     IOTAB0,y
     beq     @skip2
@@ -42,7 +33,7 @@ skip129:
     ldy     #$80
     tax
     
-    jsr     send_command_A
+    jsr     send_command_A ; Why it sends something in the open channel ?
 
     ldx     work_channel
     pla

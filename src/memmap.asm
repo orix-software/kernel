@@ -10,3 +10,13 @@
 
 
 
+
+.out   .sprintf("MEMMAP:BANK7:IOTAB0=%x-%x", IOTAB0, IOTAB0+KERNEL_SIZE_IOTAB-1)
+.out   .sprintf("MEMMAP:BANK7:FREE=%x-%x:size=%d", IOTAB0+KERNEL_SIZE_IOTAB, ADIOB-1,ADIOB-IOTAB0+KERNEL_SIZE_IOTAB)
+.out   .sprintf("MEMMAP:BANK7:ADIOB=%x-%x:size=%d", ADIOB,ADIOB+ADIODB_LENGTH-1,ADIOB+ADIODB_LENGTH-ADIOB)
+.out   .sprintf("MEMMAP:BANK7:FREE=%x-%x:size=%d", ADIOB+ADIODB_LENGTH,FLGRST-1,FLGRST-ADIOB+ADIODB_LENGTH)
+
+.out     .sprintf("MEMMAP:RAM:Malloc table begin : %x",kernel_malloc)
+.out     .sprintf("MEMMAP:RAM:ORIX_ARGV=%x", ORIX_ARGV)
+.out     .sprintf("MEMMAP:RAM:ORIX_ARGC=%x", ORIX_ARGC)
+

@@ -75,6 +75,11 @@ KERNEL_END_PROCESS_VARIABLES:
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
 .endif    
 
+.org IOTAB0
+    .res 4 ; KERNEL_SIZE_IOTAB
+;I_O_VECTORS:
+    ;.res 8
+
 .bss
 .org $4C7
  
@@ -126,9 +131,7 @@ ORIX_ARGC:
 KERNEL_DRIVER_MEMORY:
     .res 165
 
-.out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
-.out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
-.out     .sprintf("Malloc table begin : %x",kernel_malloc)
+
 .ifdef WITH_DEBUG
 kernel_debug:
     .tag    kernel_debug_struct
