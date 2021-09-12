@@ -5,9 +5,9 @@ XOP0_ROUTINE:
 
 @loop:
     pla
-    cmp     IOTAB0,x    ; Already open with the same IO ?
+    cmp     IOTAB,x    ; Already open with the same IO ?
     beq     @skip2      ; Yes exit
-    ldy     IOTAB0,x
+    ldy     IOTAB,x
     bpl     skip129
     inx
     pha
@@ -22,7 +22,7 @@ skip129:
 
     ldy     #(KERNEL_SIZE_IOTAB-1)
   @loop:
-    cmp     IOTAB0,y
+    cmp     IOTAB,y
     beq     @skip2
     dey
 
@@ -38,7 +38,7 @@ skip129:
     ldx     work_channel
     pla
   @skip2:
-    sta     IOTAB0,x
+    sta     IOTAB,x
     clc
     rts
   

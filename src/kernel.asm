@@ -134,7 +134,7 @@ start_rom:
 
   ldx     #(KERNEL_SIZE_IOTAB-1)
 @loop:
-  lsr     IOTAB0,x ; init channels (0 to 3)
+  lsr     IOTAB,x ; init channels (0 to 3)
   dex
   bpl     @loop
 
@@ -155,17 +155,12 @@ next1:
   ldx     #(ADIODB_LENGTH-1) ; Now only 18 ADIODB vectors
 @loop:
   lda     adress_of_adiodb_vector,x
-  sta     ADIOB,x
+  sta     KERNEL_ADIOB,x
   dex
   bpl     @loop
 
 set_todefine6:
-  ldx     #$04
-@loop:
-  lda     data_to_define_6,x
-  sta     CSRND,x
-  dex
-  bpl     @loop
+
 
   ldx     #$00
 
@@ -193,22 +188,11 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop2
 
-
-
-  ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
-;  sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+1
- ; lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+1)
-  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch1-kernel_memory_driver_to_copy_begin+2
   
 ; Bug here
 DEBUGME:
 
-  ;lda     #<(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
-  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+1
-  ;lda     #>(KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_to_patch-kernel_memory_driver_to_copy_begin+2)
-  ;sta     KERNEL_DRIVER_MEMORY+read_command_from_bank_driver_patch2-kernel_memory_driver_to_copy_begin+2
 
-  ;sta     KERNEL_DRIVER_MEMORY,x
 
 compute_rom_ram:
 ; this code sets buffers
@@ -228,21 +212,8 @@ compute_rom_ram:
  
   jsr     XDEFBU_ROUTINE 
 skip:
-  ;kernel_malloc_max_memory_main
-
-  ldy     #(kernel_malloc_struct::kernel_malloc_max_memory_main)
-  lda     #$40
-  sta     kernel_malloc,y
 
  
-
-.ifdef    TWILIGHTE_CARD
-  lda     #$40
-.else
-  lda     #12                     ; store 48 Kbytes for roms
-.endif  
-  sta     KOROM
-
   ldx     #$0B                            ; copy to $2F4 12 bytes
 @loop:
   lda     data_vectors_VNMI_IRQVECTOR_VAPLIC,x ; SETUP VNMI, IRQVECTOR, VAPLIC
@@ -262,10 +233,7 @@ next5:
   sta     FLGTEL
 @skip:
 
-  
-.ifdef WITH_ACIA  
-  jsr     init_rs232 ; $DB54 
-.endif  
+
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
   
@@ -289,22 +257,12 @@ next5:
 
   ; it's similar to lda #10 brk xwr0 lda #13 brk XWR0
   RETURN_LINE
-  ; fetch KORAM and display
-  lda     #$30
-  ldy     #$02
-  jsr     telemon_convert_to_decimal ; convert in decimal accumulator A
-  ; display KORAM
-  PRINT str_KORAM
 
 
-  lda     KOROM
-  lda     #$00
-  ldy     #$02
-  jsr     telemon_convert_to_decimal
   PRINT str_KOROM
 
 
-telemon_hot_reset
+telemon_hot_reset:
   
 
 don_t_display_telemon_signature:
@@ -507,12 +465,6 @@ routine_to_define_19:
   ldx     #$0C
   BRK_TELEMON XVIDBU              ; Flush buffers
 
-.ifdef WITH_ACIA
-  lda     ACIACR
-  and     #$F3
-  ora     #$08
-  sta     ACIACR
-.endif
 
   rts
 
@@ -541,9 +493,7 @@ init_via:
   sta     VIA::IER ; Initialize via1
   sta     VIA2::IER ; Initialize via2
   
-.ifdef WITH_ACIA
-  sta     ACIASR ; Init ACIA
-.endif
+
 
   lda     #$FF
   sta     VIA::DDRA
@@ -552,16 +502,10 @@ init_via:
   sta     VIA::PRB
   sta     VIA::DDRB
 
-.ifdef WITH_32BANKS
-  lda     #%00000111 ; Switch to bank7
-  sta     VIA2::PRA
-  lda     #%00011111 ; But manage 31 banks
-  sta     VIA2::DDRA
-.else
+
   lda     #$17 ; 0001 0111
   sta     VIA2::PRA
   sta     VIA2::DDRA
-.endif
 
   lda     #$E0 ; %1110 0000
   sta     VIA2::PRB
@@ -626,20 +570,18 @@ kernel_memory_driver_to_copy_end:
   
 .warning     .sprintf("Size of memory driver  : %d bytes, verify in kernel.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
 
-str_KORAM:
-  .ASCIIZ  " KB RAM/"
+
+  
 
 str_KOROM:
-  .byt     " KB ROM"," - "
+  .byt    "560 KB RAM/512 KB ROM"," - "
   .byt    __DATE__
   .byt      $00
 
 str_tofix:
   .byt     $0D,$18,$00
 
-data_to_define_6:
-  ; FIVE Bbytes to load in CSRND
-  .byt     $80,$4F,$C7,$52,$58
+
 
   
 XDEFBU_ROUTINE:
@@ -979,14 +921,14 @@ LC697:
   
   sta     IRQSVP ; FIXME
 
-routine_to_define_16
+routine_to_define_16:
   tya
   sbc     BUFBUF+3,x
-  bcc     next36 
+  bcc     @S1
   lda     BUFBUF,x
   ldy     BUFBUF+1,x
   sta     IRQSVP
-next36
+@S1:
   sty     FIXME_PAGE0_0 ; FIXME
   lda     IRQSVP
   rts
@@ -1032,9 +974,9 @@ send_command_A:
   txa
   asl
   tax
-  lda     ADIOB,x
+  lda     KERNEL_ADIOB,x
   sta     ADIODB_VECTOR+1
-  lda     ADIOB+1,x
+  lda     KERNEL_ADIOB+1,x
   sta     ADIODB_VECTOR+2
   pla
   lsr     ADDRESS_VECTOR_FOR_ADIOB
@@ -1159,71 +1101,7 @@ LC8B9
 
 ; routine BRK ?
 routine_to_define_12:
-.ifdef WITH_ACIA
-  tya
-  pha
-  lda     ACIASR 
-  bpl     next23
-  lsr     TRANSITION_RS232
-  pha
-  and     #$08
-  beq     next24
-  ldx     ACIADR
-  pla
-  pha
-  and     #$07
-  beq     @skip
-  ora     #$B0
-  .byt    $24 ; jump one byte
-@skip:
-  txa
 
-  ldx     #$0C
-  jsr     XECRBU_ROUTINE
-
-next24
-
-  pla
-  and     #$10
-  beq     next23
-  ldx     #$18 
-  jsr     XTSTBU_ROUTINE; CORRECTME
-  bcs     next26
-
-  lda     ACIASR
-  and     #$20
-  bne     next23
-
-  jsr     XLISBU_ROUTINE 
-
-  sta     ACIADR
-  lda     ACIACT
-  and     #$07
-  sta     $3F ; FIXME
-  bcc     next23
-
-next26
-  inc     $20 ; FIXME
-  bne     next23
-  dec     $3F ; FIXME
-  bne     next23
-  lda     FLGLPR
-  lsr
-  lsr 
-  lsr
-
-  lda     ACIACR
-  and     #$F3
-  bcc     @skip
-  and     #$FE
-@skip:
-  sta     ACIACR
-next23:
-  pla
-Lc91c:
-  tay
-Lc91d:
-.endif
   rts
 
 Lc91e:
@@ -2055,9 +1933,7 @@ loop21:
   jsr     XEPSG_ROUTINE
   lda     #$00
   sta     KBDCOL,y
-.ifdef WITH_ACIA  
-  jsr     routine_to_define_12 
-.endif  
+ 
   lda     VIA::PRB
   and     #$B8
   tax
@@ -2272,20 +2148,8 @@ LDAF7
   jmp     XLISBU_ROUTINE 
 @skip:
 
-.ifdef WITH_ACIA
-  bcs     Ldb09
-  
-  lda     ACIACR
-  and     #$0D
-  ora     #$60
-  bne     Ldb43 
-.endif
 Ldb09:
-.ifdef WITH_ACIA
-  lda     ACIACR
-  ora     #$02
-  sta     ACIACR
-.endif
+
   rts
 
 
@@ -2320,82 +2184,35 @@ LDB26
   bcs     LDB26           ;     si la donnée n'a pas été écrite, on boucle      I I
 LDB2F
 
-.ifdef WITH_ACIA
-  lda     ACIACR          ;    on prend VIA2::IER                               I I
-  and     #$F3            ;    %11110011 force b2 à 0                           I I
-  ora     #$04            ;     et b3 à 1                                       I I
-  sta     ACIACR          ;    dans ACIACR                                      I I
-.endif
+
 
   rts
                           ;                                      < I
-LDB3A
+LDB3A:
   bcs     LDB53           ;     C=1 on ferme ==================================  I
 
-.ifdef    WITH_ACIA
-  lda     ACIACR          ;     ouverture                                      > I
-  and     #$02            ;      ACIACR à 0 sauf b1                             I I
-  ora     #$65            ;      %01101001, bits forcés ? 1                     I I
-Ldb43
-  sta     ACIACR          ;     dans ACIACR <----------------------------------+--
-.endif
 
-.ifdef WITH_ACIA
-  lda     #$38            ;     %00111000 dans ACIACT                          I  
-  sta     ACIACT          ;                                                    I  
-.endif
-LDB53
+LDB53:
   rts                     ;     et on sort--------------------------------------  
 
-.ifdef WITH_ACIA  
-init_rs232:
-  ; RS232T: 
-  ;  b0 to b3 : speed
-  ;  b4 : external clock for 0, 1 for internal clock
-  ;  b6 - b5 : 00=8 bits, 01=7 bits, 10=6 bits, 11=5 bits
-  ;  b7 : 0=stop, 1= 2 or 1.5 stops
-
-  lda     #$1E 
-  sta     RS232T
-  ; FIXME 65C02
-  lda     #$00
-  sta     RS232C
-.endif  
-  rts
 
                ;          GESTION DE L'ENTREE RS232
-LDB5D
+LDB5D:
   bpl     LDAF7    ;  lecture, voir MINITEL (pourquoi pas $DAF9 ?)       
   bcs     Ldb09   ;   C=1, on ferme
 
-.ifdef    WITH_ACIA
-  lda     ACIACR   ;   on ouvre
-  and     #$0D     ;  on fixe le mode de controle
-.endif  
 
-LDB66  
-.ifdef    WITH_ACIA
-  ora     RS232C      ;   de la RS232                                       
-  sta     ACIACR                                                        
-  lda     VIA2::PRA                                                        
-  ora     #$10     ;  %00010000 on force RS232                          
-  sta     VIA2::PRA                                                        
-  lda     RS232T   ;   et on fixe le mode de transmission                
-  sta     ACIACT   ;   dans ACIACR               
-.endif
+
+LDB66:
+
   rts                                                              
 
 ;                      GESTION DE LA SORTIE RS232                         
-LDB79
+LDB79:
   bpl     LDB26     ; Ecriture, comme MINITEL
   bcs     LDB53     ; pas de fermeture (rts) 
-LDB7D
-.ifdef    WITH_ACIA
-  lda     ACIACR    ;  ouverture,on lit ACIACR                            
-  and     #$02      ;  isole b1                                          
-  ora     #$05      ;  %00000101 force b0 et b2 ? 1                      
-  bne     LDB66     ;  inconditionnel          
-.endif  
+LDB7D:
+
 
 ;                 GESTION DES SORTIES EN MODE TEXT                      
 
@@ -2404,30 +2221,12 @@ output_window0:
   pha             ;   Save A & P
   php                                                              
   lda     #$00    ;   window 0                                         
-  beq     skipme2000    ;   inconditionnel                                    
-output_window1  
-  pha                                                              
-  php                                                              
-  lda     #$01    ;   fenêtre 1
-  bne     skipme2000    ;                                                 
-output_window2
-  pha                                                              
-  php                                                              
-  lda     #$02    ;  fenêtre 2
-  bne     skipme2000
-output_window3:
-  pha                                                              
-  php                                                              
-  lda     #$03        ; Window 3
-skipme2000:
-
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
   plp                 ;  on lit la commande
   bpl     @S1         ;  écriture -------    
   jmp     LDECE       ;  ouverture      I      
 @S1:
   pla          ;  on lit la donnée <
- ; sta     SCRNB+1      ;  que l'on sauve
 
 Ldbb5:
 
@@ -2446,9 +2245,8 @@ Ldbb5:
   
   lda     SCRNB+1
   cmp     #" "       ; is it greater than space ?
-  ;jmp     Ldc4c      ;Caractère de controle possibles
   bcs     Ldc4c      ; yes let's displays it.
-Ldbce   ; $d27e
+Ldbce:   ; $d27e
   lda     FLGSCR,x
 
   pha
@@ -2918,7 +2716,7 @@ XSCRSE_ROUTINE ; init window
   sec
   .byt     $24
 
-ROUTINE_TO_DEFINE_7
+ROUTINE_TO_DEFINE_7:
   clc
   php
   sta     ADDRESS_READ_BETWEEN_BANK   ; CORRECTME
@@ -2948,7 +2746,7 @@ next18
   sec
   sbc     #$04
   tax
-  DEY
+  dey
   bpl     next18
 
 
@@ -3206,7 +3004,7 @@ Le177
   jsr     Ldf99
   lda     VIA2::PRA2
   ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
-Le180
+Le180:
   stx     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
   LSR
   and     #$40
@@ -3219,12 +3017,12 @@ Le180
   bne     Le19c 
   lda     JCKTAB+6 ; CORRECTME
   jmp     Le19d 
-Le19c
+Le19c:
   rts
-Le19d
+Le19d:
   
   .byt    $38,$24
-Le19f
+Le19f:
 
   clc
   php
@@ -3244,18 +3042,11 @@ Le1b7
   sec
   rts
 
-
-data_for_hard_copy:
-  .byt    $18,$33,$1b,$0a,$0d,$00,$f0,$4b,$1b,$0d,$0a,$40,$1b,$0a,$0a
-
 XHCHRS_ROUTINE:
-
-execute_hard_copy_hires:
-  jmp     (HARD_COPY_HIRES)
 
 hard_copy_hires:
 
-LE25E  
+LE25E:
   
   dex
   bne     LE25E
@@ -3312,7 +3103,7 @@ LE2B1:
 LE2D0:
 
   rts
-Le2de
+Le2de:
 put_cursor_on_last_char_of_the_line
   ldy     SCRFX,x
   .byt    $24
@@ -3333,16 +3124,16 @@ test_if_prompt_is_on_beginning_of_the_line
   cmp     SCRDX,x
 @skip:
   rts
-Le2f9
+Le2f9:
   ldy     SCRDX,x
   lda     (RES),y
   cmp     #$7F
   rts
-LE301
+LE301:
   ldx     SCRNB
   lda     SCRY,x
   sta     ACC1M
-Le2ed  
+Le2ed: 
   lda     ACC1M
   jsr     LDE12 
   jsr     Le2f9 ;
@@ -3836,7 +3627,7 @@ LE987:
   dey                       ;   on enlève deux colonnes                          I
   dey         ;                                                    I
   sec         ;                                                    I
-  lda     SCRFY,x           ;   on calcule le nombre de lignes                   I
+  lda     SCRFY,x           ;   on calcule le nombre de lignes  gg                I
   sbc     SCRDY,x           ;   de la fenêtre                                    I
   tax                       ;   dans X                                           I
   inx                       ;                                                    I
@@ -5943,11 +5734,7 @@ read_a_code_in_15_and_y:
 @skip:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
-.ifdef WITH_ACIA
-  KERN_ACIA_CONFIG=1
-.else
-  KERN_ACIA_CONFIG=0
-.endif
+
 
 .ifdef WITH_SDCARD_FOR_ROOT
   KERN_SDCARD_FOR_ROOT_CONFIG=2
@@ -5957,7 +5744,7 @@ read_a_code_in_15_and_y:
 
 ; Byte for compile options
 kernel_compile_option:
-  .byt    KERN_ACIA_CONFIG+KERN_SDCARD_FOR_ROOT_CONFIG
+  .byt    KERN_SDCARD_FOR_ROOT_CONFIG
 
 
 version:

@@ -75,10 +75,21 @@ KERNEL_END_PROCESS_VARIABLES:
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
 .endif    
 
-.org IOTAB0
+.org $282
+; Was VDTPIL
+
+
+.org $2AE
+IOTAB:
     .res 4 ; KERNEL_SIZE_IOTAB
-;I_O_VECTORS:
-    ;.res 8
+KERNEL_ADIOB:
+    .res 8
+kernel_malloc_busy_begin:
+    .tag kernel_malloc_busy_begin_struct    
+.out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
+
+KERNEL_ADIOB_END:    
+
 
 .bss
 .org $4C7

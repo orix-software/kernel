@@ -338,7 +338,7 @@ pid:
 
     ldx     #$00
 @loop2:
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     beq     @next_chunk2
     lda     #<str_busy
     sta     ACC2M
@@ -349,7 +349,7 @@ pid:
     lda     #'#'
     jsr     xdebug_send_printer
     
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     jsr     xdebug_binhex
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     jsr     xdebug_binhex
@@ -470,7 +470,7 @@ hex_table:
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
 	
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
   
   ; update size

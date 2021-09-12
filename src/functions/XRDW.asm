@@ -10,7 +10,7 @@ Lc7da:
 	pha
 @loop:
 	ldx     work_channel
-	lda     IOTAB0,x
+	lda     IOTAB,x
 	bpl     @skip
 
 	cmp     #$82

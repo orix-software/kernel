@@ -14,14 +14,14 @@ XWSTR0_re_enter_from_XDECAL:
 
 @loop2:
 	ldx     work_channel    ; It contains the value of the I/O 
-	lda     IOTAB0,X        ; X contains 0, 4, 8 $0c
+	lda     IOTAB,X        ; X contains 0, 4, 8 $0c
 	cmp     #$82
 	bcc     @skip            ; If it's higher than $88, it means that it's not an input 
 	asl                     ; It's an input set it *2
 	tax                     ; 
-	lda     ADIOB,X         ; GET vectors  
+	lda     KERNEL_ADIOB,X         ; GET vectors  
 	sta     ADIODB_VECTOR+1
-	lda     ADIOB+1,X
+	lda     KERNEL_ADIOB+1,X
 	sta     ADIODB_VECTOR+2 ; 
 	lda     i_o_save        ; Get Byte to write
 @loop:
