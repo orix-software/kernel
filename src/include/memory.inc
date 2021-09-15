@@ -36,6 +36,11 @@ kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
 ;kernel_malloc_busy_chunk_begin_low        .res KERNEL_MAX_NUMBER_OF_MALLOC
 .endstruct
 
+.struct kernel_malloc_free_chunk_size_struct
+  kernel_malloc_free_chunk_size_low          .res KERNEL_MAX_NUMBER_OF_MALLOC
+.endstruct
+
+
 
 .out     "=================================================================="
 .out     "Memory"

@@ -86,10 +86,13 @@ KERNEL_ADIOB:
     .res 8
 kernel_malloc_busy_begin:
     .tag kernel_malloc_busy_begin_struct    
-.out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
-
+    .out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
+kernel_malloc_free_size:
+    .tag kernel_malloc_free_chunk_size_struct
 KERNEL_ADIOB_END:    
-
+.if  KERNEL_ADIOB_END > VNMI
+  .error  "Error malloc table overlap VNMI"
+.endif    
 
 .bss
 .org $4C7
