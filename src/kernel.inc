@@ -89,6 +89,8 @@ kernel_malloc_busy_begin:
     .out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
 kernel_malloc_free_size:
     .tag kernel_malloc_free_chunk_size_struct
+kernel_xmalloc_call:
+.res 40 ; XMALLOC_ROUTINE_TO_RAM_OVERLAY    
 KERNEL_ADIOB_END:    
 .if  KERNEL_ADIOB_END > VNMI
   .error  "Error malloc table overlap VNMI"

@@ -7,7 +7,7 @@ rem set ORICUTRON="/d/Users/plifp/onedrive/oric/oricutron_twilighte"
 
 
 
-SET ORIGIN_PATH=%CD%f
+SET ORIGIN_PATH=%CD%
 
 SET ROM=kernel
 rem -DWITH_SDCARD_FOR_ROOT=1
@@ -21,12 +21,12 @@ rem -DWITH_SDCARD_FOR_ROOT=1
 IF "%1"=="NORUN" GOTO End
 
 copy %ROM%.rom %ORICUTRON%\roms\ > NUL
-copy kdebug.rom %ORICUTRON%\roms\ > NUL
+rem copy kdebug.rom %ORICUTRON%\roms\ > NUL
  
 cd %ORICUTRON%
 
 oricutron
-rem  -r :bp.txt
+
 
 :End
 cd %ORIGIN_PATH%

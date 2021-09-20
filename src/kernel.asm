@@ -1,7 +1,7 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
 .define VERSION "2021.4"
-
+XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
 ADIODB_LENGTH=$08
 .define KERNEL_SIZE_IOTAB $04
@@ -127,6 +127,14 @@ start_rom:
 
   jsr     XALLKB_ROUTINE
 
+  ldx     #XMALLOC_ROUTINE_TO_RAM_OVERLAY
+@myloop:  
+
+  lda     page2_xmalloc_call,x
+  sta     kernel_xmalloc_call,x
+  dex
+  bpl     @myloop
+
   jsr     init_via
   jsr     init_printer 
 
@@ -175,6 +183,12 @@ loading_vectors_telemon:
   sta     $0600,x
   lda     data_to_define_4,x 
   sta     $0700,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  lda     ramoverlay_xmalloc,x
+  sta     $0800,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  lda     ramoverlay_xfree,x
+  sta     $0900,x                     ; used to copy in Overlay RAM ... see  loop40 label  
+  lda     ramoverlay_xfree+255,x
+  sta     $1000,x                     ; used to copy in Overlay RAM ... see  loop40 label    
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
 
@@ -518,6 +532,7 @@ init_via:
   rts
 
 loading_code_to_page_6:
+  ; At this step we will copy into ram overlay
   lda     #$00 ; 2 bytes
   sta     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
 
@@ -526,6 +541,13 @@ loading_code_to_page_6:
 @loop:
   lda     $0700,x
   sta     BUFROU,x ; store data in c500 
+  lda     $0800,x
+  sta     ramoverlay_xmalloc,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  lda     $0900,x
+  sta     ramoverlay_xfree,x                     ; used to copy in Overlay RAM ... see  loop40 label  
+  lda     $1000,x
+  sta     ramoverlay_xfree+255,x                     ; used to copy in Overlay RAM ... see  loop40 label    
+
   inx
   bne     @loop ; copy 256 bytes to BUFROU in OVERLAY RAM
     ; Becare full, each time shell is executed it launch it
@@ -950,7 +972,6 @@ end_keyboard_buffer:
 .include  "functions/XWSTRx.asm"
 .include  "functions/XRDW.asm"
 .include  "functions/XWRD.asm"  
-.include  "functions/memory/xmalloc.asm"
 .include  "functions/XOP.asm"
 .include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
@@ -1436,7 +1457,7 @@ vectors_telemon:
   .byt     <XINIBU_ROUTINE,>XINIBU_ROUTINE ; $58
   .byt     <XDEFBU_ROUTINE,>XDEFBU_ROUTINE ; $59
   .byt     <XBUSY_ROUTINE,>XBUSY_ROUTINE   ; $5a
-  .byt     <XMALLOC_ROUTINE,>XMALLOC_ROUTINE                         ; $5b
+  .byt     <XMALLOC_ROUTINE_,>XMALLOC_ROUTINE                         ; $5b
   .byt     <XSDUMP_ROUTINE,>XSDUMP_ROUTINE ; $5c
   .byt     <XCONSO_ROUTINE,>XCONSO_ROUTINE ; $5d
   .byt     <XSLOAD_ROUTINE,>XSLOAD_ROUTINE ; $5e
@@ -1688,7 +1709,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/xfillm.asm"  
 .include  "functions/xhires.asm"  
 .include  "functions/xtext.asm"
-.include  "functions/memory/xfree.asm"
+
 ; Process
 .include  "functions/process/xexec.asm"
 .include  "functions/process/xfork.asm"
@@ -5735,6 +5756,56 @@ read_a_code_in_15_and_y:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
 
+XMALLOC_ROUTINE_ENTER_POINT:
+  ;@me:
+    ;jmp   @me
+  jsr     kernel_xmalloc_call
+  rts
+
+
+
+; ROutine copied in page 2
+page2_xmalloc_call:  
+  ;sei
+  pha
+  lda     VIA2::PRA
+  and     #%11111000 ; switch to OVERLAY RAM
+  sta     VIA2::PRA
+  pla
+  jsr     ramoverlay_xmalloc     ; Read buffer
+  pha
+  lda     VIA2::PRA
+  ora     #$07
+  sta     VIA2::PRA
+  pla
+  rts
+page2_xmalloc_call_end:   
+
+.if     page2_xmalloc_call_end-page2_xmalloc_call> 30
+  .error  "[page2_xmalloc_call] Not enougth space in page 2"
+.endif
+
+
+; This will be copied into Overlay RAM
+
+copy_ramoverlay_begin:
+ramoverlay_xmalloc:
+.include  "functions/memory/xmalloc.asm"
+ramoverlay_xmalloc_end:
+ramoverlay_xfree:
+.include  "functions/memory/xfree.asm"
+ramoverlay_xfree_end:
+copy_ramoverlay_end:
+
+; end of COPY_OVERLAY8RAM
+
+.if     ramoverlay_xmalloc_end-ramoverlay_xmalloc> 255
+  .error  "XMalloc can't be copied into RAMOVERLAY"
+.endif
+
+.if     ramoverlay_xfree_end-ramoverlay_xfree> 512
+  .error  "XFREE can't be copied into RAMOVERLAY"
+.endif
 
 .ifdef WITH_SDCARD_FOR_ROOT
   KERN_SDCARD_FOR_ROOT_CONFIG=2
