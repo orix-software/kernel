@@ -1457,7 +1457,7 @@ vectors_telemon:
   .byt     <XINIBU_ROUTINE,>XINIBU_ROUTINE ; $58
   .byt     <XDEFBU_ROUTINE,>XDEFBU_ROUTINE ; $59
   .byt     <XBUSY_ROUTINE,>XBUSY_ROUTINE   ; $5a
-  .byt     <XMALLOC_ROUTINE_,>XMALLOC_ROUTINE                         ; $5b
+  .byt     <XMALLOC_ROUTINE,>XMALLOC_ROUTINE                         ; $5b
   .byt     <XSDUMP_ROUTINE,>XSDUMP_ROUTINE ; $5c
   .byt     <XCONSO_ROUTINE,>XCONSO_ROUTINE ; $5d
   .byt     <XSLOAD_ROUTINE,>XSLOAD_ROUTINE ; $5e
