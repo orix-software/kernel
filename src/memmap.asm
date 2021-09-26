@@ -8,5 +8,20 @@
 .out .sprintf("BANK 0  TELEMON_PRINTER_BUFFER_BEGIN     : $%x : $%x", TELEMON_PRINTER_BUFFER_BEGIN,TELEMON_PRINTER_BUFFER_END)
 
 
+.out     .sprintf("MEMMAP:BANK0:XMALLOC=%x-%x", ramoverlay_xmalloc,ramoverlay_xmalloc_end )
+.out     .sprintf("MEMMAP:BANK0:XFREE=%x-%x", ramoverlay_xfree,ramoverlay_xfree_end )
+
+
+.out     .sprintf("MEMMAP:BANK7:FREE=%x-%x:size=2", KOROM, KORAM)
+.out     .sprintf("MEMMAP:BANK7:IOTAB=%x-%x", IOTAB, IOTAB+KERNEL_SIZE_IOTAB-1)
+.out     .sprintf("MEMMAP:BANK7:KERNEL_ADIOB=%x-%x:size=%d", KERNEL_ADIOB,KERNEL_ADIOB+ADIODB_LENGTH-1,KERNEL_ADIOB+ADIODB_LENGTH-KERNEL_ADIOB)
+.out     .sprintf("MEMMAP:BANK7:FREE=%x-%x:size=%d", KERNEL_ADIOB_END,FLGRST-1,FLGRST-KERNEL_ADIOB_END)
+
+
+.out     .sprintf("MEMMAP:RAM:kernel_xmalloc_call: %x-%x",kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
+.out     .sprintf("MEMMAP:RAM:Malloc table begin : %x",kernel_malloc)
+.out     .sprintf("MEMMAP:RAM:ORIX_ARGV=%x", ORIX_ARGV)
+.out     .sprintf("MEMMAP:RAM:ORIX_ARGC=%x", ORIX_ARGC)
+
 
 

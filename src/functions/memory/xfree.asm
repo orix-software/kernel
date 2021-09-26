@@ -37,7 +37,7 @@
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x ; Looking if low is available.
   bne     @next_chunk
   tya
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  cmp     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
   beq     @busy_chunk_found
   
 @next_chunk:
@@ -159,7 +159,7 @@
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
  
   ; update size
@@ -186,7 +186,7 @@
 
   lda     #$00
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  sta     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x  
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
 
@@ -251,7 +251,7 @@ out:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x  
+  lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x  
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x  
@@ -276,7 +276,7 @@ out:
 .proc xfree_clear_busy_chunk
   lda     #$00
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x  
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x  
+  sta     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x  
 
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x

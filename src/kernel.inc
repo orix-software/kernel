@@ -75,6 +75,27 @@ KERNEL_END_PROCESS_VARIABLES:
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
 .endif    
 
+.org $282
+; Was VDTPIL
+
+
+.org $2AE
+IOTAB:
+    .res 4 ; KERNEL_SIZE_IOTAB
+KERNEL_ADIOB:
+    .res 8
+kernel_malloc_busy_begin:
+    .tag kernel_malloc_busy_begin_struct    
+    .out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
+kernel_malloc_free_size:
+    .tag kernel_malloc_free_chunk_size_struct
+kernel_xmalloc_call:
+.res 40 ; XMALLOC_ROUTINE_TO_RAM_OVERLAY    
+KERNEL_ADIOB_END:    
+.if  KERNEL_ADIOB_END > VNMI
+  .error  "Error malloc table overlap VNMI"
+.endif    
+
 .bss
 .org $4C7
  
@@ -126,9 +147,7 @@ ORIX_ARGC:
 KERNEL_DRIVER_MEMORY:
     .res 165
 
-.out     .sprintf("ORIX_ARGV  : %x", ORIX_ARGV)
-.out     .sprintf("ORIX_ARGC  : %x", ORIX_ARGC)
-.out     .sprintf("Malloc table begin : %x",kernel_malloc)
+
 .ifdef WITH_DEBUG
 kernel_debug:
     .tag    kernel_debug_struct

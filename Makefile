@@ -16,6 +16,18 @@ PROGRAM_NAME=kernel
 
 MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
+ifeq ($(CC65_HOME),)
+        CC = cl65
+        AS = ca65
+        LD = ld65
+        AR = ar65
+else
+        CC = $(CC65_HOME)/bin/cl65
+        AS = $(CC65_HOME)/bin/ca65
+        LD = $(CC65_HOME)/bin/ld65
+        AR = $(CC65_HOME)/bin/ar65
+endif
+
 ifdef TRAVIS_BRANCH
 ifeq ($(TRAVIS_BRANCH), master)
 RELEASE:=$(shell cat VERSION)
@@ -44,13 +56,13 @@ kernel: $(SOURCE)
 	@echo Build kernelsd.rom for Telestrat
 	
 	
-	$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS)
-	@ld65 -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
+	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS)
+	@$(LD) -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 	@echo Build kernelsd.rom for Twilighte board
 
 
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
+	@$(LD) -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym
 	@cp kernelsd.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.sym  $(PATH_PACKAGE_ROM)/
@@ -60,7 +72,7 @@ kernel: $(SOURCE)
 	@echo Build kernelus.rom for Twilighte board
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
+	@$(LD) -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
 
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelus.sym| sort > kernelus2.sym
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
@@ -71,7 +83,7 @@ kernel: $(SOURCE)
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelu0.lst
 	@echo "WITH_ACIA=">>$(PATH_PACKAGE_ROM)/kernelu0.lst
 	@$(AS) --verbose -s -tnone --debug-info -o kernelu0.ld65 -DWITH_ACIA=1  $(SOURCE) $(ASFLAGS) 
-	@ld65 -tnone kernelu0.ld65 -m kernelu0.map -o kernelu0.rom -DWITH_TWILIGHTE_BOARD=1 -DWITH_ACIA=1 -Ln kernelu0.sym
+	@$(LD) -tnone kernelu0.ld65 -m kernelu0.map -o kernelu0.rom -DWITH_TWILIGHTE_BOARD=1 -DWITH_ACIA=1 -Ln kernelu0.sym
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelu0.sym| sort > kernelu02.sym
 	@cp kernelu0.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelu0.sym  $(PATH_PACKAGE_ROM)/

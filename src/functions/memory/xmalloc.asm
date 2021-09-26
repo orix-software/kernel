@@ -95,7 +95,7 @@
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    sta     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
 
 
@@ -147,21 +147,11 @@
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 @skip4:
     
-    lda     KERNEL_MALLOC_TYPE 
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_type,x
+  ;  lda     KERNEL_MALLOC_TYPE 
+   ; sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_type,x
 
-    ; register process in malloc table 
-    ;lda     KERNEL_MALLOC_TYPE
-    ;cmp     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE ; Is it a kernel create process ?
-    ;beq     @not_kernel_create_process_malloc
     
-    ;lda     #$01   ; store init process in malloc_pid_list
-    ;bne     @store
-
-;@not_kernel_create_process_malloc:    
     lda     kernel_process+kernel_process_struct::kernel_current_process
-  ;  bne     @store
-  ;  lda     #$FF ; init
 @store:      
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
 
@@ -172,7 +162,7 @@
     sta     KERNEL_MALLOC_TYPE  
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     ; Debug
 
 .ifdef WITH_DEBUG2
@@ -180,7 +170,7 @@
     jsr     xdebug_enter_XMALLOC_return_adress
     jsr     xdebug_send_ay_to_printer
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     jsr     kdebug_restore
 .endif  
 

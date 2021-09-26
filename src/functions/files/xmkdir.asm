@@ -37,7 +37,7 @@
     beq     @mend       
     cmp     #"/"
     beq     @launch_xopen 
-                 ; we reached 0 value
+    ; we reached 0 value
     jsr     XMINMA_ROUTINE
     sta     CH376_DATA
     iny
