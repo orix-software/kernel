@@ -3,9 +3,18 @@
 ; [IN] AY contains the length to write
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [MODIFIED] TR0,PTR_READ_DEST, YA
+; Xcontains the fp
+
 ; fwrite( void * restrict buffer, size_t blocSize, FILE * restrict stream );
 ; [UNCHANGED] X
   jsr     _ch376_set_bytes_write
+
+  ; Save PTR_READ_DEST to compute bytes
+  lda     PTR_READ_DEST
+  sta     RES
+
+  lda     PTR_READ_DEST+1
+  sta     RES+1
 
 @continue:
   cmp     #CH376_USB_INT_DISK_WRITE  ; something to read
@@ -32,6 +41,15 @@
 
 @finished:
   ; at this step PTR_READ_DEST is updated
+  ;  Compute nb of bytes read
+  lda     PTR_READ_DEST+1
+  sec
+  sbc     RES+1
+  tax
+  lda     PTR_READ_DEST
+  sec
+  sbc     RES
+
   rts	
 
 @we_write:

@@ -1,8 +1,7 @@
 .proc XREADBYTES_ROUTINE
 ; [IN] AY contains the length to read
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
-; [IN] TR0 contains the fd id 
-; [IN] RES contains the FD (not managed)
+; [IN] X contains the fd id 
 
 ; [OUT]  PTR_READ_DEST updated
 ; [OUT]  A could contains 0 or the CH376 state
@@ -11,6 +10,14 @@
 
 
   jsr     _ch376_set_bytes_read
+
+  ; Save PTR_READ_DEST to compute bytes
+  lda     PTR_READ_DEST
+  sta     RES
+
+  lda     PTR_READ_DEST+1
+  sta     RES+1
+
 @continue:
   cmp     #CH376_USB_INT_DISK_READ  ; something to read
   beq     @readme
@@ -38,6 +45,16 @@
 
 @finished:
   ; at this step PTR_READ_DEST is updated
+  ; return now length
+  ;  Compute nb of bytes read
+  lda     PTR_READ_DEST+1
+  sec
+  sbc     RES+1
+  tax
+  lda     PTR_READ_DEST
+  sec
+  sbc     RES
+
   rts	
 
 @we_read:
