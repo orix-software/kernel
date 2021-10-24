@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2021.4"
+.define VERSION "2022.1"
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
 ADIODB_LENGTH=$08
@@ -67,15 +67,11 @@ FLPO0  := $87
 
 PARSE_VECTOR:=$FFF1
 
-ACIADR := $031C ; DATA REGISTER
-ACIASR := $031D ; STATUS REGISTER
-ACIACR := $031E ; command register
-ACIACT := $031F ; control register
-
 .org      $C000
 .code
 start_rom:
 .proc _main
+
   sei
   cld
   ldx     #$FF
@@ -203,28 +199,13 @@ loading_vectors_telemon:
   bne     @loop2
 
   
-; Bug here
-DEBUGME:
 
 
-
-compute_rom_ram:
+set_buffers:
 ; this code sets buffers
-  lda     #$00   ; Start from 0
-
-@loop:
-  pha
-  tax     ; first loop X=0, it means that XDEFBU_ROUTINE call will set the first buffer in overlayram
-
+  ldx     #$00   ; Start from 0
   jsr     XDEFBU_ROUTINE 
 
-  pla
-  clc
-  adc     #$0C
-  cmp     #$30
-  bne     @loop
- 
-  jsr     XDEFBU_ROUTINE 
 skip:
 
  
@@ -494,21 +475,11 @@ str_name_process_kernel:  ; if you modify this default, you must change struct t
 str_default_path:         ; if you modify this default, you must change struct too in process.inc
   .asciiz "/"  
  
-telemon_convert_to_decimal:
-; FIXME macro
-  ;ldy     #$00 ; 00
-  ldx     #$20 ;
-  stx     DEFAFF
-  ldx     #$01
-  jmp     XDECIM_ROUTINE 
-
 init_via:
   lda     #$7F 
   sta     VIA::IER ; Initialize via1
   sta     VIA2::IER ; Initialize via2
-  
-
-
+ 
   lda     #$FF
   sta     VIA::DDRA
   
@@ -604,25 +575,16 @@ str_tofix:
   .byt     $0D,$18,$00
 
 
-
-  
 XDEFBU_ROUTINE:
   stx     RESB ; store the id of the buffer to set
-  txa     ; save A
-  ldx     #$FF 
-@loop:
-  sec
-  sbc     #$03 ; let's loop to get the right buffer table 
-  inx
-  bcs     @loop
 
-  lda     orix_buffer_table,x
+  lda     #<TELEMON_KEYBOARD_BUFFER_BEGIN
   sta     RES
-  lda     orix_buffer_table+1,x ; Get high adress of the buffer
+  lda     #>TELEMON_KEYBOARD_BUFFER_BEGIN ; Get high adress of the buffer
   sta     RES+1
   
-  lda     end_keyboard_buffer,x
-  ldy     end_keyboard_buffer+1,x 
+  lda     #<TELEMON_KEYBOARD_BUFFER_END
+  ldy     #>TELEMON_KEYBOARD_BUFFER_END
 
   ldx     RESB
 
@@ -955,17 +917,6 @@ routine_to_define_16:
   lda     IRQSVP
   rts
 
-  
-orix_buffer_table:
-  .byt    <TELEMON_KEYBOARD_BUFFER_BEGIN,>TELEMON_KEYBOARD_BUFFER_BEGIN        ; Keyboard buffer begin $c5c4
-end_keyboard_buffer:
-  .byt    <TELEMON_KEYBOARD_BUFFER_END,>TELEMON_KEYBOARD_BUFFER_END            ; keyboard buffer end $c680
-  .byt    <TELEMON_ACIA_BUFFER_INPUT_BEGIN,>TELEMON_ACIA_BUFFER_INPUT_BEGIN    ; buffer acia input begin
-  .byt    <TELEMON_ACIA_BUFFER_INPUT_END,>TELEMON_ACIA_BUFFER_INPUT_END        ; buffer acia input end
-  .byt    <TELEMON_ACIA_BUFFER_OUTPUT_BEGIN,>TELEMON_ACIA_BUFFER_OUTPUT_BEGIN  ; buffer acia output begin
-  .byt    <TELEMON_ACIA_BUFFER_OUTPUT_END,>TELEMON_ACIA_BUFFER_OUTPUT_END      ; buffer acia output end
-  .byt    <TELEMON_PRINTER_BUFFER_BEGIN,>TELEMON_PRINTER_BUFFER_BEGIN          ; buffer printer output begin
-  .byt    <TELEMON_PRINTER_BUFFER_END,>TELEMON_PRINTER_BUFFER_END              ; buffer printer output end
 
 .include  "functions/xcrlf.asm"
 .include  "functions/XWRx.asm"
@@ -1106,24 +1057,19 @@ reset115_labels:
   ldx     IRQSVX
 .endif
   rti
-next200
+next200:
   lda     IRQSVP ; fetch P flag
   pha ; push P flag to return in correct state
-LC8B6    
+LC8B6:   
   sec
   ror     TRANSITION_RS232
-LC8B9
-  jsr     routine_to_define_12
+LC8B9:
 .ifdef    WITH_MULTITASKING
   jsr     _multitasking
 .endif
   jmp     LC9b9  
 
 
-; routine BRK ?
-routine_to_define_12:
-
-  rts
 
 Lc91e:
   dec     FLGCLK_FLAG
@@ -1228,7 +1174,6 @@ next110:
   dec     KEYBOARD_COUNTER
   bne     next113 
   jsr     _manage_keyboard 
-  jsr     routine_to_define_12
   bit     KBDFLG_KEY 
   bpl     @S3
   lda     #$14 
@@ -1459,7 +1404,7 @@ vectors_telemon:
   .byt     <XBUSY_ROUTINE,>XBUSY_ROUTINE   ; $5a
   .byt     <XMALLOC_ROUTINE,>XMALLOC_ROUTINE                         ; $5b
   .byt     <XSDUMP_ROUTINE,>XSDUMP_ROUTINE ; $5c
-  .byt     <XCONSO_ROUTINE,>XCONSO_ROUTINE ; $5d
+  .byt     <$00,>$00 ; $5d
   .byt     <XSLOAD_ROUTINE,>XSLOAD_ROUTINE ; $5e
   .byt     <XSSAVE_ROUTINE,>XSSAVE_ROUTINE ; $5f
   .byt     <XMLOAD_ROUTINE,>XMLOAD_ROUTINE ; $60 
@@ -1820,11 +1765,10 @@ CTRL_O_KEYBOARD:
 
 .include "functions/_manage_keyboard.asm"
 
-next75
+next75:
   jmp     manage_function_key
 
 XKBDAS_ROUTINE:
-  jsr     routine_to_define_12 ; manage rs232
   lda     #$00
   pha
   lda     KBDFLG_KEY 
@@ -2093,6 +2037,7 @@ init_keyboard:
 send_14_paramaters_to_psg  
   clc
   .byt    $24
+  ; Use for rambo ?
 XSONPS_ROUTINE:
   sec
   php
@@ -2134,7 +2079,7 @@ XSONPS_ROUTINE:
   
 
 
-init_printer
+init_printer:
   lda     #$07
   ldx     #$7F
   jmp     XEPSG_ROUTINE
@@ -2175,40 +2120,17 @@ Ldb09:
 
 
 Ldb12:
-;
-;                        GESTION DE LA SORTIE MINITEL                           I
-;                                                                               I
-;                                                                               I
-;Principe:N'étant guère familiarisé avec les modes de fonctionnement de l'ACIA, I
-;         je vous donne le source mais je serais bien incapable d'expliciter    I
-;         les modifications d'ACIACR et d'ACIACT, registres de controle et de   I
-;         commande de l'ACIA 6551.                                              I
-;                                                                               I
-;
-                          ;                                     I
-  bmi     LDB3A           ;     ouverture-fermeture  ---------------------------- I
-  tax                     ;     donnee dans X                                   I I
-  bpl     LDB26           ;      si <128, on passe ----------------------       I I
-  cmp     #$C0            ;      sinon, c'est <128+64 ?                 I       I I
-  bcs     LDB26           ;                                             I       I I
-  ora     #$40            ;    oui, on force b7                         I       I I
-  pha                     ;                                             I       I I
-  lda     #$1B            ;    et on envoie un ESC avant                I       I I
-  ldx     #$18            ;      la donnée                              I       I I
-  jsr     XECRBU_ROUTINE  ;                                             I       I I
-  pla                     ;                                             I       I I
-LDB26
+  rts
+
+LDB26:
   pha                     ;     <---------------------------------------        I I
   ldx     #$18            ;     on envoie la donnée                             I I
   jsr     XECRBU_ROUTINE  ;     dans le BUFFER ACIA sortie                      I I
   pla                     ;                                                     I I 
   bcs     LDB26           ;     si la donnée n'a pas été écrite, on boucle      I I
-LDB2F
-
-
-
+LDB2F:
   rts
-                          ;                                      < I
+
 LDB3A:
   bcs     LDB53           ;     C=1 on ferme ==================================  I
 
@@ -3798,7 +3720,7 @@ wait_code_on_SERIAL_BUFFER_INPUT:
   bcs     @loop
   rts
 
-write_caracter_in_output_serial_buffer
+write_caracter_in_output_serial_buffer:
   bit     write_caracter_in_output_serial_buffer
   jmp     LDB79
 
@@ -3845,8 +3767,8 @@ send_A_to_serial_output_with_check:
   jsr     send_a_to_minitel
   jmp     LEC61
 Lec5e:
-  jsr     write_caracter_in_output_serial_buffer
-LEC61  
+
+LEC61:
   pla
   eor     TR2
   sta     TR2
@@ -3989,8 +3911,7 @@ LED24
 read_header_file:
   jmp     Ldbb5
 
- 
-.include "functions/serial/xconso.asm"   
+
 .include "functions/serial/xsdump.asm"   
 .include "functions/serial/xssave.asm"   
 .include "functions/serial/xmsave.asm"   
@@ -5755,14 +5676,9 @@ read_a_code_in_15_and_y:
 @skip:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
-
 XMALLOC_ROUTINE_ENTER_POINT:
-  ;@me:
-    ;jmp   @me
   jsr     kernel_xmalloc_call
   rts
-
-
 
 ; ROutine copied in page 2
 page2_xmalloc_call:  
@@ -5800,7 +5716,7 @@ copy_ramoverlay_end:
 ; end of COPY_OVERLAY8RAM
 
 .if     ramoverlay_xmalloc_end-ramoverlay_xmalloc> 255
-  .error  "XMalloc can't be copied into RAMOVERLAY"
+  .error  "XMALLOC can't be copied into RAMOVERLAY"
 .endif
 
 .if     ramoverlay_xfree_end-ramoverlay_xfree> 512
@@ -5816,7 +5732,6 @@ copy_ramoverlay_end:
 ; Byte for compile options
 kernel_compile_option:
   .byt    KERN_SDCARD_FOR_ROOT_CONFIG
-
 
 version:
   .asciiz VERSION
