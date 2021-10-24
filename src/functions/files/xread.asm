@@ -7,16 +7,19 @@
 ; [OUT]  A could contains 0 or the CH376 state
 ; [OUT]  Y contains the last size of bytes 
 
+  ; Save PTR_READ_DEST to compute bytes
+  pha
+  lda     PTR_READ_DEST
+  sta     RES
+;
+  lda     PTR_READ_DEST+1
+  sta     RES+1
+  pla
 
 
   jsr     _ch376_set_bytes_read
 
-  ; Save PTR_READ_DEST to compute bytes
-  lda     PTR_READ_DEST
-  sta     RES
 
-  lda     PTR_READ_DEST+1
-  sta     RES+1
 
 @continue:
   cmp     #CH376_USB_INT_DISK_READ  ; something to read
