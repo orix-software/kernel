@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2022.1"
+.define VERSION "2021.4.1"
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
 ADIODB_LENGTH=$08
@@ -504,7 +504,10 @@ init_via:
 
 loading_code_to_page_6:
   ; At this step we will copy into ram overlay
-  lda     #$00 ; 2 bytes
+  lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
+  ;lda     #$00 ; 2 bytes
+  and     #%11111000
+
   sta     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
 
   lda     #$00
@@ -525,8 +528,12 @@ loading_code_to_page_6:
 
 
 end_proc_init_rams:
-  ldx     #$07 ; loops with all banks
-  stx     VIA2::PRA ; Switch to each Bank ;
+  ;ldx     #$07 ; loops with all banks
+  lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
+  ;lda     #$00 ; 2 bytes
+  ora     #%00000111 ; Bank 7
+
+  sta     VIA2::PRA ; Switch to each Bank ;
   rts
 
 
@@ -553,7 +560,7 @@ str_telestrat:
   .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     "   CPU:6502"
+  .byte     " CPU:6502"
 .endif
   .byt     $00 ; end of string
 
