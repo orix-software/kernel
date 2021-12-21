@@ -50,7 +50,8 @@
 
 
   jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
-   
+
+
   ; we reached max process to launch ?
   lda     KERNEL_ERRNO
   cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED

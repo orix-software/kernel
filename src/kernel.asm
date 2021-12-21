@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2021.4.1"
+.define VERSION "2022.1"
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
 ADIODB_LENGTH=$08
@@ -39,11 +39,9 @@ ADIODB_LENGTH=$08
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 
-KERNEL_XOPEN_PTR1        := $04 ; DECBIN
-KERNEL_XOPEN_PTR2        := $06 ; DECFIN
-
+KERNEL_XOPEN_PTR1          := $04 ; DECBIN
+KERNEL_XOPEN_PTR2          := $06 ; DECFIN
 KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
-
 XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
 XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
 
@@ -117,23 +115,61 @@ start_rom:
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
+.ifdef WITH_DEBUG_BOARD
+  lda     #'M'
+  sta     $bb80+13
+  .endif
+
   jsr     init_screens
   
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'N'
+  sta     $bb80+14
+  .endif
+
+
   jsr     XLOADCHARSET_ROUTINE
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'O'
+  sta     $bb80+15
+  .endif
 
   jsr     XALLKB_ROUTINE
 
-  ldx     #XMALLOC_ROUTINE_TO_RAM_OVERLAY
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'P'
+  sta     $bb80+16
+  .endif
+
+  ldx     #$00
 @myloop:  
 
   lda     page2_xmalloc_call,x
-  sta     kernel_xmalloc_call,x
-  dex
-  bpl     @myloop
+ ; sta     kernel_xmalloc_call,x
+  inx
+  cpx     #XMALLOC_ROUTINE_TO_RAM_OVERLAY
+  
+  bne     @myloop
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'Q'
+  sta     $bb80+17
+  .endif
 
   jsr     init_via
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'R'
+  sta     $bb80+18
+  .endif
+
   jsr     init_printer 
 
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'S'
+  sta     $bb80+19
+  .endif
 
 
   ldx     #(KERNEL_SIZE_IOTAB-1)
@@ -188,6 +224,11 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
 
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'T'
+  sta     $bb80+20
+  .endif
+
 ; Just fill ram with BUFROU
   jsr     $0600
 
@@ -198,13 +239,22 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop2
 
-  
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'U'
+  sta     $bb80+21
+  .endif
 
 
 set_buffers:
 ; this code sets buffers
   ldx     #$00   ; Start from 0
   jsr     XDEFBU_ROUTINE 
+
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'A'
+  sta     $bb80
+  .endif
 
 skip:
 
@@ -216,7 +266,17 @@ skip:
   dex
   bpl     @loop
 
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'B'
+  sta     $bb80+1
+  .endif
+
   jsr     init_keyboard
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'C'
+  sta     $bb80+2
+  .endif
 
 next5:
 
@@ -228,12 +288,27 @@ next5:
   sta     FLGTEL
 @skip:
 
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'D'
+  sta     $bb80+3
+  .endif
 
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
   
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'E'
+  sta     $bb80+4
+  .endif
+
   lda     #$82 ; Setup screen !  on channel 0
   BRK_TELEMON XOP0 
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'F'
+  sta     $bb80+5
+  .endif
+
 
   BRK_TELEMON XRECLK  ; Don't know this vector
   
@@ -266,9 +341,19 @@ don_t_display_telemon_signature:
   BRK_TELEMON XWSTR0
 
   ;JSR $0600 ; CORRECTME
-    
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'V'
+  sta     $bb80+22
+  .endif
+
 don_t_display_signature:
   jsr     routine_to_define_19
+
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'W'
+  sta     $bb80+23
+  .endif
 
   
 display_cursor:
@@ -348,7 +433,7 @@ init_process_init_cwd_in_struct:
 ;*                                                     init malloc table in memory                                        */
 ;**************************************************************************************************************************/    
 
-;orix_end_memory_kernel:=BUFEDT+MAX_BUFEDT_LENGTH+1
+
 
 ; new init malloc table 
   ldx     #$00
@@ -421,6 +506,10 @@ launch_systemd:
   jsr     _XEXEC ; start shell
 .endif
 
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'X'
+  sta     $bb80+24
+  .endif
 
 launch_command:
   jsr     XCRLF_ROUTINE
@@ -428,7 +517,7 @@ launch_command:
   sta     RES
   lda     #>str_binary_to_start
   sta     RES+1
-  ; copy to BUFEDT
+
   ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
   ldy     #$00
 @L1:  
@@ -503,6 +592,11 @@ init_via:
   rts
 
 loading_code_to_page_6:
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'Y'
+  sta     $bb80+25
+  .endif
+
   ; At this step we will copy into ram overlay
   lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
   ;lda     #$00 ; 2 bytes
@@ -528,11 +622,15 @@ loading_code_to_page_6:
 
 
 end_proc_init_rams:
-  ;ldx     #$07 ; loops with all banks
-  lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
-  ;lda     #$00 ; 2 bytes
-  ora     #%00000111 ; Bank 7
 
+  .ifdef WITH_DEBUG_BOARD
+  lda     #'Z'
+  sta     $bb80+26
+  .endif
+
+  
+  lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
+  ora     #%00000111 ; Bank 7
   sta     VIA2::PRA ; Switch to each Bank ;
   rts
 
@@ -560,12 +658,12 @@ str_telestrat:
   .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     " CPU:6502"
+  .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
 kernel_memory_driver_to_copy_begin: 
-.include "functions/memory/memory_driver.asm"
+  .include "functions/memory/memory_driver.asm"
 kernel_memory_driver_to_copy_end:
   
 .warning     .sprintf("Size of memory driver  : %d bytes, verify in kernel.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
@@ -3151,7 +3249,7 @@ LE361:
   cmp     ACC1E ; FIXME label
   bcs     Le378
   lda     #$00    ; FIXME 65c02
- ; sta     BUFEDT
+
   rts
 Le378  
 
@@ -3180,7 +3278,7 @@ Le398:
   sta     (RES),y
   bne     Le3b1
 @S1:
-;  sta     BUFEDT,x
+
   inc     MENX
   cpx     ACC1J
   bcc     Le3b1
@@ -3196,7 +3294,7 @@ Le3b1:
   bne     Le390
   ldx     MENX
   lda     #$00        ; FIXME 65C02
-  ;sta     BUFEDT,x
+  
   rts
 Le3c5:
   ldx     SCRNB
@@ -3217,12 +3315,12 @@ display_bufedt_content:
   ldy     SCRX,x
 Le3e3:
   ldx     MENX ; fixme
-  ;lda     BUFEDT,x
+
   beq     Le41c 
   lda     #$20
   bit     ACC1EX
   bmi     @S1
-  ;lda     BUFEDT,x
+
   bpl     @S1
   cmp     #$A0
   bcs     @S1

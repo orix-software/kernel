@@ -2,11 +2,14 @@
 
 .define KERNEL_CREATE_FREE_CHUNK $01
 
+; AY contains ptr
+
+
 .proc XFREE_ROUTINE
 
     sta     KERNEL_XFREE_TMP    ; Save A (low)
 
-.ifdef WITH_DEBUG2
+.ifdef WITH_DEBUG3
     jsr     kdebug_save
     
     lda     KERNEL_XFREE_TMP
@@ -21,7 +24,7 @@
   lda     #$01
   sta     TR5 ; TR0 contains the next free chunk
 
-.ifdef WITH_DEBUG2
+.ifdef WITH_DEBUG
   jsr     kdebug_save
   jsr     xdebug_lsmem
   jsr     kdebug_restore
@@ -50,10 +53,10 @@
   jsr     xdebug_enter_not_found
 .endif
     
-.ifdef WITH_DEBUG2
-  jsr     kdebug_save
-  jsr     xdebug_lsmem
-  jsr     kdebug_restore
+.ifdef WITH_DEBUG
+  ;jsr     kdebug_save
+  ;jsr     xdebug_lsmem
+  ;jsr     kdebug_restore
 .endif
   lda     #NULL
   
@@ -164,6 +167,8 @@
  
   ; update size
 
+
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   clc
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
@@ -175,6 +180,7 @@
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
   pla
 @do_not_inc:
+
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
 
 
@@ -208,15 +214,19 @@
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+
+  ; $1B
+  ; Update the main memory chunk
+  ; Y=2
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y ; $98 (Y=2)
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $1B
   bcc     @do_not_inc2
   pha
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y; $00  (Y=2); It should be better here but inc does not manage inc $xx,y	
   clc
   adc     #$01
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $01
   pla
 @do_not_inc2:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
@@ -296,10 +306,12 @@ out:
   beq     @next_free
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   beq     @next_free
-  ; FIXME 65C02, use 'dec A'
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  ; FIXME 65C02, use 'dec A'
   clc
   adc     #$01
+
   bcc     @skip_inc_high
   inc     RES
   ; X contains the index of the busy chunk found
@@ -322,12 +334,20 @@ out:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
-
+  ; Compute size
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
   clc
   adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
+
+; [lsmem state]
+; Free:#07F6:B3FF #AC0D
+; Busy:#06C2:0734 #0072
+; Busy#0735:075B #0026
+; Busy:#075C:07C0 #0064
+; Busy:#07C1:07F5 #0034
+
   pha
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
   clc
@@ -336,6 +356,9 @@ out:
   pla
 @do_not_inc:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+
+
+
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
   clc

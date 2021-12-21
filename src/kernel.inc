@@ -1,7 +1,6 @@
 BASH_MAX_ARGS                      = 3       ;  Number of possible args in the command line
-
-BASH_MAX_BUFEDT_LENGTH         = 110
-userzp                  := VARLNG
+BASH_MAX_BUFEDT_LENGTH             = 110
+userzp                             := VARLNG
 
 RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
 
@@ -29,11 +28,6 @@ KBD_UNKNOWN   :=$271  ;FIXME
 FUFTRV=$0100; working Buffer 
 
 NULL = 0
-;#define FILE_OPEN_TABLE $D000 
-
-; #define BUF1   $C100 ; Stratsed buffer
-
-;#define BUFBUF $C080 ; buffers definition
 BUFROU:= $C500 ; Routines for buffers gestion
 
 
@@ -90,7 +84,7 @@ kernel_malloc_busy_begin:
 kernel_malloc_free_size:
     .tag kernel_malloc_free_chunk_size_struct
 kernel_xmalloc_call:
-.res 40 ; XMALLOC_ROUTINE_TO_RAM_OVERLAY    
+    .res 40 ; XMALLOC_ROUTINE_TO_RAM_OVERLAY    
 KERNEL_ADIOB_END:    
 .if  KERNEL_ADIOB_END > VNMI
   .error  "Error malloc table overlap VNMI"
@@ -121,7 +115,7 @@ kernel_end_of_variables_before_BUFNOM:
 
 .bss
 .org BUFNOM
-.res 14
+    .res 14
 kernel_malloc:
     .tag    kernel_malloc_struct
 kernel_process:
@@ -133,17 +127,8 @@ kernel_end_of_variables_before_BUFEDT:
 .endif    
 
 .bss
-
 .org BUFEDT
-;ORIX_ARGV:
-.res 110
-ORIX_ARGV:
-	.res    KERNEL_MAX_LENGTH_OF_FILES*BASH_MAX_ARGS
-; used to check term
-TEMP_ORIX_1:
-    .res 1
-ORIX_ARGC:
-    .res 1
+    .res 110
 KERNEL_DRIVER_MEMORY:
     .res 165
 
