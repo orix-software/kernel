@@ -72,7 +72,8 @@
   ; erreur OOM
   lda     #KERNEL_UNKNOWN_MALLOC_TYPE
   sta     KERNEL_MALLOC_TYPE
-  lda     #$02
+
+  lda     #ENOMEM
   rts
 @S2:
 

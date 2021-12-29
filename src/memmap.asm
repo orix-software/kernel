@@ -16,8 +16,7 @@
 .out     .sprintf("MEMMAP:RAM:FREE=%x-%x:size=%d", KERNEL_ADIOB_END,FLGRST-1,FLGRST-KERNEL_ADIOB_END)
 .out     .sprintf("MEMMAP:RAM:kernel_xmalloc_call: %x-%x",kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
 .out     .sprintf("MEMMAP:RAM:Malloc table begin : %x",kernel_malloc)
-.out     .sprintf("MEMMAP:RAM:ORIX_ARGV=%x", ORIX_ARGV)
-.out     .sprintf("MEMMAP:RAM:ORIX_ARGC=%x", ORIX_ARGC)
+
 
 .out     .sprintf("MEMMAP:BANK7:free_bytes=$%x-$fff0", free_bytes)
 

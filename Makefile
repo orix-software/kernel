@@ -74,6 +74,11 @@ kernel: $(SOURCE)
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) 
 	@$(LD) -tnone kernelus.ld65 -m kernelus.map -o kernelus.rom -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym
 
+	@echo Build kernelud.rom for Twilighte board 
+	@$(AS) --verbose -s -tnone --debug-info -o kernelud.ld65 -DWITH_DEBUG_BOARD=1  $(SOURCE) $(ASFLAGS) 
+	@$(LD) -tnone kernelud.ld65 -m kernelud.map -o kernelud.rom -DWITH_DEBUG_BOARD=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelud.sym
+
+
 	@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelus.sym| sort > kernelus2.sym
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelus.sym  $(PATH_PACKAGE_ROM)/

@@ -11,7 +11,7 @@
 ; Verify if there is enough memory
 ; 
 
-.ifdef WITH_DEBUG2
+.ifdef WITH_DEBUG3
     jsr     kdebug_save
 
     ldx     #XDEBUG_XMALLOC_ENTER_AY

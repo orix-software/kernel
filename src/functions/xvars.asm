@@ -1,17 +1,23 @@
 
-XVARS_ROUTINE:
+.proc XVARS_ROUTINE
+
   lda     XVARS_TABLE_LOW,x
   ldy     XVARS_TABLE_HIGH,x
   rts
 
+.endproc  
+
 
 ; 
 
-.define WHO_AM_IAM $01
+.define WHO_AM_IAM        $01
+.define MALLOC_TABLE_COPY $02
 
 .proc XVALUES_ROUTINE
   cpx     #$00
   bne     @check_who_am_i
+  cpx     #$02
+  beq     @malloc_table_copy
 
   lda     XVARS_TABLE_LOW,x
   sta     RES
@@ -22,6 +28,24 @@ XVARS_ROUTINE:
   ldy     #$00
   lda     (RES),y
   
+  rts
+@malloc_table_copy:
+
+
+  lda     #<(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  ldy     #>(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  jsr     XMALLOC_ROUTINE
+  sta     RES
+  sty     RES+1
+
+  ldy     #$00
+  lda     KERNEL_MAX_NUMBER_OF_MALLOC
+  sta     (RES),y
+
+
+  lda     RES
+  ldy     RES+1
+
   rts
 
 @check_who_am_i:
