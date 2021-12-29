@@ -65,6 +65,11 @@ FLPO0  := $87
 
 PARSE_VECTOR:=$FFF1
 
+; Boot sequence : 
+; 1- init cpu (sei, cld, stack)
+; 2- Flush page 0,2,4,5 : Because on atmos memory are not set to 0, if it's not set to 0, we have strange behavior (as keyboard), don't change it !
+; 3- Launch mount on the device but don't test the result, because we don't care at this step : it's a quick hack to mount quickly mass storage gadget
+
 .org      $C000
 .code
 start_rom:
@@ -104,6 +109,27 @@ start_rom:
   bne     @nloop
 .endif
   ;sty     FLGTEL
+
+  ; Trying to mount 
+
+.ifdef WITH_SDCARD_FOR_ROOT	
+	lda     #CH376_SET_USB_MODE_CODE_SDCARD
+.else	
+  lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
+.endif	
+
+  sta     KERNEL_CH376_MOUNT   
+
+  ;jsr     _ch376_check_exist
+	;cmp     #CH376_DETECTED
+	;bne     @usb_controler_not_detected
+  ; Trying to mount  now ! 
+  ;jsr     _ch376_set_usb_mode_kernel
+  ; Mount but not check
+  ;lda     #CH376_DISK_MOUNT
+  ;sta     CH376_COMMAND
+
+@usb_controler_not_detected:
 
   ; Mapping FILESYS
   lda     #$00
@@ -315,13 +341,7 @@ next5:
   bit     FLGRST ; COLD RESET ?
   bpl     telemon_hot_reset  ; no
   
-.ifdef WITH_SDCARD_FOR_ROOT	
-	lda     #CH376_SET_USB_MODE_CODE_SDCARD
-.else	
-  lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
-.endif	
 
-  sta     KERNEL_CH376_MOUNT   
   ; display telestrat at the first line
   PRINT str_telestrat
 
@@ -1720,17 +1740,17 @@ XBINDX_ROUTINE
 XHEXA_ROUTINE
 .include  "functions/xhexa.asm"  
 
-XMUL40_ROUTINE
+XMUL40_ROUTINE:
 ;[out] AY contains the result (and RES too)
 .include  "functions/xmul40.asm"  
 
-XADRES_ROUTINE
+XADRES_ROUTINE:
 .include  "functions/xadress.asm"
   
-XMULT_ROUTINE
+XMULT_ROUTINE:
 .include  "functions/xmult.asm"  
 
-XDIVIS_ROUTINE  
+XDIVIS_ROUTINE:
 .include  "functions/xdivis.asm"  
 
 
