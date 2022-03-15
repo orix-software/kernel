@@ -10,6 +10,9 @@
        ; f_seek_file .res 4 ; 32 bits offset        
 .endstruct
 
+.struct _KERNEL_FILE_FSTAT
+    st_size .res 4    ;    /* total size, in bytes */
+.endstruct
 
 .struct _EXT_FILE
         f_flags     .byte ; Fopen, closed etc

@@ -3,8 +3,10 @@
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [IN] X contains the fd id 
 
+; Modify : RES, PTR_READ_DEST, TR0
+
 ; [OUT]  PTR_READ_DEST updated
-; [OUT]  A could contains 0 or the CH376 state
+; [OUT]  AX Contains the length read
 ; [OUT]  Y contains the last size of bytes 
 
   ; Save PTR_READ_DEST to compute bytes
@@ -50,13 +52,21 @@
   ; at this step PTR_READ_DEST is updated
   ; return now length
   ;  Compute nb of bytes read
-  lda     PTR_READ_DEST+1
+  
+  
+  lda     PTR_READ_DEST+1 ; 0C7E-0AA4
   sec
   sbc     RES+1
+
   tax
-  lda     PTR_READ_DEST
+  lda     PTR_READ_DEST ; 7E
+ 
   sec
   sbc     RES
+  bcs     @nodecX
+  dex
+
+@nodecX:
 
   rts	
 
@@ -64,8 +74,8 @@
   lda     #CH376_RD_USB_DATA0
   sta     CH376_COMMAND
 
-  lda     CH376_DATA                ; contains length read
-  beq     @finished                  ; we don't have any bytes to read then stops (Assinie report)
+  lda     CH376_DATA                ; The first byte of port data contains length read,
+  beq     @finished                 ; We don't have any bytes to read then stops (Assinie report)
   sta     TR0                       ; Number of bytes to read, storing this value in order to loop
 
   ldy     #$00
@@ -74,7 +84,7 @@
   sta     (PTR_READ_DEST),y         ; send data in the ptr address
   iny                               ; inc next ptr addrss
   cpy     TR0                       ; do we read enough bytes
-  bne     @loop                      ; no we read
+  bne     @loop                     ; no we read
   
   tya                               ; We could do "lda TR0" but TYA is quicker. Add X bytes to A in order to update ptr (Y contains the size of the bytes reads)
   clc                               ; 
