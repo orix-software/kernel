@@ -129,6 +129,7 @@ RESG := ACCPS
     jsr     XFREE_ROUTINE
 
 @kill_and_exit:
+
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
 
@@ -183,7 +184,8 @@ RESG := ACCPS
 
 
 @not_null2:
-    ; RESD contains pointer to header
+
+  ;   RESD contains pointer to header and the length is equal to the file to load
     sta     RESD
     sty     RESD+1
 
@@ -290,10 +292,10 @@ RESG := ACCPS
 ;
     jmp     @run
     
-    
+; Format 1 : static adress   
 @static_file:
     
-    ldy     #15
+    ldy     #15      ; Get the loading address
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
 
@@ -313,14 +315,53 @@ RESG := ACCPS
     lda     (RESD),y ; fixme 65c02    
     sta     RESE+1
 
+    ; Checking if RESD is equal or below than the loading address
+
+    ldy     #14
+    lda     RESD+1    ; Does high byte for malloc ptr is
 
 
 
+    ldy     #15
+    lda     RESD+1    ; Does high byte for malloc ptr is 
+    cmp     (RESD),y  ; greater than the loading adress $7f
+    bcs     @error    ; Yes error, can't not start
+    bne     @start_to_read ; Is it equal ex : loading adress $08 and malloc high adress $08 ? no it means that it's less, let's start program
+    ; it's equal
+
+    ldy     #14 
+    lda     RESD    ; Does high byte for malloc ptr is $7f
+    cmp     (RESD),y  ; greater than the loading adress
+    bcs     @error  
+@start_to_read:
     jsr     @read_program
 
 
 @run:
-    ; save RES
+    jsr     @clean_before_execute
+
+    jsr     @execute
+
+    ; free the length of the binary
+    lda     RESD
+    ldy     RESD+1
+    jsr     XFREE_ROUTINE
+
+    lda     #EOK
+    
+    rts
+@error:
+    ; free the length of the binary
+    lda     RESD
+    ldy     RESD+1
+    jsr     XFREE_ROUTINE
+
+    jsr     @clean_before_execute
+    lda     #ENOEXEC   ; Return format error
+    rts
+
+@clean_before_execute:
+   ; save RES
     lda     RES
     ldy     RES+1
     
@@ -328,10 +369,7 @@ RESG := ACCPS
     sty     RESG+1
 
     ; send cmdline ptr 
-    ; free header
-    lda     RESD
-    ldy     RESD+1
-    jsr     XFREE_ROUTINE
+
 
     lda     RESF
     ldy     RESF+1
@@ -339,11 +377,6 @@ RESG := ACCPS
 
     lda     RESG
     ldy     RESG+1
-
-    jsr     @execute
-
-    lda     #EOK
-    
     rts
 
 @execute:
