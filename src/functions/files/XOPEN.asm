@@ -11,6 +11,16 @@
 
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
   ; Save string in 2 locations RES
+  ; Y contains flag
+  ; O_RDONLY        = $01
+  ; O_WRONLY        = $02
+  ; O_RDWR          = $03
+  ; O_CREAT         = $10
+  ; O_TRUNC         = $20
+  ; O_APPEND        = $40
+  ; O_EXCL          = $80
+
+
   sta     RES
   stx     RES+1
   ; Save ptr
@@ -43,6 +53,10 @@
   txa
   rts
 @L1:
+  
+
+
+
   ldy     #$00
   lda     (RES),y
   ;
@@ -259,16 +273,27 @@
   tax
 
   rts
-
+;XOPEN m'a posé quelques soucis, je pensais utiliser les flags O_RDONLY
+;et O_RDWR ou O_WRONLY, mais O_WRONLY fait une création systématique du
+;fichier et O_RDWR n'est pas pris en charge.
 @could_be_created:
+  lda     XOPEN_FLAGS
+  and     #O_CREAT
+  cmp     #O_CREAT
+  bne     @write_only_test
+
+  jsr     _ch376_file_create
+
+@write_only_test:
   lda     XOPEN_FLAGS
   and     #O_WRONLY
   cmp     #O_WRONLY
   beq     @write_only
   ; not write
-  bne     @open_and_register_fp 
-@write_only  
-  jsr     _ch376_file_create
+  ;bne     @open_and_register_fp 
+
+
+@write_only:
 @open_and_register_fp:
 
 
@@ -348,13 +373,15 @@
   rts  
   ; not found
 @found_fp_slot:
-  lda     kernel_process+kernel_process_struct::kernel_current_process
-  sta     kernel_process+kernel_process_struct::kernel_fd,x
+  lda     kernel_process+kernel_process_struct::kernel_current_process ; Get the current process
+  sta     kernel_process+kernel_process_struct::kernel_fd,x ; and store in fd slot the id of the process
   txa
   clc
   adc     #KERNEL_FIRST_FD
+  ; Store the id of the fp opened in ch376
+  stx     kernel_process+kernel_process_struct::kernel_fd_opened 
 
-  
+
 .ifdef WITH_DEBUG2
   pha
   ldx     #XDEBUG_FD
