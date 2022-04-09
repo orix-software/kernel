@@ -245,14 +245,19 @@
   lda     FILESYS_BANK
   beq     @filesys_bank_not_found
 
-  ;lda     #'A'
-  ;sta     $bb80
-
+  ; Flag     | File exists | behaviour
+  ; O_WRONLY |    No       | return Null
+  ; O_WRONLY |    Yes      | open and return FD
+  ; O_RDONLY |    Yes      | open and return FD
+  ; O_WRONLY |    No       | return Null
+  ; O_CREAT  |    No       | Create file and open  
+  ; O_CREAT  |    Yes      | Create file and open 
 
 @filesys_bank_not_found:
   lda     XOPEN_FLAGS ; Get flags
+ ; and     #O_RDONLY
   cmp     #O_RDONLY
-  bne     @could_be_created
+  bne     @could_be_created , 
 
 @exit_open_with_null:
 
