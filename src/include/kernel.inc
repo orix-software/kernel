@@ -17,7 +17,7 @@
 
 .define KERNEL_MAX_PATH_LENGTH                    9*PATH_CURRENT_MAX_LEVEL+MAX_LENGTH_OF_FILES ;	 
 
-.out     .sprintf("KERNEL_MAX_PATH_LENGTH                                  : %s", .string(KERNEL_MAX_PATH_LENGTH))
+.out     .sprintf("KERNEL_MAX_PATH_LENGTH                                   : %s bytes ", .string(KERNEL_MAX_PATH_LENGTH))
 
 .define KERNEL_MAX_LENGTH_BUFEDT    ORIX_MAX_PATH_LENGTH+9
 

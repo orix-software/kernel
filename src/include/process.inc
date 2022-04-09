@@ -1,8 +1,8 @@
 .define KERNEL_MAX_PROCESS	                       4  ; max 84 because kernel_process_struct is handle with 8 bits offsets
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS         1
 .define KERNEL_MAX_LENGTH_COMMAND                  8
-.define KERNEL_MAX_FP_PER_PROCESS                  1  ; Can't be greater than KERNEL_MAX_FP
-.define KERNEL_MAX_FP                              1  ; Max filepointer available can
+.define KERNEL_MAX_FP_PER_PROCESS                  2  ; Can't be greater than KERNEL_MAX_FP
+.define KERNEL_MAX_FP                              2  ; Max filepointer available can
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
 .define KERNEL_LENGTH_MAX_CMDLINE                  37
 
@@ -24,6 +24,7 @@
 
 ; kernel_pid_list contains the id of the process it means that if the current process is 5, 
 
+; Init struct
 .struct kernel_process_struct
   ; don't move kernel_pid_list in an other line because it breaks ps and lsmem
   kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID when the byte is equal to 0, it means that this is free, it store the index
@@ -35,13 +36,14 @@
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
   ; kernel_fd contains ...
   kernel_fd                            .res KERNEL_MAX_FP
+  kernel_fd_opened                     .res 1 ; the id of the current fd opened
   ;kernel_next_fd                       .res 1
   ;kernel_max_process_value             .res 1
 .endstruct
 
 .out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
 .out     .sprintf("KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): %s", .string(KERNEL_MAX_FP_PER_PROCESS))
-.out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s", .string(KERNEL_USERZP_SAVE_LENGTH))
+.out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s bytes", .string(KERNEL_USERZP_SAVE_LENGTH))
 .out     .sprintf("KERNEL_LENGTH_MAX_CMDLINE                                : %s", .string(KERNEL_LENGTH_MAX_CMDLINE))
 
 .out     .sprintf("kernel_process_struct size (struct init process)         : %s bytes", .string(.sizeof(kernel_process_struct)))

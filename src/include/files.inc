@@ -7,8 +7,16 @@
         f_pushback  .byte
         f_path      .res KERNEL_MAX_PATH_LENGTH
         ; When f_path is after f_seek_file here , XOPEN is broken ... BUG, FIXME
-       ; f_seek_file .res 4 ; 32 bits offset        
+        f_seek_file .res 4 ; 32 bits offset        
 .endstruct
+
+
+
+.out     "=================================================================="
+.out     "File memory"
+.out     "=================================================================="
+.out     .sprintf("_KERNEL_FILE size (One fp struct) : %s bytes",  .string(.sizeof(_KERNEL_FILE)))
+
 
 
 .struct _EXT_FILE

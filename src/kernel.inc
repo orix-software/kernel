@@ -113,15 +113,19 @@ kernel_end_of_variables_before_BUFNOM:
   .error  "Error BUFNOM is written by kernel variables try to move some variables in kernel.inc after BUFNOM or BUFEDT"
 .endif    
 
+.out     .sprintf("kernel_end_of_variables_before_BUFNOM : %x", kernel_end_of_variables_before_BUFNOM)
+
 .bss
 .org BUFNOM
     .res 14
+.out     .sprintf("BUFNOM address : %x", BUFNOM)
 kernel_malloc:
     .tag    kernel_malloc_struct
 kernel_process:
     .tag    kernel_process_struct
     
 kernel_end_of_variables_before_BUFEDT:    
+.out     .sprintf("kernel_end_of_variables_before_BUFEDT : %x", kernel_end_of_variables_before_BUFEDT)
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
   .error  "Error BUFEDT is written by kernel variables try to move some variables in kernel.inc after $590"
 .endif    
