@@ -10,10 +10,10 @@
 .out     .sprintf("MEMMAP:RAM:kernel_xmalloc_call             : $%x-$%x",kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
 .out     .sprintf("MEMMAP:RAM:Malloc table begin              : $%x",kernel_malloc)
 
-.out     .sprintf("# Bank 7")
+.out     .sprintf("#MEMMAP:Bank 7")
 .out     .sprintf("MEMMAP:BANK7:free_bytes                    : $%x-$fff0", free_bytes)
 
-.out     .sprintf("# Bank 0")
+.out     .sprintf("#MEMMAP:Bank 0")
 .out     .sprintf("MEMMAP:BANK0:XMALLOC (copy from kernel)    : $%x-$%x", ramoverlay_xmalloc,ramoverlay_xmalloc_end )
 .out     .sprintf("MEMMAP:BANK0:XFREE (copy from kernel)      : $%x-$%x", ramoverlay_xfree,ramoverlay_xfree_end )
 .out     .sprintf("MEMMAP:BANK0:BUFBUF                        : $%x-$%x", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER)
