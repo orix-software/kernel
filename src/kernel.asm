@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2022.1"
+.define VERSION "2022.2"
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
 ADIODB_LENGTH=$08
@@ -442,6 +442,8 @@ init_process_init_cwd_in_struct:
   ;sta     kernel_process+kernel_process_struct::kernel_next_fd
   ; init FD
   lda     #$00
+  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Store the current fd opened is 0
+  ; A=00 at this step
   ldx     #$00
 @init_fp:  
   sta     kernel_process+kernel_process_struct::kernel_fd,x
@@ -1051,8 +1053,10 @@ routine_to_define_16:
 .include  "functions/XOP.asm"
 .include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
+.include  "functions/files/checking_fp_exists.asm"
 .include  "functions/process/kernel_create_process.asm"
 .include  "functions/process/kernel_kill_process.asm"
+
 .include  "functions/zadcha.asm"
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
@@ -1861,6 +1865,7 @@ table_to_define_prompt_charset_empty:
 
 ; This primitive will get the address of variables built in telemon and orix.  
 
+.include "functions/files/getFileLength.asm"
 
 .include "functions/xvars.asm"
   
