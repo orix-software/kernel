@@ -105,6 +105,7 @@
     sta     CH376_DATA
 
     jsr     _ch376_dir_create
+    jmp     _ch376_file_close
     lda     #$00
     rts
   
