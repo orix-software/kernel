@@ -1,3 +1,7 @@
+# 2022.2
+* [XMKDIR] Fix registers
+* [XATN] Arc Tan routine removed
+
 # 2020.2
 * [XOPEN] Now we can open files from with a string bigger than 17 bytes ...
 * [XEXEC] Fix a bug : when we launched many rom commands, sometimes orix restarts

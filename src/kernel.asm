@@ -1555,7 +1555,7 @@ vectors_telemon:
   .byt     <XSIN_ROUTINE,>XSIN_ROUTINE
   .byt     <XCOS_ROUTINE,>XCOS_ROUTINE
   .byt     <XTAN_ROUTINE,>XTAN_ROUTINE
-  .byt     <XATN_ROUTINE,>XATN_ROUTINE
+  .byt     <$00,>$00
   .byt     <XEXP_ROUTINE,>XEXP_ROUTINE
   .byt     <XLN_ROUTINE,>XLN_ROUTINE
   .byt     <XLOG_ROUTINE,>XLOG_ROUTINE
@@ -5388,7 +5388,7 @@ coef_polynome_sin:
 
 .include "functions/math/xtan.asm"
 .include "functions/math/xdeg.asm"
-.include "functions/math/xatn.asm"
+; .include "functions/math/xatn.asm"
 
 const_atn_1:
   .byt    $81,$00,$00,$00,$00 ; 1 coef 0
