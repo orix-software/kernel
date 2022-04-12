@@ -41,6 +41,15 @@ ADIODB_LENGTH=$08
 
 KERNEL_XOPEN_PTR1          := $04 ; DECBIN
 KERNEL_XOPEN_PTR2          := $06 ; DECFIN
+
+KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y := $04 ; DECBIN
+KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X := $05 ; DECBIN
+
+KERNEL_XFSEEK_SAVE_RES  := $06; DECBIN
+KERNEL_XFSEEK_SAVE_RESB := $4D ; DECBIN
+;KERNEL_XOPEN_PTR2          := $06 ; DECFIN
+
+
 KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
 XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
 XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
@@ -1325,7 +1334,7 @@ next113
 Lca0b  
   bvc     Lca10
   
-  jsr     Ldffb
+ ; jsr     Ldffb
 Lca10:
   lda     FLGJCK
   lsr
@@ -1552,19 +1561,19 @@ vectors_telemon:
   .byt     <XA2DA1_ROUTINE,>XA2DA1_ROUTINE
   .byt     <XA2EA1_ROUTINE,>XA2EA1_ROUTINE
   .byt     <XNA1_ROUTINE,>XNA1_ROUTINE
-  .byt     <XSIN_ROUTINE,>XSIN_ROUTINE
-  .byt     <XCOS_ROUTINE,>XCOS_ROUTINE
-  .byt     <XTAN_ROUTINE,>XTAN_ROUTINE
   .byt     <$00,>$00
-  .byt     <XEXP_ROUTINE,>XEXP_ROUTINE
-  .byt     <XLN_ROUTINE,>XLN_ROUTINE
-  .byt     <XLOG_ROUTINE,>XLOG_ROUTINE
+  .byt     <$00,>$00
+  .byt     <$00,>$00
+  .byt     <$00,>$00
+  .byt     <$00,>$00
+  .byt     <$00,>$00
+  .byt     <$00,>$00
   .byt     <XRND_ROUTINE,>XRND_ROUTINE
-  .byt     <XSQR_ROUTINE,>XSQR_ROUTINE
-  .byt     <XRAD_ROUTINE,>XRAD_ROUTINE
-  .byt     <XDEG_ROUTINE,>XDEG_ROUTINE
+  .byt     <$00,>$00
+  .byt     <$00,>$00
+  .byt     <$00,>$00
   .byt     <XINT_ROUTINE,>XINT_ROUTINE
-  .byt     <XPI_ROUTINE,>XPI_ROUTINE
+  .byt     <$00,>$00
   .byt     <XRAND_ROUTINE,>XRAND_ROUTINE
   .byt     <XA1A2_ROUTINE,>XA1A2_ROUTINE
   .byt     <XA2A1_ROUTINE,>XA2A1_ROUTINE
@@ -1869,7 +1878,7 @@ table_to_define_prompt_charset_empty:
 
 .include "functions/xvars.asm"
   
-XMINMA_ROUTINE:
+.proc XMINMA_ROUTINE
   cmp     #"a" ; 'a'
   bcc     @skip
   cmp     #$7B ; 'z'
@@ -1877,6 +1886,7 @@ XMINMA_ROUTINE:
   sbc     #$1F
 @skip:
   rts
+.endproc
 
 .proc _ch376_set_usb_mode_kernel
     lda     #CH376_SET_USB_MODE ; $15
@@ -2253,11 +2263,11 @@ Ldb12:
   rts
 
 LDB26:
-  pha                     ;     <---------------------------------------        I I
-  ldx     #$18            ;     on envoie la donnée                             I I
-  jsr     XECRBU_ROUTINE  ;     dans le BUFFER ACIA sortie                      I I
-  pla                     ;                                                     I I 
-  bcs     LDB26           ;     si la donnée n'a pas été écrite, on boucle      I I
+ ; pha                     ;     <---------------------------------------        I I
+ ; ldx     #$18            ;     on envoie la donnée                             I I
+ ; jsr     XECRBU_ROUTINE  ;     dans le BUFFER ACIA sortie                      I I
+ ; pla                     ;                                                     I I 
+ ; bcs     LDB26           ;     si la donnée n'a pas été écrite, on boucle      I I
 LDB2F:
   rts
 
@@ -2282,8 +2292,8 @@ LDB66:
 
 ;                      GESTION DE LA SORTIE RS232                         
 LDB79:
-  bpl     LDB26     ; Ecriture, comme MINITEL
-  bcs     LDB53     ; pas de fermeture (rts) 
+ ; bpl     LDB26     ; Ecriture, comme MINITEL
+;  bcs     LDB53     ; pas de fermeture (rts) 
 LDB7D:
 
 
@@ -2311,16 +2321,16 @@ Ldbb5:
   pha
   
   ldx     SCRNB     ; Get the id of the window
-  lda     ADSCRL,x  ; get address of the window
+  lda     ADSCRL  ; get address of the window
   sta     ADSCR     
-  lda     ADSCRH,x  
+  lda     ADSCRH 
   sta     ADSCR+1  
   
   lda     SCRNB+1
   cmp     #" "       ; is it greater than space ?
   bcs     Ldc4c      ; yes let's displays it.
 Ldbce:   ; $d27e
-  lda     FLGSCR,x
+  lda     FLGSCR
 
   pha
 
@@ -2530,33 +2540,33 @@ LDD13:
   ror    ;        on prépare masque %10000000                       
 
 LDD14:
-  tay           ; dans Y                                            
-  tsx           ;  on indexe FLGSCR dans la pile                     
+  tay               ; dans Y                                            
+  tsx               ;  on indexe FLGSCR dans la pile                     
   eor     $0103,x   ;  on inverse le bit correspondant au code (bascule) 
   sta     $0103,x   ;  et on replace                                     
   sta     RES       ;  et dans $00                                       
   tya                                                              
   and     #$10      ;  mode 38/40 colonne ?                              
   bne     @skip     ;  oui ----------------------------------------------
-  rts           ;  non on sort                                      I
+  rts               ;  non on sort                                      I
 @skip:
   ldx     SCRNB     ;   on prend le num?ro de fen?tre <-------------------
   and     RES       ;  mode monochrome (ou 40 colonnes) ?                
-  beq     @S2     ;   oui ----------------------------------------------
+  beq     @S2       ;   oui ----------------------------------------------
   inc     SCRDX,x   ;  non, on interdit la première colonne             I
   inc     SCRDX,x   ;  et la deuxième                                   I
   lda     SCRX,x    ;  est-on dans une colonne                          I
-  cmp     SCRDX,x  ;  interdite ?                                      I
-  bcs     @S1     ;  non                                               I
+  cmp     SCRDX,x   ;  interdite ?                                      I
+  bcs     @S1       ;  non                                               I
   jmp     CTRL_M_START     ;  I  oui,on en sort                                    I
 @S1:
   rts   ;  <---                                                    I
 @S2:
-  dec     SCRDX,x ;   on autorise colonne 0 et 1 <----------------------
+  dec     SCRDX,x   ;   on autorise colonne 0 et 1 <----------------------
   dec     SCRDX,x                                                      
   rts       
 LDD43:
-  dec     SCRX,x  ;  on ramène le curseur un cran à gauche  <----------
+  dec     SCRX,x    ;  on ramène le curseur un cran à gauche  <----------
   rts  ;                                                           I
 
  ;                             CODE 8 - CTRL H                              I
@@ -2608,11 +2618,11 @@ LDD7D:
   lda     #$20      ;  on envoie un espace                               
 @loop:
   sta     (ADSCR),y
-  iny           ; jusqu'à la fin de la ligne                        
+  iny               ; jusqu'à la fin de la ligne                        
   cpy     SCRNB+1                                                          
   bcc     @loop                                                       
   sta     (ADSCR),y ; et à la dernière position aussi                   
-  rts           ; (INC $29 avant la boucle aurait été mieux !)
+  rts               ; (INC $29 avant la boucle aurait été mieux !)
 LDD8E:
   inc     SCRX,x                                                      
   rts                                                              
@@ -2636,10 +2646,10 @@ CTRL_J_START:
   lda     SCRDY,x  ;  oui, X et Y contiennent d?but et fin de fen?tre  I
   ldy     SCRFY,x  ;                                                   I
   tax          ;                                                   I
-  jsr     XSCROH_ROUTINE    ;  on scrolle la fen?tre                            I
+  jsr     XSCROH_ROUTINE  ;  on scrolle la fen?tre                            I
   jmp     CTRL_M_START    ;  on revient en d?but de ligne                     I
 @skip:
-  inc     SCRY,x   ;  on incr?mente la ligne <-------------------------I 
+  inc     SCRY,x   ;  on incremente la ligne <-------------------------I 
   jmp     LDE07    ;  et on ajuste ADSCR                      
 
 ;                         CODE 12 - CTRL L                              
@@ -2652,7 +2662,7 @@ CTRL_L_START:
   lda     SCRY,x              ; on est à la fin de la fenêtre ?
   cmp     SCRFY,x             ;                                                     
   beq     CTRL_HOME_START     ;  oui, on sort en replaçant le curseur en haut     
-  jsr     CTRL_J_START               ;  non, on déplace le curseur vers le bas            
+  jsr     CTRL_J_START        ;  non, on déplace le curseur vers le bas            
   jmp     @loop               ; et on boucle  (Et bpl, non ?!?!)                  
 
 ;  CODE 19 - CTRL S                              
@@ -2668,11 +2678,11 @@ XOUPS_ROUTINE:
 ;Action:émet un OUPS
 
 CTRL_G_START:
-  ldx     #<XOUPS_DATA     ;   on indexe les 14 données du OUPS                  
+  ldx     #<XOUPS_DATA                ;   on indexe les 14 données du OUPS                  
   ldy     #>XOUPS_DATA                                                         
   jsr     send_14_paramaters_to_psg   ;   et on envoie au PSG                               
-  ldy     #$60     ;   I                                                 
-  ldx     #$00     ;   I                                                
+  ldy     #$60                        ;   I                                                 
+  ldx     #$00                        ;   I                                                
 @loop:
   dex         ;    I Délai d'une seconde                             
   bne     @loop     ;  I                                                 
@@ -2691,12 +2701,12 @@ LDDF6
 ;Action:on place le curseur en (0,0) et on calcule son adresse                   
 ;
 CTRL_HOME_START:
-  lda     SCRDX,x  ;  on prend la première colonne                      
-  sta     SCRX,x   ;  dans SCRX                                         
-  lda     SCRDY,x  ;  la première ligne dans                            
-  sta     SCRY,x   ;  SCRY                                              
+  lda     SCRDX    ;  on prend la première colonne                      
+  sta     SCRX     ;  dans SCRX                                         
+  lda     SCRDY    ;  la première ligne dans                            
+  sta     SCRY     ;  SCRY                                              
 LDE07:
-  lda     SCRY,x   ;  et on calcule l'adresse                           
+  lda     SCRY     ;  et on calcule l'adresse                           
   jsr     LDE12    ;  de la ligne                                       
   sta     ADSCR    ;  dans ADSCR                                        
   sty     ADSCR+1  ;
@@ -2708,8 +2718,8 @@ LDE07:
 
 LDE12:
   jsr     XMUL40_ROUTINE    ;  RES=A*40                                          
-  lda     SCRBAL,x          ;  AY=adresse de la fenêtre
-  ldy     SCRBAH,x
+  lda     SCRBAL            ;  AY=adresse de la fenêtre
+  ldy     SCRBAH
   jmp     XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne   
   
 XCOSCR_ROUTINE:
@@ -2718,23 +2728,23 @@ XCOSCR_ROUTINE:
 XCSSCR_ROUTINE:
   sec
   php
-  asl     FLGSCR,x
+  asl     FLGSCR
   plp
-  ror     FLGSCR,x
+  ror     FLGSCR
   bmi     lde53
   lda     #$80
 LDE2D:
-  and     FLGSCR,x
+  and     FLGSCR
   and     #$80
-  eor     CURSCR,x
-  ldy     SCRX,x
+  eor     CURSCR
+  ldy     SCRX
   sta     (ADSCR),y
   pha
-  lda     FLGSCR,x
+  lda     FLGSCR
   and     #$02
 
   beq     @skip
-  lda     SCRY,x
+  lda     SCRY
   cmp     SCRFY,x
   beq     @skip
   tya
@@ -4403,8 +4413,7 @@ LF106:
   rts  
 const_ln_10:
   .byt    $82,$13,$5D,$8D,$DE ; 2.302585093 = ln(10)
-const_pi_radians:
-  .byt    $82,$49,$0F,$DA,$9E ; PI in radians (3.14159265)
+
 const_pi_degree:  
   .byt    $88,$34,$00,$00,$00
 
@@ -4727,16 +4736,7 @@ Lf301
   jmp     Lf022
 
 
-XPI_ROUTINE  
-; pi->acc1
-  jsr     test_if_degree_mode 
-  beq     @S1 ; is it in radian mode ?
-  lda     #<const_pi_degree
-  ldy     #>const_pi_degree
-  bne     XAYA1_ROUTINE
-@S1:
-  lda     #<const_pi_radians 
-  ldy     #>const_pi_radians
+
 
 XAYA1_ROUTINE:
   sta     FLTR0
@@ -5209,7 +5209,7 @@ LF60D
   jmp     Lf042
 
   
-.include "functions/math/xsqr.asm"
+;.include "functions/math/xsqr.asm"
 
 XA2EA1_ROUTINE:
   beq     XEXP_ROUTINE  
@@ -5366,58 +5366,14 @@ LF72A
  
 .include "functions/math/xrnd.asm"
 .include "functions/math/xrand.asm"
-.include "functions/math/xcos.asm"
-.include "functions/math/xsin.asm"
 
-CONST_SIN_AND_COS
-CONST_PI_DIVIDED_BY_TWO:
-  .byt    $81,$49,$0F,$DA,$A2
-const_pi_mult_by_two:
-  .byt    $83,$49,$0F,$DA,$A2 ; 6.283185307
-const_0_dot_twenty_five: ; 0.25
-  .byt    $7F,$00,$00,$00,$00
-coef_polynome_sin:
-  .byt    $05 ; 6 coef
-  .byt    $84,$E6,$1A,$2D,$1B
-  .byt    $86,$28,$07,$FB,$F8
-  .byt    $87,$99,$68,$89,$01
-  .byt    $87,$23,$35,$DF,$E1
-  .byt    $86,$A5,$5D,$E7,$28
-  .byt    $83,$49,$0F,$DA,$A2
-
-
-.include "functions/math/xtan.asm"
-.include "functions/math/xdeg.asm"
-; .include "functions/math/xatn.asm"
 
 const_atn_1:
   .byt    $81,$00,$00,$00,$00 ; 1 coef 0
 
-LF8B1
-  jsr     test_if_degree_mode  
-  beq     LF8CC  
 
-XRAD_ROUTINE
-  lda     #<const_pi_divided_by_180   
-  ldy     #>const_pi_divided_by_180  
-  jmp     LF184
- 
-const_pi_divided_by_180:
-  .byt     $7B,$0E,$FA,$35,$19
+XADNXT_ROUTINE:
 
-test_if_degree_mode:
-  lda     FLGTEL
-  and     #$20
-LF8CC:
-  rts
-
-XADNXT_ROUTINE  
-  sta     RES
-  sty     RES+1
-  jsr     AY_add_acc1
-  ldx     RES
-  ldy     RES+1
-  jmp     XA1XY_ROUTINE
 
 LF8DB:
   jsr     LF9FC 
@@ -5464,7 +5420,7 @@ LF915:
   rts  
 
 ;;;;;;;;;;;;;;; 
-XDECA1_ROUTINE
+XDECA1_ROUTINE:
   sta     RES
   sty     RES+1
   tsx

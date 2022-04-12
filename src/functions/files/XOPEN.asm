@@ -5,8 +5,8 @@
 ;	  and with XMALLOC :
 ;		     TR7 (malloc)
 ; OUTPUT
-;     NULL if it does not exists
-;     filepointer in A & Y (and X for cc65 compatibility)
+;     A=$FF and X=$FF if it does not exists
+;     FD id  in A 
 
 
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
@@ -20,6 +20,13 @@
   ; O_APPEND        = $40
   ; O_EXCL          = $80
 
+  ; Flag     | File exists | behaviour
+  ; O_WRONLY |    No       | return Null
+  ; O_WRONLY |    Yes      | open and return FD
+  ; O_RDONLY |    Yes      | open and return FD
+  ; O_WRONLY |    No       | return Null
+  ; O_CREAT  |    No       | Create file and open and return FD 
+  ; O_CREAT  |    Yes      | open and return FD
 
   sta     RES
   stx     RES+1
@@ -29,7 +36,15 @@
   ; save flag
   sty     XOPEN_FLAGS
 
+  ; 
+  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; Get if there is already a file open on ch376, if it's equal to 0, there is no file opened
+  beq     @open_new_file
 
+  ; close it 
+  jsr     _ch376_file_close
+  
+
+@open_new_file:
 .ifdef WITH_DEBUG2
     jsr     kdebug_save
     ldy     XOPEN_RES_SAVE+1
@@ -133,7 +148,7 @@
 
   bne     @L4
   ; Bof return NULL
-  beq     @exit_open_with_null
+  jmp     @exit_open_with_null
 
 @end_of_path_from_arg:
   ldy     RES  
@@ -255,9 +270,9 @@
 
 @filesys_bank_not_found:
   lda     XOPEN_FLAGS ; Get flags
- ; and     #O_RDONLY
+  and     #O_RDONLY
   cmp     #O_RDONLY
-  bne     @could_be_created , 
+  bne     @could_be_created 
 
 @exit_open_with_null:
 
@@ -306,6 +321,7 @@
   
   ;       store pointer in process struct
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
+
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct 
   sta     RES
@@ -378,14 +394,32 @@
   rts  
   ; not found
 @found_fp_slot:
+
   lda     kernel_process+kernel_process_struct::kernel_current_process ; Get the current process
   sta     kernel_process+kernel_process_struct::kernel_fd,x ; and store in fd slot the id of the process
-  txa
+
+ ; stx     TR7 ; save FD id
+  txa 
+  pha ; save Id of the fd
+  asl
+  tax
+
+  ; Store fp in main process
+  lda     KERNEL_XOPEN_PTR1
+  sta     kernel_process+kernel_process_struct::fp_ptr,x
+  inx
+  lda     KERNEL_XOPEN_PTR1+1
+  sta     kernel_process+kernel_process_struct::fp_ptr,x
+ 
+  pla   ; restore Id of the fd
+ 
+
+  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
+
   clc
   adc     #KERNEL_FIRST_FD
   ; Store the id of the fp opened in ch376
-  stx     kernel_process+kernel_process_struct::kernel_fd_opened 
-
+  
 
 .ifdef WITH_DEBUG2
   pha

@@ -1,8 +1,18 @@
-; X fp to find
+
+
+; 
 
 .proc checking_fp_exists
-    rts
+    ; X fp to find
+    ;clc
+    ;rts
+    ; Save A & X
+    tya
+    sta     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
+
     txa
+    sta     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; save fp id
+    ; Compute fd index in main fp struct
     sec
     sbc     #KERNEL_FIRST_FD
     cmp     #KERNEL_MAX_FP                                         ; Does X is greater than the fp ?
@@ -10,14 +20,21 @@
     tax
     lda     kernel_process+kernel_process_struct::kernel_fd,x
     beq     @doesnot_exists
+    clc
+    rts
 
     cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; is equal to 0 ? No opened files yet ...
     beq     @do_not_seek
-  ; At this step we can store the seek of the file
+
+    ; store the new fd to open
+    stx     kernel_process+kernel_process_struct::kernel_fd_opened 
+    ; At this step we can store the seek of the file
     ; close current file
     jsr     _ch376_file_close
-    stx     kernel_process+kernel_process_struct::kernel_fd_opened 
+    
     ; seek now
+
+
 
     ; Compute the ptr of the fp and store it in KERNEL_XOPEN_PTR1
     lda     kernel_process+kernel_process_struct::fp_ptr,x
@@ -42,6 +59,8 @@
     iny
     bne     @loop_next_byte
     ; Here we should not reach this part except if there is an overflow
+    jsr     restore
+    sec
     rts
 
 @send:
@@ -55,20 +74,24 @@
     ldy     #_KERNEL_FILE::f_seek_file
     
     lda     (KERNEL_XOPEN_PTR1),y
-    sta     RESB
+    sta     RES
     iny
     lda     (KERNEL_XOPEN_PTR1),y
-    sta     RESB+1
+    sta     RES+1
     iny
     lda     (KERNEL_XOPEN_PTR1),y
     tax
     iny
     lda     (KERNEL_XOPEN_PTR1),y
-    sta     RES
+    sta     RESB
 
-    lda     RESB
-    ldy     RESB+1
+    lda     RES
+    ldy     RES+1
+
+    
+    
     jsr     _ch376_seek_file32
+
 
 
  
@@ -76,13 +99,14 @@
     
 
 
-
+    jsr     restore
 
     clc
     rts
 @doesnot_exists:    
     ;lda     #$11
     ;sta     $bb80
+    jsr     restore
     sec
     rts
 send_0_to_ch376_and_open:
@@ -90,7 +114,13 @@ send_0_to_ch376_and_open:
     sta     CH376_DATA 
 
     jmp     _ch376_file_open ; Open slash
-    
+
+restore:
+    ldy     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
+
+    ldx     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X
+    rts
+
 .endproc
 
 .proc _ch376_seek_file32
@@ -103,9 +133,9 @@ send_0_to_ch376_and_open:
     sty     CH376_DATA
     stx     CH376_DATA
     
-    lda     RES
+    lda     RESB
     sta     CH376_DATA
 
-    jsr     _ch376_wait_response
-    rts
+    jmp     _ch376_wait_response
+
 .endproc

@@ -35,6 +35,9 @@ rem  -DWITH_LSOF
 %OSDK%\bin\xa.exe tests\xrm.asm -o xrm
 %OSDK%\bin\xa.exe tests\xfillm.asm -o xfillm
 
+cl65.exe -ttelestrat tests/mkdir.c -o tmkdir
+cl65.exe -ttelestrat tests/fwrite.c -o tfwrite
+
 rem copy orixbank4.rom /b + orixbank5_debug.rom + roms\ROMCH376_noram.rom /b + orixbank7.rom /b cardridge_6502.rom > NUL
 rem copy orixbank1.rom /b + orixbank2.rom /b + orixbank3.rom /b + orixbank4.rom /b + orixbank5_debug.rom /b + roms\ROMCH376_noram.rom /b + orixbank7.rom /b cardridge_6502_twilighte_card_noacia.rom > NUL
 rem copy roms\empty_bank.rom /b + roms\empty_bank.rom /b + roms\empty_bank.rom /b + roms\empty_bank.rom /b + orixbank5_debug.rom /b + roms\ROMCH376.rom  /b + orixbank7_noacia.rom /b cardridge_6502_twilighte_card_noacia.rom
@@ -50,7 +53,8 @@ rem copy src\man\*.hlp %ORICUTRON%\usbdrive\usr\share\man > NUL
 mkdir %ORICUTRON%\usbdrive\tests
 copy tests\xmkdir %ORICUTRON%\usbdrive\tests\  > NUL
 copy tests\xrm %ORICUTRON%\usbdrive\tests\  > NUL
-
+copy tmkdir %ORICUTRON%\usbdrive\bin
+copy tfwrite %ORICUTRON%\usbdrive\bin
 
 cd %ORICUTRON%
 oricutron -mt  --symbols "%ORIGIN_PATH%\xa_labels_orix.txt"

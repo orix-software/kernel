@@ -13,10 +13,10 @@
   sty     RES+1
 
 .ifdef WITH_DEBUG2
-    jsr     kdebug_save
-    ldx     #XDEBUG_XOPEN_ALLOCATE_FP
-    jsr     xdebug_print
-    jsr     kdebug_restore
+  jsr     kdebug_save
+  ldx     #XDEBUG_XOPEN_ALLOCATE_FP
+  jsr     xdebug_print
+  jsr     kdebug_restore
 .endif
 
   lda     #KERNEL_FP_MALLOC_TYPE
@@ -87,18 +87,18 @@
   ; FIXME : set path in the struct
 
   ; Set now seek position to 0 ("32 bits")
-  ;ldy     #_KERNEL_FILE::f_seek_file
-  ;lda     #$00
-  ;sta     (KERNEL_XOPEN_PTR1),y
-  ;iny
-  ;sta     (KERNEL_XOPEN_PTR1),y
-  ;iny
-  ;sta     (KERNEL_XOPEN_PTR1),y
-  ;iny
-  ;sta     (KERNEL_XOPEN_PTR1),y
+  ldy     #_KERNEL_FILE::f_seek_file
+  lda     #$00
+  sta     (KERNEL_XOPEN_PTR1),y
+  iny
+  sta     (KERNEL_XOPEN_PTR1),y
+  iny
+  sta     (KERNEL_XOPEN_PTR1),y
+  iny
+  sta     (KERNEL_XOPEN_PTR1),y
 
   ; return fp or null
-  lda     KERNEL_XOPEN_PTR1
+  lda     KERNEL_XOPEN_PTR1 ; $7c3
   ldy     KERNEL_XOPEN_PTR1+1
 
   rts

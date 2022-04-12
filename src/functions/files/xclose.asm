@@ -53,6 +53,11 @@
         
 .endif
 
+    ; remove fp from main struct
+    lda     #$00
+    sta     kernel_process+kernel_process_struct::fp_ptr,x
+    inx
+    sta     kernel_process+kernel_process_struct::fp_ptr,x
  
 ;       store pointer in process struct
     ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
@@ -87,25 +92,12 @@
 
     pla
     tax
-    
-
 
     ; Flush entry
     ldx     TR7
     lda     #$00
     sta     kernel_process+kernel_process_struct::kernel_fd,x
 
-    ;txa
-    ;asl
-    ;tax
-    ;lda     #$00
-    ;sta     kernel_process+kernel_process_struct::fp_ptr,x
-    ;inx
-    ;sta     kernel_process+kernel_process_struct::fp_ptr,x
-
-    ; close FD
-    ;XDEBUG_XCLOSE_FD_NOT_FOUND
-	;jsr     XFREE_ROUTINE
     
     jmp     _ch376_file_close
 .endproc	
