@@ -8,11 +8,11 @@
     sta     CH376_DATA ; ????
     ; store file length
     lda     CH376_DATA
-    ldx     CH376_DATA
     ldy     CH376_DATA
+    ldx     CH376_DATA
     pha
     lda     CH376_DATA
-    sta     RES
+    sta     RESB
     pla
 
     rts

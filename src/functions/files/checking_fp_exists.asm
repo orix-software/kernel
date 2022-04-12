@@ -20,8 +20,8 @@
     tax
     lda     kernel_process+kernel_process_struct::kernel_fd,x
     beq     @doesnot_exists
-    clc
-    rts
+  ;  clc
+  ;  rts
 
     cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; is equal to 0 ? No opened files yet ...
     beq     @do_not_seek
@@ -31,10 +31,15 @@
     ; At this step we can store the seek of the file
     ; close current file
     jsr     _ch376_file_close
-    
+
     ; seek now
 
 
+
+    lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; Get again FD id
+    sec
+    sbc     #KERNEL_FIRST_FD
+    tax
 
     ; Compute the ptr of the fp and store it in KERNEL_XOPEN_PTR1
     lda     kernel_process+kernel_process_struct::fp_ptr,x
@@ -70,6 +75,9 @@
 
 @send_end_out:
     jsr     send_0_to_ch376_and_open
+
+
+
 
     ldy     #_KERNEL_FILE::f_seek_file
     

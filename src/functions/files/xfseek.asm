@@ -46,11 +46,35 @@
   lda     #$01 ; Return error
   rts
 @go_end:
-  lda     #$FF
-  tax
-  tay
-  sta     RESB
+
+  lda     CH376_DATA
+  ldx     CH376_DATA
+  ldy     CH376_DATA
+  pha
+  lda     CH376_DATA
+  sta     RES
+  pla
+
+  jsr     getFileLength
+
   jsr     _ch376_seek_file32
+
+  lda     KERNEL_XFSEEK_SAVE_RES
+  sec
+  sbc     #KERNEL_FIRST_FD
+  tax
+
+  jsr     compute_fp_struct
+
+  jsr     getFileLength
+  sta     RES
+  sty     RES+1
+  lda     RESB
+  sta     RESB+1
+  ldx     RESB
+
+  jsr     _set_to_value_seek_file
+
   lda     #$00 ; Return ok
   rts
 
@@ -67,6 +91,17 @@
   tax
   sta     RESB
   jsr     _ch376_seek_file32
+
+  ; Get fd id
+  lda     KERNEL_XFSEEK_SAVE_RES
+  sec
+  sbc     #KERNEL_FIRST_FD
+  tax
+
+  jsr     compute_fp_struct
+
+
+  jsr     _set_to_0_seek_file
 
   lda     RES ; Get fd
   sec

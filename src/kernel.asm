@@ -1063,6 +1063,9 @@ routine_to_define_16:
 .include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
 .include  "functions/files/checking_fp_exists.asm"
+.include  "functions/files/compute_fp_struct.asm"
+.include  "functions/files/_set_to_0_seek_file.asm"
+.include  "functions/files/_set_to_value_seek_file.asm"
 .include  "functions/process/kernel_create_process.asm"
 .include  "functions/process/kernel_kill_process.asm"
 
