@@ -19,6 +19,8 @@ ADIODB_LENGTH=$08
 .include   "include/memory.inc"
 .include   "include/files.inc"
 .include   "include/ori3.inc"
+.include   "versions/versions.inc"
+
 
 
 .out   "=================================================================="
@@ -1066,6 +1068,7 @@ routine_to_define_16:
 .include  "functions/files/compute_fp_struct.asm"
 .include  "functions/files/_set_to_0_seek_file.asm"
 .include  "functions/files/_set_to_value_seek_file.asm"
+;.include  "functions/files/_set_to_add_value_seek_file.asm"
 .include  "functions/process/kernel_create_process.asm"
 .include  "functions/process/kernel_kill_process.asm"
 
@@ -1486,7 +1489,7 @@ vectors_telemon:
   .byt     <XMULT_ROUTINE,>XMULT_ROUTINE
   .byt     <XADRES_ROUTINE,>XADRES_ROUTINE                                          ; XADRES
   .byt     <XDIVIS_ROUTINE,>XDIVIS_ROUTINE                                          ; 
-  .byt     <XVARS_ROUTINE,>XVARS_ROUTINE                                            ; 
+  .byt     <XVARS_ROUTINE,>XVARS_ROUTINE                                            ; $24
   .byt     <XCRLF_ROUTINE,>XCRLF_ROUTINE                                            ; $25
   .byt     <XDECAY_ROUTINE,>XDECAY_ROUTINE                                          ; XDECAY  $26
   .byt     <XREADBYTES_ROUTINE,>XREADBYTES_ROUTINE ; $27  Fread
@@ -5822,8 +5825,7 @@ copy_ramoverlay_end:
 kernel_compile_option:
   .byt    KERN_SDCARD_FOR_ROOT_CONFIG
 
-version:
-  .asciiz VERSION
+
 
 ;$fff8-9 : copyright address
 ;$fffa : software version BCD : 1.4 -> $14
@@ -5833,6 +5835,11 @@ version:
 ;  b0,b3 : 7 for 8 KB, 16 for KB
 ;$fffc-d : adresse  d'execution
 ;$fffe-f :  IRQ (02fa)
+
+version_binary: ; 3 bytes
+  .byte CURRENT_VERSION_BINARY
+  .byte $00
+
 
 signature:
   .byte     "Kernel v"

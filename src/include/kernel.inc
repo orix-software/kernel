@@ -1,8 +1,10 @@
-.define XVARS_KERNEL_PROCESS     0
-.define XVARS_KERNEL_MALLOC      1
-.define XVARS_KERNEL_CH376_MOUNT 2
-.define XVARS_KERNEL_CONF        3
-.define XVARS_KERNEL_ERRNO       4
+.define XVARS_KERNEL_PROCESS              0
+.define XVARS_KERNEL_MALLOC               1
+.define XVARS_KERNEL_CH376_MOUNT          2
+.define XVARS_KERNEL_CONF                 3
+.define XVARS_KERNEL_ERRNO                4
+.define XVARS_KERNEL_BINARY_VERSION       6 ; used in untar version
+
 
 .macro  BRK_KERNEL   value
         .byte $00,value

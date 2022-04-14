@@ -22,6 +22,10 @@
 .proc _fopen_kernel
     sta flag
 
+    ldx     #06     ; XVARS_KERNEL_BINARY_VERSION
+    BRK_TELEMON $24 ; XVARS
+;@me:
+    ;jmp @me
     jsr popax
 
     sta ptr1

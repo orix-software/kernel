@@ -118,12 +118,14 @@ kernel_end_of_variables_before_BUFNOM:
 .bss
 .org BUFNOM
     .res 14
-.out     .sprintf("BUFNOM address : %x", BUFNOM)
+BUFNOM_END:
+
 kernel_malloc:
     .tag    kernel_malloc_struct
+kernel_malloc_end:
 kernel_process:
     .tag    kernel_process_struct
-    
+kernel_process_end:    
 kernel_end_of_variables_before_BUFEDT:    
 .out     .sprintf("kernel_end_of_variables_before_BUFEDT : %x", kernel_end_of_variables_before_BUFEDT)
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
@@ -133,9 +135,11 @@ kernel_end_of_variables_before_BUFEDT:
 .bss
 .org BUFEDT
     .res 110
+BUFEDT_END:
+
 KERNEL_DRIVER_MEMORY:
     .res 165
-
+KERNEL_DRIVER_MEMORY_END:
 
 .ifdef WITH_DEBUG
 kernel_debug:
