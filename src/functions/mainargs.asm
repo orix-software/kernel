@@ -75,7 +75,7 @@ XMAINARGSC            := TR0 ; 1 byte
     lda     #$00
     sta     XMAINARGS_SPACEFOUND
 
-    lda     #$01 ; 1 because there is at least the binary
+    lda     #$01       ; 1 because there is at least the binary
     sta     XMAINARGSC ; TR0 contains number of args
 
     ldy     #$00

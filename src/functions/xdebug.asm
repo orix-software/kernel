@@ -178,24 +178,24 @@ str_enter_found:
 
 .proc xdebug_binhex
 
-         pha                   ;save byte
-         ;and #%11110000        ;extract LSN
-         lsr                   ;extract...
-         lsr                   ;MSN
-         lsr
-         lsr
-         tax     
-         jsr r0000010
+    pha                   ;save byte
+    ;and #%11110000        ;extract LSN
+    lsr                   ;extract...
+    lsr                   ;MSN
+    lsr
+    lsr
+    tax     
+    jsr r0000010
                  ;save ASCII
-         pla                   ;recover byte
-         and #%00001111 
-         tax  
+    pla                   ;recover byte
+    and #%00001111 
+    tax  
 r0000010:
  
-         lda    hex_table,x
+    lda    hex_table,x
          
-         jsr    xdebug_send_printer
-         rts                   ;done
+    jsr    xdebug_send_printer
+    rts                   ;done
 hex_table:
     .byte "0123456789ABCDEF"                  
 .endproc     

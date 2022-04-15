@@ -84,7 +84,7 @@
   ror      TR1                     ;   on met b7 de TR1 à 1 (ne pas afficherle point)
   lda      TR4                     ;    AX=sY
   ldx      TR5                                                          
-  jsr      compute_sX_or_sY                   ;   on calcule sY/R (en fait sY/2^N)
+  jsr      compute_sX_or_sY        ;   on calcule sY/R (en fait sY/2^N)
   clc                                                              
   lda      TR2                     ;   on calcule sX=sX+sY/R                             
   adc      TR6                                                          

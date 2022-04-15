@@ -72,9 +72,6 @@ next:
     dec     KERNEL_TMP_XEXEC
 
     bne     next_bank
-    
-    ;jmp     read_on_sdcard
-
 
     ldx     $343
     inx
@@ -85,7 +82,7 @@ next:
     beq     check_memory_bank
     bne     store
 no_04:
-   ; inx
+
 store:         
     stx     $343 
 
@@ -94,7 +91,7 @@ store:
 
     jmp     next_bank   
 check_memory_bank:
-;jmp check_memory_bank
+
     ; Is it already memory bank  ?
     lda     $342
     and     #%00100000    

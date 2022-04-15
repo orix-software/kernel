@@ -12,7 +12,7 @@
 ;                      SCROLLE UNE FENETRE VERS LE HAUT                      
 ;Action:scrolle vers le haut de la ligne X à la ligne Y la fenêtre courante.     
 
-XSCROB_ROUTINE
+XSCROB_ROUTINE:
   lda     #$FF       ;    on prend $FFD8, soit -40 en complément à 2        fixme 
   sta     DECFIN+1                                                          
   lda     #$D8                                                         
@@ -52,9 +52,9 @@ scroll_XSCROB_ROUTINE:
   lda     SCRFX,X    ; la largeur de la fenêtre                          I
   sbc     SCRDX,X    ;                                                   I
   sta     RES+1      ;  dans RES+1                                       I
-LDE9D
+LDE9D:
   ldy     RES+1 
-@L2                  ;                                                   I
+@L2:                  ;                                                   I
   lda     (DECDEB),Y ;   on transfère une ligne                          I
   sta     (DECCIB),Y ;                                                   I
   dey                ;                                                   I
@@ -75,12 +75,12 @@ LDE9D
   sta     DECCIB+1   ;                                                   I
   dec     RES        ;  on décompte une ligne de faite                   I
   bne     LDE9D      ;  et on fait toutes les lignes                     I
-LDEC4
+LDEC4:
   ldy     RES+1      ;  on remplit la dernière ligne                     I
   lda     #$20       ;                                                   I
 @L1:
   sta     (DECCIB),Y ;  avec de espaces                                  I
   DEY                ;                                                   I
   bpl     @L1        ;                                                   I
-LDECD
+LDECD:
   rts                ;  <-------------------------------------------------

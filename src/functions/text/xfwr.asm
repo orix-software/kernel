@@ -1,8 +1,4 @@
 .proc _XFWR_routine
-    ;pha
-    ;ldx     #$00
-    ;jsr     LDE07
-    ;pla
 
     ldy     ADSCRL
     sty     ADSCR     

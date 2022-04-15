@@ -1,8 +1,4 @@
 
-;    ptr_header   :=userzp+2
-    ;fp_exec      :=userzp+4
-    ;copy_str     :=userzp+8
-    ;temp         :=userzp+10
 
 RESC := DECDEB 
 RESD := DECFIN
@@ -136,7 +132,7 @@ RESG := ACCPS
     lda     KERNEL_ERRNO
 
     ; Error not found
-    ;lda     #ENOENT 
+
 
     rts
 @not_null:
@@ -167,7 +163,7 @@ RESG := ACCPS
     iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
 
     ; drop others values
-    ldx     CH376_DATA 
+    ldx     CH376_DATA  
     ldx     CH376_DATA
 
     jsr     XMALLOC_ROUTINE
@@ -200,6 +196,8 @@ RESG := ACCPS
 
     lda     #20
     ldy     #$00
+    ldx     RESF     ; FP
+
     jsr     XREADBYTES_ROUTINE
 
     
@@ -385,6 +383,7 @@ RESG := ACCPS
 @read_program:
     lda     #$FF ; read all the binary
     ldy     #$FF
+    ldx     RESF     ; FP
 
     jsr     XREADBYTES_ROUTINE
     ; FIXME return nb_bytes read malloc must be done

@@ -103,22 +103,22 @@ XSHOOT_ROUTINE
 XEXPLO_ROUTINE
 	ldx #<EXPLODE_DATA
 	ldy #>EXPLODE_DATA
-Lebe9	
+Lebe9:
 	jmp send_14_paramaters_to_psg 
 	
-XZAP_ROUTINE	
+XZAP_ROUTINE:	
 	ldx #<ZAP_DATA
 	ldy #>ZAP_DATA
 	jsr send_14_paramaters_to_psg
 	lda #00
 	tax
-Lebf6
+Lebf6:
 	txa
 	pha
 	lda #$0
 	jsr XEPSG_ROUTINE  
 	ldx #0
-Lebff	
+Lebff:	
 	dex
 	bne Lebff 
 	pla
@@ -129,5 +129,3 @@ Lebff
 	lda #08
 	ldx #00
 	jmp XEPSG_ROUTINE
-	
-	

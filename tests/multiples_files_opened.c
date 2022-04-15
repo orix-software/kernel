@@ -89,14 +89,42 @@ int main () {
     toread=2;
     printf("XXXXXXXXX toread: %d\n",toread);
     
-    fseek_kernel( 1, SEEK_SET,totofp);
+    fseek_kernel( 10, SEEK_SET,totofp);
 
-    nbcharreadtoto=fread_kernel(buftoto, 2,  totofp);
+    nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
 
     printf("nb bytes read toto.txt : %d\n",nbcharreadtoto);  
     
     printbuf(buftoto,nbcharreadtoto);
 
+    fseek_kernel( 2, SEEK_SET,totofp);
+
+    nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
+
+    printf("nb bytes read toto.txt : %d\n",nbcharreadtoto);  
+    
+    printbuf(buftoto,nbcharreadtoto);
+
+
+
+    fseek_kernel( 0, SEEK_SET,totofp);
+
+    nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
+
+    printf("nb bytes read toto.txt : %d\n",nbcharreadtoto);  
+    
+    printbuf(buftoto,nbcharreadtoto);
+
+
+
+    fseek_kernel( 0, SEEK_SET,titifp);
+
+
+    nbcharreadtiti=fread_kernel(buftiti, 20,  titifp);
+
+    printf("nb bytes read titi.txt : %d\n",nbcharreadtiti);   
+
+    printbuf(buftiti,nbcharreadtiti);
 
     //unsigned char buf[]={'a','b','c','d'};
     //FILE *fp;

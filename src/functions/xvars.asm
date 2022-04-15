@@ -1,14 +1,13 @@
 
 .proc XVARS_ROUTINE
-
   lda     XVARS_TABLE_LOW,x
   ldy     XVARS_TABLE_HIGH,x
+  ldx     #$00
   rts
-
 .endproc  
 
 
-; 
+
 
 .define WHO_AM_IAM        $01
 .define MALLOC_TABLE_COPY $02
@@ -111,6 +110,7 @@ XVARS_TABLE_LOW:
   .byt     <KERNEL_CONF_BEGIN
   .byt     <KERNEL_ERRNO
   .byt     KERNEL_MAX_NUMBER_OF_MALLOC
+  .byt     CURRENT_VERSION_BINARY      ; Used in untar
   
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
@@ -119,5 +119,6 @@ XVARS_TABLE_HIGH:
   .byt     >KERNEL_CONF_BEGIN
   .byt     >KERNEL_ERRNO
   .byt     KERNEL_MALLOC_FREE_CHUNK_MAX
+  .byt     $00
   
   

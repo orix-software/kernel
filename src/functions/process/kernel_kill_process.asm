@@ -25,7 +25,7 @@
 
 @continue:
   ; destroy it's own memory chunks
-  ;sta     RES
+
 
 ; Try to find all malloc from this process
   ldx     #$00
@@ -62,7 +62,7 @@
 
 
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  ;tax
+
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
 
@@ -95,7 +95,6 @@
 
   ldy     kernel_process+kernel_process_struct::kernel_current_process
   
-  ;dey
   
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
   sta     RES
@@ -116,13 +115,9 @@
 
 @skip_load_zp: 
 
-  ; destroy process
-  ;lda  #<str_destroyed
-  ;ldy  #>str_destroyed
-  ;jsr  XWSTR0_ROUTINE
+
   rts
-;str_destroyed:
-  ;.asciiz "Destroyed" 
+
 
 
 close_all_fp:

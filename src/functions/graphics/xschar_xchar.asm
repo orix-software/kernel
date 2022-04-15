@@ -24,7 +24,7 @@ XCHAR_ROUTINE
   asl
   lsr     HRS2
   ror
-LEAB5  
+LEAB5:
   pha
   lda     HRSX
   cmp     #$EA
@@ -47,7 +47,7 @@ LEAB5
   pla
   jsr     ZADCHA_ROUTINE 
   ldy     #$00
-Lead9  
+Lead9:
   sty     RES
   lda     HRSX40
   pha
@@ -55,17 +55,17 @@ Lead9
   pha
   lda     (RESB),Y
   asl
-Leae4  
+Leae4:
   asl
   beq     Leaf3 
   pha
   bpl     Leaed 
   jsr     LE79C 
-Leaed  
+Leaed:
   jsr     XHRSCD_ROUTINE 
   pla
   bne     Leae4 
-Leaf3  
+Leaf3:
   jsr     XHRSCB_ROUTINE
   pla
   sta     HRSX6

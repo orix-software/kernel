@@ -48,4 +48,3 @@
 	sta     (TR5),Y
 	inc     TR4
 	rts
-

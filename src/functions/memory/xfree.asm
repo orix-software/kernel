@@ -7,16 +7,16 @@
 
 .proc XFREE_ROUTINE
 
-    sta     KERNEL_XFREE_TMP    ; Save A (low)
+  sta     KERNEL_XFREE_TMP    ; Save A (low)
 
 .ifdef WITH_DEBUG3
-    jsr     kdebug_save
+  jsr     kdebug_save
     
-    lda     KERNEL_XFREE_TMP
-    ldx     #XDEBUG_XFREE_ENTER_PRINT
-    jsr     xdebug_print_with_ay
+  lda     KERNEL_XFREE_TMP
+  ldx     #XDEBUG_XFREE_ENTER_PRINT
+  jsr     xdebug_print_with_ay
     
-    jsr     kdebug_restore
+  jsr     kdebug_restore
 .endif
 
 ; [A & Y] the first adress of the pointer.
@@ -235,7 +235,7 @@
 @main_free_no_action:
 
 .ifdef WITH_DEBUG2
-    jsr     xdebug_end
+  jsr     xdebug_end
 .endif
 
 out:
@@ -246,6 +246,7 @@ out:
 ; Don't move this proc
 .proc xfree_exit
   jsr     xfree_garbage
+
 .ifdef WITH_DEBUG2
   jsr     kdebug_save
   jsr     xdebug_lsmem
@@ -390,6 +391,6 @@ out:
 str_can_not_find_any_free_chunk_available:
   .asciiz "Free chunk slot error"
 str_kernel_panic:
-  .byte  $0D
+  .byte $0D
   .byte "Kernel panic !"
   .byte $00

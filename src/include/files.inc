@@ -63,9 +63,9 @@
 ;   18-19               Last modified date
 ;   1A-1B               First cluster
 ;   1C-1F               File size
-filename    .res 12
-attributes  .res 1
-garbage     .res 14
+        filename    .res 12
+        attributes  .res 1
+        garbage     .res 14
 .endstruct
 
 

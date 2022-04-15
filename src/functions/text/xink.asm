@@ -43,17 +43,17 @@
   sec                       ;                                                   I
   lda     SCRFY,X           ;   on calcule le nombre de lignes                   I
   sbc     SCRDY,X           ;   de la fenêtre                                    I
-  tax         ;   dans X                                           I
-  inx         ;                                                    I
-  tya         ;   colonne 0 dans Y                                 I
-  bcs     @S5   ;   inconditionnel --------------------------------- I 
+  tax                       ;   dans X                                           I
+  inx                       ;                                                    I
+  tya                       ;   colonne 0 dans Y                                 I
+  bcs     @S5               ;   inconditionnel --------------------------------- I 
 @S4:
-  lda     #$00     ;  <----------------------------------------------+-- FIXME 65C02
-  ldx     #$A0     ;                                                 I  
-  sta     RES      ;  RES=$A000 , adresse HIRES                      I  
-  stx     RES+1     ;                                                  I  
-  ldx     #$C8    ;   X=200 pour 200 lignes                          I  
-  lda     #$00    ;   A=0 pour colonne de début = colonne 0          I  
+  lda     #$00              ;  <----------------------------------------------+-- FIXME 65C02
+  ldx     #$A0              ;                                                 I  
+  sta     RES               ;  RES=$A000 , adresse HIRES                      I  
+  stx     RES+1             ;                                                  I  
+  ldx     #$C8              ;   X=200 pour 200 lignes                          I  
+  lda     #$00              ;   A=0 pour colonne de début = colonne 0          I  
 @S5:
   plp         ;   on sort C <-------------------------------------  
   adc     #$00    ;   A=A+C                                             

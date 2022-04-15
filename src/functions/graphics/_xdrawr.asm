@@ -96,9 +96,9 @@ LE903:
   clc       ;  -->a-t-on parcouru la tangente ?                     
   lda     RES                                                          
   adc     RESB                                                          
-  sta     RESB     ;   (dans RESB)                                        
-  bcc     LE919   ;   non ---------------------------------------------- 
-  bit     HRS1+1     ;                                                    I
+  sta     RESB             ;   (dans RESB)                                        
+  bcc     LE919            ;   non ---------------------------------------------- 
+  bit     HRS1+1           ;                                                    I
   bpl     LE916   ;   dX>0 ------------------------------------        I
   jsr     XHRSCG_ROUTINE   ;   dX<0, on déplace vers                   I        I 
   jmp     LE919  ; ---la gauche                               I        I 

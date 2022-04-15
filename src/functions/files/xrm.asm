@@ -25,4 +25,3 @@
     lda     #ENOENT
     rts
 .endproc
-
