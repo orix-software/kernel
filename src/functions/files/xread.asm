@@ -6,14 +6,31 @@
 ; [OUT]  PTR_READ_DEST updated
 ; [OUT]  A could contains 0 or the CH376 state
 ; [OUT]  Y contains the last size of bytes 
-
+  ;jmp     XREADBYTES_ROUTINE
   ; Save PTR_READ_DEST to compute bytes
+
+
   pha
   lda     PTR_READ_DEST
   sta     RES
 ;
   lda     PTR_READ_DEST+1
   sta     RES+1
+
+  ; Compute the fp 
+
+  ; Checking if fp exists
+  jsr     checking_fp_exists
+  bcc     @continue_xfread
+  pla
+  ; Error return 0 bytes read
+  lda     #$00
+  tax
+  rts
+
+@continue_xfread:
+ 
+
   pla
 
 
@@ -50,13 +67,9 @@
   ; at this step PTR_READ_DEST is updated
   ; return now length
   ;  Compute nb of bytes read
-  lda     PTR_READ_DEST+1
-  sec
-  sbc     RES+1
-  tax
-  lda     PTR_READ_DEST
-  sec
-  sbc     RES
+
+
+  jsr     _update_fp_position
 
   rts	
 
@@ -86,3 +99,109 @@
   rts
 .endproc
 
+.proc _update_fp_position
+
+
+  sec
+  lda PTR_READ_DEST
+  sbc RES
+  tay
+  lda PTR_READ_DEST+1
+  sbc RES+1
+  tax
+  tya
+
+
+
+  ; X & A are the size to update
+  ; y is the fp
+
+  ; Save length
+
+  sta     XOPEN_RES
+  stx     XOPEN_RES+1
+  
+  ; compute fp
+  lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X
+  ; A is the id of the fp
+  sec
+  sbc     #KERNEL_FIRST_FD
+
+
+  asl
+  ; $16D0 $1709
+  tax
+
+  lda     kernel_process+kernel_process_struct::fp_ptr,x
+  sta     KERNEL_XOPEN_PTR1
+  inx
+  lda     kernel_process+kernel_process_struct::fp_ptr,x
+  sta     KERNEL_XOPEN_PTR1+1
+
+  ; Compute fp
+  ;fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
+  
+
+
+
+
+  ldy     #_KERNEL_FILE::f_seek_file
+
+
+
+  lda     (KERNEL_XOPEN_PTR1),y
+  clc
+  adc     XOPEN_RES
+  bcc     @do_not_inc
+
+  jsr     @increment_high_byte
+
+@do_not_inc:  
+  sta     (KERNEL_XOPEN_PTR1),y
+  iny
+  
+  lda     (KERNEL_XOPEN_PTR1),y
+  clc
+  adc     XOPEN_RES+1
+  bcc     @do_not_inc2  
+  jsr     @increment_high_byte
+
+@do_not_inc2:
+
+  sta     (KERNEL_XOPEN_PTR1),y
+
+  ; restore A & X
+
+  lda     XOPEN_RES
+  ldx     XOPEN_RES+1
+
+
+  rts
+
+@increment_high_byte:
+  pha
+  iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  clc
+  adc     #$01
+  bcc     @do_not_inc_next_byte_again
+  
+  iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  clc
+  adc     #$01
+
+  sta     (KERNEL_XOPEN_PTR1),y
+  dey
+
+
+@do_not_inc_next_byte_again:
+  sta     (KERNEL_XOPEN_PTR1),y
+
+
+  dey
+  pla
+
+
+  rts
+.endproc

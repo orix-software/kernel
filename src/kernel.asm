@@ -44,8 +44,8 @@ ADIODB_LENGTH=$08
 KERNEL_XOPEN_PTR1          := $04 ; DECBIN
 KERNEL_XOPEN_PTR2          := $06 ; DECFIN
 
-KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y := $04 ; DECBIN
-KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X := $05 ; DECBIN
+KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y := $51 ; DECBIN
+KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X := $52 ; DECBIN
 
 KERNEL_XFSEEK_SAVE_RES  := $06; DECBIN
 KERNEL_XFSEEK_SAVE_RESB := $4D ; DECBIN
@@ -452,10 +452,12 @@ init_process_init_cwd_in_struct:
   ;lda     #KERNEL_FIRST_FD                                      ; initialise to first FD available
   ;sta     kernel_process+kernel_process_struct::kernel_next_fd
   ; init FD
-  lda     #$00
-  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Store the current fd opened is 0
+  lda     #$FF
+  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Store the current fd opened is FF
+  
   ; A=00 at this step
   ldx     #$00
+  txa
 @init_fp:  
   sta     kernel_process+kernel_process_struct::kernel_fd,x
   inx

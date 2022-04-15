@@ -29,6 +29,7 @@ int main () {
     unsigned char totofp;
 
     unsigned char titifp;
+    unsigned char toread;
 
 
     //FILE *fp;
@@ -52,8 +53,8 @@ int main () {
     printf("nb bytes read toto.txt : %d\n",nbcharreadtoto);   
     printbuf(buftoto,nbcharreadtoto);
     //xexec_extern("lsmem");
-    
-    fseek_kernel( 0, SEEK_SET,totofp);
+  /*  
+    //fseek_kernel( 0, SEEK_SET,totofp);
     
     nbcharreadtoto=fread_kernel(buftoto, 20,  totofp);
 
@@ -61,9 +62,8 @@ int main () {
 
     printbuf(buftoto,nbcharreadtoto);
 
-    fseek_kernel( 0, SEEK_SET,totofp);
-    fseek_kernel( 2, SEEK_CUR,totofp);
-    nbcharreadtoto=fread_kernel(buftoto, 20,  totofp);
+
+    nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
 
     printf("nb bytes read toto.txt (third) : %d\n",nbcharreadtoto); 
 
@@ -71,7 +71,7 @@ int main () {
 
 
     printf("Value fp id toto.txt : %d\n",totofp);
-
+*/
     titifp=fopen_kernel("titi.txt","r");
 
     if (titifp==0xff) {
@@ -81,14 +81,17 @@ int main () {
 
     printf("Value fp id titi.txt : %d\n",titifp);
 
-    nbcharreadtiti=fread_kernel(buftiti, 2,  titifp);
+    nbcharreadtiti=fread_kernel(buftiti, 12,  titifp);
 
     printf("nb bytes read titi.txt : %d\n",nbcharreadtiti);   
     printbuf(buftiti,nbcharreadtiti);
 
+    toread=2;
+    printf("XXXXXXXXX toread: %d\n",toread);
+    
+    fseek_kernel( 1, SEEK_SET,totofp);
 
-    printf("XXXXXXXXX\n");
-  nbcharreadtoto=fread_kernel(buftoto, 20,  totofp);
+    nbcharreadtoto=fread_kernel(buftoto, 2,  totofp);
 
     printf("nb bytes read toto.txt : %d\n",nbcharreadtoto);  
     

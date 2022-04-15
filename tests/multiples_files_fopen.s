@@ -22,8 +22,8 @@
 .proc _fopen_kernel
     sta flag
 
-    ldx     #06     ; XVARS_KERNEL_BINARY_VERSION
-    BRK_TELEMON $24 ; XVARS
+   ; ldx     #06     ; XVARS_KERNEL_BINARY_VERSION
+  ;  BRK_TELEMON $24 ; XVARS
 ;@me:
     ;jmp @me
     jsr popax
@@ -91,7 +91,7 @@ tmp1:
     sta     RES
     sta     fd
 
-    jsr     popa
+    jsr     popa ; Get whence
     sta     whence
 
     lda     #$00
@@ -101,23 +101,23 @@ tmp1:
     sta     offset+3
     sta     offset+2
 
-    jsr     popax
+    jsr     popax ; Get offset
 
-    stx      tmp1
+   ; stx      tmp1
 
     sta     offset
     stx     offset+1
     
     
-    ldy    tmp1
+    ldy    offset+1
     
     ldx    whence
 
 XFSEEK           = $3F
 ;
 
-    fseek fd, offset, whence
-  ;  BRK_TELEMON XFSEEK
+  ;  fseek fd, offset, whence
+    BRK_TELEMON XFSEEK
 
 
 

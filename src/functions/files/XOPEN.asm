@@ -37,12 +37,13 @@
   sty     XOPEN_FLAGS
 
   ; 
-  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; Get if there is already a file open on ch376, if it's equal to 0, there is no file opened
-  beq     @open_new_file
+  ; Close current file if we already open a file
+  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
+  cmp     #$FF
+  bne     @open_new_file
 
   ; close it 
   jsr     _ch376_file_close
-  
 
 @open_new_file:
 .ifdef WITH_DEBUG2
@@ -414,10 +415,12 @@
   pla   ; restore Id of the fd
  
 
-  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
 
+  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
+  
   clc
   adc     #KERNEL_FIRST_FD
+
   ; Store the id of the fp opened in ch376
   
 
