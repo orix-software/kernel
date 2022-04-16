@@ -1,4 +1,4 @@
-; A,X,Y RES : 4 bytes values
+; return A,X,Y RES : 4 bytes values
 
 .proc getFileLength
 

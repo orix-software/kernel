@@ -1,7 +1,14 @@
 # 2022.2
 * [XMKDIR] Fix registers
 * [XATN] Arc Tan routine removed
+* [XCOS] Cosinus routine removed
+* [XSIN] Cosinus routine removed
+* [XLN] Ln routine removed
+* [XLOG] Ln routine removed
+* [XEXP] Ln routine removed
 * [XOPEN] WR_ONLY Flag now, does not create the file. O_CREAT is managed and create the file
+* [XFSEEK] now works
+* [XOPEN] [XREAD] [XCLOSE] Allows to open 2 files
 
 # 2020.2
 * [XOPEN] Now we can open files from with a string bigger than 17 bytes ...

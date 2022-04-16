@@ -86,16 +86,18 @@
   sta     (KERNEL_XOPEN_PTR2),y  
   ; FIXME : set path in the struct
 
+
+  jsr     _set_to_0_seek_file
   ; Set now seek position to 0 ("32 bits")
-  ldy     #_KERNEL_FILE::f_seek_file
-  lda     #$00
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  sta     (KERNEL_XOPEN_PTR1),y
+ ; ldy     #_KERNEL_FILE::f_seek_file
+  ;lda     #$00
+ ; sta     (KERNEL_XOPEN_PTR1),y
+ ; iny
+  ;sta     (KERNEL_XOPEN_PTR1),y
+ ; iny
+ ; sta     (KERNEL_XOPEN_PTR1),y
+  ;iny
+ ; sta     (KERNEL_XOPEN_PTR1),y
 
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1 ; $7c3

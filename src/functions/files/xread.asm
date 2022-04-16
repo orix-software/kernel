@@ -78,7 +78,7 @@
   sta     CH376_COMMAND
 
   lda     CH376_DATA                ; contains length read
-  beq     @finished                  ; we don't have any bytes to read then stops (Assinie report)
+  beq     @finished                 ; we don't have any bytes to read then stops (Assinie report)
   sta     TR0                       ; Number of bytes to read, storing this value in order to loop
 
   ldy     #$00
@@ -87,7 +87,7 @@
   sta     (PTR_READ_DEST),y         ; send data in the ptr address
   iny                               ; inc next ptr addrss
   cpy     TR0                       ; do we read enough bytes
-  bne     @loop                      ; no we read
+  bne     @loop                     ; no we read
   
   tya                               ; We could do "lda TR0" but TYA is quicker. Add X bytes to A in order to update ptr (Y contains the size of the bytes reads)
   clc                               ; 
@@ -96,112 +96,5 @@
   inc     PTR_READ_DEST+1
 @next:
   sta     PTR_READ_DEST
-  rts
-.endproc
-
-.proc _update_fp_position
-
-
-  sec
-  lda PTR_READ_DEST
-  sbc RES
-  tay
-  lda PTR_READ_DEST+1
-  sbc RES+1
-  tax
-  tya
-
-
-
-  ; X & A are the size to update
-  ; y is the fp
-
-  ; Save length
-
-  sta     XOPEN_RES
-  stx     XOPEN_RES+1
-  
-  ; compute fp
-  lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X
-  ; A is the id of the fp
-  sec
-  sbc     #KERNEL_FIRST_FD
-
-
-  asl
-  ; $16D0 $1709
-  tax
-
-  lda     kernel_process+kernel_process_struct::fp_ptr,x
-  sta     KERNEL_XOPEN_PTR1
-  inx
-  lda     kernel_process+kernel_process_struct::fp_ptr,x
-  sta     KERNEL_XOPEN_PTR1+1
-
-  ; Compute fp
-  ;fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
-  
-
-
-
-
-  ldy     #_KERNEL_FILE::f_seek_file
-
-
-
-  lda     (KERNEL_XOPEN_PTR1),y
-  clc
-  adc     XOPEN_RES
-  bcc     @do_not_inc
-
-  jsr     @increment_high_byte
-
-@do_not_inc:  
-  sta     (KERNEL_XOPEN_PTR1),y
-  iny
-  
-  lda     (KERNEL_XOPEN_PTR1),y
-  clc
-  adc     XOPEN_RES+1
-  bcc     @do_not_inc2  
-  jsr     @increment_high_byte
-
-@do_not_inc2:
-
-  sta     (KERNEL_XOPEN_PTR1),y
-
-  ; restore A & X
-
-  lda     XOPEN_RES
-  ldx     XOPEN_RES+1
-
-
-  rts
-
-@increment_high_byte:
-  pha
-  iny
-  lda     (KERNEL_XOPEN_PTR1),y
-  clc
-  adc     #$01
-  bcc     @do_not_inc_next_byte_again
-  
-  iny
-  lda     (KERNEL_XOPEN_PTR1),y
-  clc
-  adc     #$01
-
-  sta     (KERNEL_XOPEN_PTR1),y
-  dey
-
-
-@do_not_inc_next_byte_again:
-  sta     (KERNEL_XOPEN_PTR1),y
-
-
-  dey
-  pla
-
-
   rts
 .endproc

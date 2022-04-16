@@ -11,16 +11,16 @@
 ;#define SEEK_SET        2  	Beginning of file
   pha
 
-  sta     TR6
+  sta     TR0
   lda     RES
   sta     KERNEL_XFSEEK_SAVE_RES
   lda     RES+1
   sta     KERNEL_XFSEEK_SAVE_RES+1
   
   lda     RESB
-  sta     KERNEL_XFSEEK_SAVE_RESB
+  sta     RES5
   lda     RESB+1
-  sta     KERNEL_XFSEEK_SAVE_RESB+1
+  sta     RES5+1
 
   sty     TR7 ; save Y
   stx     TR4
@@ -70,66 +70,57 @@
   jsr     _ch376_seek_file32
 
   lda     KERNEL_XFSEEK_SAVE_RES
-  sec
-  sbc     #KERNEL_FIRST_FD
-  tax
 
   jsr     compute_fp_struct
 
-  jsr     getFileLength
-  sta     RES
-  sty     RES+1
-  lda     RESB
-  sta     RESB+1
-  ldx     RESB
+  jsr     getFileLength    ; return A,X,Y RES : 4 bytes values
 
+  ; Send A X Y RES (from getFileLength)
   jsr     _set_to_value_seek_file
 
   lda     #$00 ; Return ok
   rts
 
 @move:
+  ; A  : TR0 
+  ; Y  : TR7
+  ; 16 to 31  : RES5 (2 bytes)
 
-
-
-  ldx      RESB
-
-  jsr      _ch376_seek_file32
+  lda     RES5+1
+  sta     RESB
+  lda     TR0
+  ldy     TR7
+  ldx     RES5
+  
+  jsr     _ch376_seek_file32
 
 
   lda     KERNEL_XFSEEK_SAVE_RES
-  sec
-  sbc     #KERNEL_FIRST_FD
-  tax
 
   jsr     compute_fp_struct
 
   ldy     #_KERNEL_FILE::f_seek_file
   lda     (KERNEL_XOPEN_PTR1),y
-;  clc
-;  adc     TR6
-;;;  bcc     @do_not_inc_low8
-  iny
-;  pha
-  ;lda     (KERNEL_XOPEN_PTR1),y
- ; clc
- ; adc     #$01
-  ;pla
-;  dey
-;@do_not_inc_low8:
- ; sta     (KERNEL_XOPEN_PTR1),y
- ; iny
- ; sta     (KERNEL_XOPEN_PTR1),y
-;  iny
- ; sta     (KERNEL_XOPEN_PTR1),y
-  ;iny
- ; sta     (KERNEL_XOPEN_PTR1),y
+  clc
+  adc     TR0
+  sta     (KERNEL_XOPEN_PTR1),y
 
+  iny
+  adc     TR7
+  sta     (KERNEL_XOPEN_PTR1),y
+  
+  iny
+  adc     RES5
+  sta     (KERNEL_XOPEN_PTR1),y
+
+  iny
+  adc     RESB
+  sta     (KERNEL_XOPEN_PTR1),y
 
   lda     #$00 ; Return ok
   rts
 @go_beginning:
-
+  pha
   ; Seek from the beginning of the file
   lda     #$00
   tay
@@ -140,27 +131,21 @@
   
   
   ; And seek with offset now
-@me:
-  jmp     @me
-  lda     KERNEL_XFSEEK_SAVE_RESB+1
-  sta     RESB+1
 
-  lda     TR6
-  ldy     TR7
-  ldx     KERNEL_XFSEEK_SAVE_RESB
+  lda     RES5+1
+  sta     RESB
 
   
-  ;jsr     _ch376_seek_file32 ; Reset pos
+  ldy     TR7
+  pla  
+  ldx     RES5
 
-
+  
+  jsr     _ch376_seek_file32 ; Reset pos
 
 
   ; Get fd id
   lda     KERNEL_XFSEEK_SAVE_RES
-  sec
-  sbc     #KERNEL_FIRST_FD
-  tax
-
   jsr     compute_fp_struct
 
 

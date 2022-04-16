@@ -48,16 +48,13 @@
     ; seek now
 
 
-
-
-
-
     lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; Get again FD id
     sec
     sbc     #KERNEL_FIRST_FD
-    tax
 
     ; Compute the ptr of the fp and store it in KERNEL_XOPEN_PTR1
+    asl     ; Multiply*2 to get the otr
+    tax
     lda     kernel_process+kernel_process_struct::fp_ptr,x
     sta     KERNEL_XOPEN_PTR1
     inx
@@ -140,10 +137,8 @@
 
     lda     RES
     ldy     RES+1
-   
     
     jsr     _ch376_seek_file32
-
 
     lda     KERNEL_XFSEEK_SAVE_RESB
     sta     RES
@@ -168,19 +163,3 @@ restore:
 
 .endproc
 
-.proc _ch376_seek_file32
-    ; A Y X RES : 32 bits
-    pha
-    lda     #CH376_BYTE_LOCATE
-    sta     CH376_COMMAND
-    pla
-    sta     CH376_DATA
-    sty     CH376_DATA
-    stx     CH376_DATA
-    
-    lda     RESB
-    sta     CH376_DATA
-
-    jmp     _ch376_wait_response
-
-.endproc

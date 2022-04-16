@@ -21,8 +21,6 @@ ADIODB_LENGTH=$08
 .include   "include/ori3.inc"
 .include   "versions/versions.inc"
 
-
-
 .out   "=================================================================="
 .out   "Resume"
 .out   "=================================================================="
@@ -40,6 +38,7 @@ ADIODB_LENGTH=$08
 
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
+RES5                       := $0A
 
 KERNEL_XOPEN_PTR1          := $04 ; DECBIN
 KERNEL_XOPEN_PTR2          := $06 ; DECFIN
@@ -74,7 +73,7 @@ TELEMON_UNKNWON_LABEL_86:= $86
 FLPOLP := $85
 FLPO0  := $87
 
-PARSE_VECTOR:=$FFF1
+; PARSE_VECTOR:=$FFF1
 
 ; Boot sequence : 
 ; 1- init cpu (sei, cld, stack)
@@ -119,7 +118,7 @@ start_rom:
   inx
   bne     @nloop
 .endif
-  ;sty     FLGTEL
+
 
   ; Trying to mount 
 
@@ -131,14 +130,6 @@ start_rom:
 
   sta     KERNEL_CH376_MOUNT   
 
-  ;jsr     _ch376_check_exist
-	;cmp     #CH376_DETECTED
-	;bne     @usb_controler_not_detected
-  ; Trying to mount  now ! 
-  ;jsr     _ch376_set_usb_mode_kernel
-  ; Mount but not check
-  ;lda     #CH376_DISK_MOUNT
-  ;sta     CH376_COMMAND
 
 @usb_controler_not_detected:
 
@@ -325,10 +316,10 @@ next5:
   sta     FLGTEL
 @skip:
 
-  .ifdef WITH_DEBUG_BOARD
+.ifdef WITH_DEBUG_BOARD
   lda     #'D'
   sta     $bb80+3
-  .endif
+.endif
 
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
@@ -870,7 +861,7 @@ code_adress_493:
 code_adress_4A1:
   pha
   lda     VIA2::PRA
-  and     #%11111000 ;‭11111000‬
+  and     #%11111000 ;11111000
   ora     BNK_TO_SWITCH
   sta     VIA2::PRA
   pla
@@ -914,13 +905,10 @@ code_adress_get:
 
   pla                                ; Get the value
   rts
-  ;nop
+
 
 stack_bank_management:  
-  ;sta     BNKOLD ; store old bank before interrupt ?
-  ;lda     VIA2::PRA  ; Switch to telemon bank and jump  
-;RETURN_BANK:
- ; .res    1
+
 end_of_copy_page4:
 ; THIS ROUTINE IS COPIED IN $700 and will be in overlay RAM
 ; it can manage buffers
@@ -1005,10 +993,10 @@ LC639:
   lda     (IRQSVP),y
 .endif  
   clc
-LC660  
+LC660:
   rts
   
-LC661
+LC661:
   pha
   lda     BUFBUF+8,x
   cmp     BUFBUF+$0A,x
@@ -1158,18 +1146,6 @@ reset115_labels:
   lda     #$02
   pha
 
-  ; Check for CTRL
-  ;asl     KBDCTC
-  ;bcc     @continue_vector
-
- ; lda     #$00
-  ;sta     KBDCTC
-  ;pla
-  ;pla  
-  ;pla
-
-  ;jmp     $493
-
 
   ; then kill process :)
 @continue_vector:
@@ -1293,7 +1269,7 @@ manage_irq_T1_and_T2:
   lda     FLGJCK
   lsr
   bcc     routine_todefine_1
-  jsr     le085 
+ ; jsr     le085 
   jmp     LC8B9 
 
 routine_todefine_1:
@@ -1342,7 +1318,7 @@ next113
 Lca0b  
   bvc     Lca10
   
- ; jsr     Ldffb
+
 Lca10:
   lda     FLGJCK
   lsr
@@ -1361,6 +1337,7 @@ next112
   jmp     LC8B9
 
 .proc manage_printer
+  rts     ; Stop printer management
   ldx     #$24
   jsr     XLISBU_ROUTINE 
   bcc     @skip
@@ -1790,6 +1767,13 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/files/xmkdir.asm"  
 .include  "functions/files/xrm.asm"
 .include  "functions/files/xopendir.asm"
+.include  "functions/files/_update_fp_position.asm"
+.include  "functions/files/_ch376_seek_file32.asm"
+.include  "functions/files/byte_wr_go.asm"
+
+
+.include  "functions/strings/xminma.asm"
+
 
 .include  "functions/xdecal.asm"
 
@@ -1886,23 +1870,15 @@ table_to_define_prompt_charset_empty:
 
 .include "functions/xvars.asm"
   
-.proc XMINMA_ROUTINE
-  cmp     #"a" ; 'a'
-  bcc     @skip
-  cmp     #$7B ; 'z'
-  bcs     @skip
-  sbc     #$1F
-@skip:
-  rts
-.endproc
+
 
 .proc _ch376_set_usb_mode_kernel
-    lda     #CH376_SET_USB_MODE ; $15
-    sta     CH376_COMMAND
+  lda     #CH376_SET_USB_MODE ; $15
+  sta     CH376_COMMAND
 
-    lda     KERNEL_CH376_MOUNT
-    sta     CH376_DATA	
-    rts
+  lda     KERNEL_CH376_MOUNT
+  sta     CH376_DATA	
+  rts
 .endproc  
 
 CTRL_G_KEYBOARD: ; Send oups
@@ -2081,12 +2057,12 @@ skipme2001:
   tax
   inx
   bne     loop23
-next22:  ;$D946
+next22:  
   pla
   sec
   ror
   dey
-  bpl     loop21 ; D94A
+  bpl     loop21 
 
   ldy     #$08
 @L1:
@@ -2129,6 +2105,7 @@ manage_I_O_keyboard:
   plp
   sec
   rts
+
 skip2005:
   bcc     @skip3
   lda     #$40
@@ -2226,7 +2203,6 @@ XSONPS_ROUTINE:
   rts
   
 
-
 init_printer:
   lda     #$07
   ldx     #$7F
@@ -2262,20 +2238,14 @@ LDAF7
   jmp     XLISBU_ROUTINE 
 @skip:
 
+
+
+
 Ldb09:
-
-  rts
-
-
 Ldb12:
   rts
 
 LDB26:
- ; pha                     ;     <---------------------------------------        I I
- ; ldx     #$18            ;     on envoie la donnée                             I I
- ; jsr     XECRBU_ROUTINE  ;     dans le BUFFER ACIA sortie                      I I
- ; pla                     ;                                                     I I 
- ; bcs     LDB26           ;     si la donnée n'a pas été écrite, on boucle      I I
 LDB2F:
   rts
 
@@ -2295,13 +2265,11 @@ LDB5D:
 
 
 LDB66:
-
   rts                                                              
 
 ;                      GESTION DE LA SORTIE RS232                         
 LDB79:
- ; bpl     LDB26     ; Ecriture, comme MINITEL
-;  bcs     LDB53     ; pas de fermeture (rts) 
+
 LDB7D:
 
 
@@ -2525,7 +2493,7 @@ CTRL_US_START:
 ;                               CODE 27 - ESC                                
 CTRL_ESC_START:
 ;                             on prépare masque %00001000                       
-  ROR
+  ror
 ;                             CODE 29 - CTRL ]                              
 
 ;                            on prépare masque %00010000   
@@ -2666,12 +2634,12 @@ CTRL_J_START:
 CTRL_L_START:
   jsr     CTRL_HOME_START     ;  on remet le curseur en haut de la fen?tre         
 @loop:
-  jsr     CTRL_N_START               ;  on efface la ligne courante
-  lda     SCRY,x              ; on est à la fin de la fenêtre ?
+  jsr     CTRL_N_START        ;  on efface la ligne courante
+  lda     SCRY,x              ;  on est à la fin de la fenêtre ?
   cmp     SCRFY,x             ;                                                     
   beq     CTRL_HOME_START     ;  oui, on sort en replaçant le curseur en haut     
   jsr     CTRL_J_START        ;  non, on déplace le curseur vers le bas            
-  jmp     @loop               ; et on boucle  (Et bpl, non ?!?!)                  
+  jmp     @loop               ;  et on boucle  (Et bpl, non ?!?!)                  
 
 ;  CODE 19 - CTRL S                              
 CTRL_S_START:
@@ -2692,17 +2660,17 @@ CTRL_G_START:
   ldy     #$60                        ;   I                                                 
   ldx     #$00                        ;   I                                                
 @loop:
-  dex         ;    I Délai d'une seconde                             
+  dex               ;    I Délai d'une seconde                             
   bne     @loop     ;  I                                                 
-  dey           ;  I                                                 
+  dey               ;  I                                                 
   bne     @loop     ;  I                                                 
   lda     #$07      ;  un jmp init_printer suffisait ...                        
   ldx     #$3F                                                         
   jmp     XEPSG_ROUTINE
 
-XOUPS_DATA
+XOUPS_DATA:
   .byt    $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4) 
-LDDF6
+LDDF6:
   .byt    00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
 
 ;                           INITIALISE UNE FENETRE
@@ -2778,10 +2746,10 @@ LDECE
   bcc      LDED7             ;  si C=0 on passe ------------                      
   ldx      SCRNB             ;                             I                      
   jsr      XCOSCR_ROUTINE    ;  on éteint le curseur       I                      
-  pla                   ;  et on sort A de la pile    I                      
-  rts          ;                             I    
+  pla                        ;  et on sort A de la pile    I                      
+  rts                        ;                             I    
 LDED7:
-  lda      #$01     ;  on met 1 en $216 <----------                      
+  lda      #$01      ;  on met 1 en $216 <----------                      
   sta      FLGCUR                                                        
   lda      #$80      ; on force b7 à 1 dans $217                         
   sta      FLGCUR_STATE                                                        
@@ -2818,7 +2786,7 @@ ROUTINE_TO_DEFINE_7:
   tax
   ldy     #$05
 
-next18
+next18:
   plp
 
   php
@@ -2889,8 +2857,7 @@ next15:
   lda     VIA2::PRB
   and     #$1F
   rts
-  sec ; ????
-  rts ; ????
+
   
 telemon_values_for_JCKTAB
   .byt     $0b,$0a,$20,$08,$09,$03,$03
@@ -2898,72 +2865,25 @@ Ldffa:
   rts
 Ldffb:
   lda     JCGVAL
-  and     #$04
-  bne     @S1
   jsr     Ldf90 
-  and     #$04
-  bne     @S2
-  dec     MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
-  bne     @S3
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  jmp     @S2 
-@S1:
-  jsr     Ldf90 
-  and     #$04
-  bne     @S3
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
-@S2:
+
   stx     MOUSE_JOYSTICK_MANAGEMENT+2 ; CORRECTME
-  sta     VABKP1 ; CORRECTME
-  lda     JCGVAL
-  and     #$1B
-  ora     VABKP1 ; CORRECTME
-  sta     JCGVAL
-  lda     VABKP1 ; CORRECTME
-  bne     @S3
+
+
   lda     JCKTAB ; CORRECTME
   jsr     Le19f 
 @S3:
-  lda     JCGVAL
-  and     #$1B
-  eor     #$1B
-  beq     @S4
-  jsr     Ldf90 
-  and     #$1B
-  sta     VABKP1 ; CORRECTME
-  lda     JCGVAL
-  and     #$1B
-  eor     VABKP1
-  bne     @S5
+
   dec     MOUSE_JOYSTICK_MANAGEMENT
-  bne     Le084
+
   ldx     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  jmp     @S6
-@S4:
-  jsr     Ldf90 
-  and     #$1B
-  sta     VABKP1 ; CORRECTME
-@S5:
+ 
   ldx     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
-@S6:
-  stx     MOUSE_JOYSTICK_MANAGEMENT ; CORRECTME
-  lda     JCGVAL
-  and     #$04
-  ora     VABKP1 ; CORRECTME
-  sta     JCGVAL
-  ldx     #$04
-  ora     #$04
-@S8:
-  lsr
-  pha
-  bcs     @S7
-  lda     JCKTAB,x
-  jsr     Le19f 
-@S7:
-  pla
-  dex
-  bpl     @S8
-Le084
+
+
+
+
+Le084:
   rts
 
 le085:
@@ -3629,11 +3549,10 @@ Le921:
   sty     RES                                                          
   jsr     XDIVIS_ROUTINE    ;  calcul dX*256/dY (ou dY/dX)                    
   lda     #$FF              ;  reste =-1                                         
-  sta     RESB              ;    resultat dans RES                                 
+  sta     RESB              ;  resultat dans RES                                 
   rts   
 
-.include "functions/graphics/xcurse.asm"
-
+.include "functions/graphics/xcurse.asm" 
 ;                          ROUTINE CURMOV
 .proc XCURMO_ROUTINE
   jsr      check_relative_parameters    ;  on vérifie les paramêtres                        
@@ -3649,7 +3568,7 @@ check_relative_parameters:
   clc                                                              
   lda      HRSX     ;   on prend HRSX                                     
   adc      HRS1     ;   plus le déplacement horizontal                    
-  tax               ;  dans X                                            
+  tax               ;   dans X                                            
   clc                                                              
   lda      HRSY     ;   HRSY                                              
   adc      HRS2     ;   plus le déplacement vertical                      
@@ -3659,16 +3578,16 @@ check_relative_parameters:
 ; Principe:Si X>239 ou Y>199 alors on ne retourne pas au programme appelant, mais son appelant, en indiquant l'erreur dans HRSERR.                     
 
 hires_verify_position:
-  cpx     #$F0     ;  X>=240 ?                                          
-  bcs     @skip    ;   oui ---------------------------------------------- 
-  cpy     #$C8     ;   Y>=200 ?                                         I
-  bcs     @skip    ;   oui ---------------------------------------------O
-  rts              ;   coordonnées ok, on sort.                         I
+  cpx     #$F0     ;    X>=240                                           
+  bcs     @skip    ;    oui ---------------------------------------------- 
+  cpy     #$C8     ;    Y>=200                                         I
+  bcs     @skip    ;    oui ---------------------------------------------O
+  rts              ;    coordonnées ok, on sort.                         I
 @skip:
-  pla              ;  on dépile poids fort (>0) <-----------------------
-  sta     HRSERR   ;  dans HRSERR                                       
-  pla              ;  et poids faible de l'adresse de retour            
-  rts              ;  et on retourne ? l'appelant de l'appelant    
+  pla              ;   on dépile poids fort (>0) <-----------------------
+  sta     HRSERR   ;   dans HRSERR                                       
+  pla              ;   et poids faible de l'adresse de retour            
+  rts              ;   et on retourne a l'appelant de l'appelant    
 
 
 
@@ -3681,7 +3600,7 @@ XINK_ROUTINE:
 
 ;                    FIXE LA COULEUR DE FOND OU DU TEXTE                     
 
-;Principe:A contient la couleur, X la fenêtre ou 128 si mode HIRES et C=1 si la  
+;Principe: A contient la couleur, X la fenêtre ou 128 si mode HIRES et C=1 si la  
 ;couleur est pour l'encre, 0 pour le fond.                              
 ;         Changer la couleur consiste à remplir la colonne couleur correspondante
 ;         avec le code de couleur. Auncun test de validité n'étant fait, on peut 
@@ -4116,17 +4035,15 @@ read_a_file_rs232_minitel:
   jsr     read_header_file  
 @skip: 
   jsr     compute_file_size 
-  bit     INDRS
-  bvc     LEE6C  
-  lda     #$FF
- ; sta     $052A  ;FIXME
-  ;sta     $052B  ;FIXME
+ ; bit     INDRS
+  ;bvc     LEE6C  
+  ;lda     #$FF
+
 LEE6C:
-  ldy     #$00
-  sty     TR2
+  ;ldy     #$00
+  ;sty     TR2
 LEE70:
-;  lda     $052A ; FIXME
- ; beq     LEE86  
+
   jsr     Lec6b 
   sta     (RES),y
   ;dec     $052A   ; FIXME
@@ -4137,19 +4054,19 @@ LEE70:
 LEE86:
   ;lda     $052B
   ;beq     LEE9D  
-  ldy     #$00
+ ; ldy     #$00
 LEE8D:
   jsr     Lec6b 
-  sta     (RES),y
-  iny
+ ; sta     (RES),y
+;  iny
   bne     LEE8D  
-  inc     RES+1
+;  inc     RES+1
   ;dec     $052B
 
   jmp     LEE86  
-LEE9D  
+LEE9D:
   jsr     Lec6b  
-  ora     #$30
+ ; ora     #$30
   jmp     Ldbb5  
 
 _strcpy:
@@ -4419,65 +4336,41 @@ LF0FC:
 LF106:
   clc
   rts  
-const_ln_10:
-  .byt    $82,$13,$5D,$8D,$DE ; 2.302585093 = ln(10)
 
-const_pi_degree:  
-  .byt    $88,$34,$00,$00,$00
 
-polynome_ln_coef:
-  .byt    $03,$7F,$5E,$56,$CB,$79,$80,$13,$9B
-  .byt    $0B,$64,$80,$76,$38,$93,$16
-  .byt    $82,$38,$AA,$3F,$20 ; 2.885390073 = 2/ln(2)
-
-  
-const_for_ln: 
-const_sqr_two_divided_by_two:
-  .byt    $80,$35,$04,$F3,$34 ; sqr(2/2) = 0.7071067812
-const_sqr_two:  
-  .byt    $81,$35,$04,$F3,$34 ; sqr(2) = 1.414213562
 const_negative_zero_dot_five:
   .byt    $80,$80,$00,$00,$00 ; -0.5
-const_ln_2:  
-  .byt $80,$31,$72,$17,$F8 ; ln(2) = 0.683147806
-LF140
+
+LF140:
   rts
-LF141  
+LF141: 
   lda     #$02
   jmp     LF0C9 
 
 XLN_ROUTINE:
-  tsx
   stx     FLSVS
 LF149:
   jsr     LF3BD  
   beq     LF141
   bmi     LF141
   lda     ACC1E
-  sbc     #$7F
+
   pha
-  lda     #$80
+
   sta     ACC1E
-  lda     #<const_for_ln 
-  ldy     #>const_for_ln 
+
   jsr     AY_add_acc1  
-  lda     #<const_sqr_two 
-  ldy     #>const_sqr_two 
+
   jsr     Lf287  
-  lda     #<const_atn_1 
-  ldy     #>const_atn_1 
+
   jsr     ACC2_ACC1 
-  lda     #<polynome_ln_coef
-  ldy     #>polynome_ln_coef
+
   jsr     LF6E1  
-  lda     #<const_negative_zero_dot_five 
-  ldy     #>const_negative_zero_dot_five 
+
   jsr     AY_add_acc1  
   pla
   jsr     LF9E9  
-  lda     #<const_ln_2   
-  ldy     #>const_ln_2   
-   
+
 LF184:
   jsr     LF1EC 
   beq     LF140
@@ -4596,9 +4489,9 @@ LF237:
   pla
   pla
   jmp     Lf042 
-Lf23c
+Lf23c:
   jmp     LF0C7 
-Lf23f    
+Lf23f:
   jmp     LF046 
 ; 10*acc1->acc1  
 Lf242
@@ -4613,11 +4506,11 @@ Lf242
   jsr     LEFC2 
   inc     ACC1E
   beq     Lf23c
-Lf258
+Lf258:
   rts
-ten_in_floating_point
+ten_in_floating_point:
   .byt     $84,$20,$00,$00,$00 ; Ten in floating point
-Lf25e
+Lf25e:
 acc1_1_divide_10_in_acc1
   jsr     XA1A2_ROUTINE 
   ldx     #$00
@@ -4630,12 +4523,11 @@ LF267
   jmp     XA2DA1_ROUTINE  
   
 XLOG_ROUTINE:
-  tsx
+  ;tsx
   stx     FLSVS
   jsr     LF149 
   jsr     XA1A2_ROUTINE 
-  lda     #<const_ln_10
-  ldy     #>const_ln_10
+
   jsr     XAYA1_ROUTINE 
   jmp     XA2DA1_ROUTINE  
 
@@ -4660,7 +4552,7 @@ XA2DA1_ROUTINE:
   beq     Lf23c
   ldx     #$FC
   lda     #$01
-LF2A4  
+LF2A4:
 
   ldy     ACC2M 
   cpy     ACC1M
@@ -4674,7 +4566,7 @@ LF2A4
   ldy     ACC2M+3
   cpy     MENX
 
-LF2BA  
+LF2BA:
   php
   rol
   bcc     LF2CA 
@@ -4690,10 +4582,10 @@ Lf2c7
 LF2C8  
   lda     #$40
   ;
-LF2CA  
+LF2CA:
   plp
   bcs     LF2DB 
-LF2CD  
+LF2CD:
 
   asl     ACC2M+3
   rol     ACC2M+2
@@ -4703,7 +4595,7 @@ LF2CD
   bmi     LF2A4 
   bpl     LF2BA
 
-LF2DB  
+LF2DB:
   tay
   lda     ACC2M+3
   sbc     MENX
@@ -4719,7 +4611,7 @@ LF2DB
   sta     ACC2M
   tya 
   jmp     LF2CD 
-LF2F8  
+LF2F8:
   asl
   asl
   asl
@@ -4730,7 +4622,7 @@ LF2F8
   plp
 
 ; acc3->acc1  
-Lf301
+Lf301:
 
 
   lda     ACC3
@@ -4742,8 +4634,6 @@ Lf301
   lda     TELEMON_UNKNWON_LABEL_72
   sta     MENX
   jmp     Lf022
-
-
 
 
 XAYA1_ROUTINE:
@@ -4768,10 +4658,10 @@ XAYA1_ROUTINE:
   sta     ACC1E
   sty     ACC1EX
   rts
-LF348
+LF348:
   ldx     #$73
   .byt    $2C
-LF34B
+LF34B:
   ldx     #$78
   ldy     #$00
 
@@ -4803,7 +4693,7 @@ XA1XY_ROUTINE:
 
 XA2A1_ROUTINE  
   lda     ACC2S
-LF379  
+LF379:
   sta     ACC1S
   ldx     #$05
 @L1:  
@@ -4829,7 +4719,8 @@ LF38C:
   stx     ACC1EX
 LF395:
   rts
-XAA1_ROUTINE
+
+XAA1_ROUTINE:
   lda     ACC1E
   beq     LF395
   asl     ACC1EX
@@ -4849,7 +4740,7 @@ XA1IAY_ROUTINE:
   ldy     MENDFY
   rts  
 
-LF3B8  
+LF3B8:
   lda     #$0A
   jmp     LF0C9  
 
@@ -4864,15 +4755,15 @@ LF3C3:
   bcs     LF3CA
   lda     #$01
 LF3CA:
-rts
+  rts
 
   jsr     LF3BD ; FIXME
   .byt     $2c
 
-LF3CD
+LF3CD:
 ;  ACC=-
   lda      #$ff
-LF3D1  
+LF3D1:
   sta      ACC1M
   lda      #$00
   sta      TELEMON_UNKNWON_LABEL_62
@@ -4880,7 +4771,7 @@ LF3D1
   lda      ACC1M
   eor      #$FF
   rol
-LF3DE  
+LF3DE:
   lda      #$00
   sta      MENDFY
   sta      MENX
@@ -5375,9 +5266,6 @@ LF72A
 .include "functions/math/xrnd.asm"
 .include "functions/math/xrand.asm"
 
-
-const_atn_1:
-  .byt    $81,$00,$00,$00,$00 ; 1 coef 0
 
 
 XADNXT_ROUTINE:

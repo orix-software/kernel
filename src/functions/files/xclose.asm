@@ -41,7 +41,7 @@
 @found_fp_slot:
 
     
-    pha
+
 
     ; Process should be called here
 .ifdef WITH_DEBUG
@@ -53,6 +53,21 @@
         
 .endif
 
+    txa
+    asl
+    
+    ;pha
+    
+   ; tax
+;    lda     kernel_process+kernel_process_struct::fp_ptr,x
+    ;pha
+    ;inx
+    ;lda     kernel_process+kernel_process_struct::fp_ptr,x
+    ;tay
+    ;pla
+    ;jsr     XFREE_ROUTINE
+    ;pla
+    tax
     ; remove fp from main struct
     lda     #$00
     sta     kernel_process+kernel_process_struct::fp_ptr,x
@@ -90,8 +105,7 @@
     iny
     sta     (RESB),y
 
-    pla
-    tax
+
 
     ; Flush entry
     ldx     TR7

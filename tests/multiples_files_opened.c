@@ -72,6 +72,7 @@ int main () {
 
     printf("Value fp id toto.txt : %d\n",totofp);
 */
+
     titifp=fopen_kernel("titi.txt","r");
 
     if (titifp==0xff) {
@@ -81,15 +82,15 @@ int main () {
 
     printf("Value fp id titi.txt : %d\n",titifp);
 
-    nbcharreadtiti=fread_kernel(buftiti, 12,  titifp);
+    nbcharreadtiti=fread_kernel(buftiti, 3,  titifp);
 
     printf("nb bytes read titi.txt : %d\n",nbcharreadtiti);   
     printbuf(buftiti,nbcharreadtiti);
-
+/*
     toread=2;
     printf("XXXXXXXXX toread: %d\n",toread);
     
-    fseek_kernel( 10, SEEK_SET,totofp);
+  //  fseek_kernel( 10, SEEK_SET,totofp);
 
     nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
 
@@ -107,7 +108,7 @@ int main () {
 
 
 
-    fseek_kernel( 0, SEEK_SET,totofp);
+   // fseek_kernel( 0, SEEK_SET,totofp);
 
     nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
 
@@ -117,7 +118,7 @@ int main () {
 
 
 
-    fseek_kernel( 0, SEEK_SET,titifp);
+    fseek_kernel( 1, SEEK_CUR,titifp);
 
 
     nbcharreadtiti=fread_kernel(buftiti, 20,  titifp);
@@ -134,5 +135,6 @@ int main () {
     //nb=fwrite(buf,4,1,fp);
     //printf("nb %d\n",nb);
     //fclose(fp);
+    */
     return 0;
 }

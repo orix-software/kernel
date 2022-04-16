@@ -64,23 +64,19 @@
     jmp     _ch376_wait_response
 .endproc    
 	
-; [IN] AY : ptr
+; [IN] AYX + RES : the 32 bits values
 .proc _ch376_seek_file
 
     ldx     #CH376_BYTE_LOCATE
     stx     CH376_COMMAND
     sta     CH376_DATA
     sty     CH376_DATA
-.IFPC02
-.pc02      
-    stz     CH376_DATA
-    stz     CH376_DATA
-.p02    
-.else	
-    lda     #$00
+
+    stx     CH376_DATA
+    
+    lda     RES
     sta     CH376_DATA
-    sta     CH376_DATA
-.endif	
+
     jsr     _ch376_wait_response
     rts
 .endproc
