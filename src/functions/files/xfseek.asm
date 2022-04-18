@@ -3,12 +3,7 @@
 ; [IN] AY position 0 to 15
 ; [IN] RESB position 0 to 31
 ; [IN] RES fd
-; 
 
-
-;#define SEEK_CUR        0 
-;#define SEEK_END        1
-;#define SEEK_SET        2  	Beginning of file
   pha
 
   sta     TR0
@@ -22,7 +17,7 @@
   lda     RESB+1
   sta     RES5+1
 
-  sty     TR7 ; save Y
+  sty     TR7                    ; save Y
   stx     TR4
 
   ldx     KERNEL_XFSEEK_SAVE_RES ; Load FP in order to store
@@ -86,13 +81,9 @@
   ; Y  : TR7
   ; 16 to 31  : RES5 (2 bytes)
 
-  lda     RES5+1
-  sta     RESB
-  lda     TR0
-  ldy     TR7
-  ldx     RES5
+
   
-  jsr     _ch376_seek_file32
+;  jsr     _ch376_seek_file32
 
 
   lda     KERNEL_XFSEEK_SAVE_RES
@@ -104,18 +95,34 @@
   clc
   adc     TR0
   sta     (KERNEL_XOPEN_PTR1),y
-
-  iny
-  adc     TR7
-  sta     (KERNEL_XOPEN_PTR1),y
+  sta     TR0
   
   iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  adc     TR7
+  sta     (KERNEL_XOPEN_PTR1),y
+  sta     TR7
+
+  
+  iny
+  lda     (KERNEL_XOPEN_PTR1),y
   adc     RES5
   sta     (KERNEL_XOPEN_PTR1),y
+  sta     RES5
 
   iny
-  adc     RESB
+  lda     (KERNEL_XOPEN_PTR1),y
+  adc     RES5+1
   sta     (KERNEL_XOPEN_PTR1),y
+  sta     RESB
+
+
+
+  lda     TR0
+  ldy     TR7
+  ldx     RES5
+  jsr     _ch376_seek_file32
+
 
   lda     #$00 ; Return ok
   rts
@@ -128,7 +135,6 @@
   sta     RESB
   jsr     _ch376_seek_file32 ; Reset pos
 
-  
   
   ; And seek with offset now
 

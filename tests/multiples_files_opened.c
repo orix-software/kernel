@@ -14,11 +14,11 @@ unsigned char buftiti[1000];
 
 void printbuf(unsigned char buf[], unsigned char length) {
     unsigned char i;
-    printf("Content : ");
+    printf("Content : #");
     for (i=0;i<length;i++) {
         printf("%c",buf[i]);
     }
-    printf("\n");
+    printf("#\n");
 }
 
 
@@ -86,18 +86,18 @@ int main () {
 
     printf("nb bytes read titi.txt : %d\n",nbcharreadtiti);   
     printbuf(buftiti,nbcharreadtiti);
-/*
+
     toread=2;
     printf("XXXXXXXXX toread: %d\n",toread);
     
-  //  fseek_kernel( 10, SEEK_SET,totofp);
+    fseek_kernel(  2, SEEK_CUR,totofp);
 
     nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);
 
     printf("nb bytes read toto.txt : %d\n",nbcharreadtoto);  
     
     printbuf(buftoto,nbcharreadtoto);
-
+/*
     fseek_kernel( 2, SEEK_SET,totofp);
 
     nbcharreadtoto=fread_kernel(buftoto, 5,  totofp);

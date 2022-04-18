@@ -1,11 +1,8 @@
 
 
-RESC := DECDEB 
-RESD := DECFIN
-RESE := DECCIB
-RESF := DECTRV
-RESG := ACCPS
 
+
+; Calls XFREE
 
 
 .proc kernel_try_to_find_command_in_bin_path

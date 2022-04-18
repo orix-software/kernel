@@ -4,8 +4,6 @@
 
 .proc checking_fp_exists
     ; X fp to find
-    ;clc
-    ;rts
     ; Save A & X
 
 
@@ -22,12 +20,6 @@
     bcs     @doesnot_exists                                        ; Yes error
     
     tax
-    ;lda     kernel_process+kernel_process_struct::kernel_fd,x
-    ;beq     @doesnot_exists
-
-    ;tax
-    ;clc
-    ;adc     #KERNEL_FIRST_FD
 
     cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; is equal to 0 ? No opened files yet ...
     beq     @do_not_seek
@@ -49,17 +41,9 @@
 
 
     lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; Get again FD id
-    sec
-    sbc     #KERNEL_FIRST_FD
 
-    ; Compute the ptr of the fp and store it in KERNEL_XOPEN_PTR1
-    asl     ; Multiply*2 to get the otr
-    tax
-    lda     kernel_process+kernel_process_struct::fp_ptr,x
-    sta     KERNEL_XOPEN_PTR1
-    inx
-    lda     kernel_process+kernel_process_struct::fp_ptr,x
-    sta     KERNEL_XOPEN_PTR1+1
+    jsr     compute_fp_struct
+
 
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
@@ -117,9 +101,6 @@
 @send_end_out:
 
     jsr     send_0_to_ch376_and_open
-
-
-
 
     ldy     #_KERNEL_FILE::f_seek_file
 

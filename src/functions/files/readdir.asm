@@ -1,5 +1,5 @@
-.proc XOPENDIR
-	jsr		XOPEN_ROUTINE
+.proc XREADDIR_ROUTINE
+	;jsr		XOPEN_ROUTINE
 
 
 	rts

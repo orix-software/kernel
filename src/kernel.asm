@@ -40,6 +40,12 @@ ADIODB_LENGTH=$08
 
 RES5                       := $0A
 
+RESC                       := DECDEB  ; $04
+RESD                       := DECFIN  ; $06
+RESE                       := DECCIB  ;
+RESF                       := DECTRV  ;
+RESG                       := ACCPS   ;
+
 KERNEL_XOPEN_PTR1          := $04 ; DECBIN
 KERNEL_XOPEN_PTR2          := $06 ; DECFIN
 

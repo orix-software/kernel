@@ -2,6 +2,7 @@
 
 .proc XCLOSE_ROUTINE
     ; A & Y contains fd
+    ; Calls XFREE
     sta     RESB
     sty     RESB+1 ; save fp
 
@@ -56,17 +57,17 @@
     txa
     asl
     
-    ;pha
+    pha
     
    ; tax
-;    lda     kernel_process+kernel_process_struct::fp_ptr,x
+   ; lda     kernel_process+kernel_process_struct::fp_ptr,x
     ;pha
-    ;inx
-    ;lda     kernel_process+kernel_process_struct::fp_ptr,x
+    inx
+   ; lda     kernel_process+kernel_process_struct::fp_ptr,x
     ;tay
     ;pla
     ;jsr     XFREE_ROUTINE
-    ;pla
+    pla
     tax
     ; remove fp from main struct
     lda     #$00

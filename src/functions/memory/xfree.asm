@@ -8,6 +8,7 @@
 .proc XFREE_ROUTINE
 
   sta     KERNEL_XFREE_TMP    ; Save A (low)
+  ;sty     RES5
 
 .ifdef WITH_DEBUG3
   jsr     kdebug_save
@@ -30,8 +31,8 @@
   jsr     kdebug_restore
 .endif  
 
-; **************************************************************************************
-; Try to find chunk
+  ; **************************************************************************************
+  ; Try to find chunk
   ; Search which chunck is used
   ldx     #$00
 
@@ -63,6 +64,7 @@
   rts
 
 @busy_chunk_found:
+  ; X contains the id of the busy chunk
   lda     KERNEL_XFREE_TMP ; ????
 
 .ifdef WITH_DEBUG2
@@ -131,7 +133,10 @@
 .ifdef WITH_DEBUG2
   jsr xdebug_enter_XFREE_new_freechunk  
 .endif
-
+;@me:
+  ;lda KERNEL_XFREE_TMP
+  ;ldy RES5
+  ;jmp @me
   ; Looking for Free chunk available
   ldy     RES+1
 @find_a_free_chunk:

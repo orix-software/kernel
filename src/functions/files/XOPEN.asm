@@ -7,7 +7,7 @@
 ; OUTPUT
 ;     A=$FF and X=$FF if it does not exists
 ;     FD id  in A 
-
+; Calls XFREE
 
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
   ; Save string in 2 locations RES
