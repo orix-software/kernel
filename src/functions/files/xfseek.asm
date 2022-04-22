@@ -3,7 +3,12 @@
 ; [IN] AY position 0 to 15
 ; [IN] RESB position 0 to 31
 ; [IN] RES fd
-
+  .out     .sprintf("|MODIFY:TR0:XFSEEK_ROUTINE") 
+  .out     .sprintf("|MODIFY:TR7:XFSEEK_ROUTINE")
+  .out     .sprintf("|MODIFY:TR4:XFSEEK_ROUTINE")  
+  .out     .sprintf("|MODIFY:RESB:XFSEEK_ROUTINE")
+  .out     .sprintf("|MODIFY:RES:XFSEEK_ROUTINE")  
+  
   pha
 
   sta     TR0

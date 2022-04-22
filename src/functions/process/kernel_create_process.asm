@@ -1,4 +1,8 @@
 .proc kernel_create_process
+.out     .sprintf("|MODIFY:RES:kernel_create_process")
+.out     .sprintf("|MODIFY:RESB:kernel_create_process")
+.out     .sprintf("|MODIFY:TR4:kernel_create_process")
+.out     .sprintf("|MODIFY:TR5:kernel_create_process")
 
 ; [in]     => A & Y : pointer of the string command
 ; [modify] => TR4, TR5, TR7 (XMALLOC), A, X, Y, RESB, RES, KERNEL_ERRNO, kernel_process+kernel_process_struct::kernel_pid_list, KERNEL_MALLOC_TYPE

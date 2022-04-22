@@ -1,12 +1,14 @@
 .proc xdebug_print_with_a
     rts
     pha
+
     lda  #<$c006
     sta  VEXBNK+1
     lda  #>$c006
     sta  VEXBNK+2
     lda  #$01
     sta  BNKCIB
+
     pla
     rts
     jmp  $40C    
@@ -14,10 +16,11 @@
 .endproc
 
 .proc xdebug_print_with_ay
-    rts
+   
     pha
     
-
+    lda  #$00
+    sta  $343
     lda  #<$c009
     sta  VEXBNK+1
     lda  #>$c009
@@ -49,64 +52,9 @@
     
 .endproc
 
-.proc kdebug_restore
-
-    ldx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
-    stx  NEXT_STACK_BANK
-
-    lda  kernel_debug+kernel_debug_struct::VALUE_NEXT_STACK_BANK
-    sta  STACK_BANK,x
-
-    lda  kernel_debug+kernel_debug_struct::BNKCIB
-    sta  BNKCIB
-    lda  kernel_debug+kernel_debug_struct::VEXBNK
-    sta  VEXBNK+1
-    lda  kernel_debug+kernel_debug_struct::VEXBNK+1
-    sta  VEXBNK+2
-    lda  kernel_debug+kernel_debug_struct::BNKOLD
-    sta  BNKOLD
-    lda  kernel_debug+kernel_debug_struct::FIXME_DUNNO
-    sta  FIXME_DUNNO
-    lda  kernel_debug+kernel_debug_struct::RA
-    ldx  kernel_debug+kernel_debug_struct::RX
-    ldy  kernel_debug+kernel_debug_struct::RY
-
-
-    rts
-.endproc
-
-.proc kdebug_save
-
-    sta  kernel_debug+kernel_debug_struct::RA
-    stx  kernel_debug+kernel_debug_struct::RX
-    sty  kernel_debug+kernel_debug_struct::RY
-    lda  BNKCIB
-    sta  kernel_debug+kernel_debug_struct::BNKCIB
-    lda  VEXBNK+1
-    sta  kernel_debug+kernel_debug_struct::VEXBNK
-    lda  VEXBNK+2
-    sta  kernel_debug+kernel_debug_struct::VEXBNK+1
-    lda  BNKOLD
-    sta  kernel_debug+kernel_debug_struct::BNKOLD
-    lda  FIXME_DUNNO
-    sta  kernel_debug+kernel_debug_struct::FIXME_DUNNO
-
-    ldx  NEXT_STACK_BANK
-    stx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
-
-    lda  STACK_BANK,x
-    sta  kernel_debug+kernel_debug_struct::VALUE_NEXT_STACK_BANK
-
-    ldx  kernel_debug+kernel_debug_struct::RX
-    lda  kernel_debug+kernel_debug_struct::RA
-
-
-
-    rts
-.endproc
 
 .proc xdebug_lsmem
- 
+
     lda  #<$c003
     sta  VEXBNK+1
     lda  #>$c003
@@ -132,6 +80,7 @@
 
 
 .proc xdebug_enter_XMALLOC_fp
+    rts
     jsr    xdebug_save
     lda    #<str_enter_malloc
     ldy    #>str_enter_malloc
@@ -143,6 +92,7 @@ str_enter_malloc:
 .endproc
 
 .proc xdebug_enter_merge_free_table
+    rts
     jsr    xdebug_save
     lda    #<str_enter_malloc
     ldy    #>str_enter_malloc
@@ -154,6 +104,7 @@ str_enter_malloc:
 .endproc
 
 .proc xdebug_enter_not_found
+    rts
     jsr    xdebug_save
     lda    #<str_enter_malloc
     ldy    #>str_enter_malloc
@@ -165,6 +116,7 @@ str_enter_malloc:
 .endproc
 
 .proc xdebug_enter_XMALLOC_return_adress
+    rts
     jsr    xdebug_save
     lda    #<str_enter_found
     ldy    #>str_enter_found
@@ -202,6 +154,7 @@ hex_table:
 
 
 .proc xdebug_send_ay_to_printer
+    rts
     jsr        xdebug_save
     lda        #'#'
     jsr        xdebug_send_printer
@@ -216,6 +169,7 @@ hex_table:
 .endproc
 
 .proc xdebug_enter_XFREE_new_freechunk
+    rts
     jsr    xdebug_save
     lda    #<str_enter_free
     ldy    #>str_enter_free
@@ -228,6 +182,7 @@ str_enter_free:
 .endproc
 
 .proc xdebug_end
+    rts
     jsr    xdebug_save
     lda    #$0D
     jsr    xdebug_send_printer 
@@ -236,12 +191,14 @@ str_enter_free:
 .endproc
 
 .proc xdebug_enter
+    rts
     jsr    xdebug_send_string_to_printer
     jsr    xdebug_load
     rts
 .endproc
 
 .proc xdebug_send_string_to_printer
+    rts
     ldy    #$00
 @L1:    
     lda    (RES),y
@@ -254,6 +211,7 @@ str_enter_free:
 .endproc
 
 .proc xdebug_send_printer
+    rts
   
     sta     VIA::PRA
     ;lda     #%00000000
@@ -267,6 +225,7 @@ str_enter_free:
 .endproc
 
 .proc xdebug_save
+
     sta    kernel_debug+kernel_debug_struct::RA 
     sty    kernel_debug+kernel_debug_struct::RY
     stx    kernel_debug+kernel_debug_struct::RX
@@ -286,6 +245,7 @@ str_enter_free:
 .endproc
 
 .proc xdebug_load
+    rts
 
 
     lda    kernel_debug+kernel_debug_struct::RES
@@ -305,4 +265,64 @@ str_enter_free:
     ldx    kernel_debug+kernel_debug_struct::RX
     rts
 
+.endproc
+
+
+
+.proc kdebug_restore
+    
+    ldx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
+    stx  NEXT_STACK_BANK
+
+    lda  kernel_debug+kernel_debug_struct::VALUE_NEXT_STACK_BANK
+    sta  STACK_BANK,x
+
+    lda  kernel_debug+kernel_debug_struct::BNKCIB
+    sta  BNKCIB
+    lda  kernel_debug+kernel_debug_struct::VEXBNK
+    sta  VEXBNK+1
+    lda  kernel_debug+kernel_debug_struct::VEXBNK+1
+    sta  VEXBNK+2
+    lda  kernel_debug+kernel_debug_struct::BNKOLD
+    sta  BNKOLD
+    lda  kernel_debug+kernel_debug_struct::FIXME_DUNNO
+    sta  FIXME_DUNNO
+    lda  kernel_debug+kernel_debug_struct::RA
+    ldx  kernel_debug+kernel_debug_struct::RX
+    ldy  kernel_debug+kernel_debug_struct::RY
+
+
+    rts
+.endproc
+
+.proc kdebug_save
+
+
+    sta  kernel_debug+kernel_debug_struct::RA
+    stx  kernel_debug+kernel_debug_struct::RX
+    sty  kernel_debug+kernel_debug_struct::RY
+    lda  BNKCIB
+    sta  kernel_debug+kernel_debug_struct::BNKCIB
+    lda  VEXBNK+1
+    sta  kernel_debug+kernel_debug_struct::VEXBNK
+    lda  VEXBNK+2
+    sta  kernel_debug+kernel_debug_struct::VEXBNK+1
+    lda  BNKOLD
+    sta  kernel_debug+kernel_debug_struct::BNKOLD
+    lda  FIXME_DUNNO
+    sta  kernel_debug+kernel_debug_struct::FIXME_DUNNO
+
+    ldx  NEXT_STACK_BANK
+    stx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
+
+    lda  STACK_BANK,x
+    sta  kernel_debug+kernel_debug_struct::VALUE_NEXT_STACK_BANK
+
+    ldx  kernel_debug+kernel_debug_struct::RX
+    lda  kernel_debug+kernel_debug_struct::RA
+    ldy  kernel_debug+kernel_debug_struct::RY
+
+
+
+    rts
 .endproc

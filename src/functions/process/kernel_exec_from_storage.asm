@@ -6,6 +6,15 @@
 
 
 .proc kernel_try_to_find_command_in_bin_path
+    .out     .sprintf("|MODIFY:RES:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:RESB:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:RESC:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:RESD:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:RESE:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:RESF:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path")
+    .out     .sprintf("|MODIFY:RESG:kernel_try_to_find_command_in_bin_path")
+    
 
     ; A & Y contains the command
 	; here we found no command, let's go trying to find it in /bin
@@ -335,8 +344,35 @@
 @run:
     jsr     @clean_before_execute
 
+    ldx     kernel_process+kernel_process_struct::kernel_current_process  
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+    ;sta     KERNEL_CREATE_PROCESS_PTR1
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+    ;sta     KERNEL_CREATE_PROCESS_PTR1+1
+
+    ;ldy     #kernel_one_process_struct::kernel_process_addr
+    ;lda     RESD
+    ;sta     (KERNEL_CREATE_PROCESS_PTR1),y
+    ;iny
+   ; lda     RESD+1
+   ; sta     (KERNEL_CREATE_PROCESS_PTR1),y
+
     jsr     @execute
 
+    ldx     kernel_process+kernel_process_struct::kernel_current_process  
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+   ; sta     KERNEL_CREATE_PROCESS_PTR1
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+   ; sta     KERNEL_CREATE_PROCESS_PTR1+1
+ 
+   ; ldy     #kernel_one_process_struct::kernel_process_addr
+    
+    lda     (KERNEL_CREATE_PROCESS_PTR1),y
+    sta     RESD
+    iny
+    lda     (KERNEL_CREATE_PROCESS_PTR1),y    
+    sta     RESD+1
+   
     ; free the length of the binary
     lda     RESD
     ldy     RESD+1

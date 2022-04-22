@@ -1,6 +1,7 @@
 ; return A,X,Y RES : 4 bytes values
 
 .proc getFileLength
+    .out     .sprintf("|MODIFY:RESB:getFileLength")
 
     lda     #CH376_GET_FILE_SIZE
     sta     CH376_COMMAND

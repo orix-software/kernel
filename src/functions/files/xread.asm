@@ -1,4 +1,8 @@
 .proc XREADBYTES_ROUTINE
+
+  .out     .sprintf("|MODIFY:PTR_READ_DEST:XREADBYTES_ROUTINE")
+  .out     .sprintf("|MODIFY:RES:XREADBYTES_ROUTINE")
+  .out     .sprintf("|MODIFY:TR0:XREADBYTES_ROUTINE")
 ; [IN] AY contains the length to read
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [IN] X contains the fd id 

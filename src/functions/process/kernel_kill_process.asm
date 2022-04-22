@@ -1,7 +1,11 @@
 ; Parameter in : A id of the PID to kill
 
-.proc      kernel_kill_process
-    
+.proc    kernel_kill_process
+
+.out     .sprintf("|MODIFY:RES:kernel_kill_process")
+.out     .sprintf("|MODIFY:TR5:kernel_kill_process via XFREE_ROUTINE")
+.out     .sprintf("|MODIFY:RES:kernel_kill_process via XFREE_ROUTINE")
+
 ; ***********************************************************************************************************************
 ;                                          load ZP of the PPID
 ; ***********************************************************************************************************************

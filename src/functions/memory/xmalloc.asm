@@ -3,7 +3,7 @@
 
 .proc XMALLOC_ROUTINE
 
-
+.out     .sprintf("|MODIFY:TR7:XMALLOC_ROUTINE")
 
 ; IN [A & Y ] the length requested
 ; 
@@ -13,7 +13,7 @@
 ; Verify if there is enough memory
 ; 
 
-.ifdef WITH_DEBUG3
+.ifdef WITH_DEBUG
     jsr     kdebug_save
 
     ldx     #XDEBUG_XMALLOC_ENTER_AY

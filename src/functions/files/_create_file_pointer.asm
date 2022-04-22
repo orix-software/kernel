@@ -9,6 +9,7 @@
 
 .proc     _create_file_pointer
 
+.out     .sprintf("|MODIFY:RES:_create_file_pointer")
   sta     RES
   sty     RES+1
 

@@ -6,7 +6,9 @@
     ; X fp to find
     ; Save A & X
 
-
+    .out     .sprintf("|MODIFY:RES:checking_fp_exists")
+    .out     .sprintf("|MODIFY:RESB:checking_fp_exists")
+    .out     .sprintf("|MODIFY:TR5:checking_fp_exists")
 
     tya
     sta     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y

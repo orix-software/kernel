@@ -9,7 +9,9 @@
 ; fwrite( void * restrict buffer, size_t blocSize, FILE * restrict stream );
 ; [UNCHANGED] X
 
-
+  .out     .sprintf("|MODIFY:PTR_READ_DEST:XWRITEBYTES_ROUTINE")
+  .out     .sprintf("|MODIFY:RES:XWRITEBYTES_ROUTINE")
+  .out     .sprintf("|MODIFY:RESB:XWRITEBYTES_ROUTINE")
 
   pha
   lda     PTR_READ_DEST

@@ -1,4 +1,8 @@
 .proc _XEXEC
+.out     .sprintf("|MODIFY:RES:_XEXEC")
+.out     .sprintf("|MODIFY:TR0:_XEXEC")
+.out     .sprintf("|MODIFY:TR1:_XEXEC")
+.out     .sprintf("|MODIFY:BUFEDT:_XEXEC")
 
 ;PARSE_VECTOR
     ; A & Y contains the string command to execute

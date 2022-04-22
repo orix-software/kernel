@@ -1,7 +1,9 @@
 .proc XMKDIR_ROUTINE
   ; [IN] AY contains the pointer of the path
   ; FIXME
-  
+    .out     .sprintf("|MODIFY:RES:XMKDIR_ROUTINE")   
+    .out     .sprintf("|MODIFY:ptr1:XMKDIR_ROUTINE") 
+    .out     .sprintf("|MODIFY:TR7:XMKDIR_ROUTINE")   
     sta     ptr1
     sty     ptr1+1
 

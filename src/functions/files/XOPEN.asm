@@ -1,4 +1,6 @@
 .proc XOPEN_ROUTINE
+
+.out     .sprintf("|MODIFY:RES:XOPEN_ROUTINE")
 ; INPUT
 ;     this routine use : 
 ;        RES, A X Y, XOPEN_SAVE XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
@@ -47,11 +49,11 @@
 
 @open_new_file:
 .ifdef WITH_DEBUG2
-    jsr     kdebug_save
-    ldy     XOPEN_RES_SAVE+1
-    ldx     #XDEBUG_XOPEN_ENTER
-    jsr     xdebug_print_with_ay_string
-    jsr     kdebug_restore
+  jsr     kdebug_save
+  ldy     XOPEN_RES_SAVE+1
+  ldx     #XDEBUG_XOPEN_ENTER
+  jsr     xdebug_print_with_ay_string
+  jsr     kdebug_restore
 .endif
 
   lda     #EOK
@@ -199,7 +201,7 @@
   beq     @slash_found_or_end_of_string
   cmp     #"a"                        ; 'a'
   bcc     @do_not_uppercase
-  cmp     #"z"+1                        ; 'z'
+  cmp     #"z"+1                      ; 'z'
   bcs     @do_not_uppercase
   sbc     #$1F
 @do_not_uppercase:

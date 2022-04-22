@@ -37,6 +37,7 @@
   ; kernel_fd contains ...
   kernel_fd                            .res KERNEL_MAX_FP
   kernel_fd_opened                     .res 1 ; the id of the current fd opened
+  ;kernel_process_addr                  .res KERNEL_MAX_PROCESS*2
   ;kernel_next_fd                       .res 1
   ;kernel_max_process_value             .res 1
 .endstruct
@@ -61,6 +62,7 @@
   zp_save_userzp             .res KERNEL_USERZP_SAVE_LENGTH
   cmdline                    .res KERNEL_LENGTH_MAX_CMDLINE
   ppid                       .res 1
+  kernel_process_addr        .res 2 ; Adress of the program
   ;bank_id                    .res 1
   ;is_rom_command             .res 1 ; 0 is file in memory, else it's ROM (1)
  ; twilighte_register_command .res 1  

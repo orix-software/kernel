@@ -1532,18 +1532,18 @@ vectors_telemon:
   .byt     <XDEFBU_ROUTINE,>XDEFBU_ROUTINE ; $59
   .byt     <XBUSY_ROUTINE,>XBUSY_ROUTINE   ; $5a
   .byt     <XMALLOC_ROUTINE,>XMALLOC_ROUTINE                         ; $5b
-  .byt     <XSDUMP_ROUTINE,>XSDUMP_ROUTINE ; $5c
-  .byt     <$00,>$00 ; $5d
-  .byt     <XSLOAD_ROUTINE,>XSLOAD_ROUTINE ; $5e
-  .byt     <XSSAVE_ROUTINE,>XSSAVE_ROUTINE ; $5f
-  .byt     <XMLOAD_ROUTINE,>XMLOAD_ROUTINE ; $60 
-  .byt     <XMSAVE_ROUTINE,>XMSAVE_ROUTINE ; $61
+  .byt     $00,$00 ; $5c
+  .byt     $00,$00 ; $5d
+  .byt     $00,$00 ; $5e
+  .byt     $00,$00 ; $5f
+  .byt     $00,$00 ; $60 
+  .byt     $00,$00 ; $61
   .byt     <XFREE_ROUTINE,>XFREE_ROUTINE   ; $62
   .byt     <_XEXEC,>_XEXEC                 ; $63
   .byt     $00,$00
   .byt     $00,$00
   .byt     $00,$00
-  .byt     <XSOUT_ROUTINE,>XSOUT_ROUTINE
+  .byt     $00,$00
   .byt     <XA1DEC_ROUTINE,>XA1DEC_ROUTINE
   .byt     <XDECA1_ROUTINE,>XDECA1_ROUTINE
   .byt     <XA1PA2_ROUTINE,>XA1PA2_ROUTINE
@@ -2248,11 +2248,7 @@ LDAF7
 
 
 Ldb09:
-Ldb12:
-  rts
 
-LDB26:
-LDB2F:
   rts
 
 LDB3A:
@@ -3618,7 +3614,7 @@ XINK_ROUTINE:
   stx     RES       ; fenêtre dans RES                                  
   bit     RES       ; HIRES ?                                           
   bmi     LE9A7     ; oui ---------------------------------------------- 
-  stx     SCRNB     ; TEXT, on met le num?ro de fenètre dans $28       I
+  stx     SCRNB     ; TEXT, on met le numero de fenètre dans $28       I
   bcc     @S2       ; si C=0, c'est PAPER                              I 
   sta     SCRCT,x  ;  on stocke la couleur d'encre                     I
   bcs     @S1       ;  si C=1 c'est INK                                 I 
@@ -3784,85 +3780,14 @@ Leaf3:
 .include  "functions/sound/sounds.asm"  
 
 
-READ_A_SERIAL_BUFFER_CODE_INPUT:
-  ldx     #$0c
-  jmp     LDB5D 
-wait_code_on_SERIAL_BUFFER_INPUT:
-@loop:
-  jsr     READ_A_SERIAL_BUFFER_CODE_INPUT 
-  bcs     @loop
-  rts
-
-write_caracter_in_output_serial_buffer:
-  bit     write_caracter_in_output_serial_buffer
   jmp     LDB79
 
-;Minitel  
-send_a_to_minitel:
-  bit     INDRS
-  bvs     Lec49 
-  tax
-  bmi     next910
-  cmp     #$20
-  bcs     Lec49 
-  adc     #$20
-next912:
-  pha
-  lda     #$02
-  jsr     Lec49 
-  pla 
-  jmp     Lec49 
-next910:
-  cmp     #$A0
-  
-  bcs     next911 
-  adc     #$C0
-  
-  bcs     next912 
-next911:
-  and     #$7F
-  pha 
-  lda     #$01
-  jsr     Lec49
-  pla
+Lec6f: 
 
-Lec49:
-  bit     Lec49
-  jmp     Ldb12 
-  
-send_A_to_serial_output_with_check:
-; MINITEL
-  stx     TR0
-  sty     TR1
-  pha
-  bit     INDRS
-  bpl     Lec5e 
-  jsr     send_a_to_minitel
-  jmp     LEC61
-Lec5e:
 
-LEC61:
-  pla
-  eor     TR2
-  sta     TR2
-  ldx     TR0
-  ldy     TR1 
-  rts
-
-Lec6b
-  stx     TR0
-  sty     TR1
-Lec6f  
-  asl     KBDCTC
-  bcc     Lec77
-  pla
-  pla
-  rts
-Lec77  
-  bit     INDRS
   bmi     Lec8b
-  jsr     READ_A_SERIAL_BUFFER_CODE_INPUT
-  bcs     Lec6f
+
+
 LEC80:
   pha
   eor     TR2
@@ -3894,186 +3819,38 @@ LECA8:
   bcs     LECB0 
   sbc     #$1F
   bcs     LEC80 
-LECB0  
+LECB0:  
   adc     #$3F
   bcc     LEC80
-LECB4  
+LECB4:  
   ldx     #$0C
   jmp     XLISBU_ROUTINE
-LECB9  
+LECB9:  
   jsr     LECB4   
   bcs     LECB9 
   rts
-Lecbf
+Lecbf:
   sec
   .byt    $24
-LECC1  
+LECC1:
   clc
   lda     #$80
   jmp     LDB5D 
-LECC7
+LECC7:
   sec 
   .byt    $24
-LECC9  
+LECC9:
   clc
   lda     #$80
 
   jmp     LDB79 
-LECCF
+LECCF:
   sec
   .byt    $24
-LECD1
+LECD1:
   clc
   lda     #$80
   jmp     LDAF7  
-  
-LECD7  
-  sec
-  .byt    $24
-LECD9  
-  clc 
-  lda     #$80
-  jmp     Ldb12 
-
-compute_file_size
-  sec
-  lda     $052F ; FIXME
-  sbc     $052D ; FIXME
-  sta     $052A ; FIXME
-  lda     $0530 ; FIXME
-  sbc     $052E ; FIXME
-  sta     $052B ; FIXME
-  lda     $052D ; FIXME
-  ldy     $052E ; FIXME
-  sta     RES
-  sty     RES+1
-  rts
-
-send_serial_header_file
-  ldx     #$32
-LECFF  
-  lda     #$16
-  jsr     send_A_to_serial_output_with_check 
-  dex
-  bne     LECFF
-  lda     #$24
-  jsr     send_A_to_serial_output_with_check
-  lda     #$00   ; FiXME 65C02
-  sta     TR2
-  ldx     #$00
-LED12  
-  ;lda     BUFNOM+1,x
-  jsr     send_A_to_serial_output_with_check 
-  inx
-  cpx     #$0C
-  bne     LED12 
-  lda     #$00
-  jsr     send_A_to_serial_output_with_check 
-  
-  ldx     #$00
-LED24  
-  lda     $052C,x ; FIXME
-  jsr     send_A_to_serial_output_with_check
-  inx
-  cpx     #$07
-  bne     LED24 
-  lda     TR2
-  jmp     send_A_to_serial_output_with_check 
-
-
-read_header_file:
-  jmp     Ldbb5
-
-
-.include "functions/serial/xsdump.asm"   
-.include "functions/serial/xssave.asm"   
-.include "functions/serial/xmsave.asm"   
-.include "functions/serial/xsload.asm"  
-.include "functions/serial/xmload.asm"
-
-;;;;;;;;;;;;;;;;;;  
-save_file_rs232_minitel:
-  bit     INDRS
-  bvs     LEE11 
-  jsr     send_serial_header_file 
-LEE11:
-  jsr     compute_file_size
-
-  lda     #$00
-  sta     TR2
-LEE18:  
-  lda     $052A
-  beq     LEE2F 
-  ldy     #$00
-  lda     (RES),y
-  jsr     send_A_to_serial_output_with_check 
-  dec     $052A ; FIXME
-  inc     RES
-  bne     LEE18
-  inc     RES+1
-  bne     LEE18 
-LEE2F:
-  lda     $052B   ; FIXME
-  beq     LEE51 
-  ldy     #$00
-LEE36:
-  lda     (RES),y
-  jsr     send_A_to_serial_output_with_check 
-  iny
-  bne     LEE36 
-  dec     $052B ; FIXME
-  inc     RES+1
-  bit     INDRS ; FIXME
-  bpl     LEE2F 
-  lda     #$30 
-  sta     TIMEUD ; FIXME
-LEE4B  
-  lda     TIMEUD; FIXME
-  bne     LEE4B 
-  beq     LEE2F
-LEE51  
-  lda     TR2
-  jmp     send_A_to_serial_output_with_check 
-  
-read_a_file_rs232_minitel:
-  bit     INDRS 
-  bvs     @skip  
-  jsr     read_header_file  
-@skip: 
-  jsr     compute_file_size 
- ; bit     INDRS
-  ;bvc     LEE6C  
-  ;lda     #$FF
-
-LEE6C:
-  ;ldy     #$00
-  ;sty     TR2
-LEE70:
-
-  jsr     Lec6b 
-  sta     (RES),y
-  ;dec     $052A   ; FIXME
-  inc     RES
-  bne     LEE70  
-  inc     RES+1
-  jmp     LEE70 
-LEE86:
-  ;lda     $052B
-  ;beq     LEE9D  
- ; ldy     #$00
-LEE8D:
-  jsr     Lec6b 
- ; sta     (RES),y
-;  iny
-  bne     LEE8D  
-;  inc     RES+1
-  ;dec     $052B
-
-  jmp     LEE86  
-LEE9D:
-  jsr     Lec6b  
- ; ora     #$30
-  jmp     Ldbb5  
 
 _strcpy:
   ldy     #$00
@@ -4090,16 +3867,15 @@ _strcpy:
  
 .include  "functions/process/kernel_exec_from_storage.asm"  
 .include  "functions/files/XOPEN.asm"
-.include  "functions/minitel/xligne.asm"
-.include  "functions/serial/xsout.asm"
+
+
   
 add_0_5_A_ACC1:
   lda     #<const_zero_dot_half 
   ldy     #>const_zero_dot_half 
   jmp     AY_add_acc1 ; AY+acc1
 Lef97:
-  rts ; Don't know why there is this rts !
-
+  rts 
   
 ACC2_ACC1:
   jsr     LF1EC 

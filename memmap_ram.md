@@ -58,23 +58,18 @@
 |RAM|INDRS                          | $5B-$5B     |  1   |
 |RAM|<span style="color:green">FREE</span>                           | $5C-$5F     |  2   |
 |RAM|RESG                           | $6E-$6F     |  2   |
-|RAM|<span style="color:green">FREE</span>                           | $8C-$FF     |  115   |
+|RAM|<span style="color:green">FREE</span>                           | $80-$FF     |     |
 # Page 2
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
-|RAM|KERNEL_XKERNEL_CREATE_PROCESS_TMP | $0203-$0203 |  1   |
 |RAM|<span style="color:green">FREE</span>                           | $020E-$020F |  2   |
 |RAM|IOTAB                          | $02AE-$02B1 |  X   |
 |RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
 |RAM|kernel_xmalloc_call            | $02C8-$02EF |      |
-|RAM|KBDCOL                          | $0268-$0270 |  8   |
-|RAM|ADSCRL                          | $0218-$021C |  4   |
-|RAM|ADSCRH                          | $021C-$0220 |  4   |
 |RAM|<span style="color:green">FREE</span>                           | $02F0-$02ED | -2   |
 # Page 3
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
-|IO |VIA1                           | $0300-$030F     |     |
 # Page 4
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
@@ -87,10 +82,10 @@
 |RAM|BUFEDT                         | $0590-$05FE |      |
 |RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A3 |      |
 #Kernel bank7
-|ROM|<span style="color:green">FREE</span>                         |$f958-$fff0|   1688   |
+|ROM|<span style="color:green">FREE</span>                         |$fb14-$fff0|      |
 #Bank 0
 |BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f6ce-$f77a |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f77a-$f940 |     |
+|BANK0|XMALLOC (copy from kernel)    | $f88a-$f936 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f936-$fafc |     |

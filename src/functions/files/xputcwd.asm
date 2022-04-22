@@ -3,6 +3,9 @@
 ; A & Y is the pointer to the string
 .proc XPUTCWD_ROUTINE
 
+    .out     .sprintf("|MODIFY:RES:XPUTCWD_ROUTINE")
+    .out     .sprintf("|MODIFY:RESB:XPUTCWD_ROUTINE")
+
     sta     RES
     sty     RES+1
     ; let's trim
