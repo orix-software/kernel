@@ -30,11 +30,13 @@ table_low_ay:
     .byte <str_unknown
     .byte <str_xfree_enter
     .byte <str_xmalloc_enter
+    .byte <str_xmalloc_return_address
 
 table_high_ay:
     .byte >str_unknown
     .byte >str_xfree_enter   
-    .byte >str_xmalloc_enter     
+    .byte >str_xmalloc_enter
+    .byte >str_xmalloc_return_address
 
 
 str_unknown: 
@@ -107,6 +109,11 @@ str_xexec_enter:
 
 str_xmalloc_enter:
     .byte $0D,"[XMALLOC] Query size :",0
+
+str_xmalloc_return_address:
+    .byte $0D,"[XMALLOC] Return address :",0    
+
+
 
 str_max_fd_reached:
     .byte $0D,"[XOPEN] Free FP pointer, return $FFFF in AX, because KERNEL_MAX_FP reached :",0

@@ -134,17 +134,27 @@ kernel_end_of_variables_before_BUFEDT:
 
 .bss
 .org BUFEDT
-    .res 110
+    
+.ifdef WITH_DEBUG
+;.org BUFNOM
+kernel_debug:
+    .tag    kernel_debug_struct
+    .out   .sprintf("Size of kernel_debug_struct $%x ", .sizeof(kernel_debug_struct))    
+.else   
+    .res 110    
+.endif    
+
 BUFEDT_END:
 
 KERNEL_DRIVER_MEMORY:
     .res 165
 KERNEL_DRIVER_MEMORY_END:
 
-.ifdef WITH_DEBUG
-kernel_debug:
-    .tag    kernel_debug_struct
-.endif    
+
+;.org KERNEL_DRIVER_MEMORY_END
+
+
+
 
 kernel_end_of_memory_for_kernel:
 

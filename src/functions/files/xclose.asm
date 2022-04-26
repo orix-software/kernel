@@ -56,27 +56,18 @@
         
 .endif
 
+
     txa
     asl
     
-    pha
-    
-   ; tax
-   ; lda     kernel_process+kernel_process_struct::fp_ptr,x
-    ;pha
-    inx
-   ; lda     kernel_process+kernel_process_struct::fp_ptr,x
-    ;tay
-    ;pla
-    ;jsr     XFREE_ROUTINE
-    pla
+  
     tax
     ; remove fp from main struct
     lda     #$00
     sta     kernel_process+kernel_process_struct::fp_ptr,x
     inx
     sta     kernel_process+kernel_process_struct::fp_ptr,x
- 
+
 ;       store pointer in process struct
     ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
 
@@ -99,7 +90,7 @@
 
     tay
     pla
-
+     ; $7D5
     jsr     XFREE_ROUTINE
 
     ldy     #kernel_one_process_struct::fp_ptr

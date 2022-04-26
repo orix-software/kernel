@@ -1,6 +1,11 @@
 .export XRM_ROUTINE
 
 .proc XRM_ROUTINE
+
+    .out     .sprintf("|MODIFY:RES:XRM_ROUTINE")
+    .out     .sprintf("CALL:_ch376_file_erase:XRM_ROUTINE")
+    .out     .sprintf("CALL:XCLOSE:XRM_ROUTINE")
+    .out     .sprintf("CALL:XOPEN:XRM_ROUTINE")
     ; FIXME : at this step we could remove "/"
     ; [IN] AX contains the pointer of the path
     ldy     #O_RDONLY

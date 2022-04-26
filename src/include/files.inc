@@ -15,7 +15,7 @@
 .out     "=================================================================="
 .out     "File memory"
 .out     "=================================================================="
-.out     .sprintf("_KERNEL_FILE size (One fp struct) : %s bytes",  .string(.sizeof(_KERNEL_FILE)))
+.out     .sprintf("_KERNEL_FILE size (One fp struct) : $%X bytes",  .sizeof(_KERNEL_FILE))
 
 
 
@@ -65,7 +65,7 @@
 ;   1C-1F               File size
         filename    .res 12
         attributes  .res 1
-        garbage     .res 14
+        garbage     .res 19
 .endstruct
 
 

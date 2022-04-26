@@ -65,9 +65,26 @@
 .out     .sprintf("|#MEMMAP: Page 2")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
-.out     .sprintf("|MEMMAP:RAM|KERNEL_XKERNEL_CREATE_PROCESS_TMP | $%04X-$%04X |  1   |", KERNEL_XKERNEL_CREATE_PROCESS_TMP, KERNEL_XKERNEL_CREATE_PROCESS_TMP)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_ERRNO                   | $%04X-$%04X |  1   |", KERNEL_ERRNO, KERNEL_ERRNO)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_CH376_MOUNT             | $%04X-$%04X |  1   |", KERNEL_CH376_MOUNT, KERNEL_CH376_MOUNT)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_XFREE_TMP             | $%04X-$%04X |  1   |", KERNEL_XFREE_TMP, KERNEL_XFREE_TMP)
+
+.out     .sprintf("|MEMMAP:RAM|KERNEL_XKERNEL_CREATE_PROCESS_TMP| $%04X-$%04X |  1   |", KERNEL_XKERNEL_CREATE_PROCESS_TMP, KERNEL_XKERNEL_CREATE_PROCESS_TMP)
+
+.out     .sprintf("|MEMMAP:RAM|KERNEL_TMP_XEXEC             | $%04X-$%04X |  1   |", KERNEL_TMP_XEXEC, KERNEL_TMP_XEXEC)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_KERNEL_XEXEC_BNKOLD   | $%04X-$%04X |  1   |", KERNEL_KERNEL_XEXEC_BNKOLD, KERNEL_KERNEL_XEXEC_BNKOLD)
+
+.out     .sprintf("|MEMMAP:RAM|KERNEL_MALLOC_TYPE           | $%04X-$%04X |  1   |", KERNEL_MALLOC_TYPE, KERNEL_MALLOC_TYPE)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_SAVE_XEXEC_CURRENT_SET| $%04X-$%04X |  1   |", KERNEL_SAVE_XEXEC_CURRENT_SET, KERNEL_SAVE_XEXEC_CURRENT_SET)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM| $%04X-$%04X |  1   |", KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM, KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM)
+
+
+
+.out     .sprintf("|MEMMAP:RAM|KEYBOARD_COUNTER               | $%04X-$%04X |  4   |", KEYBOARD_COUNTER, KEYBOARD_COUNTER+4)
+.out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X |  2   |", KOROM, KORAM)
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X |  2   |", KOROM, KORAM)
 .out     .sprintf("|MEMMAP:RAM|IOTAB                          | $%04X-$%04X |  X   |", IOTAB, IOTAB+KERNEL_SIZE_IOTAB-1)
+
 .out     .sprintf("|MEMMAP:RAM|KERNEL_ADIOB                   | $%04X-$%04X | %d   |", KERNEL_ADIOB,KERNEL_ADIOB+ADIODB_LENGTH-1,KERNEL_ADIOB+ADIODB_LENGTH-KERNEL_ADIOB)
 .out     .sprintf("|MEMMAP:RAM|kernel_xmalloc_call            | $%04X-$%04X |      |", kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
 
@@ -85,7 +102,7 @@
 .out     .sprintf("|#MEMMAP: Page 4")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
-
+.out     .sprintf("|MEMMAP:RAM|page4 overlay_access       | $%04X-$%04X |  %d  |", $400+code_adress_419-code_adress_400,$400+code_adress_436-code_adress_400,code_adress_436-code_adress_400)
 
 .out     .sprintf("|#MEMMAP: Page 5&6")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
@@ -98,7 +115,7 @@
 .out     .sprintf("|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $%04X-$%04X |      |", KERNEL_DRIVER_MEMORY,KERNEL_DRIVER_MEMORY_END)
 
 
-.out     .sprintf("|#MEMMAP: Kernel bank7")
+.out     .sprintf("|#MEMMAP: Kernel bank 7")
 .out              "| Type      | Name                         | Range   | Size |"
 .out              "| :-------- |:---------------------------- |:------- |:-----|"
 

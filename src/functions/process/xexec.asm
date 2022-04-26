@@ -3,6 +3,10 @@
 .out     .sprintf("|MODIFY:TR0:_XEXEC")
 .out     .sprintf("|MODIFY:TR1:_XEXEC")
 .out     .sprintf("|MODIFY:BUFEDT:_XEXEC")
+.out     .sprintf("|MODIFY:BNKOLD:_XEXEC")
+.out     .sprintf("|MODIFY:BNK_TO_SWITCH:_XEXEC")
+
+
 
 ;PARSE_VECTOR
     ; A & Y contains the string command to execute

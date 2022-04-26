@@ -1,14 +1,20 @@
 .export XFREE_ROUTINE
 
+ ; 6c6 b3ff ac3c
+
 .proc XFREE_ROUTINE
+  ; A & Y
 
   .out     .sprintf("|MODIFY:TR5:XFREE_ROUTINE")
   .out     .sprintf("|MODIFY:RES:XFREE_ROUTINE")
+  .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
+
+  
  ; jmp     XFREE_ROUTINE : f91b
   sta     KERNEL_XFREE_TMP    ; Save A (low)
 
   ; AY contains ptr
-  ;sty     RES5
+  sty     HRSX
 
 .ifdef WITH_DEBUG
   jsr     kdebug_save
@@ -46,7 +52,7 @@
   
 @next_chunk:
   inx
-  cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
+  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @search_busy_chunk
   
   ; We did not found2 this busy chunk, return 0 in A
@@ -91,6 +97,11 @@
 
   ; Try to recursive  
 
+  ;lda     KERNEL_XFREE_TMP    ; Save A (low)
+  ;cmp     #$D5
+  ;bne     @continue
+
+;@continue:
   ; FR : on essaie de trouver un chunk libre
   ldy     #$00
 @try_another_free_chunk:
@@ -113,6 +124,11 @@
   cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
   bne     @try_another_free_chunk
 
+  ;jsr     find_free_chunk_from_end_of_chunk
+  ;cmp     #$01    
+  ;beq     @not_found_chunk
+  ;jmp     merge_with_chunk
+@not_found_chunk:
   ; Force first free chunk
   ldy     TR5                                 ; Get next free chunk
   sty     RES+1
@@ -129,10 +145,6 @@
 @don_t_inc_carry:
   ; X contains the index of the busy chunk found
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
- ; bne     @create_new_freechunk
-  ;lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
-  ;cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
-
   beq     @merge_with_free_table
 
 
@@ -247,9 +259,56 @@
 .endif
 
 out:
-
-
 .endproc
+
+
+
+.proc find_free_chunk_from_end_of_chunk
+  ; A=0 success, and Y is the free chunk to merge with current offset calls
+
+  lda     #$00
+  sta     RES
+
+  ldy     #$01
+@try_another_free_chunk:
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y ; $FC $B4
+
+  ; FIXME 65C02, use 'dec A'
+  clc
+  adc     #$01 ; $FB ;$B3
+  bcc     @skip_inc_high
+  inc     RES
+  ; X contains the index of the busy chunk found
+@skip_inc_high:
+  cmp     KERNEL_XFREE_TMP ; 
+  beq     @compare_high
+  ; At this step it's not the first free chunk
+@next_free_chunk:  
+  lda     #$00
+  sta     RES
+  iny 
+  cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  bne     @try_another_free_chunk
+  lda     #$01 ; Not found
+  rts
+ 
+    
+@compare_high:
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  cmp     HRSX
+  beq     @found
+
+  bne     @next_free_chunk
+  rts
+@found:
+  lda     #$00
+  rts  
+.endproc
+
+.proc merge_with_chunk
+  rts
+.endproc
+
 
 ; Don't move this proc
 .proc xfree_exit
@@ -321,11 +380,6 @@ out:
   beq     @next_free
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
-  cmp     #$3F
-  bne     @continueme
-@me:  
- ; jmp     @me
-@continueme:  
   ; FIXME 65C02, use 'dec A'
   clc
   adc     #$01
@@ -339,7 +393,6 @@ out:
   bne     @next_free
     
 @compare_high:
-;jmp @compare_high
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   clc     

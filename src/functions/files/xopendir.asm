@@ -1,3 +1,5 @@
+CH376_DIR_INFO_READ = $37
+
 .proc XOPENDIR_READDIR_CLOSEDIR
    cpx     #$00 ; XOPENDIR
    beq     xopendir
@@ -70,77 +72,171 @@
     cmp     #$00
     bne     @continue
     cpy     #$00
-    bne     @continue    
+    bne     @continue
+
     lda     #ENOMEM
     sta     KERNEL_ERRNO
+   
+@error:
+    lda     #$00
+    tax
     rts
-
 @continue:
     ; Save PTR
     sta     RESB
+    sta     RESC
     sty     RESB+1
+    sty     RESC+1
 
 
-;  ZZ1001:
- ;   cmp #CH376_USB_INT_SUCCESS
-  ;  bne ZZ1002
-   ; lda #COLOR_FOR_FILES
-   ; bne display_one_file_catalog
 
-  ;ZZ1002:
-   ; cmp #CH376_ERR_OPEN_DIR
-   ; bne ZZ0003
-   ; lda #COLOR_FOR_DIRECTORY
-   ; bne display_one_file_catalog
+    jsr     _ch376_verify_SetUsbPort_Mount
 
-  ;ZZ0003:
-   ; cmp #CH376_USB_INT_DISK_READ
-    ;bne ZZ0004
-    ;beq go
+    lda     #$00
+    sta     TR7         ; Used to compute number of entries
+
+    lda     #CH376_SET_FILE_NAME        ;$2F
+    sta     CH376_COMMAND
+    lda     #'/'
+    sta     CH376_DATA
+
+    lda     #$00
+    sta     CH376_DATA
+
+    jsr     _ch376_file_open
+
+    lda     #CH376_SET_FILE_NAME        ;$2F
+    sta     CH376_COMMAND
+
+    lda     #'*'
+    sta     CH376_DATA
+
+    lda     #$00
+    sta     CH376_DATA
+
+    jsr     _ch376_file_open
+
+
+    cmp     #CH376_ERR_MISS_FILE
+    beq     @error
+
+    cmp     #CH376_USB_INT_SUCCESS
 
 ;display_one_file_catalog:
- ;   lda #CH376_DIR_INFO_READ
-  ;  sta CH376_COMMAND
-   ; lda #$ff
-    ;sta CH376_DATA
-    ;jsr _ch376_wait_response
-    ;cmp #CH376_USB_INT_SUCCESS
+    lda     #CH376_DIR_INFO_READ
+    sta     CH376_COMMAND
+    lda     #$ff
+    sta     CH376_DATA
+    jsr     _ch376_wait_response
+    cmp     #CH376_USB_INT_SUCCESS
+  ;  cmp     #CH376_USB_INT_SUCCESS
 
-    ;bne Error
+  ;  bne     @error
 
-;go:
- ;   lda #CH376_RD_USB_DATA0
-  ;  sta CH376_COMMAND
-   ; lda CH376_DATA
-    ;cmp #$20
-    ;beq ZZ0005
-
-;    rts
-
- ; ZZ0005:
-  ;  jsr display_catalog
-
-
-
-  ; FD
-    ldy     #$00
-L1:
+go:
+@next_entry:
+    lda     #CH376_RD_USB_DATA0
+    sta     CH376_COMMAND
     lda     CH376_DATA
-    sta     (RESB),y
-    iny
-    cpy     #$1F
-    bne     L1
+
+
+@read_entry:
+    lda     #$00
+    sta     TR0 ; Use to set "."
+    jsr     display_catalog
+
+    
+    ldx     TR7
+    cpx     #READDIR_MAX_LINE
+    beq     @exit
+
+    
+
+    cmp     #CH376_USB_INT_DISK_READ
+    beq     @next_entry
+
+@exit:
+    lda     RESB
+    ldx     RESB+1
     rts
-    ;lda     CH376_DATA
-    ;sta     (RES),y          ; Sauvegarde l'attribut pour plus tard
 
-;    ldx #$14
+display_catalog:
 
-;@L2:
- ;   lda CH376_DATA
-;    sta BUFEDT+1,y
-    ;dex
-    ;bpl @L2
 
-  ;rts
+    ldy     #$00
+@loop2:
+    lda     CH376_DATA
+   ; cmp     #' '   ; Space ?
+   ; bne     @not_space
+
+   ; ldx     TR0 ; Does '.'' already sent ?
+  ;  bne     @skip
+    
+  ;  sty     TR0   ; Save pos of the dot
+  ;  lda     #'.'
+    ;bne     @skip
+
+
+@not_space:
+    cmp     #"Z" ;
+    bcs     @skip
+    cmp     #"A"+1 ; 'z'
+    bcc     @skip
+
+    adc     #$1F
+
+@skip:
+    sta     (RESC),y
+@inc_y:
+    iny
+    cpy     #8+3
+    bne     @loop2
+
+    lda     #$00
+    sta     (RESC),y ; Store EOS
+    iny
+
+
+    lda     CH376_DATA  ; Attribute
+    ;cmp     #$10  ; Is it a folder ?
+ ;   bne     @continue
+    ; Yes store 0 (replace '.')
+
+  ;  sty     TR1 ; save Y
+
+  ;  ldy     TR0
+  ;  lda     #$00 ; EOS
+     sta     (RESC),y
+
+  ;  ldy     TR1
+
+  ;  iny
+
+@continue:
+    iny
+
+@loop3:
+    lda     CH376_DATA
+    sta     (RESC),y
+    iny
+    cpy     #.sizeof(_READDIR_STRUCT)
+    bne     @loop3
+
+    ; Compute
+    lda     RESC
+    clc
+    adc     #.sizeof(_READDIR_STRUCT)
+    bcc     @do_not_inc
+    inc     RESC+1
+@do_not_inc:
+    sta     RESC
+
+    inc     TR7
+    
+
+    lda     #CH376_FILE_ENUM_GO
+    sta     CH376_COMMAND
+    jmp     _ch376_wait_response
+
+
 .endproc 

@@ -251,10 +251,15 @@ loading_vectors_telemon:
   sta     $0700,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xmalloc,x
   sta     $0800,x                     ; used to copy in Overlay RAM ... see  loop40 label
-  lda     ramoverlay_xfree,x
+  lda     ramoverlay_xmalloc+256,x
   sta     $0900,x                     ; used to copy in Overlay RAM ... see  loop40 label  
-  lda     ramoverlay_xfree+255,x
-  sta     $1000,x                     ; used to copy in Overlay RAM ... see  loop40 label    
+  
+  lda     ramoverlay_xfree,x
+  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label  
+  lda     ramoverlay_xfree+256,x
+  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label    
+  lda     ramoverlay_xfree+256+256,x
+  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label      
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
 
@@ -644,9 +649,14 @@ loading_code_to_page_6:
   lda     $0800,x
   sta     ramoverlay_xmalloc,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     $0900,x
+  sta     ramoverlay_xmalloc+256,x                     ; used to copy in Overlay RAM ... see  loop40 label
+
+  lda     $2000,x  
   sta     ramoverlay_xfree,x                     ; used to copy in Overlay RAM ... see  loop40 label  
-  lda     $1000,x
-  sta     ramoverlay_xfree+255,x                     ; used to copy in Overlay RAM ... see  loop40 label    
+  lda     $2100,x
+  sta     ramoverlay_xfree+256,x                     ; used to copy in Overlay RAM ... see  loop40 label    
+  lda     $2200,x
+  sta     ramoverlay_xfree+256+256,x                     ; used to copy in Overlay RAM ... see  loop40 label    
 
   inx
   bne     @loop ; copy 256 bytes to BUFROU in OVERLAY RAM
@@ -851,7 +861,7 @@ code_adress_47E:  ; brk gestion
   sta     IRQSVA
   lda     VIA2::PRA
   and     #$07      
-  sta     BNKOLD ; store old bank before interrupt ?
+  sta     BNKOLD     ; store old bank before interrupt ?
   lda     VIA2::PRA  ; Switch to telemon bank and jump
   ora     #$07
   sta     VIA2::PRA
@@ -1477,21 +1487,21 @@ vectors_telemon:
   .byt     <XVARS_ROUTINE,>XVARS_ROUTINE                                            ; $24
   .byt     <XCRLF_ROUTINE,>XCRLF_ROUTINE                                            ; $25
   .byt     <XDECAY_ROUTINE,>XDECAY_ROUTINE                                          ; XDECAY  $26
-  .byt     <XREADBYTES_ROUTINE,>XREADBYTES_ROUTINE ; $27  Fread
-  .byt     <XBINDX_ROUTINE,>XBINDX_ROUTINE         ; XBINDX $28
-  .byt     <XDECIM_ROUTINE,>XDECIM_ROUTINE         ; $29
-  .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE           ; 2a
-  .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE ; XA1AFF  $2B
-  .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE   ; $2C
-  .byt     <XVALUES_ROUTINE,>XVALUES_ROUTINE     ; $2D
-  .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE     ; $2E
-  .byt     <XOPENDIR_READDIR_CLOSEDIR,>XOPENDIR_READDIR_CLOSEDIR
-  .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE ; $30
+  .byt     <XREADBYTES_ROUTINE,>XREADBYTES_ROUTINE                                  ; $27  Fread
+  .byt     <XBINDX_ROUTINE,>XBINDX_ROUTINE                                          ; XBINDX $28
+  .byt     <XDECIM_ROUTINE,>XDECIM_ROUTINE                                          ; $29
+  .byt     <XHEXA_ROUTINE,>XHEXA_ROUTINE                                            ; 2a
+  .byt     <XA1AFF_ROUTINE,>XA1AFF_ROUTINE                                          ; XA1AFF  $2B
+  .byt     <XMAINARGS_ROUTINE,>XMAINARGS_ROUTINE                                    ; $2C
+  .byt     <XVALUES_ROUTINE,>XVALUES_ROUTINE                                        ; $2D
+  .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE                                      ; $2E
+  .byt     <XOPENDIR_READDIR_CLOSEDIR,>XOPENDIR_READDIR_CLOSEDIR                    ; $2F
+  .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE                                            ; $30
 
   .byt     <$00,>$00 ; Open from current path $31
 
   .byt     $00,$00; XEDTIN $32
-  .byt     <XECRPR_ROUTINE,>XECRPR_ROUTINE; XECRPR $33 $ece6
+  .byt     <XECRPR_ROUTINE,>XECRPR_ROUTINE ; XECRPR $33 
   .byt     <XCOSCR_ROUTINE,>XCOSCR_ROUTINE  ;XCOSCR $34
   .byt     <XCSSCR_ROUTINE,>XCSSCR_ROUTINE ; $35 XCSSCR 
   .byt     <XSCRSE_ROUTINE,>XSCRSE_ROUTINE ; $36 
@@ -5479,11 +5489,11 @@ copy_ramoverlay_end:
 
 ; end of COPY_OVERLAY8RAM
 
-.if     ramoverlay_xmalloc_end-ramoverlay_xmalloc> 255
+.if     ramoverlay_xmalloc_end-ramoverlay_xmalloc> 512
   .error  "XMALLOC can't be copied into RAMOVERLAY"
 .endif
 
-.if     ramoverlay_xfree_end-ramoverlay_xfree> 512
+.if     ramoverlay_xfree_end-ramoverlay_xfree> 512+256
   .error  "XFREE can't be copied into RAMOVERLAY"
 .endif
 

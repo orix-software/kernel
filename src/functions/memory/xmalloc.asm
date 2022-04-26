@@ -4,6 +4,8 @@
 .proc XMALLOC_ROUTINE
 
 .out     .sprintf("|MODIFY:TR7:XMALLOC_ROUTINE")
+.out     .sprintf("|MODIFY:KERNEL_ERRNO:XMALLOC_ROUTINE")
+
 
 ; IN [A & Y ] the length requested
 ; 
@@ -163,19 +165,23 @@
     lda     #KERNEL_UNKNOWN_MALLOC_TYPE
     sta     KERNEL_MALLOC_TYPE  
 
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+
     ; Debug
 
-.ifdef WITH_DEBUG2
+.ifdef WITH_DEBUG
     jsr     kdebug_save
-    jsr     xdebug_enter_XMALLOC_return_adress
-    jsr     xdebug_send_ay_to_printer
+
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+
+    ldx     #3
+
+    jsr     xdebug_print_with_ay
+
     jsr     kdebug_restore
 .endif  
-
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     rts
     
 .endproc

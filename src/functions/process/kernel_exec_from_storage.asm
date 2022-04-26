@@ -44,8 +44,8 @@
     ; FIX ME test OOM
 @malloc_ok:
 
-    sta     RESB
-    sty     RESB+1
+    sta     RESE
+    sty     RESE+1
 
     sta     RESC
     sty     RESC+1
@@ -95,15 +95,15 @@
 
     ; At this step RESB contains the beginning of the string
 
-    lda     RESB
+    lda     RESE
     sta     RESC
-    lda     RESB+1
+    lda     RESE+1
     sta     RESC+1
 
 @out:
     ldy     #$00
 @L5:    
-    lda     (RESB),y
+    lda     (RESE),y
     beq     @S1
 
     iny
@@ -115,8 +115,8 @@
 
 
     ldy     #O_RDONLY
-    lda     RESB
-    ldx     RESB+1
+    lda     RESE
+    ldx     RESE+1
     jsr     XOPEN_ROUTINE
 
     cpx     #$FF
@@ -126,8 +126,8 @@
     bne     @not_null
 
     ; Free string used for the strcat
-    lda     RESB
-    ldy     RESB+1
+    lda     RESE
+    ldy     RESE+1
     jsr     XFREE_ROUTINE
 
 @kill_and_exit:
@@ -146,8 +146,8 @@
     sta     RESF       ; save fp
     stx     RESF+1     ; save fp
 
-    lda     RESB
-    ldy     RESB+1
+    lda     RESE
+    ldy     RESE+1
     jsr     XFREE_ROUTINE
 
     ; Found let's fork
@@ -325,10 +325,11 @@
     lda     RESD+1    ; Does high byte for malloc ptr is
 
 
-
+@me:
+    jmp     @me
     ldy     #15
-    lda     RESD+1    ; Does high byte for malloc ptr is 
-    cmp     (RESD),y  ; greater than the loading adress $7f
+    lda     RESD+1    ; Does high byte for malloc ptr is  $08
+    cmp     (RESD),y  ; greater than the loading adress $7f 
     bcs     @error    ; Yes error, can't not start
     bne     @start_to_read ; Is it equal ex : loading adress $08 and malloc high adress $08 ? no it means that it's less, let's start program
     ; it's equal

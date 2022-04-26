@@ -116,12 +116,14 @@ str_enter_malloc:
 .endproc
 
 .proc xdebug_enter_XMALLOC_return_adress
-    rts
-    jsr    xdebug_save
+    lda  #$00
+    sta  $343
+   ; jsr    xdebug_save
     lda    #<str_enter_found
     ldy    #>str_enter_found
-    sta    RES 
-    sty    RES+1
+    sta    HRS1 
+    sty    HRS1+1
+   
     jmp    xdebug_enter
 str_enter_found:
     .byte " return address :  "
@@ -191,17 +193,17 @@ str_enter_free:
 .endproc
 
 .proc xdebug_enter
-    rts
+
     jsr    xdebug_send_string_to_printer
     jsr    xdebug_load
     rts
 .endproc
 
 .proc xdebug_send_string_to_printer
-    rts
+
     ldy    #$00
 @L1:    
-    lda    (RES),y
+    lda    (HRS1),y
     beq    @out
     jsr    xdebug_send_printer
     iny
