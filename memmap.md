@@ -86,7 +86,6 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:RES:XOPEN_ROUTINE
 |MODIFY:TR7:XMALLOC_ROUTINE
 |MODIFY:KERNEL_ERRNO:XMALLOC_ROUTINE
-|MODIFY:TR5:XFREE_ROUTINE
 |MODIFY:RES:XFREE_ROUTINE
 |MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE
 |#MEMMAP: Page 0
@@ -191,12 +190,12 @@ CALL:XOPEN:XRM_ROUTINE
 |#MEMMAP: Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fcf8-$fff0|   760   |
+|MEMMAP:ROM|FREE                         |$fd7f-$fff0|   625   |
 |#MEMMAP:Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f9c3-$fac3 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $fac3-$fce0 |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f9c0-$fac0 |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $fac0-$fd67 |     |

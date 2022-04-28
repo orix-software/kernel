@@ -59,6 +59,7 @@
 |RAM|<span style="color:green">FREE</span>                           | $5C-$5F     |  2   |
 |RAM|RESG                           | $6E-$6F     |  2   |
 |RAM|<span style="color:green">FREE</span>                           | $8C-$FF     |  115   |
+
 # Page 2
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|

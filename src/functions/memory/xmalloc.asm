@@ -15,6 +15,8 @@
 ; Verify if there is enough memory
 ; 
 
+
+
 .ifdef WITH_DEBUG
     jsr     kdebug_save
 

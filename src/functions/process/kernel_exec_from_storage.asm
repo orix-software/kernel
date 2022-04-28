@@ -173,7 +173,7 @@
     ldx     CH376_DATA
 
     jsr     XMALLOC_ROUTINE
-    
+
     cmp     #NULL
     bne     @not_null2
 
@@ -186,6 +186,7 @@
 
 
 @not_null2:
+    
 
   ;   RESD contains pointer to header and the length is equal to the file to load
     sta     RESD
@@ -206,13 +207,15 @@
 
     jsr     XREADBYTES_ROUTINE
 
-    
+
+  
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
 
     cmp     #$01
     beq     @is_an_orix_file
     ; Don't know the format
+
     lda     #ENOEXEC
     rts
 
@@ -222,7 +225,7 @@
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE
-  
+ 
     ldy     #$05                ; Get binary version
     lda     (RESD),y
     cmp     #$01                ; Binary version, it's not a relocatable binary
@@ -298,7 +301,7 @@
     
 ; Format 1 : static adress   
 @static_file:
-    
+   
     ldy     #15      ; Get the loading address
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
@@ -325,8 +328,7 @@
     lda     RESD+1    ; Does high byte for malloc ptr is
 
 
-@me:
-    jmp     @me
+
     ldy     #15
     lda     RESD+1    ; Does high byte for malloc ptr is  $08
     cmp     (RESD),y  ; greater than the loading adress $7f 
