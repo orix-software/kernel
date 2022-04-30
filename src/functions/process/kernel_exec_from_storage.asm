@@ -148,6 +148,7 @@
 
     lda     RESE
     ldy     RESE+1
+
     jsr     XFREE_ROUTINE
 
     ; Found let's fork
@@ -155,7 +156,6 @@
     ; RESC contains file pointer
     ; RES can be used
     ; RESB too
-
 
 
     ; Get length of the file
@@ -178,15 +178,25 @@
     bne     @not_null2
 
     cpy     #NULL
-    beq     @not_null2
+    bne     @not_null2
+
+
 @out_not_found:
+
+
+
+    lda     RESF
+    ldy     RESF+1
+   
+    jsr     XCLOSE_ROUTINE
+
+    jsr     @kill_and_exit
     lda     #ENOMEM         ; Error
 
     rts    
 
 
 @not_null2:
-    
 
   ;   RESD contains pointer to header and the length is equal to the file to load
     sta     RESD
@@ -221,7 +231,7 @@
 
 @is_an_orix_file:
     ; Checking version
- 
+
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE

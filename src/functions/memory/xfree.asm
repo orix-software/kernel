@@ -10,11 +10,10 @@
   .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
 
   
- ; jmp     XFREE_ROUTINE : f91b
+
   sta     KERNEL_XFREE_TMP    ; Save A (low)
 
-  ; AY contains ptr
-  sty     HRSX
+  sty     HRS1
 
 .ifdef WITH_DEBUG
   jsr     kdebug_save
@@ -28,11 +27,11 @@
 
 ; [A & Y] the first adress of the pointer.
 
-.ifdef WITH_DEBUG
-  jsr     kdebug_save
-  jsr     xdebug_lsmem
-  jsr     kdebug_restore
-.endif  
+;.ifdef WITH_DEBUG
+  ;jsr     kdebug_save
+  ;jsr     xdebug_lsmem
+  ;jsr     kdebug_restore
+;.endif  
 
   
 
@@ -566,7 +565,7 @@ out:
   
   iny
   cpy     #KERNEL_MALLOC_FREE_CHUNK_MAX 
- ; bne     @try_another_free_chunk
+  bne     @try_another_free_chunk
 
  ; ldy     #$01
  ; inx

@@ -2,8 +2,9 @@
 #! /bin/bash
 ORICUTRON_PATH="/mnt/c/Users/plifp/OneDrive/oric/oricutron_wsl/oricutron"
 CA65_INC=/usr/share/cc65/asminc/
+# -DWITH_DEBUG=1
 
-ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1 --verbose -s -ttelestrat  src/kernel.asm -o tmp/kernelsd.ld65 --debug-info > memmap.md
+ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1  --verbose -s -ttelestrat  src/kernel.asm -o tmp/kernelsd.ld65 --debug-info > memmap.md
 RET=$?
 if [ $RET != 0 ]
 then

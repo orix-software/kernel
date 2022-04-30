@@ -22,8 +22,7 @@ System will need almost 578 bytes in memory, if we reached KERNEL_MAX_PROCESS, K
 kernel_malloc_busy_begin : 2ba
 kernel_end_of_variables_before_BUFNOM : 503
 kernel_end_of_variables_before_BUFEDT : 58f
-Size of kernel_debug_struct $e 
-kernel_end_of_memory_for_kernel (malloc will start at this adress) : 643
+kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a3
 |MODIFY:RES:_create_file_pointer
 |MODIFY:KERNEL_ERRNO:_create_file_pointer
 |CALL:XMALLOC:_create_file_pointer
@@ -35,6 +34,9 @@ kernel_end_of_memory_for_kernel (malloc will start at this adress) : 643
 |MODIFY:RESB:kernel_create_process
 |MODIFY:TR4:kernel_create_process
 |MODIFY:TR5:kernel_create_process
+|MODIFY:KERNEL_ERRNO:kernel_create_process
+|MODIFY:KERNEL_MALLOC_TYPE:kernel_create_process
+|MODIFY:KERNEL_XKERNEL_CREATE_PROCESS_TMP:kernel_create_process
 |MODIFY:RES:kernel_kill_process
 |MODIFY:TR5:kernel_kill_process via XFREE_ROUTINE
 |MODIFY:RES:kernel_kill_process via XFREE_ROUTINE
@@ -185,17 +187,17 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|BUFNOM                         | $0517-$0525 |      |
 |MEMMAP:RAM|Malloc table                   | $0525-$0579 |      |
 |MEMMAP:RAM|main kernel process struct     | $0579-$058F |      |
-|MEMMAP:RAM|BUFEDT                         | $0590-$059E |      |
-|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $059E-$0643 |      |
+|MEMMAP:RAM|BUFEDT                         | $0590-$05FE |      |
+|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A3 |      |
 |#MEMMAP: Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fd7f-$fff0|   625   |
+|MEMMAP:ROM|FREE                         |$faa5-$fff0|   1355   |
 |#MEMMAP:Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f9c0-$fac0 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $fac0-$fd67 |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f761-$f80d |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $f80d-$fa8d |     |

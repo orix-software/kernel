@@ -141,7 +141,7 @@ kernel_debug:
     .tag    kernel_debug_struct
     .out   .sprintf("Size of kernel_debug_struct $%x ", .sizeof(kernel_debug_struct))    
 .else   
-    .res 110    
+.res 110    
 .endif    
 
 BUFEDT_END:

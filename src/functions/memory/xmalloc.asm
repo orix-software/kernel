@@ -65,6 +65,7 @@
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
 
+
     lda     #ENOMEM
     sta     KERNEL_ERRNO
 
@@ -87,7 +88,6 @@
     beq     @found
     inx 
     cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
-
     beq     @exit_null 
     bne     @looking_for_busy_chunck_available
 
