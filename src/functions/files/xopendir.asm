@@ -61,6 +61,12 @@ CH376_DIR_INFO_READ = $37
 
 .define READDIR_MAX_LINE 100
 
+    .out     .sprintf("|MODIFY:RES:XOPENDIR")
+    .out     .sprintf("|MODIFY:RESB:XOPENDIR")
+    .out     .sprintf("|MODIFY:RESC:XOPENDIR")
+    .out     .sprintf("|MODIFY:TR0:XOPENDIR")
+    .out     .sprintf("|MODIFY:TR7:XOPENDIR")
+
 .proc _readdirAll
     ; save FD
     sta     RES
@@ -156,39 +162,57 @@ go:
     beq     @next_entry
 
 @exit:
+    ; Store 00 at the last entry
+    lda     #$00
+    tay
+    sta     (RESC),y
+
     lda     RESB
     ldx     RESB+1
     rts
 
 display_catalog:
-
+    lda     #$00
+    sta     TR0
 
     ldy     #$00
 @loop2:
     lda     CH376_DATA
-   ; cmp     #' '   ; Space ?
-   ; bne     @not_space
+    cmp     #' '   ; Space ?
+    bne     @not_space
 
-   ; ldx     TR0 ; Does '.'' already sent ?
   ;  bne     @skip
-    
-  ;  sty     TR0   ; Save pos of the dot
+    pha
+    lda     TR0
+    bne     @dot_already_stored 
+    sty     TR0   ; Save pos of the dot
   ;  lda     #'.'
     ;bne     @skip
 
-
+@dot_already_stored:
+    pla
 @not_space:
-    cmp     #"Z" ;
+    cmp     #'Z'+1 ;
     bcs     @skip
-    cmp     #"A"+1 ; 'z'
+    cmp     #'A'
     bcc     @skip
 
     adc     #$1F
 
 @skip:
+
+@do_not_remove_dot:
     sta     (RESC),y
 @inc_y:
     iny
+    
+;    cmp     #' '        ; Is it space ?
+ ;   bne     @do_not_remove_dot
+    ; Space for extension, do not display dot in this case
+  ;  lda     #$00
+    ;sta     TR0
+
+
     cpy     #8+3
     bne     @loop2
 
@@ -198,19 +222,9 @@ display_catalog:
 
 
     lda     CH376_DATA  ; Attribute
-    ;cmp     #$10  ; Is it a folder ?
- ;   bne     @continue
-    ; Yes store 0 (replace '.')
 
-  ;  sty     TR1 ; save Y
+    sta     (RESC),y
 
-  ;  ldy     TR0
-  ;  lda     #$00 ; EOS
-     sta     (RESC),y
-
-  ;  ldy     TR1
-
-  ;  iny
 
 @continue:
     iny
@@ -222,6 +236,58 @@ display_catalog:
     cpy     #.sizeof(_READDIR_STRUCT)
     bne     @loop3
 
+    ldy     #11+1
+    lda     (RESC),y
+    cmp     #$10
+    beq     @skip_point
+
+    ldy     TR0 
+    lda     #'.'        ; Store . if we have reached a space
+    sta     (RESC),y 
+@skip_point:
+    ; Checking if we have an extension. If yes, we store \0 at the position of the dot
+    ldy     TR0
+    beq     @no_dot
+
+    ldy     #8+1   ; Position of the extension
+    lda     (RESC),y
+    cmp     #' ' ; is it space
+    bne     @copy_ext ; No continue
+    ; else remove dot
+    ldy     TR0
+    lda     #$00
+    sta     (RESC),y
+    jmp     @no_dot
+@copy_ext:
+    lda     TR0    ; Check where dot is
+    cmp     #'8'   ; 8 position ? Do not move ext
+    beq     @no_dot
+
+    ldy     #8
+    lda     (RESC),y
+    ldy     TR0
+    iny
+    sta     (RESC),y
+
+    ldy     #9
+    lda     (RESC),y
+    ldy     TR0
+    iny
+    iny
+    sta     (RESC),y
+
+    ldy     #10
+    lda     (RESC),y
+    ldy     TR0
+    iny
+    iny
+    iny
+    sta     (RESC),y
+    iny
+    lda     #$00
+    sta     (RESC),y
+
+@no_dot:
     ; Compute
     lda     RESC
     clc
