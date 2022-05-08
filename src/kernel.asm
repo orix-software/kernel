@@ -96,6 +96,7 @@ start_rom:
   ldx     #$FF
   txs                         ; init stack
 
+
   
 .IFPC02
 .pc02
@@ -156,25 +157,25 @@ start_rom:
 
   jsr     init_screens
   
-  .ifdef WITH_DEBUG_BOARD
+.ifdef WITH_DEBUG_BOARD
   lda     #'N'
   sta     $bb80+14
-  .endif
+.endif
 
 
   jsr     XLOADCHARSET_ROUTINE
 
-  .ifdef WITH_DEBUG_BOARD
+.ifdef WITH_DEBUG_BOARD
   lda     #'O'
   sta     $bb80+15
-  .endif
+.endif
 
   jsr     XALLKB_ROUTINE
 
-  .ifdef WITH_DEBUG_BOARD
+.ifdef WITH_DEBUG_BOARD
   lda     #'P'
   sta     $bb80+16
-  .endif
+.endif
 
   ldx     #$00
 @myloop:  
@@ -2289,9 +2290,9 @@ LDB7D:
 
 ;Principe:tellement habituel que cela en devient monotone... mais bien pratique !  
 output_window0:
-  pha             ;   Save A & P
+  pha                 ;   Save A & P
   php                                                              
-  lda     #$00    ;   window 0                                         
+  lda     #$00        ;   window 0                                         
   sta     SCRNB       ; stocke la fenêtre dans SCRNB
   plp                 ;  on lit la commande
   bpl     @S1         ;  écriture -------    
@@ -2323,9 +2324,9 @@ Ldbce:   ; $d27e
   pha
 
   jsr     XCOSCR_ROUTINE ; switch off cursor
-  lda     #>(LDC2B-1) ; FIXME ?
+  lda     #>(LDC2B-1)    ; FIXME ?
   pha
-  lda     #<(LDC2B-1) ; FIXME ?
+  lda     #<(LDC2B-1)    ; FIXME ?
   pha
   lda     SCRNB+1
   asl     ; MULT2 in order to get vector 
@@ -2386,19 +2387,19 @@ LDC2B
   lda     ADSCR+1
   sta     ADSCRH,x
   pla
-  sta     FLGSCR,x
+  sta     FLGSCR
   jsr     LDE2D 
 ; Here ? debug jede
-LDC46  
+LDC46:
   pla
   tay
   pla
   tax
   pla
   rts
-Ldc4c
+Ldc4c:
 
-  lda     FLGSCR,x
+  lda     FLGSCR
   and     #%00001100 
   bne     Ldc9a
   lda     SCRNB+1
@@ -2420,7 +2421,7 @@ LDC69:
 display_char:
   
   ldy     #$80
-  lda     FLGSCR,x
+  lda     FLGSCR
   and     #$20      ; inverse video ?
 
   bne     @skip
@@ -2448,15 +2449,15 @@ Ldc9a:
   jsr     Ldbb5            ;                                                   I
   lda     #$1B             ;  on envoie un ESC (fin de ESC)                    I
   jsr     Ldbb5            ;                                                   I
-  jmp     LDC46            ; et on sort                                        I
+  jmp     LDC46            ;  et on sort                                        I
 @S1:
-  lda     FLGSCR,x         ;   US, on lit FLGSCR <-------------------------------
+  lda     FLGSCR           ;   US, on lit FLGSCR <-------------------------------
   pha                      ;   que l'on sauve                                    
   jsr     XCOSCR_ROUTINE   ;   on éteint le curseur                            
   pla                      ;   on prend FLGSCR
   pha
   lsr                      ;   doit-on envoyer Y ou X ?                          
-  bcs     @S2            ;   X ------------------------------------------------
+  bcs     @S2              ;   X ------------------------------------------------
 
   lda     SCRNB+1          ;   on lit Y                                         I
   and     #$3F             ;   on vire b4 (protocole US)                        I
@@ -2470,14 +2471,14 @@ Ldc9a:
   pha                      ;                                                    I
   jmp     LDC2B            ;   et on sort                                       I
 @S2:
-  lda     SCRNB+1          ;  on lit X <----------------------------------------
+  lda     SCRNB+1          ;   on lit X <----------------------------------------
   and     #$3F             ;   on vire b4
   sta     SCRX,x           ;   dans SCRX                                         
   pla                                                              
   and     #$FA             ;   on indique fin de US                              
   pha                                                              
-  jmp     LDC2B            ;  et on sort
-KEYBOARD_NO_SHORTCUT:       ; USED TO rts keyboard shortcut not managed  
+  jmp     LDC2B            ;   et on sort
+KEYBOARD_NO_SHORTCUT:      ;   USED TO rts keyboard shortcut not managed  
   rts                                                                
 
 
@@ -2528,7 +2529,7 @@ LDD13:
   ror    ;        on prépare masque %10000000                       
 
 LDD14:
-  tay               ; dans Y                                            
+  tay               ;  dans Y                                            
   tsx               ;  on indexe FLGSCR dans la pile                     
   eor     $0103,x   ;  on inverse le bit correspondant au code (bascule) 
   sta     $0103,x   ;  et on replace                                     
@@ -2538,7 +2539,7 @@ LDD14:
   bne     @skip     ;  oui ----------------------------------------------
   rts               ;  non on sort                                      I
 @skip:
-  ldx     SCRNB     ;   on prend le num?ro de fen?tre <-------------------
+  ldx     SCRNB     ;   on prend le numero de fenetre <-------------------
   and     RES       ;  mode monochrome (ou 40 colonnes) ?                
   beq     @S2       ;   oui ----------------------------------------------
   inc     SCRDX,x   ;  non, on interdit la première colonne             I
@@ -2745,6 +2746,7 @@ LDE2D:
 
   pla
 lde53:
+
   rts
   
 .include "functions/text/xscrob_xscroh.asm"
@@ -2754,18 +2756,18 @@ lde53:
 
 ;Note de Jede : oui :  utilisée chercher le label LDECE     
 
-LDECE 
+LDECE:
   bcc      LDED7             ;  si C=0 on passe ------------                      
   ldx      SCRNB             ;                             I                      
   jsr      XCOSCR_ROUTINE    ;  on éteint le curseur       I                      
   pla                        ;  et on sort A de la pile    I                      
   rts                        ;                             I    
 LDED7:
-  lda      #$01      ;  on met 1 en $216 <----------                      
+  lda      #$01              ;  on met 1 en $216 <----------                      
   sta      FLGCUR                                                        
   lda      #$80      ; on force b7 à 1 dans $217                         
   sta      FLGCUR_STATE                                                        
-  pla           ; on sort A                                         
+  pla                ; on sort A                                         
   rts           ; et on sort    
 
   ; text mode  Text mode bytes it will  fill SCRTXT
@@ -2827,7 +2829,7 @@ next18:
   lda     #$00
   sta     SCRCF,x ; set paper to black
   lda     #$00
-  sta     FLGSCR,x
+  sta     FLGSCR
   lda     SCRDX,x
   sta     SCRX,x ; init cursor to 0 (beginning of the line)
   lda     SCRDY,x
@@ -2909,15 +2911,15 @@ le085:
 ;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1. 
 
                                                                                 
-  jsr     Ldf99      ;  on lit la valeur souris                         
-  and     #$1B       ;   on isole les directions                           
-  sta     VABKP1     ;   dans VABKP1                                          
-  cmp     #$1B       ;   la souris bouge ?                                 
-  bne     @S1      ;   non ---------------------------------------------- 
-  dec     JCKTAB+7   ;   on déplace ?                                     I
-  bne     Le084      ;   non, on sort.                                    I 
+  jsr     Ldf99       ;  on lit la valeur souris                         
+  and     #$1B        ;   on isole les directions                           
+  sta     VABKP1      ;   dans VABKP1                                          
+  cmp     #$1B        ;   la souris bouge ?                                 
+  bne     @S1         ;   non ---------------------------------------------- 
+  dec     JCKTAB+7    ;   on déplace ?                                     I
+  bne     Le084       ;   non, on sort.                                    I 
 @S1:  
-  lda     JCKTAB+8    ;  on place vitesse d?placement dans  <--------------
+  lda     JCKTAB+8    ;  on place vitesse deplacement dans  <--------------
   sta     JCKTAB+7    ;  $2A4                                              
   lda     VABKP1      ;   on lit le code                                    
   cmp     #$1B        ;   souris fixe ?                                     
@@ -2925,8 +2927,8 @@ le085:
   and     #$1B                         ;    non, on isole les valeurs direction              I
   eor     JCDVAL                       ;    et on retourne les bits de JCDVAL                I
   and     #$1B                         ;    en isolant les bits direction                    I
-  bne     LE0B5                        ;    ce ne sont pas les m?mes exactement -------------O 
-  dec     MOUSE_JOYSTICK_MANAGEMENT+1  ;    on r?p?te ?                                      I
+  bne     LE0B5                        ;    ce ne sont pas les memes exactement -------------O 
+  dec     MOUSE_JOYSTICK_MANAGEMENT+1  ;    on repete ?                                      I
   bne     LE0E0  ;    non                                              I 
   ldx     MOUSE_JOYSTICK_MANAGEMENT+8  ;     oui, on met le diviseur répétition               I
   jmp     LE0BB ;  ---dans le compteur                                 I 
@@ -2935,19 +2937,19 @@ LE0B5
   ldx     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant répétition   
 LE0BB
   stx     MOUSE_JOYSTICK_MANAGEMENT+1 ;  -->dans le décompteur
-  and     #$1B  ;     on isole les bits de direction                    
-  sta     VABKP1  ;      dans VABKP1                                          
-  lda     JCDVAL ;     on prend JDCVAL                                   
+  and     #$1B     ;     on isole les bits de direction                    
+  sta     VABKP1   ;      dans VABKP1                                          
+  lda     JCDVAL   ;     on prend JDCVAL                                   
   and     #$64 ;      %01100100, on isole les bits de Feu               
   ora     VABKP1   ;     on ajoute les bits de direction                   
-  sta     JCDVAL  ;    dans JDCVAL                                       
+  sta     JCDVAL   ;    dans JDCVAL                                       
   lda     VABKP1   ;                                                       
-  ora     #$04  ;     on éteint le feu principal
-  ldx     #$04  ;  
+  ora     #$04     ;     on éteint le feu principal
+  ldx     #$04     ;  
 Le0d2
   lsr                                                              
   pha                                                              
-  bcs     LE0DC     ;                                              
+  bcs     LE0DC      ;                                              
   lda     JCKTAB,x   ; et on envoie les valeurs ASCII dans le buffer     
   jsr     Le19d      ;                                                    
 LE0DC
@@ -3079,7 +3081,7 @@ LE269:
 LE26B:  
 
   
-LE276  
+LE276:
   lda     #$05
   sta     TR2
 LE27A:
@@ -3626,12 +3628,12 @@ XINK_ROUTINE:
   bmi     LE9A7     ; oui ---------------------------------------------- 
   stx     SCRNB     ; TEXT, on met le numero de fenètre dans $28       I
   bcc     @S2       ; si C=0, c'est PAPER                              I 
-  sta     SCRCT,x  ;  on stocke la couleur d'encre                     I
+  sta     SCRCT,x   ;  on stocke la couleur d'encre                     I
   bcs     @S1       ;  si C=1 c'est INK                                 I 
 @S2:
   sta     SCRCF,x   ;  ou la couleur de fond  
 @S1:
-  lda     FLGSCR,x  ;  est on en 38 colonnes ?                          I
+  lda     FLGSCR    ;  est on en 38 colonnes ?                          I
   and     #$10      ;                                                   I
   bne     LE987     ; mode 38 colonnes ------------------------------  I
   lda     #$0C      ;  mode 40 colonnes, on efface l'écran           I  I
@@ -3745,11 +3747,11 @@ LEAB5
   cmp     #$08
   bne     Leacf 
   lda     #$00
-Leacf  
+Leacf:
   tay
-Lead0  
+Lead0:
   jsr     hires_put_coordinate
-Lead3  
+Lead3:
   pla
   jsr     ZADCHA_ROUTINE 
   ldy     #$00
@@ -3942,7 +3944,7 @@ LEFC2:
   lsr     RES+1,x
   
   jsr     LF0FC 
-next802  
+next802:
   bit     ACCPS
   bpl     Lf049 
   ldy     #$60
@@ -4090,7 +4092,7 @@ LF0C9:
   txs
   rts
  
-justify__to_the_right_with_A_and_X
+justify__to_the_right_with_A_and_X:
   ldx     #$6E
 LF0D1: 
   ldy     DECDEB,x
@@ -4483,7 +4485,7 @@ XA1XY_ROUTINE:
   sty     ACC1EX
   rts
 
-XA2A1_ROUTINE  
+XA2A1_ROUTINE:
   lda     ACC2S
 LF379:
   sta     ACC1S
@@ -4622,7 +4624,7 @@ LF436:
   jmp     LF3C3 
 
 
-LF439
+LF439:
   lda     ACC1E
   beq     LF487
   sec
@@ -4717,7 +4719,7 @@ XA1DEC_ROUTINE:
   lda     #$F7 ; Should be indexed ?.= FIXME
 @S4:  
   sta     ACC4M
-LF4D3  
+LF4D3:
   lda     #<const_999_999_999
   ldy     #>const_999_999_999 
   jsr     LF3F9 ;
@@ -4795,9 +4797,9 @@ LF533:
   bcs     LF556
   bpl     LF533
   bmi     LF558
-LF556  
+LF556:
   bmi     LF532
-LF558  
+LF558:
   txa 
   bcc     LF55F
   eor     #$FF
@@ -4894,9 +4896,9 @@ const_ten_million
 
   .byt     $00,$01,$86,$a0,$ff,$ff,$d8,$f0,$00,$00,$03
   .byt     $e8,$ff,$ff,$ff,$9c,$00,$00,$00,$0a
-LF609  
+LF609:
   .byt     $ff,$ff,$ff,$ff
-LF60D
+LF60D:
   jmp     Lf042
 
   
@@ -4940,9 +4942,9 @@ XNA1_ROUTINE:
   lda     ACC1S
   eor     #$FF
   sta     ACC1S
-LF65D  
+LF65D:
   rts
-const_1_divide_ln_2 ; 1/ln(2)  
+const_1_divide_ln_2: ; 1/ln(2)  
   .byt    $81,$38,$AA,$3B,$29
 coef_polynome:
   .byt    $07 ; for 8 coef
@@ -4958,7 +4960,7 @@ coef_polynome:
 XEXP_ROUTINE:
   tsx
   stx     FLSVS
-LF68F  
+LF68F:
   lda     #<const_1_divide_ln_2
   ldy     #>const_1_divide_ln_2
   jsr     LF184 
@@ -4966,7 +4968,7 @@ LF68F
   adc     #$50
   bcc     LF69F 
   jsr     XAA1_ROUTINE 
-LF69F  
+LF69F:
   sta     TELEMON_UNKNWON_LABEL_7F
   jsr     LF38A 
   lda     ACC1E
@@ -5005,13 +5007,13 @@ LF69F
   jmp     LF219 
 
 
-LF6E1  
+LF6E1:
   sta     FLPOLP
-LF6E3  
+LF6E3:
   sty     TELEMON_UNKNWON_LABEL_86
-LF6E5  
+LF6E5:
   jsr     LF348 
-LF6E8  
+LF6E8:
   lda     #$73
   jsr     LF184
   jsr     LF6FB 
@@ -5020,10 +5022,10 @@ LF6E8
   jmp     LF184  
 
   
-LF6F7
+LF6F7:
   sta     FLPOLP
   sty     TELEMON_UNKNWON_LABEL_86
-LF6FB  
+LF6FB:
   jsr     LF34B 
   lda     (FLPOLP),y
   sta     FLPO0
@@ -5035,7 +5037,7 @@ LF6FB
 @S1:
   sta     FLPOLP
   ldy     TELEMON_UNKNWON_LABEL_86
-LD70E  
+LD70E:
   jsr     LF184 
   lda     FLPOLP
   ldy     TELEMON_UNKNWON_LABEL_86
@@ -5043,7 +5045,7 @@ LD70E
   adc     #$05
   bcc     LF71B 
   iny
-LF71B  
+LF71B:
   sta     FLPOLP
   sty     TELEMON_UNKNWON_LABEL_86
   jsr     AY_add_acc1  
@@ -5051,7 +5053,7 @@ LF71B
   ldy     #$00
   dec     FLPO0
   bne     LD70E  
-LF72A
+LF72A:
   rts
   
  
@@ -5399,7 +5401,7 @@ move_chars_hires_to_text:
   bpl     @loop
   jmp     XDECAL_ROUTINE
 
-code_in_order_to_move_chars_tables
+code_in_order_to_move_chars_tables:
   ; Text to hires 6 bytes
   .byt    $00,$b4,$80,$BB,$00,$98
   ; hires to text 6 bytes

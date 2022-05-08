@@ -18,9 +18,31 @@ CH376_DIR_INFO_READ = $37
 .proc      xopendir
    ; A&Y ptr of str
    ; Do do : check if it's a DIR
-   sty     RES
+   sta     RES
+   sty     RES+1
+
+   ; Add /* at the end
+   ldy     #$00
+@L1:   
+   lda     (RES),y
+   beq     @end
+   iny
+   bne     @L1
+@end:
+   lda     #'/'
+   sta     (RES),y
+   iny
+   lda     #'*'
+   sta     (RES),y
+   iny
+   lda     #$00
+   sta     (RES),y   
+
+
    ldy     #O_RDONLY
-   ldx     RES
+   lda     RES
+   ldx     RES+1
+
    jsr     XOPEN_ROUTINE
    rts
 .endproc
@@ -94,7 +116,7 @@ CH376_DIR_INFO_READ = $37
     sty     RESB+1
     sty     RESC+1
 
-
+    jmp     @start
 
     jsr     _ch376_verify_SetUsbPort_Mount
 
@@ -127,7 +149,7 @@ CH376_DIR_INFO_READ = $37
     beq     @error
 
     cmp     #CH376_USB_INT_SUCCESS
-
+@start:
 ;display_one_file_catalog:
     lda     #CH376_DIR_INFO_READ
     sta     CH376_COMMAND

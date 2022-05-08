@@ -23,11 +23,18 @@
 
   ; kernel_process+kernel_process_struct::kernel_fd,x contient 0 si le FD n'est pas connu 
   ; si c'est différent de 0, alors cela contient le process concerné
+
+  ; $580
     sec
     sbc     #KERNEL_FIRST_FD
     
     sta     TR7
     
+    ; Cheking if we tries to close a fp greater than the max allowed
+
+    cmp     #KERNEL_MAX_FP
+    bcs     @exit
+
     tax
     lda     kernel_process+kernel_process_struct::kernel_fd,x ; If 
     bne     @found_fp_slot
@@ -40,12 +47,10 @@
     jsr     xdebug_print_with_a
     jsr     kdebug_restore
 .endif
+@exit:
     rts
+
 @found_fp_slot:
-
-    
-
-
     ; Process should be called here
 .ifdef WITH_DEBUG
     pha

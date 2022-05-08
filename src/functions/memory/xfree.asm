@@ -393,18 +393,28 @@ out:
 .proc xfree_garbage_from_end
 
   ldx     #$02
-  lda     #$00
-  sta     RES
+
   ; FR : on essaie de trouver un chunk libre
   ldy     #$01
 
+
+
+
+
 @try_another_free_chunk:
+
+  lda     #$00
+  sta     RES
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+
   beq     @next_free
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   beq     @next_free
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+
+
+@continue:
   ; FIXME 65C02, use 'dec A'
   clc
   adc     #$01
@@ -487,18 +497,22 @@ out:
 .proc xfree_garbage_from_end_for_main
 
   ldx     #$00
-  lda     #$00
-  sta     RES
+
   ; FR : on essaie de trouver un chunk libre
   ldy     #$01
 
 @try_another_free_chunk:
+  lda     #$00
+  sta     RES
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   beq     @next_free
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   beq     @next_free
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+
+@continue:
   ; FIXME 65C02, use 'dec A'
   clc
   adc     #$01
@@ -509,13 +523,13 @@ out:
 @skip_inc_high:  
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x ; X main memory
   beq     @compare_high
-  bne     @next_free
+  bne     @not_same
     
 @compare_high:
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
-  sec     
-  sbc     RES
+  clc     
+  adc     RES
   cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
   bne     @not_same
 
@@ -566,14 +580,6 @@ out:
   iny
   cpy     #KERNEL_MALLOC_FREE_CHUNK_MAX 
   bne     @try_another_free_chunk
-
- ; ldy     #$01
- ; inx
- ; cpx     #KERNEL_MALLOC_FREE_CHUNK_MAX 
- ; bne     @try_another_free_chunk
-
-
-
 
   rts
 .endproc

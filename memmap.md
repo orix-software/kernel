@@ -63,6 +63,11 @@ kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a3
 CALL:_ch376_file_erase:XRM_ROUTINE
 CALL:XCLOSE:XRM_ROUTINE
 CALL:XOPEN:XRM_ROUTINE
+|MODIFY:RES:XOPENDIR
+|MODIFY:RESB:XOPENDIR
+|MODIFY:RESC:XOPENDIR
+|MODIFY:TR0:XOPENDIR
+|MODIFY:TR7:XOPENDIR
 |MODIFY:RES:_XEXEC
 |MODIFY:TR0:_XEXEC
 |MODIFY:TR1:_XEXEC
@@ -172,6 +177,7 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|KBDCOL                          | $0268-$0270 |  8   |
 |MEMMAP:RAM|ADSCRL                          | $0218-$021C |  4   |
 |MEMMAP:RAM|ADSCRH                          | $021C-$0220 |  4   |
+|MEMMAP:RAM|FLGSCR                          | $0248-$024C |  4   |
 |MEMMAP:RAM|FREE                           | $02F0-$02ED | -2   |
 |#MEMMAP: Page 3
 |MEMMAP:Type     | Name                          | Range       | Size |
@@ -192,12 +198,12 @@ CALL:XOPEN:XRM_ROUTINE
 |#MEMMAP: Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$faa5-$fff0|   1355   |
+|MEMMAP:ROM|FREE                         |$fb42-$fff0|   1198   |
 |#MEMMAP:Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f761-$f80d |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $f80d-$fa8d |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f7fe-$f8aa |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $f8aa-$fb2a |     |

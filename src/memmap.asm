@@ -92,6 +92,9 @@
 .out     .sprintf("|MEMMAP:RAM|ADSCRL                          | $%04X-$%04X |  4   |", ADSCRL,ADSCRL+4)
 .out     .sprintf("|MEMMAP:RAM|ADSCRH                          | $%04X-$%04X |  4   |", ADSCRH,ADSCRH+4)
 
+.out     .sprintf("|MEMMAP:RAM|FLGSCR                          | $%04X-$%04X |  4   |", FLGSCR,FLGSCR+4) ; $248
+
+
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X | %d   |", KERNEL_ADIOB_END,FLGRST-1,FLGRST-KERNEL_ADIOB_END)
 
 .out     .sprintf("|#MEMMAP: Page 3")

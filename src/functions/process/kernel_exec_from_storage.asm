@@ -216,9 +216,7 @@
     ldx     RESF     ; FP
 
     jsr     XREADBYTES_ROUTINE
-
-
-  
+ 
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
 
@@ -235,6 +233,10 @@
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE
+
+    lda     #$02
+    cmp     #'X'                ; X is a magic token in order to have a binary which will always start in static mode
+    beq     @static_file
  
     ldy     #$05                ; Get binary version
     lda     (RESD),y
@@ -260,8 +262,7 @@
 
     ldy     RESD+1
     iny
-
-    
+   
 
     sty     ORI3_PROGRAM_ADRESS+1
     sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
@@ -277,11 +278,11 @@
     sta     ORI3_PAGE_LOAD             ; diff
 
     ; set map length
-    ldy     #7
+    ldy     #$07
     lda     (RESD),y ; fixme 65c02
     sta     ORI3_LENGTH_MAP
 
-    ldy     #8
+    ldy     #$08
     lda     (RESD),y ; fixme 65c02
     sta     ORI3_LENGTH_MAP+1
 
@@ -299,8 +300,6 @@
     clc
     adc     ORI3_MAP_ADRESS+1
     sta     ORI3_MAP_ADRESS+1
-
-
 
 
     jsr     @read_program
@@ -334,22 +333,17 @@
 
     ; Checking if RESD is equal or below than the loading address
 
-    ldy     #14
-    lda     RESD+1    ; Does high byte for malloc ptr is
-
-
-
-    ldy     #15
-    lda     RESD+1    ; Does high byte for malloc ptr is  $08
-    cmp     (RESD),y  ; greater than the loading adress $7f 
-    bcs     @error    ; Yes error, can't not start
-    bne     @start_to_read ; Is it equal ex : loading adress $08 and malloc high adress $08 ? no it means that it's less, let's start program
+    ldy     #15    
+    lda     (RESD),y   ; Does high byte for malloc ptr is  $08
+    cmp     RESD+1     ; greater than the loading adress $7f 
+    bcc     @error     ; Yes error, can't not start
+    bcs     @start_to_read
     ; it's equal
-
+@continue:
     ldy     #14 
-    lda     RESD    ; Does high byte for malloc ptr is $7f
-    cmp     (RESD),y  ; greater than the loading adress
-    bcs     @error  
+    lda     (RESD),y    ; Does high byte for malloc ptr is $7f
+    cmp     RESD        ; greater than the loading adress
+    bcc     @error  
 @start_to_read:
     jsr     @read_program
 
@@ -399,8 +393,8 @@
     lda     RESD
     ldy     RESD+1
     jsr     XFREE_ROUTINE
-
-    jsr     @clean_before_execute
+    jsr     @kill_and_exit
+    ;jsr     @clean_before_execute
     lda     #ENOEXEC   ; Return format error
     rts
 
@@ -424,6 +418,8 @@
     rts
 
 @execute:
+
+
     jmp     (RESE) ; jmp : it means that if program launched do an rts, it returns to interpreter
 
 @read_program:
