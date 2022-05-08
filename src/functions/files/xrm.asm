@@ -10,23 +10,25 @@
     ; [IN] AX contains the pointer of the path
     ldy     #O_RDONLY
     jsr     XOPEN_ROUTINE
+    cmp     #$FF
+    bne     @continue
+    cpx     #$FF
+    beq     @not_such_file
+
+@continue:
     ; save fp
     sta     RES
-    sty     RES+1    
-    cmp     #$FF
-    beq     @dont_remove
-    
+    stx     RES+1
 
-    jsr     _ch376_file_erase   ; Should be replaced by jmp
+    jsr     _ch376_file_erase
+
     lda     RES
-    ldy     RES+1    
+    ldy     RES+1
     jsr     XCLOSE_ROUTINE
     lda     #$00
     rts
-@dont_remove:
-    lda     RES
-    ldy     RES+1    
-    jsr     XCLOSE_ROUTINE
+
+@not_such_file:
     lda     #ENOENT
     rts
 .endproc
