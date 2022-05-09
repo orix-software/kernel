@@ -5,11 +5,11 @@
   .out     .sprintf("|MODIFY:TR0:XREADBYTES_ROUTINE")
 ; [IN] AY contains the length to read
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
-; [IN] X contains the fd id 
+; [IN] X contains the fd id
 
 ; [OUT]  PTR_READ_DEST updated
 ; [OUT]  A could contains 0 or the CH376 state
-; [OUT]  Y contains the last size of bytes 
+; [OUT]  Y contains the last size of bytes
   ;jmp     XREADBYTES_ROUTINE
   ; Save PTR_READ_DEST to compute bytes
 
@@ -21,7 +21,7 @@
   lda     PTR_READ_DEST+1
   sta     RES+1
 
-  ; Compute the fp 
+  ; Compute the fp
 
   ; Checking if fp exists
   jsr     checking_fp_exists
@@ -33,7 +33,6 @@
   rts
 
 @continue_xfread:
- 
 
   pla
 
@@ -46,7 +45,7 @@
   cmp     #CH376_USB_INT_DISK_READ  ; something to read
   beq     @readme
   cmp     #CH376_USB_INT_SUCCESS    ; finished
-  beq     @finished 
+  beq     @finished
   ; TODO  in A : $ff X: $ff
   lda     #$00
   tax
@@ -62,10 +61,10 @@
 .IFPC02
 .pc02
   bra     @continue
-.p02  
-.else 
+.p02
+.else
   jmp     @continue
-.endif    
+.endif
 
 @finished:
   ; at this step PTR_READ_DEST is updated
@@ -75,7 +74,7 @@
 
   jsr     _update_fp_position
 
-  rts	
+  rts
 
 @we_read:
   lda     #CH376_RD_USB_DATA0
@@ -92,9 +91,9 @@
   iny                               ; inc next ptr addrss
   cpy     TR0                       ; do we read enough bytes
   bne     @loop                     ; no we read
-  
+
   tya                               ; We could do "lda TR0" but TYA is quicker. Add X bytes to A in order to update ptr (Y contains the size of the bytes reads)
-  clc                               ; 
+  clc                               ;
   adc     PTR_READ_DEST
   bcc     @next
   inc     PTR_READ_DEST+1

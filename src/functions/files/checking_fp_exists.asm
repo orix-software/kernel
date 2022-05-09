@@ -1,6 +1,5 @@
 
-
-; 
+;
 
 .proc checking_fp_exists
     ; X fp to find
@@ -20,18 +19,18 @@
     sbc     #KERNEL_FIRST_FD
     cmp     #KERNEL_MAX_FP                                         ; Does X is greater than the fp ?
     bcs     @doesnot_exists                                        ; Yes error
-    
+
     tax
 
     cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; is equal to 0 ? No opened files yet ...
     beq     @do_not_seek
 
     ; store the new fd to open
-    stx     kernel_process+kernel_process_struct::kernel_fd_opened 
+    stx     kernel_process+kernel_process_struct::kernel_fd_opened
     ; At this step we can store the seek of the file
     ; close current file
 
-    lda     RES 
+    lda     RES
     sta     KERNEL_XFSEEK_SAVE_RESB
 
     lda     RES+1
@@ -62,7 +61,7 @@
 
 
     ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
-@loop_next_byte:    
+@loop_next_byte:
 
     lda     (KERNEL_XOPEN_PTR1),y
 
@@ -77,18 +76,18 @@
     jsr     restore
     sec
     rts
-@doesnot_exists:    
+@doesnot_exists:
 
     jsr     restore
     sec
-    rts    
+    rts
 
 @do_not_seek:
 
     jsr     restore
 
     clc
-    rts    
+    rts
 
 @send:
     sty     TR5
@@ -120,7 +119,7 @@
 
     lda     RES
     ldy     RES+1
-    
+
     jsr     _ch376_seek_file32
 
     lda     KERNEL_XFSEEK_SAVE_RESB
@@ -128,17 +127,17 @@
 
     lda     KERNEL_XFSEEK_SAVE_RESB+1
     sta     RES+1
- 
+
     jmp     @do_not_seek
 
 send_0_to_ch376_and_open:
-    lda     #$00 
-    sta     CH376_DATA 
+    lda     #$00
+    sta     CH376_DATA
 
     jmp     _ch376_file_open ; Open slash
 
 restore:
-    
+
     ldy     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
 
     ldx     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X

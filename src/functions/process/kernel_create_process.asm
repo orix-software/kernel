@@ -41,7 +41,7 @@
 ; Get first pid
   ldx     #$00   ; Because the first is init (
 
-@L3:  
+@L3:
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
   beq     @found
   inx
@@ -120,9 +120,9 @@
   lda     (RESB),y
   beq     @S1
   cmp     #' '
-  beq     @S1  
+  beq     @S1
   sta     (RES),y
-  
+
   iny
   cpy     #(KERNEL_MAX_LENGTH_COMMAND+1)
   bne     @L2
@@ -149,14 +149,13 @@ save_command_line:
 ; Now TR4 & TR5 are set the the beginning of cmdline
 
   ldy     #$00
-@L10:  
+@L10:
   lda     (RESB),y
   beq     @S8
   sta     (TR4),y
   iny
   cpy     #KERNEL_LENGTH_MAX_CMDLINE
   bne     @L10
-  
 @S8:
   sta     (TR4),y
 

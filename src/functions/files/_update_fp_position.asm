@@ -17,7 +17,7 @@
 
   sta     XOPEN_RES
   stx     XOPEN_RES+1
-  
+
   ; compute fp
   lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X
   ; A is the id of the fp
@@ -35,7 +35,7 @@
   iny
   lda     (KERNEL_XOPEN_PTR1),y
   adc     XOPEN_RES+1
-  
+
   iny
   lda     (KERNEL_XOPEN_PTR1),y
   adc     #$00

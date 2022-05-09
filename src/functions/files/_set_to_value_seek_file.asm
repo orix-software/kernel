@@ -8,7 +8,7 @@
   ldy     #_KERNEL_FILE::f_seek_file
   sta     (KERNEL_XOPEN_PTR1),y
   iny
-  lda     RES+1 ; Y value 
+  lda     RES+1 ; Y value
   sta     (KERNEL_XOPEN_PTR1),y
   iny
   txa

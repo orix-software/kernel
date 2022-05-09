@@ -1,9 +1,9 @@
 .proc XMKDIR_ROUTINE
   ; [IN] AY contains the pointer of the path
   ; FIXME
-    .out     .sprintf("|MODIFY:RES:XMKDIR_ROUTINE")   
-    .out     .sprintf("|MODIFY:ptr1:XMKDIR_ROUTINE") 
-    .out     .sprintf("|MODIFY:TR7:XMKDIR_ROUTINE")   
+    .out     .sprintf("|MODIFY:RES:XMKDIR_ROUTINE")
+    .out     .sprintf("|MODIFY:ptr1:XMKDIR_ROUTINE")
+    .out     .sprintf("|MODIFY:TR7:XMKDIR_ROUTINE")
     sta     ptr1
     sty     ptr1+1
 
@@ -29,16 +29,16 @@
     lda     KERNEL_ERRNO
 
     rts
-@skip2:    
+@skip2:
 
-    lda     #CH376_SET_FILE_NAME 
+    lda     #CH376_SET_FILE_NAME
     sta     CH376_COMMAND
     ldy     #$00
 @mloop:
     lda     (ptr1),y
-    beq     @mend       
+    beq     @mend
     cmp     #"/"
-    beq     @launch_xopen 
+    beq     @launch_xopen
     ; we reached 0 value
     jsr     XMINMA_ROUTINE
     sta     CH376_DATA
@@ -46,18 +46,17 @@
     cpy     #13                    ; Because we don't manage longfilename shortname =11
     bne     @mloop
     lda     #$00
-@mend:    
+@mend:
     sta     CH376_DATA
 
     sta     KERNEL_ERRNO
-    jmp     _ch376_dir_create    
-    
+    jmp     _ch376_dir_create
+
 @launch_xopen:
     lda     #$00
     sta     CH376_DATA
-    jmp     _ch376_file_open    
-    
- 
+    jmp     _ch376_file_open
+
 @isabsolute:
     rts
     lda     ptr1
@@ -66,7 +65,7 @@
 
 
     jmp     XOPEN_ROUTINE
-    
+
 
     lda     #CH376_SET_FILE_NAME        ;$2f
     sta     CH376_COMMAND
@@ -97,7 +96,7 @@
     sbc     #$1F
 @skip:
     sta     CH376_DATA
-    
+
 
     inx
     bne     @next_char
@@ -110,7 +109,7 @@
     jmp     _ch376_file_close
     lda     #$00
     rts
-  
+
 @create_dir:
     sta     CH376_DATA
     sty     TR7               ; Save Y

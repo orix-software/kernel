@@ -7,7 +7,7 @@
     sta     CH376_DATA
     sty     CH376_DATA
     stx     CH376_DATA
-    
+
     lda     RESB
     sta     CH376_DATA
 

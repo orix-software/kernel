@@ -1,5 +1,5 @@
 
-; Use RES 
+; Use RES
 
 ; input
 ; A & Y contains the string
@@ -46,24 +46,24 @@
   sta     KERNEL_XOPEN_PTR2            ; save ptr
   sty     KERNEL_XOPEN_PTR2+1
 
-  
+
   ldy     #_KERNEL_FILE::f_flags      ; get Offset
   ; Store flag
   lda     #_FOPEN
-  sta     (KERNEL_XOPEN_PTR1),y  
+  sta     (KERNEL_XOPEN_PTR1),y
 
   ldy     #_KERNEL_FILE::f_mode      ; get Offset
   ; Store flag
   lda     XOPEN_FLAGS
-  sta     (KERNEL_XOPEN_PTR1),y  
+  sta     (KERNEL_XOPEN_PTR1),y
 
 
   ; set FD
-  
+
   ;ldy     #_KERNEL_FILE::f_fd      ; get Offset
   ;lda     kernel_process+kernel_process_struct::kernel_next_fd
-  ;sta     (KERNEL_XOPEN_PTR1),y  
-  
+  ;sta     (KERNEL_XOPEN_PTR1),y
+
 
   ; FIXME put readonly/writeonly etc mode
 
@@ -78,16 +78,16 @@
 
   ; Copy PATH
   ldy     #$00
-@L1:  
+@L1:
   lda     (RES),y
   beq     @S2
-  sta     (KERNEL_XOPEN_PTR2),y  
+  sta     (KERNEL_XOPEN_PTR2),y
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH
   bne     @L1
   lda     #$00
 @S2:
-  sta     (KERNEL_XOPEN_PTR2),y  
+  sta     (KERNEL_XOPEN_PTR2),y
   ; FIXME : set path in the struct
 
 

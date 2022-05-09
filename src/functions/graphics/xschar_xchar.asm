@@ -11,15 +11,15 @@
 @L1:
   sty     HRS2+1
   cpy     HRS2
-  bcs     Lea92 
+  bcs     Lea92
   lda     (HRS3),y
-  jsr     LEAB5 
+  jsr     LEAB5
   ldy     HRS2+1
   iny
   bne     @L1
-.endproc  
+.endproc
 
-XCHAR_ROUTINE
+XCHAR_ROUTINE:
   lda     HRS1
   asl
   lsr     HRS2

@@ -8,12 +8,12 @@
 
 
 ; IN [A & Y ] the length requested
-; 
+;
 ; TR7 is modified
 ; OUT : NULL in A & Y or pointer in A & Y of the first byte of the allocated memory
 ; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine and kernel_try_to_find_command_in_bin_path
 ; Verify if there is enough memory
-; 
+;
 
 
 
@@ -25,7 +25,7 @@
     jsr     xdebug_print_with_ay
 
     ldx     #XDEBUG_TYPE
-    jsr     xdebug_print 
+    jsr     xdebug_print
 
 
     lda     KERNEL_MALLOC_TYPE
@@ -39,9 +39,9 @@
     bne     @O4
     ldx     #XDEBUG_UNKNOWN
     jsr     xdebug_print
-    
+
     jmp     @O1
-@O4:    
+@O4:
     cmp     #KERNEL_XMAINARG_MALLOC_TYPE
     bne     @O3
     ldx     #XDEBUG_TYPE_MAINARGS
@@ -57,11 +57,11 @@
     ; others
 @O1:
     jsr     kdebug_restore
-.endif  
+.endif
 
     cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
-    bcc     @allocate    
-                     
+    bcc     @allocate
+
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
 
@@ -77,18 +77,17 @@
 @allocate:
 
     ; found first available busy table
-    
     sta     TR7                                  ; Save A (low value of the malloc), Y is not saved because we don't modify it
- 
+
     ldx     #$00
 
 @looking_for_busy_chunck_available:
     ; Try to find a place to set the pid value
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     beq     @found
-    inx 
+    inx
     cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
-    beq     @exit_null 
+    beq     @exit_null
     bne     @looking_for_busy_chunck_available
 
 @found:
@@ -117,21 +116,21 @@
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
  @skip2:
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
-  
+
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low                ; update of the next chunk available
-    
+
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
     clc
     adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
     ; FIXME for 32 bits mode in the future
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
-    
+
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
-    
+
     ; update now the memory available in the chunk memory free
 
-; $c67c   
-; 
+
+;
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x ; X=3 X=4 $24 $EB
@@ -139,34 +138,33 @@
     dec     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $561
 @skip3:
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $45 $24
-    
+
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $561 $84 $84
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x ; $557 X=3
 
     ; FIXME 32 bits
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $84 ; $84
-    
-    ; Ok now inc the next free memory offset 
+
+    ; Ok now inc the next free memory offset
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
     bne     @skip4
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 @skip4:
-    
-  ;  lda     KERNEL_MALLOC_TYPE 
+
+  ;  lda     KERNEL_MALLOC_TYPE
    ; sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_type,x
 
-    
+
     lda     kernel_process+kernel_process_struct::kernel_current_process
-@store:      
+@store:
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
 
 
     ; Restore type
 
     lda     #KERNEL_UNKNOWN_MALLOC_TYPE
-    sta     KERNEL_MALLOC_TYPE  
-
+    sta     KERNEL_MALLOC_TYPE
 
     ; Debug
 
@@ -181,11 +179,10 @@
     jsr     xdebug_print_with_ay
 
     jsr     kdebug_restore
-.endif  
+.endif
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
     rts
-    
 .endproc
 
 _print_hexa:
@@ -196,7 +193,7 @@ _print_hexa:
 
     jsr     XHEXA_ROUTINE
     sty     TR7
-    
+
     jsr     XWR0_ROUTINE
     lda     TR7
     jsr     XWR0_ROUTINE
@@ -209,8 +206,8 @@ _print_hexa_no_sharp:
 
     jsr     XHEXA_ROUTINE
     sty     TR7
-    
+
     jsr     XWR0_ROUTINE
     lda     TR7
     jsr     XWR0_ROUTINE
-    rts    
+    rts

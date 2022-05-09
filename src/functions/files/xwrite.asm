@@ -19,7 +19,7 @@
 
   lda     PTR_READ_DEST+1
   sta     RES+1
-  
+
   jsr     checking_fp_exists
   bcc     @continue_xfwrite
 
@@ -70,10 +70,9 @@
   jsr     ByteWrGo
   bne     @finished
   ; Returns number of bytes
- 
- 
+
   lda      RESB ; Get last Y value
-  clc                               ; 
+  clc                               ;
   adc     PTR_READ_DEST
   bcc     @next
   inc     PTR_READ_DEST+1

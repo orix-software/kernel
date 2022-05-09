@@ -1,7 +1,5 @@
 .export _XFORK
 
-
-
 ; Enter TR0,TR1
 
 
@@ -44,22 +42,19 @@
 
   ldx     #$00
   ldy     #kernel_one_process_struct::zp_save_userzp
-@L1:  
+@L1:
   lda     userzp,x
   sta     (RES),y
   iny
   inx
   cpx     #KERNEL_USERZP_SAVE_LENGTH
   bne     @L1
- 
+
 @skip_save_zp:
   lda     TR0
   ldy     TR1
 
-
-
   jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
-
 
   ; we reached max process to launch ?
   lda     KERNEL_ERRNO
@@ -71,4 +66,4 @@ exit_to_kernel:
   pla
   pla
   rts
-.endproc 
+.endproc

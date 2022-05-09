@@ -263,9 +263,9 @@ display_catalog:
     cmp     #$10
     beq     @skip_point
 
-    ldy     TR0 
+    ldy     TR0
     lda     #'.'        ; Store . if we have reached a space
-    sta     (RESC),y 
+    sta     (RESC),y
 @skip_point:
     ; Checking if we have an extension. If yes, we store \0 at the position of the dot
     ldy     TR0
@@ -320,11 +320,11 @@ display_catalog:
     sta     RESC
 
     inc     TR7
-    
+
 
     lda     #CH376_FILE_ENUM_GO
     sta     CH376_COMMAND
     jmp     _ch376_wait_response
 
 
-.endproc 
+.endproc

@@ -14,7 +14,6 @@
     .out     .sprintf("|MODIFY:RESF:kernel_try_to_find_command_in_bin_path")
     .out     .sprintf("|MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path")
     .out     .sprintf("|MODIFY:RESG:kernel_try_to_find_command_in_bin_path")
-    
 
     ; A & Y contains the command
 	; here we found no command, let's go trying to find it in /bin
@@ -22,11 +21,11 @@
     sta     RESG
     sty     RESG+1
 
-    jsr     _XFORK    
+    jsr     _XFORK
 
     lda     RESG
     sta     RES
-    
+
     ldy     RESG+1
     sty     RES+1
 
@@ -39,7 +38,7 @@
     bne     @malloc_ok
     lda     ENOMEM
     sta     KERNEL_ERRNO
- 
+
     rts
     ; FIX ME test OOM
 @malloc_ok:
@@ -50,8 +49,6 @@
     sta     RESC
     sty     RESC+1
 
-
-    
 
     ; Copy /bin
     ; Do a strcat
@@ -71,7 +68,7 @@
     clc
     adc     RESC
     bcc     @S20
-    inc     RESC+1    
+    inc     RESC+1
 @S20:
     sta     RESC
 
@@ -91,7 +88,7 @@
     lda     #$00
     sta     (RESC),y
 
-    ; At this step RES (only) can be used again     
+    ; At this step RES (only) can be used again
 
     ; At this step RESB contains the beginning of the string
 
@@ -101,8 +98,8 @@
     sta     RESC+1
 
 @out:
-    ldy     #$00
-@L5:    
+    ldy    #$00
+@L5:
     lda     (RESE),y
     beq     @S1
 
@@ -169,7 +166,7 @@
     iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
 
     ; drop others values
-    ldx     CH376_DATA  
+    ldx     CH376_DATA
     ldx     CH376_DATA
 
     jsr     XMALLOC_ROUTINE
@@ -187,13 +184,13 @@
 
     lda     RESF
     ldy     RESF+1
-   
+
     jsr     XCLOSE_ROUTINE
 
     jsr     @kill_and_exit
     lda     #ENOMEM         ; Error
 
-    rts    
+    rts
 
 
 @not_null2:
@@ -208,7 +205,7 @@
     ; Save in order to compute nb_bytes_read
     sta     RESC
     sty     RESC+1
-    
+
     ; Read 20 bytes in the header
 
     lda     #20
@@ -216,7 +213,7 @@
     ldx     RESF     ; FP
 
     jsr     XREADBYTES_ROUTINE
- 
+
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
 
@@ -237,7 +234,7 @@
     lda     #$02
     cmp     #'X'                ; X is a magic token in order to have a binary which will always start in static mode
     beq     @static_file
- 
+
     ldy     #$05                ; Get binary version
     lda     (RESD),y
     cmp     #$01                ; Binary version, it's not a relocatable binary
@@ -262,12 +259,11 @@
 
     ldy     RESD+1
     iny
-   
 
     sty     ORI3_PROGRAM_ADRESS+1
     sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
     sty     RESE+1                     ; Set address execution
-    sty     PTR_READ_DEST+1            ; Set address to load the next part of the program    
+    sty     PTR_READ_DEST+1            ; Set address to load the next part of the program
     sty     ORI3_PROGRAM_ADRESS+1
 ;
     lda     #$00
@@ -293,7 +289,7 @@
     bcc     @S2
     inc     ORI3_MAP_ADRESS+1
 @S2:
-    sta     ORI3_MAP_ADRESS   
+    sta     ORI3_MAP_ADRESS
 
     ldy     #19
     lda     (RESD),y ; fixme 65c02
@@ -307,10 +303,10 @@
     jsr     relocate_ori3
 ;
     jmp     @run
-    
-; Format 1 : static adress   
+
+; Format 1 : static adress
 @static_file:
-   
+
     ldy     #15      ; Get the loading address
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
@@ -328,22 +324,22 @@
     sta     RESE
 
     ldy     #19
-    lda     (RESD),y ; fixme 65c02    
+    lda     (RESD),y ; fixme 65c02
     sta     RESE+1
 
     ; Checking if RESD is equal or below than the loading address
 
-    ldy     #15    
+    ldy     #15
     lda     (RESD),y   ; Does high byte for malloc ptr is  $08
-    cmp     RESD+1     ; greater than the loading adress $7f 
+    cmp     RESD+1     ; greater than the loading adress $7f
     bcc     @error     ; Yes error, can't not start
     bcs     @start_to_read
     ; it's equal
 @continue:
-    ldy     #14 
+    ldy     #14
     lda     (RESD),y    ; Does high byte for malloc ptr is $7f
     cmp     RESD        ; greater than the loading adress
-    bcc     @error  
+    bcc     @error
 @start_to_read:
     jsr     @read_program
 
@@ -351,7 +347,7 @@
 @run:
     jsr     @clean_before_execute
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process  
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
     ;sta     KERNEL_CREATE_PROCESS_PTR1
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
@@ -366,27 +362,25 @@
 
     jsr     @execute
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process  
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
    ; sta     KERNEL_CREATE_PROCESS_PTR1
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
    ; sta     KERNEL_CREATE_PROCESS_PTR1+1
- 
+
    ; ldy     #kernel_one_process_struct::kernel_process_addr
-    
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESD
     iny
-    lda     (KERNEL_CREATE_PROCESS_PTR1),y    
+    lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESD+1
-   
     ; free the length of the binary
     lda     RESD
     ldy     RESD+1
     jsr     XFREE_ROUTINE
 
     lda     #EOK
-    
+
     rts
 @error:
     ; free the length of the binary
@@ -402,12 +396,11 @@
    ; save RES
     lda     RES
     ldy     RES+1
-    
+
     sta     RESG
     sty     RESG+1
 
-    ; send cmdline ptr 
-
+    ; send cmdline ptr
 
     lda     RESF
     ldy     RESF+1
@@ -447,5 +440,5 @@
 
 str_root_bin:
     ; If you change this path, you need to change .strlen("/bin/") above
-    .asciiz "/bin/"    
+    .asciiz "/bin/"
 .endproc
