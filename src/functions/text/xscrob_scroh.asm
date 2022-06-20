@@ -10,22 +10,22 @@ XSCROH_ROUTINE
 
 
 ;                      SCROLLE UNE FENETRE VERS LE HAUT                      
-;Action:scrolle vers le haut de la ligne X à la ligne Y la fen?tre courante.     
+;Action:scrolle vers le haut de la ligne X à la ligne Y la fenetre courante.     
 
 XSCROB_ROUTINE:
-  lda     #$FF       ;    on prend $FFD8, soit -40 en compl?ment ? 2        fixme 
+  lda     #$FF       ;    on prend $FFD8, soit -40 en complement a 2        fixme 
   sta     DECFIN+1                                                          
   lda     #$D8                                                         
 LDE62:
   sta     DECFIN     ;   $06-07 contiennent le déplacement                 
-  stx     RES        ;    on met la ligne de d?part en RES                  
+  stx     RES        ;    on met la ligne de depart en RES                  
   tya                                                              
   sec                                                              
   sbc     RES        ;   on calcule le nombre de lignes                    
-  pha            ;    on sauve le nombre de lignes                      
+  pha               ;    on sauve le nombre de lignes                      
   txa            ;    ligne de début dans A                             
   bit     DECFIN                                                          
-  bpl     @skip      ;    déplacement n?gatif ?                             
+  bpl     @skip      ;    déplacement negatif ?                             
   tya            ;    oui, ligne de fin dans A
 @skip:
   ldx     SCRNB                                                          
@@ -43,11 +43,11 @@ LDE62:
   tya                                                              
   adc     DECFIN+1                                                          
   sta     DECDEB+1   ;   dans $04-05                                       
-  pla            ;   on sort le nombre de lignes                       
+  pla                ;   on sort le nombre de lignes                       
   sta     RES        ;   dans RES                                          
   beq     LDEC4      ;   si nul on fait n'importe quoi ! on devrait sortir!
   bmi     LDECD      ;  si négatif, on sort ------------------------------
-  sec            ;  on calcule                                       I
+  sec                ;  on calcule                                       I
   ldx     SCRNB      ;                                                   I
   lda     SCRFX,X    ; la largeur de la fenètre                          I
   sbc     SCRDX,X    ;                                                   I
@@ -57,9 +57,9 @@ LDE9D
 LDE9F            ;                                                   I
   lda     (DECDEB),Y ;   on transfère une ligne                          I
   sta     (DECCIB),Y ;                                                   I
-  DEY            ;                                                   I
+  DEY                ;                                                   I
   bpl     LDE9F      ;                                                   I
-  clc            ;                                                   I
+  clc                ;                                                   I
   lda     DECDEB     ;   on ajoute le déplacement                        I
   adc     DECFIN     ;   à l'adresse de base                             I
   sta     DECDEB     ;                                                   I
@@ -83,4 +83,4 @@ LDEC4
   DEY                ;                                                   I
   bpl     @L1        ;                                                   I
 LDECD
-  rts            ;  <-------------------------------------------------
+  rts                ;  <-------------------------------------------------

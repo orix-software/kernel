@@ -8,5 +8,3 @@ put:
 
   jmp      LE79C    ;  et on affiche sans gérer pattern      
 .endproc  
-
-

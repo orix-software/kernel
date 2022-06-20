@@ -93,6 +93,9 @@ kernel: $(SOURCE)
 	@cp kernelu0.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelu0.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelu0.map $(PATH_PACKAGE_ROM)/
+unittest:
+	$(CC) $(CFLAGS) tests/mkdir.c -o tmkdir
+	$(CC) $(CFLAGS) tests/fwrite.c -o tfwrite
 
 	
 test:

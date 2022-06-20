@@ -1,4 +1,13 @@
 .proc kernel_create_process
+.out     .sprintf("|MODIFY:RES:kernel_create_process")
+.out     .sprintf("|MODIFY:RESB:kernel_create_process")
+.out     .sprintf("|MODIFY:TR4:kernel_create_process")
+.out     .sprintf("|MODIFY:TR5:kernel_create_process")
+.out     .sprintf("|MODIFY:KERNEL_ERRNO:kernel_create_process")
+.out     .sprintf("|MODIFY:KERNEL_MALLOC_TYPE:kernel_create_process")
+.out     .sprintf("|MODIFY:KERNEL_XKERNEL_CREATE_PROCESS_TMP:kernel_create_process")
+
+
 
 ; [in]     => A & Y : pointer of the string command
 ; [modify] => TR4, TR5, TR7 (XMALLOC), A, X, Y, RESB, RES, KERNEL_ERRNO, kernel_process+kernel_process_struct::kernel_pid_list, KERNEL_MALLOC_TYPE
@@ -32,7 +41,7 @@
 ; Get first pid
   ldx     #$00   ; Because the first is init (
 
-@L3:  
+@L3:
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
   beq     @found
   inx
@@ -111,9 +120,9 @@
   lda     (RESB),y
   beq     @S1
   cmp     #' '
-  beq     @S1  
+  beq     @S1
   sta     (RES),y
-  
+
   iny
   cpy     #(KERNEL_MAX_LENGTH_COMMAND+1)
   bne     @L2
@@ -140,14 +149,13 @@ save_command_line:
 ; Now TR4 & TR5 are set the the beginning of cmdline
 
   ldy     #$00
-@L10:  
+@L10:
   lda     (RESB),y
   beq     @S8
   sta     (TR4),y
   iny
   cpy     #KERNEL_LENGTH_MAX_CMDLINE
   bne     @L10
-  
 @S8:
   sta     (TR4),y
 

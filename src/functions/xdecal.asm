@@ -59,16 +59,16 @@
 	inc     DECCIB+1
 	dex
 	bne     @L2
-Lcdb8	
+Lcdb8:	
 	sec
-Lcdb9	
+Lcdb9:
 	pla
 	tay
 	pla
 	tax
 	pla
 	rts
-Lcdbf
+Lcdbf:
 	txa
 	clc
 	adc     DECDEB+1

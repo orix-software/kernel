@@ -20,5 +20,3 @@ XWSTR0_ROUTINE:
 	bne     @loop
 	inc     ADDRESS_READ_BETWEEN_BANK+1
 	bne     @loop
-
-	

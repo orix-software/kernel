@@ -6,7 +6,7 @@ XOP0_ROUTINE:
 @loop:
     pla
     cmp     IOTAB,x    ; Already open with the same IO ?
-    beq     @skip2      ; Yes exit
+    beq     @skip2     ; Yes exit
     ldy     IOTAB,x
     bpl     skip129
     inx

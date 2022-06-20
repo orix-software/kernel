@@ -1,5 +1,5 @@
 XWR0_ROUTINE:
-	pha                     ; Push byte to write
+	pha                      ; Push byte to write
 	lda     #$00
 	sta     work_channel
 	pla                      ; Get byte to write
@@ -14,12 +14,12 @@ XWSTR0_re_enter_from_XDECAL:
 
 @loop2:
 	ldx     work_channel    ; It contains the value of the I/O 
-	lda     IOTAB,X        ; X contains 0, 4, 8 $0c
+	lda     IOTAB,X         ; X contains 0, 4, 8 $0c
 	cmp     #$82
-	bcc     @skip            ; If it's higher than $88, it means that it's not an input 
+	bcc     @skip           ; If it's higher than $88, it means that it's not an input 
 	asl                     ; It's an input set it *2
 	tax                     ; 
-	lda     KERNEL_ADIOB,X         ; GET vectors  
+	lda     KERNEL_ADIOB,X  ; GET vectors  
 	sta     ADIODB_VECTOR+1
 	lda     KERNEL_ADIOB+1,X
 	sta     ADIODB_VECTOR+2 ; 
@@ -39,7 +39,3 @@ XWSTR0_re_enter_from_XDECAL:
 	lda     i_o_save
 Lc7a7:
 	rts
-
-	
-	
-	
