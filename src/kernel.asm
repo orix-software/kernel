@@ -5535,7 +5535,7 @@ signature:
   .byt     " 65C02"
 .p02  
 .else
-  .byt     " 6502"
+  .byt     "   6502"
 .endif  
   .byt     $00
 
