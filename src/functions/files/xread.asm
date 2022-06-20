@@ -9,11 +9,15 @@
 
 ; Modify : RES, PTR_READ_DEST, TR0
 
+; Modify : RES, PTR_READ_DEST, TR0
+
 ; [OUT]  PTR_READ_DEST updated
+
 
 ; [OUT]  A could contains 0 or the CH376 state
 ; [OUT]  Y contains the last size of bytes
   ;jmp     XREADBYTES_ROUTINE
+
 
   ; Save PTR_READ_DEST to compute bytes
 
@@ -77,6 +81,7 @@
 
 
 
+
   jsr     _update_fp_position
 
   rts
@@ -86,8 +91,10 @@
   sta     CH376_COMMAND
 
 
+
   lda     CH376_DATA                ; contains length read
   beq     @finished                 ; we don't have any bytes to read then stops (Assinie report)
+
 
   sta     TR0                       ; Number of bytes to read, storing this value in order to loop
 
