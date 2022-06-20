@@ -64,51 +64,23 @@
     jmp     _ch376_wait_response
 .endproc    
 	
-; [IN] AY : ptr
+; [IN] AYX + RES : the 32 bits values
 .proc _ch376_seek_file
 
     ldx     #CH376_BYTE_LOCATE
     stx     CH376_COMMAND
     sta     CH376_DATA
     sty     CH376_DATA
-.IFPC02
-.pc02      
-    stz     CH376_DATA
-    stz     CH376_DATA
-.p02    
-.else	
-    lda     #$00
+
+    stx     CH376_DATA
+    
+    lda     RES
     sta     CH376_DATA
-    sta     CH376_DATA
-.endif	
+
     jsr     _ch376_wait_response
     rts
 .endproc
 
-;@set filename, input : A and Y adress of the string, terminated by 0
-; If the set is successful, then A contains 0
-.proc _ch376_set_file_name
-    lda     #CH376_SET_FILE_NAME        ;$2f
-    sta     CH376_COMMAND
-    ldx     #$00
-loop:	
-    lda     BUFNOM,x      
-    beq     end                         ; we reached 0 value
-    cmp     #"a"                        ; 'a'
-    bcc     skip
-    cmp     #$7B                        ; 'z'
-    bcs     skip
-    sbc     #$1F
-skip:
-    sta     CH376_DATA
-    inx
-    cpx     #13                         ; because we don't manage longfilename shortname =13 8+3 and dot and \0
-    bne     loop
-    lda     #$00
-end
-    sta     CH376_DATA
-    rts
-.endproc    
 
 .proc _ch376_file_open
     lda     #CH376_FILE_OPEN

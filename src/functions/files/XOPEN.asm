@@ -1,16 +1,35 @@
 .proc XOPEN_ROUTINE
+
+.out     .sprintf("|MODIFY:RES:XOPEN_ROUTINE")
 ; INPUT
-;     this routine use : 
+;     this routine use :
 ;        RES, A X Y, XOPEN_SAVE XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
 ;	  and with XMALLOC :
 ;		     TR7 (malloc)
 ; OUTPUT
-;     NULL if it does not exists
-;     filepointer in A & Y (and X for cc65 compatibility)
-
+;     A=$FF and X=$FF if it does not exists
+;     FD id  in A
+; Calls XFREE
 
   ; A and X contains char * pointer ex /usr/bin/toto.txt but it does not manage the full path yet
   ; Save string in 2 locations RES
+  ; Y contains flag
+  ; O_RDONLY        = $01
+  ; O_WRONLY        = $02
+  ; O_RDWR          = $03
+  ; O_CREAT         = $10
+  ; O_TRUNC         = $20
+  ; O_APPEND        = $40
+  ; O_EXCL          = $80
+
+  ; Flag     | File exists | behaviour
+  ; O_WRONLY |    No       | return Null
+  ; O_WRONLY |    Yes      | open and return FD
+  ; O_RDONLY |    Yes      | open and return FD
+  ; O_WRONLY |    No       | return Null
+  ; O_CREAT  |    No       | Create file and open and return FD
+  ; O_CREAT  |    Yes      | open and return FD
+
   sta     RES
   stx     RES+1
   ; Save ptr
@@ -19,13 +38,22 @@
   ; save flag
   sty     XOPEN_FLAGS
 
+  ;
+  ; Close current file if we already open a file
+  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
+  cmp     #$FF
+  bne     @open_new_file
 
+  ; close it
+  jsr     _ch376_file_close
+
+@open_new_file:
 .ifdef WITH_DEBUG2
-    jsr     kdebug_save
-    ldy     XOPEN_RES_SAVE+1
-    ldx     #XDEBUG_XOPEN_ENTER
-    jsr     xdebug_print_with_ay_string
-    jsr     kdebug_restore
+  jsr     kdebug_save
+  ldy     XOPEN_RES_SAVE+1
+  ldx     #XDEBUG_XOPEN_ENTER
+  jsr     xdebug_print_with_ay_string
+  jsr     kdebug_restore
 .endif
 
   lda     #EOK
@@ -43,6 +71,8 @@
   txa
   rts
 @L1:
+
+
   ldy     #$00
   lda     (RES),y
   ;
@@ -78,7 +108,7 @@
   beq     @end_of_string_found
   iny
   cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
-  bne     @L3 
+  bne     @L3
 
   ; at this step, we cannot detect the end of string : BOF, return null
   jmp     @exit_open_with_null
@@ -112,21 +142,21 @@
 
   sta    (KERNEL_XOPEN_PTR1),y
 
-  ; Be careful BOF can occurs if 
+  ; Be careful BOF can occurs if
   iny
   sty    RES
   cpy    #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
 
   bne     @L4
   ; Bof return NULL
-  beq     @exit_open_with_null
+  jmp     @exit_open_with_null
 
 @end_of_path_from_arg:
-  ldy     RES  
+  ldy     RES
   sta     (KERNEL_XOPEN_PTR1),y
 
   jmp     @open_from_device
-  
+
 @it_is_absolute:
 
 
@@ -169,7 +199,7 @@
   beq     @slash_found_or_end_of_string
   cmp     #"a"                        ; 'a'
   bcc     @do_not_uppercase
-  cmp     #"z"+1                        ; 'z'
+  cmp     #"z"+1                      ; 'z'
   bcs     @do_not_uppercase
   sbc     #$1F
 @do_not_uppercase:
@@ -178,7 +208,7 @@
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
   bne     @next_char
     ; error buffer overflow
-  
+
   beq     @exit_open_with_null
 
 @slash_found_or_end_of_string_stop:
@@ -187,29 +217,29 @@
   beq    @open_and_register_fp
   bne    @S3
 
-@slash_found_or_end_of_string:  
-  ; do we reach / at the first char ? It should, then we enter 
+@slash_found_or_end_of_string:
+  ; do we reach / at the first char ? It should, then we enter
   sta    XOPEN_SAVEA
   cpy    #_KERNEL_FILE::f_path
   bne    @S3
   sta    CH376_DATA
 
-@S3:  
+@S3:
 
 .IFPC02
 .pc02
-  stz    CH376_DATA ; INIT  
-.p02  
-.else  
+  stz    CH376_DATA ; INIT
+.p02
+.else
   lda    #$00 ; used to write in BUFNOM
-  sta    CH376_DATA ; INIT  
+  sta    CH376_DATA ; INIT
 .endif
 
   sty    XOPEN_SAVEY
   jsr    _ch376_file_open
   cmp    #CH376_ERR_MISS_FILE
   beq    @file_not_found
-  
+
   ldy    XOPEN_SAVEY ; reload Y
   lda    XOPEN_SAVEA
   beq    @could_be_created
@@ -218,25 +248,29 @@
   bne    @next_filename
   cpy    #_KERNEL_FILE::f_path+1
   beq    @open_and_register_fp
-  
 
-  
+
+
   bne    @next_filename
 
 
- 
 @file_not_found:
-  ; Checking if filesys is found 
+  ; Checking if filesys is found
 
   lda     FILESYS_BANK
   beq     @filesys_bank_not_found
 
-  ;lda     #'A'
-  ;sta     $bb80
-
+  ; Flag     | File exists | behaviour
+  ; O_WRONLY |    No       | return Null
+  ; O_WRONLY |    Yes      | open and return FD
+  ; O_RDONLY |    Yes      | open and return FD
+  ; O_WRONLY |    No       | return Null
+  ; O_CREAT  |    No       | Create file and open
+  ; O_CREAT  |    Yes      | Create file and open
 
 @filesys_bank_not_found:
   lda     XOPEN_FLAGS ; Get flags
+  and     #O_RDONLY
   cmp     #O_RDONLY
   bne     @could_be_created
 
@@ -259,23 +293,35 @@
   tax
 
   rts
-
+;XOPEN m'a posé quelques soucis, je pensais utiliser les flags O_RDONLY
+;et O_RDWR ou O_WRONLY, mais O_WRONLY fait une création systématique du
+;fichier et O_RDWR n'est pas pris en charge.
 @could_be_created:
+  lda     XOPEN_FLAGS
+  and     #O_CREAT
+  cmp     #O_CREAT
+  bne     @write_only_test
+
+  jsr     _ch376_file_create
+
+@write_only_test:
   lda     XOPEN_FLAGS
   and     #O_WRONLY
   cmp     #O_WRONLY
   beq     @write_only
   ; not write
-  bne     @open_and_register_fp 
-@write_only  
-  jsr     _ch376_file_create
+  ;bne     @open_and_register_fp
+
+
+@write_only:
 @open_and_register_fp:
 
 
   ; Register fp in process struct
-  
+
   ;       store pointer in process struct
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
+
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct 
   sta     RES
@@ -301,9 +347,8 @@
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
 
-  
   beq     @exit_open_with_null
-  ;       
+  ;
 @fp_is_not_busy:
 
 
@@ -322,7 +367,7 @@
   ; Now try to find an available FD
 
   ldx     #$00
-@init_fp:  
+@init_fp:
   lda     kernel_process+kernel_process_struct::kernel_fd,x
   beq     @found_fp_slot
   inx
@@ -345,24 +390,44 @@
 
   lda     #$FF
   tax
-  rts  
+  rts
   ; not found
 @found_fp_slot:
-  lda     kernel_process+kernel_process_struct::kernel_current_process
-  sta     kernel_process+kernel_process_struct::kernel_fd,x
+
+  lda     kernel_process+kernel_process_struct::kernel_current_process ; Get the current process
+  sta     kernel_process+kernel_process_struct::kernel_fd,x ; and store in fd slot the id of the process
+
+ ; stx     TR7 ; save FD id
   txa
+  pha ; save Id of the fd
+  asl
+  tax
+
+  ; Store fp in main process
+  lda     KERNEL_XOPEN_PTR1
+  sta     kernel_process+kernel_process_struct::fp_ptr,x
+  inx
+  lda     KERNEL_XOPEN_PTR1+1
+  sta     kernel_process+kernel_process_struct::fp_ptr,x
+
+  pla   ; restore Id of the fd
+
+  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
+
   clc
   adc     #KERNEL_FIRST_FD
 
-  
+  ; Store the id of the fp opened in ch376
+
+
 .ifdef WITH_DEBUG2
   pha
   ldx     #XDEBUG_FD
   jsr     xdebug_print_with_a
   pla
-.endif  
+.endif
   ldx     #$00
-  
+
 
   rts
 .endproc

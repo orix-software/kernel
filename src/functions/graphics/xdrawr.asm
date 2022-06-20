@@ -96,17 +96,17 @@ LE903:
   clc       ;  -->a-t-on parcouru la tangente ?                     
   lda     RES                                                          
   adc     RESB                                                          
-  sta     RESB     ;   (dans RESB)                                        
-  bcc     LE919   ;   non ---------------------------------------------- 
+  sta     RESB       ;   (dans RESB)                                        
+  bcc     LE919      ;   non ---------------------------------------------- 
   bit     HRS1+1     ;                                                    I
-  bpl     LE916   ;   dX>0 ------------------------------------        I
+  bpl     LE916      ;   dX>0 ------------------------------------        I
   jsr     XHRSCG_ROUTINE   ;   dX<0, on déplace vers                   I        I 
-  jmp     LE919  ; ---la gauche                               I        I 
+  jmp     LE919            ; ---la gauche                               I        I 
 LE916:
-  jsr     XHRSCD_ROUTINE  ; I  on déplace vers la droite <--------------        I 
+  jsr     XHRSCD_ROUTINE   ; I  on déplace vers la droite <--------------        I 
 LE919  
   jsr     XHRSSE_ROUTINE   ; -->on affiche le point <----------------------------- 
-  dec     HRS2    ;    et on décrit dY       FIXME
+  dec     HRS2             ;    et on décrit dY       FIXME
   bne     LE8F6                                                       ;
-  rts         ;   avant de sortir de longueur des lignes            
+  rts                      ;   avant de sortir de longueur des lignes            
 .endproc 

@@ -113,30 +113,48 @@ kernel_end_of_variables_before_BUFNOM:
   .error  "Error BUFNOM is written by kernel variables try to move some variables in kernel.inc after BUFNOM or BUFEDT"
 .endif    
 
+.out     .sprintf("kernel_end_of_variables_before_BUFNOM : %x", kernel_end_of_variables_before_BUFNOM)
+
 .bss
 .org BUFNOM
     .res 14
+BUFNOM_END:
+
 kernel_malloc:
     .tag    kernel_malloc_struct
+kernel_malloc_end:
 kernel_process:
     .tag    kernel_process_struct
-    
+kernel_process_end:    
 kernel_end_of_variables_before_BUFEDT:    
+.out     .sprintf("kernel_end_of_variables_before_BUFEDT : %x", kernel_end_of_variables_before_BUFEDT)
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
   .error  "Error BUFEDT is written by kernel variables try to move some variables in kernel.inc after $590"
 .endif    
 
 .bss
 .org BUFEDT
-    .res 110
-KERNEL_DRIVER_MEMORY:
-    .res 165
-
-
+    
 .ifdef WITH_DEBUG
+;.org BUFNOM
 kernel_debug:
     .tag    kernel_debug_struct
+    .out   .sprintf("Size of kernel_debug_struct $%x ", .sizeof(kernel_debug_struct))    
+.else   
+.res 110    
 .endif    
+
+BUFEDT_END:
+
+KERNEL_DRIVER_MEMORY:
+    .res 165
+KERNEL_DRIVER_MEMORY_END:
+
+
+;.org KERNEL_DRIVER_MEMORY_END
+
+
+
 
 kernel_end_of_memory_for_kernel:
 

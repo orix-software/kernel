@@ -20,15 +20,22 @@ rem -DWITH_SDCARD_FOR_ROOT=1
 %CC65%\ca65.exe --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  --verbose -s -ttelestrat --include-dir %CC65%\asminc\ src/kdebug.asm -o kdebugsd.ld65 --debug-info
 %CC65%\ld65.exe -tnone -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  kdebugsd.ld65 -o kdebug.rom -Ln kdebugsd.sym -m memmap.txt -vm
 
+%CC65%\cl65.exe -ttelestrat tests/mkdir.c -o tmkdir
+%CC65%\cl65.exe -ttelestrat tests/fwrite.c -o tfwrite
+%CC65%\cl65.exe -ttelestrat -C  tests/orix-sdk/cfg/telestrat_900.cfg  tests/multiples_files_opened.c tests/multiples_files_fopen.s tests/exec.s -o multi
+
 
 IF "%1"=="NORUN" GOTO End
 
+copy tmkdir %ORICUTRON%\sdcard\bin
+copy tmkdir %ORICUTRON%\sdcard\bin
+copy multi %ORICUTRON%\sdcard\bin\f
 copy %ROM%.rom %ORICUTRON%\roms\ > NUL
 rem copy kdebug.rom %ORICUTRON%\roms\ > NUL
- 
+copy bp.txt %ORICUTRON%
 cd %ORICUTRON%
 
-oricutron
+oricutron -r :bp.txt
 
 
 :End
