@@ -703,7 +703,7 @@ str_telestrat:
   .byte     "CPU:65C02"
 .p02  
 .else
-  .byte     " CPU:6502"
+  .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
@@ -5535,7 +5535,7 @@ signature:
   .byt     " 65C02"
 .p02  
 .else
-  .byt     "   6502"
+  .byt     " 6502"
 .endif  
   .byt     $00
 
