@@ -4,7 +4,7 @@
 .define KERNEL_MAX_FP_PER_PROCESS                  2  ; Can't be greater than KERNEL_MAX_FP
 .define KERNEL_MAX_FP                              2  ; Max filepointer available can
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
-.define KERNEL_LENGTH_MAX_CMDLINE                  37
+.define KERNEL_LENGTH_MAX_CMDLINE                  60
 
 .define KERNEL_ERRNO_OK                            0
 ; ERRNO KERNEL are set in errno.inc of cc65 from 1 to 18
@@ -65,7 +65,7 @@
   kernel_process_addr        .res 2 ; Adress of the program
   ;bank_id                    .res 1
   ;is_rom_command             .res 1 ; 0 is file in memory, else it's ROM (1)
- ; twilighte_register_command .res 1  
+ ; twilighte_register_command .res 1
   .ifdef WITH_KERNEL_PROCESS_UID
  ; uid                        .res 1
   .endif

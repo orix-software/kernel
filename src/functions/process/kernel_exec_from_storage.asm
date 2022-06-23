@@ -219,8 +219,21 @@
 
     cmp     #$01
     beq     @is_an_orix_file
-    ; Don't know the format
 
+    ; Check if it's a shebang
+    cmp     #'#'
+    bne     @format_unknown
+
+    iny
+    lda     (RESD),y ; fixme 65c02
+    cmp     #'!'
+    bne     @format_unknown
+    ; Shebang here
+
+
+
+@format_unknown:
+; Don't know the format
     lda     #ENOEXEC
     rts
 

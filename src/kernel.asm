@@ -1,7 +1,7 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
 
-.define VERSION "2022.3"
+.define VERSION "2022.4"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 

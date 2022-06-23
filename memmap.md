@@ -2,10 +2,10 @@ KERNEL_MAX_PATH_LENGTH                                   : 49 bytes
 KERNEL_MAX_PROCESS (Max process in the system)           : 4
 KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): 2
 KERNEL_USERZP_SAVE_LENGTH                                : 16 bytes
-KERNEL_LENGTH_MAX_CMDLINE                                : 37
+KERNEL_LENGTH_MAX_CMDLINE                                : 60
 kernel_process_struct size (struct init process)         : 22 bytes
-kernel_one_process_struct size (struct for one process)  : 118 bytes
-With all the parameter all process could use 494 bytes in memory, if it's allocated
+kernel_one_process_struct size (struct for one process)  : 141 bytes
+With all the parameter all process could use 586 bytes in memory, if it's allocated
 ==================================================================
 Memory
 ==================================================================
@@ -18,7 +18,7 @@ _KERNEL_FILE size (One fp struct) : $38 bytes
 ==================================================================
 Resume
 ==================================================================
-System will need almost 578 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
+System will need almost 670 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
 kernel_malloc_busy_begin : 2ba
 kernel_end_of_variables_before_BUFNOM : 503
 kernel_end_of_variables_before_BUFEDT : 58f
