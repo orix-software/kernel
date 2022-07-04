@@ -108,10 +108,11 @@ read_command_from_bank_driver_patch2:
 	ldy     TR1                               ; Send command line in A & Y
 read_command_from_bank_driver_to_patch:
     jsr     VEXBNK
-
+    pha
     lda     VIA2::PRA
     ora     #%00000111                        ; Return to kernel
     sta     VIA2::PRA
-    lda     #EOK
+    ldy     #EOK
+    pla
 
     rts

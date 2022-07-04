@@ -133,7 +133,12 @@ kernel_end_of_variables_before_BUFEDT:
 
 .bss
 .org BUFEDT
-    
+
+    .res 110
+KERNEL_DRIVER_MEMORY:
+    .res 167
+
+
 .ifdef WITH_DEBUG
 ;.org BUFNOM
 kernel_debug:
