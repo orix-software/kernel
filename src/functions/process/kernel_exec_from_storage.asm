@@ -98,11 +98,9 @@
     sta     RESC+1
 
 @out:
-
     ldy    #$00
 @L5:
     lda     (RESE),y
-
     beq     @S1
 
     iny
@@ -182,6 +180,8 @@
 
 @out_not_found:
 
+
+
     lda     RESF
     ldy     RESF+1
 
@@ -189,7 +189,6 @@
 
     jsr     @kill_and_exit
     lda     #ENOMEM         ; Error
-
 
     rts
 
@@ -236,7 +235,6 @@
 @format_unknown:
 ; Don't know the format
     lda     #ENOEXEC
-
     rts
 
 @is_an_orix_file:
@@ -245,7 +243,6 @@
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE
-
 
     lda     #$02
     cmp     #'X'                ; X is a magic token in order to have a binary which will always start in static mode
@@ -275,7 +272,6 @@
 
     ldy     RESD+1
     iny
-
 
     sty     ORI3_PROGRAM_ADRESS+1
     sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
@@ -321,12 +317,10 @@
 ;
     jmp     @run
 
-
 ; Format 1 : static adress
 @static_file:
 
     ldy     #15      ; Get the loading address
-
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
 
@@ -421,25 +415,12 @@
 
     ; send cmdline ptr
 
-    ; free header
-    lda     RESD
-    ldy     RESD+1
-    jsr     XFREE_ROUTINE
-
-
     lda     RESF
     ldy     RESF+1
     jsr     XCLOSE_ROUTINE
 
     lda     RESG
     ldy     RESG+1
-
-
-    jsr     @execute
-
-    ldy     #EOK
-
-
     rts
 
 @execute:
