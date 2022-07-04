@@ -20,11 +20,11 @@ RESG := ACCPS
     sta     RESG
     sty     RESG+1
 
-    jsr     _XFORK    
+    jsr     _XFORK
 
     lda     RESG
     sta     RES
-    
+
     ldy     RESG+1
     sty     RES+1
 
@@ -48,9 +48,6 @@ RESG := ACCPS
     sta     RESC
     sty     RESC+1
 
-
-    
-
     ; Copy /bin
     ; Do a strcat
     ldy     #$00
@@ -69,7 +66,7 @@ RESG := ACCPS
     clc
     adc     RESC
     bcc     @S20
-    inc     RESC+1    
+    inc     RESC+1
 @S20:
     sta     RESC
 
@@ -89,7 +86,7 @@ RESG := ACCPS
     lda     #$00
     sta     (RESC),y
 
-    ; At this step RES (only) can be used again     
+    ; At this step RES (only) can be used again
 
     ; At this step RESB contains the beginning of the string
 
@@ -100,7 +97,7 @@ RESG := ACCPS
 
 @out:
     ldy     #$00
-@L5:    
+@L5:
     lda     (RESB),y
     beq     @S1
 
@@ -166,20 +163,20 @@ RESG := ACCPS
     iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
 
     ; drop others values
-    ldx     CH376_DATA 
+    ldx     CH376_DATA
     ldx     CH376_DATA
 
     jsr     XMALLOC_ROUTINE
-    
+
     cmp     #NULL
     bne     @not_null2
 
     cpy     #NULL
     beq     @not_null2
 @out_not_found:
-    lda     #ENOMEM         ; Error
+    ldy     #ENOMEM         ; Error
 
-    rts    
+    rts
 
 
 @not_null2:
@@ -193,30 +190,30 @@ RESG := ACCPS
     ; Save in order to compute nb_bytes_read
     sta     RESC
     sty     RESC+1
-    
+
     ; Read 20 bytes in the header
 
     lda     #20
     ldy     #$00
     jsr     XREADBYTES_ROUTINE
 
-    
+
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
 
     cmp     #$01
     beq     @is_an_orix_file
     ; Don't know the format
-    lda     #ENOEXEC
+    ldy     #ENOEXEC
     rts
 
 @is_an_orix_file:
     ; Checking version
- 
+
   	; Switch off cursor
     ldx     #$00
     jsr     XCOSCR_ROUTINE
-  
+
     ldy     #$05                ; Get binary version
     lda     (RESD),y
     cmp     #$01                ; Binary version, it's not a relocatable binary
@@ -242,7 +239,7 @@ RESG := ACCPS
     ldy     RESD+1
     iny
 
-    
+
 
     sty     ORI3_PROGRAM_ADRESS+1
     sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
@@ -273,7 +270,7 @@ RESG := ACCPS
     bcc     @S2
     inc     ORI3_MAP_ADRESS+1
 @S2:
-    sta     ORI3_MAP_ADRESS   
+    sta     ORI3_MAP_ADRESS
 
     ldy     #19
     lda     (RESD),y ; fixme 65c02
@@ -281,18 +278,14 @@ RESG := ACCPS
     adc     ORI3_MAP_ADRESS+1
     sta     ORI3_MAP_ADRESS+1
 
-
-
-
     jsr     @read_program
 
     jsr     relocate_ori3
 ;
     jmp     @run
-    
-    
+
 @static_file:
-    
+
     ldy     #15
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
@@ -310,7 +303,7 @@ RESG := ACCPS
     sta     RESE
 
     ldy     #19
-    lda     (RESD),y ; fixme 65c02    
+    lda     (RESD),y ; fixme 65c02
     sta     RESE+1
 
 
@@ -323,11 +316,11 @@ RESG := ACCPS
     ; save RES
     lda     RES
     ldy     RES+1
-    
+
     sta     RESG
     sty     RESG+1
 
-    ; send cmdline ptr 
+    ; send cmdline ptr
     ; free header
     lda     RESD
     ldy     RESD+1
@@ -342,8 +335,8 @@ RESG := ACCPS
 
     jsr     @execute
 
-    lda     #EOK
-    
+    ldy     #EOK
+
     rts
 
 @execute:
@@ -373,5 +366,5 @@ RESG := ACCPS
 
 str_root_bin:
     ; If you change this path, you need to change .strlen("/bin/") above
-    .asciiz "/bin/"    
+    .asciiz "/bin/"
 .endproc

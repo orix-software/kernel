@@ -130,7 +130,7 @@ kernel_end_of_variables_before_BUFEDT:
 .org BUFEDT
     .res 110
 KERNEL_DRIVER_MEMORY:
-    .res 165
+    .res 167
 
 
 .ifdef WITH_DEBUG

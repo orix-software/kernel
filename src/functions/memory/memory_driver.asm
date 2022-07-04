@@ -6,7 +6,7 @@ kernel_memory_driver_to_copy:
     lda     VIA2::PRA
     and     KERNEL_TMP_XEXEC               ; But select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
-    
+
     lda     $FFFE
     cmp     #$FA                           ; Is it an Orix rom ?
     bne     exit_to_kernel
@@ -20,7 +20,7 @@ test_debug:
     lda     $FFF6  ; List command
     cmp     #$C0
     bcc     exit_to_kernel
-    sta     RESB+1  
+    sta     RESB+1
 ; d15E
     ldx     #$00
 
@@ -39,7 +39,7 @@ read_command_from_bank_driver_no_space:                   ; FIXME
     iny
     cpy     #$08
     bne     read_command_from_bank_driver_next_char
- 
+
 command_not_found:
     ; read_until_we_reached $00
     iny
@@ -57,19 +57,19 @@ command_not_found_no_inc:
     bcc     read_command_from_bank_driver_do_not_inc
     inc     RESB+1
 read_command_from_bank_driver_do_not_inc:
-    sta     RESB    
+    sta     RESB
     inx
     cpx     $FFF7 ; Number of command
     bne     read_command_from_bank_driver_mloop
     ; at this step we did not found the command in the rom
-exit_to_kernel:    
+exit_to_kernel:
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
     sta     VIA2::PRA
 
     lda     #ENOENT  ; error
 
-    rts 
+    rts
 read_command_from_bank_driver_command_found:
 
 
@@ -83,18 +83,18 @@ read_command_from_bank_driver_command_found:
     tay
     lda     (RES),y
 
-read_command_from_bank_driver_patch1:    
+read_command_from_bank_driver_patch1:
     sta     VEXBNK+1           ; Will store in read_command_from_bank_driver_to_patch
     iny
     lda     (RES),y
-read_command_from_bank_driver_patch2:        
+read_command_from_bank_driver_patch2:
     sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
 
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
     sta     VIA2::PRA
     jsr     _XFORK
-    
+
     ; we reached max process to launch ?
     lda     KERNEL_ERRNO
     cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
@@ -103,15 +103,16 @@ read_command_from_bank_driver_patch2:
     lda     VIA2::PRA
     and     KERNEL_TMP_XEXEC                  ; But select a bank in BNK_TO_SWITCH
     sta     VIA2::PRA
-    
+
 	lda     TR0
 	ldy     TR1                               ; Send command line in A & Y
 read_command_from_bank_driver_to_patch:
     jsr     VEXBNK
-
+    pha
     lda     VIA2::PRA
     ora     #%00000111                        ; Return to kernel
     sta     VIA2::PRA
-    lda     #EOK
+    ldy     #EOK
+    pla
 
     rts
