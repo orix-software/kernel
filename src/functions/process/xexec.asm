@@ -71,7 +71,7 @@ next_bank:
 
     jsr     KERNEL_DRIVER_MEMORY
 
-    cpy     #EOK
+    cmp     #EOK
     beq     out1
 
 next:
@@ -79,7 +79,6 @@ next:
     dec     KERNEL_TMP_XEXEC
 
     bne     next_bank
-
 
     ldx     $343
     inx
@@ -90,7 +89,6 @@ next:
     beq     check_memory_bank
     bne     store
 no_04:
-
 
 store:
     stx     $343
@@ -122,15 +120,12 @@ read_on_sdcard:
     ldy     TR1
     jsr     kernel_try_to_find_command_in_bin_path
 
-    cpy     #EOK
+    cmp     #EOK
     beq     out_from_bin
 
     rts
 
 out_from_bin:
-    sta     HRS1 ; Save return code
-    stx     HRS2
-
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNK_TO_SWITCH
 
@@ -152,10 +147,7 @@ exit:
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET
 
     sta     $343
-    ldy     #EOK
+    lda     #EOK
 
-
-    lda     HRS1 ; Save return code
-    ldx     HRS2
     rts
 .endproc
