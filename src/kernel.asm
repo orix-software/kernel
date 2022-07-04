@@ -37,7 +37,6 @@ ADIODB_LENGTH=$08
 .include   "kernel.inc"
 .include   "build.inc"
 
-
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 RES5                       := $0A
@@ -60,30 +59,25 @@ KERNEL_XFSEEK_SAVE_RESB := $4D ; DECBIN
 
 
 KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
-XOPEN_RES             :=    $4D ; Also HRS1 2 bytes
-XOPEN_RESB            :=    $4F ; Also HRS2 2 bytes
-
-XOPEN_RES_SAVE        :=    $51 ; Also HRS3 2 bytes
-XOPEN_RESB_SAVE       :=    $53 ; Also HRS4 2 bytes
-
-XOPEN_SAVEY           :=    $55 ; Also HRS4 2 bytes
-XOPEN_SAVEA           :=    $56 ; Also HRS4 2 bytes
-
-XOPEN_FLAGS           :=    $57 ; also HRSFB 1 byte
-
-TELEMON_UNKNWON_LABEL_62:= $62
-TELEMON_UNKNWON_LABEL_70:= $70
-TELEMON_UNKNWON_LABEL_71:= $71
-TELEMON_UNKNWON_LABEL_72:= $72
-TELEMON_UNKNWON_LABEL_7F:= $7F
-TELEMON_UNKNWON_LABEL_86:= $86
-
-FLPOLP := $85
-FLPO0  := $87
+XOPEN_RES                := $4D ; Also HRS1 2 bytes
+XOPEN_RESB               := $4F ; Also HRS2 2 bytes
+XOPEN_RES_SAVE           := $51 ; Also HRS3 2 bytes
+XOPEN_RESB_SAVE          := $53 ; Also HRS4 2 bytes
+XOPEN_SAVEY              := $55 ; Also HRS4 2 bytes
+XOPEN_SAVEA              := $56 ; Also HRS4 2 bytes
+XOPEN_FLAGS              := $57 ; also HRSFB 1 byte
+TELEMON_UNKNWON_LABEL_62 := $62
+TELEMON_UNKNWON_LABEL_70 := $70
+TELEMON_UNKNWON_LABEL_71 := $71
+TELEMON_UNKNWON_LABEL_72 := $72
+TELEMON_UNKNWON_LABEL_7F := $7F
+TELEMON_UNKNWON_LABEL_86 := $86
+FLPOLP                   := $85
+FLPO0                    := $87
 
 ; PARSE_VECTOR:=$FFF1
 
-; Boot sequence : 
+; Boot sequence :
 ; 1- init cpu (sei, cld, stack)
 ; 2- Flush page 0,2,4,5 : Because on atmos memory are not set to 0, if it's not set to 0, we have strange behavior (as keyboard), don't change it !
 ; 3- Launch mount on the device but don't test the result, because we don't care at this step : it's a quick hack to mount quickly mass storage gadget
@@ -98,8 +92,6 @@ start_rom:
   ldx     #$FF
   txs                         ; init stack
 
-
-  
 .IFPC02
 .pc02
   stz     NEXT_STACK_BANK
@@ -129,15 +121,15 @@ start_rom:
 .endif
 
 
-  ; Trying to mount 
+  ; Trying to mount
 
-.ifdef WITH_SDCARD_FOR_ROOT	
+.ifdef WITH_SDCARD_FOR_ROOT
 	lda     #CH376_SET_USB_MODE_CODE_SDCARD
-.else	
+.else
   lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
-.endif	
+.endif
 
-  sta     KERNEL_CH376_MOUNT   
+  sta     KERNEL_CH376_MOUNT
 
 
 @usb_controler_not_detected:
@@ -158,7 +150,7 @@ start_rom:
   .endif
 
   jsr     init_screens
-  
+
 .ifdef WITH_DEBUG_BOARD
   lda     #'N'
   sta     $bb80+14
@@ -180,13 +172,13 @@ start_rom:
 .endif
 
   ldx     #$00
-@myloop:  
+@myloop:
 
   lda     page2_xmalloc_call,x
  ; sta     kernel_xmalloc_call,x
   inx
   cpx     #XMALLOC_ROUTINE_TO_RAM_OVERLAY
-  
+
   bne     @myloop
 
   .ifdef WITH_DEBUG_BOARD
@@ -201,7 +193,7 @@ start_rom:
   sta     $bb80+18
   .endif
 
-  jsr     init_printer 
+  jsr     init_printer
 
   .ifdef WITH_DEBUG_BOARD
   lda     #'S'
@@ -807,7 +799,7 @@ code_adress_419:
   sta     VIA2::PRA
   ror
   plp
-  asl 
+  asl
   tya
   rts
 
@@ -818,17 +810,17 @@ code_adress_436:
   pha
   txa
   pha
-  
+
   lda     VIA2::PRA
   ldx     NEXT_STACK_BANK
-  
+
   sta     STACK_BANK,x      ; FIXME
   inc     NEXT_STACK_BANK   ; FIXME
   pla
   tax
   lda     BNKCIB
-  jsr     $046A             ; See code_adress_46A  
- 
+  jsr     $046A             ; See code_adress_46A
+
   pla
   plp
   jsr     VEXBNK            ; Used in monitor
@@ -933,31 +925,29 @@ end_of_copy_page4:
 ; it can manage buffers
 data_to_define_4:
   ; should be length 256 bytes ?
-  bcc     LC639  
-  bvc     LC5FE  
+  bcc     LC639
+  bvc     LC5FE
   tay
 
   beq     LC61E
   lda     BUFBUF+8,x ; $c088
   ora     BUFBUF+9,x
-  beq     @skip  
-  clc 
+  beq     @skip
+  clc
   rts
 @skip:
   sec
   rts
-LC5FE:  
+LC5FE:
   sta     RESB
-  
   sty     RESB+1
-  
+
   sec
   sbc     RES
   sta     BUFBUF+$0A,x
   tya
   sbc     RES+1
   sta     BUFBUF+$0B,x
-  
   txa
   adc     #$03
   tax
@@ -1027,11 +1017,11 @@ LC661:
   jsr     $C5A6  ; FIXME
   sta     BUFBUF+4,x 
   tya
-  sta     BUFBUF+5,x 
-  inc     BUFBUF+8,x 
+  sta     BUFBUF+5,x
+  inc     BUFBUF+8,x
   bne     LC688
-  inc     BUFBUF+9,x 
-LC688:  
+  inc     BUFBUF+9,x
+LC688:
   ; 65C02 FIXME : use sta (XX)
   ldy     #$00
   pla
@@ -1045,11 +1035,11 @@ LC691:
   ; fixme 65c02 : use "inc a"
   clc
   adc     #$01
-  bcc     LC697 
+  bcc     LC697
   iny
-LC697: 
+LC697:
   cmp     BUFBUF+2,x ; FIXME
-  
+
   sta     IRQSVP ; FIXME
 
 routine_to_define_16:
@@ -1069,7 +1059,7 @@ routine_to_define_16:
 .include  "functions/XWRx.asm"
 .include  "functions/XWSTRx.asm"
 .include  "functions/XRDW.asm"
-.include  "functions/XWRD.asm"  
+.include  "functions/XWRD.asm"
 .include  "functions/XOP.asm"
 .include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
@@ -1114,17 +1104,17 @@ adress_of_adiodb_vector:
   ; used to set I/O vectors
   ; 0
   .byt     <manage_I_O_keyboard,>manage_I_O_keyboard ; 0 CODE : $80
-  ; 1 
+  ; 1
   .byt     <_ch395_write_send_buf_sn,>_ch395_write_send_buf_sn ; network send
-  ; 2 
+  ; 2
   .byt     <output_window0,>output_window0                             ; MINITEL (Xmde)  CODE : $82 input
   ; 3
-  .byt     <_ch395_write_send_buf_sn,>_ch395_write_send_buf_sn                             ; RSE 
- 
- 
+  .byt     <_ch395_write_send_buf_sn,>_ch395_write_send_buf_sn                             ; RSE
+
+
 brk_management:
   ; management of BRK $XX
-  ; on the stack we have 
+  ; on the stack we have
   ; SP = P register
   ; SP-1 = PC+2 adress of brk sent
   ; SP-2 = PC+1
@@ -1132,17 +1122,17 @@ brk_management:
 .pc02
   phx
   phy
-.p02  
+.p02
 .else
   stx     IRQSVX ; save register X
-  sty     IRQSVY ; save register 
+  sty     IRQSVY ; save register
 .endif
   pla ; pull P (flag register)
   sta     IRQSVP ; save P (flag register)
   and     #%00010000 ; test B flag B flag means an that we reach a brk commands
   beq     next200 ; is it a break ?
   tsx     ; yes we get Stack pointer
-  pla     ; we pull pointer program +2 
+  pla     ; we pull pointer program +2
 
   bne     @skip
   dec     BUFTRV+2,x ; CORRECTME
@@ -1172,9 +1162,8 @@ reset115_labels:
   lda     vectors_telemon+1,x ; fetch vector of brk
   ldy     vectors_telemon,x
 
- 
   bcc     @skip
-  lda     vectors_telemon_second_table+1,x ; Second table because X >127 
+  lda     vectors_telemon_second_table+1,x ; Second table because X >127
   ldy     vectors_telemon_second_table,x ;
 
 
@@ -1183,7 +1172,7 @@ reset115_labels:
   ; push A and Y vector : when RTI is reached, the stack contains the vector to execute
   pha
   tya
-  pha 
+  pha
   lda     IRQSVP  ; fetch P flag
   pha ; push P flag to return in correct state
   lda     IRQSVA
@@ -1193,7 +1182,7 @@ reset115_labels:
   ply
   plx
 .p02
-.else  
+.else
   ldy     IRQSVY
   ldx     IRQSVX
 .endif
@@ -1201,14 +1190,14 @@ reset115_labels:
 next200:
   lda     IRQSVP ; fetch P flag
   pha ; push P flag to return in correct state
-LC8B6:   
+LC8B6:
   sec
   ror     TRANSITION_RS232
 LC8B9:
 .ifdef    WITH_MULTITASKING
   jsr     _multitasking
 .endif
-  jmp     LC9b9  
+  jmp     LC9b9
 
 
 
@@ -1240,7 +1229,7 @@ skipme12:
   bit     FLGCLK
 
   bpl     @skip
-  jsr     Lca75 
+  jsr     Lca75
 @skip:
 
 

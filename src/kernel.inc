@@ -25,7 +25,7 @@ ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
 work_channel  :=$19     ; 1 byte
 KBD_UNKNOWN   :=$271  ;FIXME
 
-FUFTRV=$0100; working Buffer 
+FUFTRV=$0100; working Buffer
 
 NULL = 0
 BUFROU:= $C500 ; Routines for buffers gestion
@@ -48,7 +48,6 @@ KERNEL_ERRNO:
     .res 1
 KERNEL_CH376_MOUNT:
     .res 1
- 
 KERNEL_XFREE_TMP:
     .res 1
 KERNEL_XKERNEL_CREATE_PROCESS_TMP:
@@ -61,13 +60,13 @@ KERNEL_KERNEL_XEXEC_BNKOLD:
 KERNEL_MALLOC_TYPE:
     .res 1
 KERNEL_SAVE_XEXEC_CURRENT_SET:
-    .res 1    
+    .res 1
 KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM:
-    .res 1    
+    .res 1
 KERNEL_END_PROCESS_VARIABLES:
 .if  KERNEL_END_PROCESS_VARIABLES > FLGTEL
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
-.endif    
+.endif
 
 .org $282
 ; Was VDTPIL

@@ -11,14 +11,14 @@
 
     pla
     rts
-    jmp  $40C    
-    
+    jmp  $40C
+
 .endproc
 
 .proc xdebug_print_with_ay
-   
+
     pha
-    
+
     lda  #$00
     sta  $343
     lda  #<$c009
@@ -29,15 +29,14 @@
     sta  BNKCIB
     pla
 
-    jmp  $40C    
-    
-    
+    jmp  $40C
+
 .endproc
 
 .proc xdebug_print_with_ay_string
     rts
     pha
-    
+
 
     lda  #<$c00C
     sta  VEXBNK+1
@@ -47,9 +46,8 @@
     sta  BNKCIB
     pla
 
-    jmp  $40C    
-    
-    
+    jmp  $40C
+
 .endproc
 
 
