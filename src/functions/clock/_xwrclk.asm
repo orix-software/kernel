@@ -7,4 +7,4 @@
   ror     FLGCLK
   plp
   rts
-.endproc  
+.endproc

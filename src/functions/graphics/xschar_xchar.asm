@@ -11,20 +11,20 @@
 @L1:
   sty     HRS2+1
   cpy     HRS2
-  bcs     Lea92 
+  bcs     Lea92
   lda     (HRS3),y
-  jsr     LEAB5 
+  jsr     LEAB5
   ldy     HRS2+1
   iny
   bne     @L1
-.endproc  
+.endproc
 
-XCHAR_ROUTINE
+XCHAR_ROUTINE:
   lda     HRS1
   asl
   lsr     HRS2
   ror
-LEAB5  
+LEAB5:
   pha
   lda     HRSX
   cmp     #$EA
@@ -47,7 +47,7 @@ LEAB5
   pla
   jsr     ZADCHA_ROUTINE 
   ldy     #$00
-Lead9  
+Lead9:
   sty     RES
   lda     HRSX40
   pha
@@ -55,17 +55,17 @@ Lead9
   pha
   lda     (RESB),Y
   asl
-Leae4  
+Leae4:
   asl
   beq     Leaf3 
   pha
   bpl     Leaed 
   jsr     LE79C 
-Leaed  
+Leaed:
   jsr     XHRSCD_ROUTINE 
   pla
   bne     Leae4 
-Leaf3  
+Leaf3:
   jsr     XHRSCB_ROUTINE
   pla
   sta     HRSX6

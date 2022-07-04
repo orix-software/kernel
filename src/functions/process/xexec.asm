@@ -1,4 +1,12 @@
 .proc _XEXEC
+.out     .sprintf("|MODIFY:RES:_XEXEC")
+.out     .sprintf("|MODIFY:TR0:_XEXEC")
+.out     .sprintf("|MODIFY:TR1:_XEXEC")
+.out     .sprintf("|MODIFY:BUFEDT:_XEXEC")
+.out     .sprintf("|MODIFY:BNKOLD:_XEXEC")
+.out     .sprintf("|MODIFY:BNK_TO_SWITCH:_XEXEC")
+
+
 
 ;PARSE_VECTOR
     ; A & Y contains the string command to execute
@@ -56,7 +64,6 @@ next_bank:
     ; We says that we return to Bank 7
     ldx     KERNEL_TMP_XEXEC
 
-
     lda     TR0
     ldy     TR1
     sta     RES
@@ -83,16 +90,17 @@ next:
     beq     check_memory_bank
     bne     store
 no_04:
-   ; inx
+
+
 store:
     stx     $343
 
-    ldx     #$04       ; start at bank 05
+    ldx     #$04       ; start at bank 0
     stx     KERNEL_TMP_XEXEC
 
     jmp     next_bank
 check_memory_bank:
-;jmp check_memory_bank
+
     ; Is it already memory bank  ?
     lda     $342
     and     #%00100000
@@ -107,8 +115,6 @@ check_memory_bank:
     lda     #$04
     sta     KERNEL_TMP_XEXEC
     jmp     next_bank
-
-
 
 read_on_sdcard:
 

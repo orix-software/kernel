@@ -86,7 +86,7 @@ boucle2:
 	tax									; Sauvegarde ACC
 	tya									; Sauvegarde Y
 	pha
-;	pla
+
 
 	ldy     #$07								; 8 Bits
 	txa									; Restaure ACC
@@ -122,8 +122,9 @@ suite2:
 	bne     boucle2
 
 rel_end:
-	inc     ORI3_PAGE_LOAD									; On remet la page de chargement à sa valeur initiale
+	inc     ORI3_PAGE_LOAD				; On remet la page de chargement à sa valeur initiale
 
 	rts									; Pour utilisation éventuelle par une autre routine
 .endproc
+
 

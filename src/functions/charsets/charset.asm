@@ -132,7 +132,7 @@ charset_text:
   .byte   $18,$0E,$00,$08,$08,$08,$08,$08
   .byte   $08,$08,$08,$38,$0C,$0C,$06,$0C
   .byte   $0C,$38,$00
- 
+
   ; Tilde char (~)
   .byt    %00000000
   .byt    %00000000
@@ -142,4 +142,4 @@ charset_text:
   .byt    %00000000
   .byt    %00000000
   .byt    %00000000
-;  END OF CHARSET 
+;  END OF CHARSET

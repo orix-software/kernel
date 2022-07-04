@@ -25,7 +25,7 @@ ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
 work_channel  :=$19     ; 1 byte
 KBD_UNKNOWN   :=$271  ;FIXME
 
-FUFTRV=$0100; working Buffer 
+FUFTRV=$0100; working Buffer
 
 NULL = 0
 BUFROU:= $C500 ; Routines for buffers gestion
@@ -48,7 +48,6 @@ KERNEL_ERRNO:
     .res 1
 KERNEL_CH376_MOUNT:
     .res 1
- 
 KERNEL_XFREE_TMP:
     .res 1
 KERNEL_XKERNEL_CREATE_PROCESS_TMP:
@@ -61,13 +60,13 @@ KERNEL_KERNEL_XEXEC_BNKOLD:
 KERNEL_MALLOC_TYPE:
     .res 1
 KERNEL_SAVE_XEXEC_CURRENT_SET:
-    .res 1    
+    .res 1
 KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM:
-    .res 1    
+    .res 1
 KERNEL_END_PROCESS_VARIABLES:
 .if  KERNEL_END_PROCESS_VARIABLES > FLGTEL
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
-.endif    
+.endif
 
 .org $282
 ; Was VDTPIL
@@ -113,30 +112,53 @@ kernel_end_of_variables_before_BUFNOM:
   .error  "Error BUFNOM is written by kernel variables try to move some variables in kernel.inc after BUFNOM or BUFEDT"
 .endif    
 
+.out     .sprintf("kernel_end_of_variables_before_BUFNOM : %x", kernel_end_of_variables_before_BUFNOM)
+
 .bss
 .org BUFNOM
     .res 14
+BUFNOM_END:
+
 kernel_malloc:
     .tag    kernel_malloc_struct
+kernel_malloc_end:
 kernel_process:
     .tag    kernel_process_struct
-    
+kernel_process_end:    
 kernel_end_of_variables_before_BUFEDT:    
+.out     .sprintf("kernel_end_of_variables_before_BUFEDT : %x", kernel_end_of_variables_before_BUFEDT)
 .if     kernel_end_of_variables_before_BUFEDT > BUFEDT
   .error  "Error BUFEDT is written by kernel variables try to move some variables in kernel.inc after $590"
 .endif    
 
 .bss
 .org BUFEDT
+
     .res 110
 KERNEL_DRIVER_MEMORY:
     .res 167
 
 
 .ifdef WITH_DEBUG
+;.org BUFNOM
 kernel_debug:
     .tag    kernel_debug_struct
+    .out   .sprintf("Size of kernel_debug_struct $%x ", .sizeof(kernel_debug_struct))    
+.else   
+.res 110    
 .endif    
+
+BUFEDT_END:
+
+KERNEL_DRIVER_MEMORY:
+    .res 165
+KERNEL_DRIVER_MEMORY_END:
+
+
+;.org KERNEL_DRIVER_MEMORY_END
+
+
+
 
 kernel_end_of_memory_for_kernel:
 

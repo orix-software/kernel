@@ -13,7 +13,7 @@ CH395_SINT_STAT_SEND_OK     = $02
     cmp     #$0D
     beq     @exit
 
-    
+
     ldx     #CH395_WRITE_SEND_BUF_SN
     stx     CH395_COMMAND_PORT
     ldx     #$01 ; Socket 1
@@ -23,16 +23,16 @@ CH395_SINT_STAT_SEND_OK     = $02
     stx     CH395_DATA_PORT ; set length
     dex
     stx     CH395_DATA_PORT ; set length
-    
+
     lda     i_o_save
-    sta     CH395_DATA_PORT 
+    sta     CH395_DATA_PORT
 
 @waiting_for_output:
     lda     #$01 ; socket 0
-    jsr     _ch395_get_int_status_sn   
+    jsr     _ch395_get_int_status_sn
     and     #CH395_SINT_STAT_SEND_OK
     cmp     #CH395_SINT_STAT_SEND_OK
-    bne     @waiting_for_output  
+    bne     @waiting_for_output
 @exit:
     rts
 

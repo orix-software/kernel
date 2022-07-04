@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/orix-software/kernel.svg?branch=master)](https://travis-ci.org/orix-software/kernel)
+[![build](https://github.com/orix-software/kernel/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/orix-software/kernel/actions/workflows/main.yml)
 
 # Orix
 
