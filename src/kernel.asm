@@ -1,6 +1,5 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-
 .define VERSION "2022.4"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
@@ -20,7 +19,7 @@ ADIODB_LENGTH=$08
 .include   "include/process_bss.inc"
 .include   "include/memory.inc"
 .include   "include/files.inc"
-.include   "include/ori3.inc"
+.include   "include/ori2.inc"
 .include   "versions/versions.inc"
 
 .out   "=================================================================="
@@ -314,7 +313,7 @@ skip:
 
 next5:
 
-  lda     KBDCOL+4 ; 
+  lda     KBDCOL+4 ;
   and     #$90
   beq     @skip
   lda     FLGTEL
@@ -1075,7 +1074,7 @@ routine_to_define_16:
 .include  "functions/xecrpr.asm"
 .include  "functions/xdecay.asm"
 .include  "functions/xinteg.asm"
-.include  "functions/exe/ori3.asm"
+.include  "functions/exe/ori2.asm"
 
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
@@ -1084,7 +1083,7 @@ routine_to_define_16:
 
 send_command_A:
   sty     ADDRESS_VECTOR_FOR_ADIOB
-  sty     ADDRESS_VECTOR_FOR_ADIOB+1 
+  sty     ADDRESS_VECTOR_FOR_ADIOB+1
   pha
   txa
   asl
@@ -1364,7 +1363,7 @@ next112
   lsr     FLGLPR
   rts
 .endproc
-    
+
 XDIVIDE_INTEGER32_BY_1024_ROUTINE:
   ; RESB contains 2 bytes most significant
   ; RES contains 2 bytes least significant
@@ -1373,24 +1372,24 @@ XDIVIDE_INTEGER32_BY_1024_ROUTINE:
   lsr     RESB
   ror     RES+1
   ror     RES
-    
+
   lsr     RES+1
   ror     RES
   lsr     RES+1
   ror     RES
   lsr     RES+1
   ror     RES
-   
+
   lsr     RES+1
   ror     RES
   lsr     RES+1
   ror     RES
-   
+
   lsr     RES+1
   ror     RES
   lsr     RES+1
   ror     RES
-   
+
   lsr     RES+1
   ror     RES
   lsr     RES+1
@@ -1398,7 +1397,7 @@ XDIVIDE_INTEGER32_BY_1024_ROUTINE:
   rts
 
 .include "functions/clock/_xwrclk.asm"
-  
+
 Lca75:
   ldy     #$00
   lda     TIMEH
@@ -1413,7 +1412,7 @@ Lca75:
   iny
   lda     TIMES
 telemon_display_clock_chars:
-; display clock at the adress specified  
+; display clock at the adress specified
   ldx     #$2F
   sec
 @loop:

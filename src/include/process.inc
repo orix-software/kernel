@@ -4,7 +4,7 @@
 .define KERNEL_MAX_FP_PER_PROCESS                  2  ; Can't be greater than KERNEL_MAX_FP
 .define KERNEL_MAX_FP                              2  ; Max filepointer available can
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
-.define KERNEL_LENGTH_MAX_CMDLINE                  60
+.define KERNEL_LENGTH_MAX_CMDLINE                  58
 
 .define KERNEL_ERRNO_OK                            0
 ; ERRNO KERNEL are set in errno.inc of cc65 from 1 to 18
@@ -22,7 +22,7 @@
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 
-; kernel_pid_list contains the id of the process it means that if the current process is 5, 
+; kernel_pid_list contains the id of the process it means that if the current process is 5,
 
 ; Init struct
 .struct kernel_process_struct

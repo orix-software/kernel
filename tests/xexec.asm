@@ -11,6 +11,6 @@ __MAIN_START__:
     rts
 
 str:
-    .asciiz "echo toto"    
+    .asciiz "lsmem"    
 __MAIN_LAST__:
  

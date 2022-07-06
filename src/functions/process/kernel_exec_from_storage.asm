@@ -36,8 +36,8 @@
     bne     @malloc_ok
     cpy     #NULL
     bne     @malloc_ok
-    lda     ENOMEM
-    sta     KERNEL_ERRNO
+    ldy     #ENOMEM
+    sty     KERNEL_ERRNO
 
     rts
     ; FIX ME test OOM
@@ -98,7 +98,7 @@
     sta     RESC+1
 
 @out:
-    ldy    #$00
+    ldy     #$00
 @L5:
     lda     (RESE),y
     beq     @S1
@@ -165,6 +165,7 @@
     ldy     CH376_DATA
     iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
 
+
     ; drop others values
     ldx     CH376_DATA
     ldx     CH376_DATA
@@ -188,7 +189,7 @@
     jsr     XCLOSE_ROUTINE
 
     jsr     @kill_and_exit
-    lda     #ENOMEM         ; Error
+    ldy     #ENOMEM         ; Error
 
     rts
 
@@ -234,7 +235,7 @@
 
 @format_unknown:
 ; Don't know the format
-    lda     #ENOEXEC
+    ldy     #ENOEXEC
     rts
 
 @is_an_orix_file:
@@ -253,9 +254,9 @@
     cmp     #$01                ; Binary version, it's not a relocatable binary
     beq     @static_file
     cmp     #$02
-    beq     @relocate_ori3
-    lda     #ENOEXEC
-    sta     KERNEL_ERRNO
+    beq     @relocate_ORI2
+    ldy     #ENOEXEC
+    sty     KERNEL_ERRNO
     rts
 @free:
     lda     RESD
@@ -268,52 +269,52 @@
 
     jmp     @kill_and_exit
 
-@relocate_ori3:
+@relocate_ORI2:
 
     ldy     RESD+1
     iny
 
-    sty     ORI3_PROGRAM_ADRESS+1
-    sty     ORI3_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
+    sty     ORI2_PROGRAM_ADRESS+1
+    sty     ORI2_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
     sty     RESE+1                     ; Set address execution
     sty     PTR_READ_DEST+1            ; Set address to load the next part of the program
-    sty     ORI3_PROGRAM_ADRESS+1
+    sty     ORI2_PROGRAM_ADRESS+1
 ;
     lda     #$00
-    sta     ORI3_PROGRAM_ADRESS
-    sta     ORI3_MAP_ADRESS
+    sta     ORI2_PROGRAM_ADRESS
+    sta     ORI2_MAP_ADRESS
     sta     RESE             ; Set address execution
     sta     PTR_READ_DEST
-    sta     ORI3_PAGE_LOAD             ; diff
+    sta     ORI2_PAGE_LOAD             ; diff
 
     ; set map length
     ldy     #$07
     lda     (RESD),y ; fixme 65c02
-    sta     ORI3_LENGTH_MAP
+    sta     ORI2_LENGTH_MAP
 
     ldy     #$08
     lda     (RESD),y ; fixme 65c02
-    sta     ORI3_LENGTH_MAP+1
+    sta     ORI2_LENGTH_MAP+1
 
     ldy     #18
     lda     (RESD),y ; fixme 65c02
     clc
-    adc     ORI3_MAP_ADRESS
+    adc     ORI2_MAP_ADRESS
     bcc     @S2
-    inc     ORI3_MAP_ADRESS+1
+    inc     ORI2_MAP_ADRESS+1
 @S2:
-    sta     ORI3_MAP_ADRESS
+    sta     ORI2_MAP_ADRESS
 
     ldy     #19
     lda     (RESD),y ; fixme 65c02
     clc
-    adc     ORI3_MAP_ADRESS+1
-    sta     ORI3_MAP_ADRESS+1
+    adc     ORI2_MAP_ADRESS+1
+    sta     ORI2_MAP_ADRESS+1
 
 
     jsr     @read_program
 
-    jsr     relocate_ori3
+    jsr     relocate_ORI2
 ;
     jmp     @run
 
@@ -326,7 +327,7 @@
 
 @continue_loading:
 
-    ldy     #14
+    ldy     #14         ; Get loading low offset
     lda     (RESD),y ; fixme 65c02
     sta     PTR_READ_DEST
 
@@ -360,28 +361,11 @@
 @run:
     jsr     @clean_before_execute
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-    ;sta     KERNEL_CREATE_PROCESS_PTR1
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-    ;sta     KERNEL_CREATE_PROCESS_PTR1+1
-
-    ;ldy     #kernel_one_process_struct::kernel_process_addr
-    ;lda     RESD
-    ;sta     (KERNEL_CREATE_PROCESS_PTR1),y
-    ;iny
-   ; lda     RESD+1
-   ; sta     (KERNEL_CREATE_PROCESS_PTR1),y
 
     jsr     @execute
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-   ; sta     KERNEL_CREATE_PROCESS_PTR1
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-   ; sta     KERNEL_CREATE_PROCESS_PTR1+1
-
-   ; ldy     #kernel_one_process_struct::kernel_process_addr
+    pha     ; Save return code
+    ldy     #kernel_one_process_struct::kernel_process_addr
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESD
     iny
@@ -392,8 +376,8 @@
     ldy     RESD+1
     jsr     XFREE_ROUTINE
 
-    lda     #EOK
-
+    ldy     #EOK
+    pla     ; get return code
     rts
 @error:
     ; free the length of the binary
@@ -401,8 +385,7 @@
     ldy     RESD+1
     jsr     XFREE_ROUTINE
     jsr     @kill_and_exit
-    ;jsr     @clean_before_execute
-    lda     #ENOEXEC   ; Return format error
+    ldy     #ENOEXEC   ; Return format error
     rts
 
 @clean_before_execute:

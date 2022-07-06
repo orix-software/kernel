@@ -142,12 +142,8 @@ kernel_debug:
 BUFEDT_END:
 
 KERNEL_DRIVER_MEMORY:
-    .res 165
+    .res 166
 KERNEL_DRIVER_MEMORY_END:
-
-
-;.org KERNEL_DRIVER_MEMORY_END
-
 
 
 
