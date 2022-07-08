@@ -127,14 +127,14 @@ read_on_sdcard:
     rts
 
 out2:
-    lda     KERNEL_KERNEL_XEXEC_BNKOLD
-    sta     BNK_TO_SWITCH
+
+    ldy     KERNEL_KERNEL_XEXEC_BNKOLD  ; Use Y or else it override A (return code from binary)
+    sty     BNK_TO_SWITCH
 
 
 out1:
     sta     HRS2
-
-
+skip_sta_hrs2:
     lda     kernel_process+kernel_process_struct::kernel_current_process
 
     jsr     kernel_kill_process

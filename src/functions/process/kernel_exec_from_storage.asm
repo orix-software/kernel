@@ -133,7 +133,7 @@
     jsr     kernel_kill_process
 
     lda     KERNEL_ERRNO
-
+    ldy     #ENOENT
     ; Error not found
 
 
@@ -196,9 +196,10 @@
 
 @not_null2:
 
+
   ;   RESD contains pointer to header and the length is equal to the file to load
     sta     RESD
-    sty     RESD+1
+    sty     RESD+1 ; $842
 
 
     sta     PTR_READ_DEST
@@ -206,6 +207,25 @@
     ; Save in order to compute nb_bytes_read
     sta     RESC
     sty     RESC+1
+
+    ; save RESD
+
+
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+    sta     KERNEL_CREATE_PROCESS_PTR1
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+    sta     KERNEL_CREATE_PROCESS_PTR1+1
+
+
+    ldy     #kernel_one_process_struct::kernel_process_addr
+    lda     RESD
+    sta     (KERNEL_CREATE_PROCESS_PTR1),y
+    iny
+    lda     RESD+1
+    sta     (KERNEL_CREATE_PROCESS_PTR1),y
+
+
 
     ; Read 20 bytes in the header
 
@@ -285,19 +305,32 @@
     sta     ORI2_MAP_ADRESS
     sta     RESE             ; Set address execution
     sta     PTR_READ_DEST
-    sta     ORI2_PAGE_LOAD             ; diff
 
+    sta     ORI2_PAGE_LOAD  ; Set to 0 for instance before compute
+
+    ldy     #15              ; High start adress
+    lda     RESD+1      ; Align
+    clc
+    adc     #$01
+    cmp     (RESD),y
+    beq     @do_not_compute
+
+    sec
+    sbc     (RESD),y
+    sta     ORI2_PAGE_LOAD
+
+@do_not_compute:
     ; set map length
     ldy     #$07
-    lda     (RESD),y ; fixme 65c02
+    lda     (RESD),y
     sta     ORI2_LENGTH_MAP
 
     ldy     #$08
-    lda     (RESD),y ; fixme 65c02
+    lda     (RESD),y
     sta     ORI2_LENGTH_MAP+1
 
     ldy     #18
-    lda     (RESD),y ; fixme 65c02
+    lda     (RESD),y
     clc
     adc     ORI2_MAP_ADRESS
     bcc     @S2
@@ -361,10 +394,10 @@
 @run:
     jsr     @clean_before_execute
 
-
     jsr     @execute
 
-    pha     ; Save return code
+    pha     ; Save return code $91e
+
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESD
@@ -389,7 +422,7 @@
     rts
 
 @clean_before_execute:
-   ; save RES
+    ; save RES
     lda     RES
     ldy     RES+1
 
@@ -407,8 +440,6 @@
     rts
 
 @execute:
-
-
     jmp     (RESE) ; jmp : it means that if program launched do an rts, it returns to interpreter
 
 @read_program:

@@ -5,13 +5,13 @@
 ;	00-01	: Adresse Programme
 ;	02-03	: Adresse MAP
 ;	04-05	: Longueur MAP
-;	06	: Page de chargement
+;	06	    : Page de chargement
 ;
 ; Sortie:
 ;	00-01	: Adresse de l'octet suivant la fin du programme (table link par exemple)
 ;	02-03	: Adresse de l'octet suivant la fin de la MAP
 ;	04-05	: 00 00
-;	06	: Inchangé
+;	06	    : Inchangé
 .proc relocate_ORI2
 
     ; On suppose que A = page de chargement du programme (chargé en début de page)

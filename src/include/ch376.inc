@@ -30,10 +30,10 @@ CH376_DISK_QUERY   	  = $3F
 CH376_DIR_CREATE      = $40
 CH376_DISK_RD_GO 	  = $55
 
-; CODE FOR CH376_SET_USB_MODE 
+; CODE FOR CH376_SET_USB_MODE
 
 CH376_SET_USB_MODE_CODE_SDCARD                              = $03
-; The code of 06H means switch to valid USB-HOST, produce SOF package automatically. 
+; The code of 06H means switch to valid USB-HOST, produce SOF package automatically.
 CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY  = $06
 
 CH376_USB_INT_SUCCESS       = $14
