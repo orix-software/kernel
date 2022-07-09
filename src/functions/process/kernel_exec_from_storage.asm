@@ -290,64 +290,26 @@
     jmp     @kill_and_exit
 
 @relocate_ORI2:
-
-    ldy     RESD+1
-    iny
-
-    sty     ORI2_PROGRAM_ADRESS+1
-    sty     ORI2_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
-    sty     RESE+1                     ; Set address execution
-    sty     PTR_READ_DEST+1            ; Set address to load the next part of the program
-    sty     ORI2_PROGRAM_ADRESS+1
-;
-    lda     #$00
-    sta     ORI2_PROGRAM_ADRESS
-    sta     ORI2_MAP_ADRESS
-    sta     RESE             ; Set address execution
-    sta     PTR_READ_DEST
-
-    sta     ORI2_PAGE_LOAD  ; Set to 0 for instance before compute
-
-    ldy     #15              ; High start adress
-    lda     RESD+1      ; Align
-    clc
-    adc     #$01
-    cmp     (RESD),y
-    beq     @do_not_compute
-
-    sec
-    sbc     (RESD),y
-    sta     ORI2_PAGE_LOAD
-
-@do_not_compute:
-    ; set map length
-    ldy     #$07
-    lda     (RESD),y
-    sta     ORI2_LENGTH_MAP
-
-    ldy     #$08
-    lda     (RESD),y
-    sta     ORI2_LENGTH_MAP+1
-
-    ldy     #18
-    lda     (RESD),y
-    clc
-    adc     ORI2_MAP_ADRESS
-    bcc     @S2
-    inc     ORI2_MAP_ADRESS+1
-@S2:
-    sta     ORI2_MAP_ADRESS
-
-    ldy     #19
-    lda     (RESD),y ; fixme 65c02
-    clc
-    adc     ORI2_MAP_ADRESS+1
-    sta     ORI2_MAP_ADRESS+1
-
+    jsr     compute_all_offset_ORI2
 
     jsr     @read_program
 
     jsr     relocate_ORI2
+
+    ; Now get the execution address
+
+    ldy     #18
+    clc
+    lda     (RESD),y
+    sta     RESE
+
+    ldy     #19
+    lda     (RESD),y
+    adc     ORI2_PAGE_LOAD
+    sta     RESE+1
+    dec     RESE+1
+
+    ;
 ;
     jmp     @run
 

@@ -97,22 +97,22 @@ start_rom:
   inx
   ;ldy     FLGTEL
 @nloopc02:
-  stz     $00,x 
+  stz     $00,x
   ;sta     $200,x it does not help to reboot properly
   stz     $400,x
   stz     $500,x
   inx
   bne     @nloopc02
-.p02  
-.else  
+.p02
+.else
   inx
   stx     NEXT_STACK_BANK               ; Store in BNKCIB ?? ok but already init with label data_adress_418, when loading_vectors_telemon is executed
   ; Clear memory for real atmos
   ; X = 0
   lda     #$00
 @nloop:
-  sta     $00,x 
-  sta     $200,x 
+  sta     $00,x
+  sta     $200,x
   sta     $400,x
   sta     $500,x
   inx
@@ -234,26 +234,25 @@ set_todefine6:
 
 loading_vectors_telemon:
 ; This routine fills some memory with some code
-; notice that $700 is fill but could be used for others things, because $700 will be in RAM overlay 
+; notice that $700 is fill but could be used for others things, because $700 will be in RAM overlay
 ; This means that $700 could be erase. $600 should be deleted too (how many bytes ?), because some parts are used to read banks
 @loop:
   lda     loading_vectors_page_4,x    ; X should be equal to 0
   sta     ORIX_MEMORY_DRIVER_ADDRESS,x
   lda     loading_code_to_page_6,x
   sta     $0600,x
-  lda     data_to_define_4,x 
+  lda     data_to_define_4,x
   sta     $0700,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xmalloc,x
   sta     $0800,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xmalloc+256,x
-  sta     $0900,x                     ; used to copy in Overlay RAM ... see  loop40 label  
-  
+  sta     $0900,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label  
+  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree+256,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label    
+  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree+256+256,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label      
+  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
 
@@ -382,12 +381,11 @@ don_t_display_signature:
   sta     $bb80+23
   .endif
 
-  
 display_cursor:
 
   ldx     #$00
   BRK_KERNEL XCSSCR ; display cursors
-; initialize 
+; initialize
   ; Init PID tables and structs
 
 
@@ -407,9 +405,9 @@ display_cursor:
 
 
   lda     #$FF  ; Init
-  ; Set process foreground 
+  ; Set process foreground
 
-  sta     kernel_process+kernel_process_struct::kernel_current_process 
+  sta     kernel_process+kernel_process_struct::kernel_current_process
   ; register init process
   lda     #$01
   sta     kernel_process+kernel_process_struct::kernel_pid_list
@@ -420,24 +418,23 @@ display_cursor:
 ;  lda     str_name_process_kernel,x
   ;beq     @S1
   ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
- ; inx     
+ ; inx
   ;bne     @L1
-;@S1:  
+;@S1:
   ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
 
 init_process_init_cwd_in_struct:
   ldx     #$00
-@L1:  
+@L1:
   lda     str_name_process_kernel,x
   beq     @S1
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
-  inx     
+  inx
   bne     @L1
-@S1:  
+@S1:
   sta     kernel_process+kernel_process_struct::kernel_cwd_str,x
 
-  
-  
+
   lda     #KERNEL_ERRNO_OK
   sta     KERNEL_ERRNO
 
@@ -450,23 +447,23 @@ init_process_init_cwd_in_struct:
   ; init FD
   lda     #$FF
   sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Store the current fd opened is FF
-  
+
   ; A=00 at this step
   ldx     #$00
   txa
-@init_fp:  
+@init_fp:
   sta     kernel_process+kernel_process_struct::kernel_fd,x
   inx
   cpx     #KERNEL_MAX_FP
-  bne     @init_fp  
+  bne     @init_fp
 
 ;**************************************************************************************************************************/
 ;*                                                     init malloc table in memory                                        */
-;**************************************************************************************************************************/    
+;**************************************************************************************************************************/
 
 
 
-; new init malloc table 
+; new init malloc table
   ldx     #$00
   lda     #$00              ; First byte available when Orix Kernel has started
 @L3:
@@ -583,9 +580,9 @@ routine_to_define_19:
 
   rts
 
-.ifdef WITH_SYSTEMD_AT_BOOT_TIME  
+.ifdef WITH_SYSTEMD_AT_BOOT_TIME
 str_binary_systemd:
-  .asciiz "systemd -s"  
+  .asciiz "systemd -s"
 .endif
 
 str_binary_to_start:
@@ -593,16 +590,16 @@ str_binary_to_start:
 str_name_process_kernel:  ; if you modify this default, you must change struct too in process.inc
   .asciiz "init"
 str_default_path:         ; if you modify this default, you must change struct too in process.inc
-  .asciiz "/"  
- 
+  .asciiz "/"
+
 init_via:
-  lda     #$7F 
+  lda     #$7F
   sta     VIA::IER ; Initialize via1
   sta     VIA2::IER ; Initialize via2
- 
+
   lda     #$FF
   sta     VIA::DDRA
-  
+
   lda     #$F7
   sta     VIA::PRB
   sta     VIA::DDRB
@@ -685,27 +682,25 @@ IRQVECTOR_CODE:
 
 ; **************************** END LOOP ON DEVELOPPER NAME !*/
 
-str_telestrat:  
+str_telestrat:
   .byte     $0c,$97,$96,$95,$94,$93,$92,$91,$90,"ORIX v"
   .byte     VERSION
   .byte     $90,$91,$92,$93,$94,$95,$96,$97,$90
 .IFPC02
 .pc02
   .byte     "CPU:65C02"
-.p02  
+.p02
 .else
   .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
-kernel_memory_driver_to_copy_begin: 
+kernel_memory_driver_to_copy_begin:
   .include "functions/memory/memory_driver.asm"
 kernel_memory_driver_to_copy_end:
-  
+
 .warning     .sprintf("Size of memory driver  : %d bytes, verify in kernel.inc if KERNEL_DRIVER_MEMORY is at least equal to this value (.res definitiion)", kernel_memory_driver_to_copy_end-kernel_memory_driver_to_copy_begin)
 
-
-  
 
 str_KOROM:
   .byt    "560 KB RAM/512 KB ROM"," - "
@@ -723,7 +718,7 @@ XDEFBU_ROUTINE:
   sta     RES
   lda     #>TELEMON_KEYBOARD_BUFFER_BEGIN ; Get high adress of the buffer
   sta     RES+1
-  
+
   lda     #<TELEMON_KEYBOARD_BUFFER_END
   ldy     #>TELEMON_KEYBOARD_BUFFER_END
 
@@ -765,25 +760,25 @@ code_adress_403:
 code_adress_406:  
   jmp     $047E ; see code_adress_47E
 code_adress_409:  
-  jmp     $0419 ; see code_adress_419  
+  jmp     $0419 ; see code_adress_419
 code_adress_40c:
   jmp     $0436 ; 436 see  code_adress_436
 code_adress_40f:
   .byt    $00 ; init old bank to 0
-; 410  
+; 410
   .byt    $00 ; used for  bank switching
 ; 411
 ; VECTOR to read byte in overlay ram
   jmp     $04AF
-; 414  
+; 414
   .byt    $4C,$00,$00
-data_adress_417:   
+data_adress_417:
   .byt    $00 ; Init BNKCIB with 0
 data_adress_418:
   .byt    $00 ; init also 418 but it already initialized !
 
 ; This routines is used to read buffers in RAM overlay
-code_adress_419:  
+code_adress_419:
   php
   sei
   pha
@@ -851,15 +846,15 @@ code_adress_46A:
   plp
   rts
 
-code_adress_47E:  ; brk gestion 
+code_adress_47E:  ; brk gestion
   sta     IRQSVA
   lda     VIA2::PRA
-  and     #$07      
+  and     #$07
   sta     BNKOLD     ; store old bank before interrupt ?
   lda     VIA2::PRA  ; Switch to telemon bank and jump
   ora     #$07
   sta     VIA2::PRA
-  jmp     brk_management   
+  jmp     brk_management
 code_adress_493:
   lda     VIA2::PRA
   and     #$F8
@@ -886,7 +881,7 @@ code_adress_4AF:
   ora     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
   sta     VIA2::PRA
   lda     (ADDRESS_READ_BETWEEN_BANK),y  ; Read byte
-  pha                                 
+  pha
   lda     VIA2::PRA
   ora     #%00000111                     ; Return to telemon
   sta     VIA2::PRA
@@ -964,24 +959,24 @@ LC61E:
   ; see page 4 of "Manuel Developpeur Telestrat"
   sta     BUFBUF+8,x ; get length low
   sta     BUFBUF+9,x ; get length high
-  lda     BUFBUF+2,x 
-  sta     BUFBUF+4,x 
-  sta     BUFBUF+6,x 
-  lda     BUFBUF+3,x 
-  sta     BUFBUF+5,x 
-  sta     BUFBUF+7,x 
+  lda     BUFBUF+2,x
+  sta     BUFBUF+4,x
+  sta     BUFBUF+6,x
+  lda     BUFBUF+3,x
+  sta     BUFBUF+5,x
+  sta     BUFBUF+7,x
   rts
-end_BUFROU:  
+end_BUFROU:
 
-  
+
 LC639:
-  bvs     LC661 
+  bvs     LC661
   jsr     $C507 ; FIXME
-  bcs     LC660 
-  lda     BUFBUF+6,x 
-  ldy     BUFBUF+7,x 
+  bcs     LC660
+  lda     BUFBUF+6,x
+  ldy     BUFBUF+7,x
   jsr     $C5A6 ; FIXME
-  sta     BUFBUF+6,x 
+  sta     BUFBUF+6,x
   tya
   sta     BUFBUF+7,x 
   lda     BUFBUF+8,x
@@ -995,26 +990,26 @@ LC639:
 .IFPC02
 .pc02
   lda     (IRQSVP)
-.p02  
-.else  
+.p02
+.else
   ldy     #$00
   lda     (IRQSVP),y
-.endif  
+.endif
   clc
 LC660:
   rts
-  
+
 LC661:
   pha
   lda     BUFBUF+8,x
   cmp     BUFBUF+$0A,x
   lda     BUFBUF+9,x
   sbc     BUFBUF+$0B,x
-  bcs     LC68F 
+  bcs     LC68F
   lda     BUFBUF+4,x
   ldy     BUFBUF+5,x
   jsr     $C5A6  ; FIXME
-  sta     BUFBUF+4,x 
+  sta     BUFBUF+4,x
   tya
   sta     BUFBUF+5,x
   inc     BUFBUF+8,x
@@ -1469,12 +1464,12 @@ vectors_telemon:
   .byt     <XFILLM_ROUTINE,>XFILLM_ROUTINE ; XFILLM
   .byt     <ZADCHA_ROUTINE,>ZADCHA_ROUTINE ; ZADCHA
 ;    .byt $00,$00
-  .byt     <XDIVIDE_INTEGER32_BY_1024_ROUTINE,>XDIVIDE_INTEGER32_BY_1024_ROUTINE 
+  .byt     <XDIVIDE_INTEGER32_BY_1024_ROUTINE,>XDIVIDE_INTEGER32_BY_1024_ROUTINE
   .byt     <XMINMA_ROUTINE,>XMINMA_ROUTINE
   .byt     <XMUL40_ROUTINE,>XMUL40_ROUTINE
   .byt     <XMULT_ROUTINE,>XMULT_ROUTINE
   .byt     <XADRES_ROUTINE,>XADRES_ROUTINE                                          ; XADRES
-  .byt     <XDIVIS_ROUTINE,>XDIVIS_ROUTINE                                          ; 
+  .byt     <XDIVIS_ROUTINE,>XDIVIS_ROUTINE                                          ;
   .byt     <XVARS_ROUTINE,>XVARS_ROUTINE                                            ; $24
   .byt     <XCRLF_ROUTINE,>XCRLF_ROUTINE                                            ; $25
   .byt     <XDECAY_ROUTINE,>XDECAY_ROUTINE                                          ; XDECAY  $26
@@ -1488,18 +1483,16 @@ vectors_telemon:
   .byt     <XGETARGV_ROUTINE,>XGETARGV_ROUTINE                                      ; $2E
   .byt     <XOPENDIR_READDIR_CLOSEDIR,>XOPENDIR_READDIR_CLOSEDIR                    ; $2F
   .byt     <XOPEN_ROUTINE,>XOPEN_ROUTINE                                            ; $30
-
-  .byt     <$00,>$00 ; Open from current path $31
-
-  .byt     $00,$00; XEDTIN $32
-  .byt     <XECRPR_ROUTINE,>XECRPR_ROUTINE ; XECRPR $33 
-  .byt     <XCOSCR_ROUTINE,>XCOSCR_ROUTINE  ;XCOSCR $34
-  .byt     <XCSSCR_ROUTINE,>XCSSCR_ROUTINE ; $35 XCSSCR 
-  .byt     <XSCRSE_ROUTINE,>XSCRSE_ROUTINE ; $36 
-  .byt     <XSCROH_ROUTINE,>XSCROH_ROUTINE ; $37
-  .byt     <XSCROB_ROUTINE,>XSCROB_ROUTINE ; $38 XSCROB
-  .byt     <XSCRNE_ROUTINE,>XSCRNE_ROUTINE ; $39
-  .byt     <XCLOSE_ROUTINE,>XCLOSE_ROUTINE ; $3a 
+  .byt     <$00,>$00                                                                ;
+  .byt     $00,$00                                                                  ; Old XEDTIN $32
+  .byt     <XECRPR_ROUTINE,>XECRPR_ROUTINE                                          ; XECRPR $33
+  .byt     <XCOSCR_ROUTINE,>XCOSCR_ROUTINE                                          ; XCOSCR $34
+  .byt     <XCSSCR_ROUTINE,>XCSSCR_ROUTINE                                          ; $35 XCSSCR
+  .byt     <XSCRSE_ROUTINE,>XSCRSE_ROUTINE                                          ; $36
+  .byt     <XSCROH_ROUTINE,>XSCROH_ROUTINE                                          ; $37
+  .byt     <XSCROB_ROUTINE,>XSCROB_ROUTINE                                          ; $38 XSCROB
+  .byt     <XSCRNE_ROUTINE,>XSCRNE_ROUTINE                                          ; $39
+  .byt     <XCLOSE_ROUTINE,>XCLOSE_ROUTINE ; $3a
   .byt     <XWRITEBYTES_ROUTINE,>XWRITEBYTES_ROUTINE ; nothing  $3b
   .byt     <_xreclk,>_xreclk ; $3c
   .byt     <_xclcl,>_xclcl ; $3d
@@ -1588,7 +1581,7 @@ vectors_telemon_second_table:
   .byt     <XCIRCL_ROUTINE,>XCIRCL_ROUTINE
   .byt     <XCURSE_ROUTINE,>XCURSE_ROUTINE
   .byt     <XCURMO_ROUTINE,>XCURMO_ROUTINE
-  .byt     <XPAPER_ROUTINE,>XPAPER_ROUTINE  
+  .byt     <XPAPER_ROUTINE,>XPAPER_ROUTINE
   .byt     <XINK_ROUTINE,>XINK_ROUTINE ; Xink $93
   .byt     <XBOX_ROUTINE,>XBOX_ROUTINE
   .byt     <XABOX_ROUTINE,>XABOX_ROUTINE; $95
@@ -1692,15 +1685,15 @@ Lcd20
   bit     ACC2E
   rts
 
-put_cursor_in_61_x  
+put_cursor_in_61_x:
   lda     #$1F
   jsr     XWR0_ROUTINE
   tya
   ora     #$40
-  jsr     XWR0_ROUTINE 
+  jsr     XWR0_ROUTINE
   lda     ACC1M
   ora     #$40
-  jmp     XWR0_ROUTINE 
+  jmp     XWR0_ROUTINE
 
   
 
@@ -1828,25 +1821,25 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 _multitasking:
 
   rts
-  
+
 .include "functions/time/wait_0_3_seconds.asm"
 
 test_if_all_buffers_are_empty:
 
   sec
   .byt    $24 ; jump
-XBUSY_ROUTINE: 
+XBUSY_ROUTINE:
   clc
   ror     ADDRESS_READ_BETWEEN_BANK
   ldx     #$00
-@L1:  
-  jsr     XTSTBU_ROUTINE 
-  bcc     @S1 
+@L1:
+  jsr     XTSTBU_ROUTINE
+  bcc     @S1
   txa
   adc     #$0B
   tax
   cpx     #$30
-  bne     @L1 
+  bne     @L1
 @S1:
   php
   lda     #<table_to_define_prompt_charset
@@ -1857,11 +1850,11 @@ XBUSY_ROUTINE:
 @skip:
   bit     ADDRESS_READ_BETWEEN_BANK
   bpl     @skip2
-  jsr     Lfef9 
+  jsr     Lfef9
   plp
   rts
 @skip2:
-  jsr     Lfef9 
+  jsr     Lfef9
   plp
   rts
 
@@ -1871,12 +1864,12 @@ table_to_define_prompt_charset:
 table_to_define_prompt_charset_empty:
   .byt     $7F,$00,$00,$08,$34,$32,$34,$08,$00,$00
 
-; This primitive will get the address of variables built in telemon and orix.  
+; This primitive will get the address of variables built in telemon and orix.
 
 .include "functions/files/getFileLength.asm"
 
 .include "functions/xvars.asm"
-  
+
 
 
 .proc _ch376_set_usb_mode_kernel
@@ -1884,7 +1877,7 @@ table_to_define_prompt_charset_empty:
   sta     CH376_COMMAND
 
   lda     KERNEL_CH376_MOUNT
-  sta     CH376_DATA	
+  sta     CH376_DATA
   rts
 .endproc  
 

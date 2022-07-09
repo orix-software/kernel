@@ -72,7 +72,7 @@
   .ifdef WITH_KERNEL_PROCESS_GID
   ;gid                        .res 1
   .endif
-.endstruct 
+.endstruct
 
 .out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))
 

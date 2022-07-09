@@ -198,12 +198,12 @@ CALL:XOPEN:XRM_ROUTINE
 |#MEMMAP: Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fb6e-$fff0|   1154   |
+|MEMMAP:ROM|FREE                         |$fb83-$fff0|   1133   |
 |#MEMMAP:Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f82a-$f8d6 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $f8d6-$fb56 |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f83f-$f8eb |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $f8eb-$fb6b |     |

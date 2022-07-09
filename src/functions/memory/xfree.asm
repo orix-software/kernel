@@ -5,7 +5,6 @@
 .proc XFREE_ROUTINE
   ; A & Y
 
-
   .out     .sprintf("|MODIFY:RES:XFREE_ROUTINE")
   .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
 
