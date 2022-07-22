@@ -7,15 +7,30 @@
   .error  "XMAINARGS_STRUCT size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
 
+; A : Cut 
+
+.out     .sprintf("|MODIFY:TR0:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:TR1:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:TR4:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:TR3:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:RES:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:REB:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:KERNEL_ERRNO:XMAINARGS_ROUTINE")
+
+
 ; Register Modify : A,X,Y
 ; Memory modify : RES,RESB,TR0,TR1,TR2,TR3,TR4
 
-XMAINARGS_SPACEFOUND  := TR4 ; 1 byte
-XMAINARGSV            := TR1 ; 2 byte
+
 XMAINARGSC            := TR0 ; 1 byte
+XMAINARGSV            := TR1 ; 2 byte
+XMAINARGS_SPACEFOUND  := TR3 ; 1 byte
+XMAINARGS_MODE        := TR4 ; 1 byte
+
 
 .proc XMAINARGS_ROUTINE
 
+    sta     XMAINARGS_MODE
     ldx     kernel_process+kernel_process_struct::kernel_current_process
 
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -54,6 +69,24 @@ XMAINARGSC            := TR0 ; 1 byte
     sta     RESB
     sty     RESB+1
 
+    lda     XMAINARGS_MODE
+    beq     @parse
+
+    ; Mode 1 : Copy only
+
+    ldy     #$00
+@loop2:
+    lda     (RES),y
+    beq     @out2
+    sta     (RESB),y
+    iny
+    bne     @loop2
+
+@out2:
+    sta     (XMAINARGSV),y
+    rts
+
+@parse:
     ; Compute offsets
     ; Get first offset
     ldy     #XMAINARGS_STRUCT::argv_ptr
