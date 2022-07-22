@@ -84,7 +84,7 @@
 
   ; Returns number of bytes
 
-  lda     RESB ; Get last Y value
+  ;lda     RESB ; Get last Y value
   clc                               ;
   adc     PTR_READ_DEST
   bcc     @next

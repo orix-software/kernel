@@ -60,7 +60,7 @@
     lda     #'/'
     sta     CH376_DATA
 
-    jsr     send_0_to_ch376_and_open
+    jsr     @send_0_to_ch376_and_open
 
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
@@ -100,7 +100,7 @@
     iny
     sty     TR5
 
-    jsr     send_0_to_ch376_and_open
+    jsr     @send_0_to_ch376_and_open
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
 
@@ -110,7 +110,7 @@
 
 @send_end_out:
 
-    jsr     send_0_to_ch376_and_open
+    jsr     @send_0_to_ch376_and_open
 
     ldy     #_KERNEL_FILE::f_seek_file
 
@@ -139,11 +139,14 @@
 
     jmp     @do_not_seek
 
-send_0_to_ch376_and_open:
+@send_0_to_ch376_and_open:
     lda     #$00
     sta     CH376_DATA
 
     jsr     _ch376_file_open ; Open slash
+    rts
+
+    ;jmp     @do_not_seek
 
 restore:
 
