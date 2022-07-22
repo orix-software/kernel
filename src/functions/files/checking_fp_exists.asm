@@ -11,7 +11,7 @@
 
     sty     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
 
-    txa
+    txa     ; X contains the fp
     sta     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; save fp id
     ; Compute fd index in main fp struct
     sec
@@ -69,7 +69,7 @@
 
     ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
 @loop_next_byte:
-
+    ;jmp     @loop_next_byte
     lda     (KERNEL_XOPEN_PTR1),y
 
     beq     @send_end_out
@@ -97,7 +97,9 @@
     rts
 
 @send:
+    iny
     sty     TR5
+
     jsr     send_0_to_ch376_and_open
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
@@ -141,7 +143,7 @@ send_0_to_ch376_and_open:
     lda     #$00
     sta     CH376_DATA
 
-    jmp     _ch376_file_open ; Open slash
+    jsr     _ch376_file_open ; Open slash
 
 restore:
 
