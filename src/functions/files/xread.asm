@@ -29,8 +29,6 @@
   lda     PTR_READ_DEST+1
   sta     RES+1
 
-  ; Compute the fp
-
   ; Checking if fp exists
   jsr     checking_fp_exists
   bcc     @continue_xfread
@@ -41,23 +39,20 @@
   rts
 
 @continue_xfread:
-
   pla
-
-
   jsr     _ch376_set_bytes_read
-
-
 
 @continue:
   cmp     #CH376_USB_INT_DISK_READ  ; something to read
   beq     @readme
   cmp     #CH376_USB_INT_SUCCESS    ; finished
   beq     @finished
+
   ; TODO  in A : $ff X: $ff
   lda     #$00
   tax
   rts
+
 @readme:
   jsr     @we_read
 
@@ -79,22 +74,14 @@
   ; return now length
   ;  Compute nb of bytes read
 
-
-
-
-  jsr     _update_fp_position
-
-  rts
+  jmp     _update_fp_position
 
 @we_read:
   lda     #CH376_RD_USB_DATA0
   sta     CH376_COMMAND
 
-
-
   lda     CH376_DATA                ; contains length read
   beq     @finished                 ; we don't have any bytes to read then stops (Assinie report)
-
 
   sta     TR0                       ; Number of bytes to read, storing this value in order to loop
 

@@ -35,6 +35,8 @@
     cmp     #KERNEL_MAX_FP
     bcs     @exit
 
+
+
     tax
     lda     kernel_process+kernel_process_struct::kernel_fd,x ;
     bne     @found_fp_slot
@@ -63,7 +65,6 @@
 
     txa
     asl
-
     tax
     ; remove fp from main struct
     lda     #$00
@@ -109,6 +110,9 @@
     lda     #$00
     sta     kernel_process+kernel_process_struct::kernel_fd,x
 
-
+    cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; does the fd sent is the current file opened ? if no, it's already close, then don't close it from ch376
+    beq     close_in_ch376
+    rts
+close_in_ch376:
     jmp     _ch376_file_close
 .endproc
