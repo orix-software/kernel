@@ -1,4 +1,9 @@
-# 2022.2
+# 2022.4
+
+* Bugfix : multiples files impossible to manage it when files were greater than 256 bytes
+* bugfix : write file was not working on real computer
+
+# 2022.3
 
 * [XMKDIR] Fix registers
 * [XATN] Arc Tan routine removed

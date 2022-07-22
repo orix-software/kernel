@@ -2,15 +2,15 @@ KERNEL_MAX_PATH_LENGTH                                   : 49 bytes
 KERNEL_MAX_PROCESS (Max process in the system)           : 4
 KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): 2
 KERNEL_USERZP_SAVE_LENGTH                                : 16 bytes
-KERNEL_LENGTH_MAX_CMDLINE                                : 58
+KERNEL_LENGTH_MAX_CMDLINE                                : 60
 kernel_process_struct size (struct init process)         : 22 bytes
-kernel_one_process_struct size (struct for one process)  : 139 bytes
-With all the parameter all process could use 578 bytes in memory, if it's allocated
+kernel_one_process_struct size (struct for one process)  : 141 bytes
+With all the parameter all process could use 586 bytes in memory, if it's allocated
 ==================================================================
 Memory
 ==================================================================
-KERNEL_MAX_NUMBER_OF_MALLOC (max malloc for all process) : 7
-kernel_malloc_struct size (malloc table)                 : 84 bytes
+KERNEL_MAX_NUMBER_OF_MALLOC (max malloc for all process) : 8
+kernel_malloc_struct size (malloc table)                 : 85 bytes
 ==================================================================
 File memory
 ==================================================================
@@ -18,10 +18,10 @@ _KERNEL_FILE size (One fp struct) : $38 bytes
 ==================================================================
 Resume
 ==================================================================
-System will need almost 662 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
+System will need almost 671 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
 kernel_malloc_busy_begin : 2ba
 kernel_end_of_variables_before_BUFNOM : 503
-kernel_end_of_variables_before_BUFEDT : 58f
+kernel_end_of_variables_before_BUFEDT : 590
 kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a4
 |MODIFY:RES:_create_file_pointer
 |MODIFY:KERNEL_ERRNO:_create_file_pointer
@@ -173,12 +173,12 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|FREE                           | $020E-$020F |  2   |
 |MEMMAP:RAM|IOTAB                          | $02AE-$02B1 |  X   |
 |MEMMAP:RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
-|MEMMAP:RAM|kernel_xmalloc_call            | $02C8-$02EF |      |
+|MEMMAP:RAM|kernel_xmalloc_call            | $02CA-$02F1 |      |
 |MEMMAP:RAM|KBDCOL                          | $0268-$0270 |  8   |
 |MEMMAP:RAM|ADSCRL                          | $0218-$021C |  4   |
 |MEMMAP:RAM|ADSCRH                          | $021C-$0220 |  4   |
 |MEMMAP:RAM|FLGSCR                          | $0248-$024C |  4   |
-|MEMMAP:RAM|FREE                           | $02F0-$02ED | -2   |
+|MEMMAP:RAM|FREE                           | $02F2-$02ED | -4   |
 |#MEMMAP: Page 3
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
@@ -191,19 +191,19 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:RAM|BUFNOM                         | $0517-$0525 |      |
-|MEMMAP:RAM|Malloc table                   | $0525-$0579 |      |
-|MEMMAP:RAM|main kernel process struct     | $0579-$058F |      |
+|MEMMAP:RAM|Malloc table                   | $0525-$057A |      |
+|MEMMAP:RAM|main kernel process struct     | $057A-$0590 |      |
 |MEMMAP:RAM|BUFEDT                         | $0590-$05FE |      |
 |MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A4 |      |
 |#MEMMAP: Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fb83-$fff0|   1133   |
+|MEMMAP:ROM|FREE                         |$fbb6-$fff0|   1082   |
 |#MEMMAP:Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f83f-$f8eb |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $f8eb-$fb6b |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f872-$f91e |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $f91e-$fb9e |     |

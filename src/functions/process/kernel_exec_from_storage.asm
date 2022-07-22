@@ -316,8 +316,8 @@
 ; Format 1 : static adress
 @static_file:
 
-    ldy     #15      ; Get the loading address
-    lda     (RESD),y ; fixme 65c02
+    ldy     #15             ; Get the loading address
+    lda     (RESD),y        ; fixme 65c02
     sta     PTR_READ_DEST+1 ; 08
 
 @continue_loading:

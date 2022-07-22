@@ -323,7 +323,7 @@
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
 
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct 
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct
   sta     RES
 
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
