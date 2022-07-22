@@ -1879,10 +1879,10 @@ table_to_define_prompt_charset_empty:
   lda     KERNEL_CH376_MOUNT
   sta     CH376_DATA
   rts
-.endproc  
+.endproc
 
 CTRL_G_KEYBOARD: ; Send oups
-  jmp     XOUPS_ROUTINE 
+  jmp     XOUPS_ROUTINE
 
 CTRL_O_KEYBOARD:
   rts
@@ -1895,7 +1895,7 @@ next75:
 XKBDAS_ROUTINE:
   lda     #$00
   pha
-  lda     KBDFLG_KEY 
+  lda     KBDFLG_KEY
   asl
   asl
   asl
