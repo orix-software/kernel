@@ -5,8 +5,7 @@ XRDW0_ROUTINE:
 @loop:
 	lda     $1B
 	jsr     Lc7da
-	bcs     @loop	
+	bcs     @loop
 ROUTINE_I_O_NOTHING:
 	sec
 	rts
-	

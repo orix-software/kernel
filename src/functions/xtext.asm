@@ -3,12 +3,12 @@
 .proc XTEXT_ROUTINE
 	lda     FLGTEL
 	bpl     @skip ; already in text mode
-	php 
-	
+	php
+
 	sei
 	and     #$7F
 	sta     FLGTEL
-	jsr     move_chars_hires_to_text 
+	jsr     move_chars_hires_to_text
 	lda     #$56
 	ldy     #$02
 	ldx     #$00

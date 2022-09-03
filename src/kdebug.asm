@@ -326,20 +326,20 @@ pid:
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
     jsr     xdebug_binhex
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
-    jsr     xdebug_binhex    
+    jsr     xdebug_binhex
     lda     #' '
     jsr     xdebug_send_printer
     lda     #'#'
-    jsr     xdebug_send_printer       
+    jsr     xdebug_send_printer
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
     jsr     xdebug_binhex
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
-    jsr     xdebug_binhex   
+    jsr     xdebug_binhex
     lda     #$0D
     jsr     xdebug_send_printer
-@next_chunk:         
+@next_chunk:
     inx
-    cpx     #(KERNEL_MALLOC_FREE_FRAGMENT_MAX)
+    cpx     #(KERNEL_MALLOC_FREE_CHUNK_MAX)
     bne     @loop
 
 

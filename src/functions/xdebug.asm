@@ -82,7 +82,7 @@
     jsr    xdebug_save
     lda    #<str_enter_malloc
     ldy    #>str_enter_malloc
-    sta    RES 
+    sta    RES
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
@@ -94,7 +94,7 @@ str_enter_malloc:
     jsr    xdebug_save
     lda    #<str_enter_malloc
     ldy    #>str_enter_malloc
-    sta    RES 
+    sta    RES
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
@@ -106,7 +106,7 @@ str_enter_malloc:
     jsr    xdebug_save
     lda    #<str_enter_malloc
     ldy    #>str_enter_malloc
-    sta    RES 
+    sta    RES
     sty    RES+1
     jmp    xdebug_enter
 str_enter_malloc:
@@ -119,9 +119,9 @@ str_enter_malloc:
    ; jsr    xdebug_save
     lda    #<str_enter_found
     ldy    #>str_enter_found
-    sta    HRS1 
+    sta    HRS1
     sty    HRS1+1
-   
+
     jmp    xdebug_enter
 str_enter_found:
     .byte " return address :  "
@@ -136,21 +136,21 @@ str_enter_found:
     lsr                   ;MSN
     lsr
     lsr
-    tax     
+    tax
     jsr r0000010
                  ;save ASCII
     pla                   ;recover byte
-    and #%00001111 
-    tax  
+    and #%00001111
+    tax
 r0000010:
- 
+
     lda    hex_table,x
-         
+
     jsr    xdebug_send_printer
     rts                   ;done
 hex_table:
-    .byte "0123456789ABCDEF"                  
-.endproc     
+    .byte "0123456789ABCDEF"
+.endproc
 
 
 .proc xdebug_send_ay_to_printer
@@ -165,7 +165,7 @@ hex_table:
     lda        #' '
     jsr        xdebug_send_printer
     jsr        xdebug_load
-    rts  
+    rts
 .endproc
 
 .proc xdebug_enter_XFREE_new_freechunk
@@ -173,7 +173,7 @@ hex_table:
     jsr    xdebug_save
     lda    #<str_enter_free
     ldy    #>str_enter_free
-    sta    RES 
+    sta    RES
     sty    RES+1
     jmp    xdebug_enter
 
@@ -185,7 +185,7 @@ str_enter_free:
     rts
     jsr    xdebug_save
     lda    #$0D
-    jsr    xdebug_send_printer 
+    jsr    xdebug_send_printer
     jsr    xdebug_load
     rts
 .endproc
@@ -200,7 +200,7 @@ str_enter_free:
 .proc xdebug_send_string_to_printer
 
     ldy    #$00
-@L1:    
+@L1:
     lda    (HRS1),y
     beq    @out
     jsr    xdebug_send_printer
@@ -212,7 +212,7 @@ str_enter_free:
 
 .proc xdebug_send_printer
     rts
-  
+
     sta     VIA::PRA
     ;lda     #%00000000
 
@@ -226,7 +226,7 @@ str_enter_free:
 
 .proc xdebug_save
 
-    sta    kernel_debug+kernel_debug_struct::RA 
+    sta    kernel_debug+kernel_debug_struct::RA
     sty    kernel_debug+kernel_debug_struct::RY
     stx    kernel_debug+kernel_debug_struct::RX
 
@@ -234,7 +234,7 @@ str_enter_free:
     sta    kernel_debug+kernel_debug_struct::RES
     lda    RES+1
     sta    kernel_debug+kernel_debug_struct::RES+1
-    
+
     lda    RESB
     sta    kernel_debug+kernel_debug_struct::RESB
 
@@ -250,17 +250,17 @@ str_enter_free:
 
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES
-    
+
     lda    kernel_debug+kernel_debug_struct::RES+1
     sta    RES+1
-    
+
     lda    kernel_debug+kernel_debug_struct::RESB
     sta    RESB
 
     lda    kernel_debug+kernel_debug_struct::RESB+1
     sta    RESB+1
 
-    lda    kernel_debug+kernel_debug_struct::RA 
+    lda    kernel_debug+kernel_debug_struct::RA
     ldy    kernel_debug+kernel_debug_struct::RY
     ldx    kernel_debug+kernel_debug_struct::RX
     rts
@@ -270,7 +270,7 @@ str_enter_free:
 
 
 .proc kdebug_restore
-    
+
     ldx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK
     stx  NEXT_STACK_BANK
 

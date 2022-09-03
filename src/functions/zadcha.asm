@@ -15,4 +15,4 @@
   sta     RESB+1
 @skip:
   rts
-.endproc  
+.endproc

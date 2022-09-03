@@ -1,7 +1,7 @@
 
-	pha 
+	pha
 	and     #$0F
-	jsr     Lce60 
+	jsr     Lce60
 	tay
 	pla
 	lsr

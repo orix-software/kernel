@@ -10,9 +10,12 @@
 * XWRITEBYTES_ROUTINE
 * XFSEEK_ROUTINE
 * XMKDIR_ROUTINE
+* XRM_ROUTINE
+* XOPENDIR
 * _XEXEC
 * _XFORK
 * _XFORK via kernel_create_process
+* XMAINARGS_ROUTINE
 * kernel_try_to_find_command_in_bin_path
 * XOPEN_ROUTINE
 * XFREE_ROUTINE

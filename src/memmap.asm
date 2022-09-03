@@ -83,15 +83,23 @@
 .out     .sprintf("|MEMMAP:RAM|KEYBOARD_COUNTER               | $%04X-$%04X |  4   |", KEYBOARD_COUNTER, KEYBOARD_COUNTER+4)
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X |  2   |", KOROM, KORAM)
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X |  2   |", KOROM, KORAM)
-.out     .sprintf("|MEMMAP:RAM|IOTAB                          | $%04X-$%04X |  X   |", IOTAB, IOTAB+KERNEL_SIZE_IOTAB-1)
 
-.out     .sprintf("|MEMMAP:RAM|KERNEL_ADIOB                   | $%04X-$%04X | %d   |", KERNEL_ADIOB,KERNEL_ADIOB+ADIODB_LENGTH-1,KERNEL_ADIOB+ADIODB_LENGTH-KERNEL_ADIOB)
-.out     .sprintf("|MEMMAP:RAM|kernel_xmalloc_call            | $%04X-$%04X |      |", kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
+.out     .sprintf("|MEMMAP:RAM|TIMED                           | $%04X-$%04X |  1   |", TIMED, TIMED )
+.out     .sprintf("|MEMMAP:RAM|TIMES                           | $%04X-$%04X |  1   |", TIMES, TIMES)
+.out     .sprintf("|MEMMAP:RAM|TIMEM                           | $%04X-$%04X |  1   |", TIMEM , TIMEM)
+.out     .sprintf("|MEMMAP:RAM|TIMEH                           | $%04X-$%04X |  1   |", TIMEH, TIMEH)
 
-.out     .sprintf("|MEMMAP:RAM|KBDCOL                          | $%04X-$%04X |  8   |", KBDCOL,KBDCOL+8)
+.out     .sprintf("|MEMMAP:RAM|FLGCLK                          | $%04X-$%04X |  1   |", FLGCLK, FLGCLK)
+
 .out     .sprintf("|MEMMAP:RAM|ADSCRL                          | $%04X-$%04X |  4   |", ADSCRL,ADSCRL+4)
 .out     .sprintf("|MEMMAP:RAM|ADSCRH                          | $%04X-$%04X |  4   |", ADSCRH,ADSCRH+4)
+.out     .sprintf("|MEMMAP:RAM|KBDCOL                          | $%04X-$%04X |  8   |", KBDCOL,KBDCOL+8)
 
+
+
+.out     .sprintf("|MEMMAP:RAM|IOTAB                          | $%04X-$%04X |  X   |", IOTAB, IOTAB+KERNEL_SIZE_IOTAB-1)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_ADIOB                   | $%04X-$%04X | %d   |", KERNEL_ADIOB,KERNEL_ADIOB+ADIODB_LENGTH-1,KERNEL_ADIOB+ADIODB_LENGTH-KERNEL_ADIOB)
+.out     .sprintf("|MEMMAP:RAM|kernel_xmalloc_call            | $%04X-$%04X |      |", kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
 .out     .sprintf("|MEMMAP:RAM|FLGSCR                          | $%04X-$%04X |  4   |", FLGSCR,FLGSCR+4) ; $248
 
 
@@ -110,23 +118,23 @@
 .out     .sprintf("|#MEMMAP: Page 5&6")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
-.out     .sprintf("|MEMMAP:RAM|BUFNOM                         | $%04X-$%04X |      |", BUFNOM, BUFNOM_END)
-.out     .sprintf("|MEMMAP:RAM|Malloc table                   | $%04X-$%04X |      |", kernel_malloc,kernel_malloc_end)
-.out     .sprintf("|MEMMAP:RAM|main kernel process struct     | $%04X-$%04X |      |", kernel_process,kernel_process_end)
+.out     .sprintf("|MEMMAP:RAM|BUFNOM                         | $%04X-$%04X |  %d  |", BUFNOM, BUFNOM_END,BUFNOM_END-BUFNOM)
+.out     .sprintf("|MEMMAP:RAM|Malloc table                   | $%04X-$%04X |  %d    |", kernel_malloc,kernel_malloc_end,kernel_malloc_end-kernel_malloc)
+.out     .sprintf("|MEMMAP:RAM|main kernel process struct     | $%04X-$%04X |  %d    |", kernel_process,kernel_process_end,kernel_process_end-kernel_process)
 
-.out     .sprintf("|MEMMAP:RAM|BUFEDT                         | $%04X-$%04X |      |", BUFEDT, BUFEDT_END)
-.out     .sprintf("|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $%04X-$%04X |      |", KERNEL_DRIVER_MEMORY,KERNEL_DRIVER_MEMORY_END)
+.out     .sprintf("|MEMMAP:RAM|BUFEDT                         | $%04X-$%04X |   %d   |", BUFEDT, BUFEDT_END,BUFEDT_END-BUFEDT)
+.out     .sprintf("|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $%04X-$%04X |   %d   |", KERNEL_DRIVER_MEMORY,KERNEL_DRIVER_MEMORY_END,KERNEL_DRIVER_MEMORY_END-KERNEL_DRIVER_MEMORY)
 
 
 .out     .sprintf("|#MEMMAP: Kernel bank 7")
-.out              "| Type      | Name                         | Range   | Size |"
-.out              "| :-------- |:---------------------------- |:------- |:-----|"
+.out              "|MEMMAP: Type      | Name                         | Range   | Size |"
+.out              "|MEMMAP: :-------- |:---------------------------- |:------- |:-----|"
 
 .out     .sprintf("|MEMMAP:ROM|FREE                         |$%x-$fff0|   %d   |", free_bytes,$fff0-free_bytes)
 
 .out     .sprintf("|#MEMMAP:Bank 0")
-.out              "| Type      | Name                         | Range   | Size |"
-.out              "| :-------- |:---------------------------- |:------- |:-----|"
+.out              "|MEMMAP: Type      | Name                         | Range   | Size |"
+.out              "|MEMMAP: :-------- |:---------------------------- |:------- |:-----|"
 .out     .sprintf("|MEMMAP:BANK0|BUFBUF                        | $%x-$%x |     |", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER)
 .out     .sprintf("|MEMMAP:BANK0|BUFROU                        | $%x-$%x |     |", BUFROU,BUFROU+(end_BUFROU-data_to_define_4))
 .out     .sprintf("|MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $%x-$%x |     |", TELEMON_KEYBOARD_BUFFER_BEGIN,TELEMON_KEYBOARD_BUFFER_END)

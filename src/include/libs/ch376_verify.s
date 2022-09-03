@@ -8,7 +8,7 @@
 	; let's start reset
 	jsr _ch376_reset_all
 	lda #$01 ; error
-	rts	
+	rts
 @detected:
 	jsr _ch376_set_usb_mode_kernel
 
@@ -22,6 +22,4 @@
 	sec ; Carry = 1
 	lda #$00
 	rts
-.endproc	
-
-
+.endproc

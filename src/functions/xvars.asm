@@ -4,10 +4,7 @@
   ldy     XVARS_TABLE_HIGH,x
   ldx     #$00
   rts
-.endproc  
-
-
-
+.endproc
 
 .define WHO_AM_IAM        $01
 .define MALLOC_TABLE_COPY $02
@@ -20,13 +17,13 @@
 
   lda     XVARS_TABLE_LOW,x
   sta     RES
-  
+
   lda     XVARS_TABLE_HIGH,x
   sta     RES+1
 
   ldy     #$00
   lda     (RES),y
-  
+
   rts
 @malloc_table_copy:
 
@@ -56,35 +53,32 @@
 
   lda     $342
   and     #%00100000
-  cmp     #%00100000  
-  bne     @rom 
+  cmp     #%00100000
+  bne     @rom
   lda     #32
   sta     RES
-@rom:  
-
+@rom:
   lda     $343
   beq     @do_not_compute
   cmp     #$04
   bne     @not_set_4
-  
-  lda     #$00
-  
-@not_set_4:
 
-    
+  lda     #$00
+
+@not_set_4:
   tax
-  ;dex
+
   lda     #$00
 @L1:
   clc
-  adc     #$04  
+  adc     #$04
   dex
   bne     @L1
 
 @do_not_compute:
-  clc 
+  clc
   adc     BNK_TO_SWITCH
-  clc 
+  clc
   adc     RES
 
   rts
@@ -93,13 +87,13 @@
   lda     #$01
   rts
 
-.endproc  
+.endproc
 
 
 
 XVARS_TABLE_VALUE_LOW:
   .byt     <KERNEL_ERRNO
-XVARS_TABLE_VALUE_HIGH:  
+XVARS_TABLE_VALUE_HIGH:
   .byt     >KERNEL_ERRNO
 
 XVARS_TABLE:
@@ -111,7 +105,7 @@ XVARS_TABLE_LOW:
   .byt     <KERNEL_ERRNO
   .byt     KERNEL_MAX_NUMBER_OF_MALLOC
   .byt     CURRENT_VERSION_BINARY      ; Used in untar
-  
+
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
   .byt     >kernel_malloc
@@ -120,5 +114,3 @@ XVARS_TABLE_HIGH:
   .byt     >KERNEL_ERRNO
   .byt     KERNEL_MALLOC_FREE_CHUNK_MAX
   .byt     $00
-  
-  

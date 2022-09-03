@@ -7,12 +7,13 @@
   .error  "XMAINARGS_STRUCT size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
 
-; A : Cut 
+; A : Cut
 
 .out     .sprintf("|MODIFY:TR0:XMAINARGS_ROUTINE")
 .out     .sprintf("|MODIFY:TR1:XMAINARGS_ROUTINE")
-.out     .sprintf("|MODIFY:TR4:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:TR2:XMAINARGS_ROUTINE") ; Because TR1 is used with 16 bits long
 .out     .sprintf("|MODIFY:TR3:XMAINARGS_ROUTINE")
+.out     .sprintf("|MODIFY:TR4:XMAINARGS_ROUTINE")
 .out     .sprintf("|MODIFY:RES:XMAINARGS_ROUTINE")
 .out     .sprintf("|MODIFY:REB:XMAINARGS_ROUTINE")
 .out     .sprintf("|MODIFY:KERNEL_ERRNO:XMAINARGS_ROUTINE")
@@ -22,15 +23,17 @@
 ; Memory modify : RES,RESB,TR0,TR1,TR2,TR3,TR4
 
 
-XMAINARGSC            := TR0 ; 1 byte
-XMAINARGSV            := TR1 ; 2 byte
-XMAINARGS_SPACEFOUND  := TR3 ; 1 byte
-XMAINARGS_MODE        := TR4 ; 1 byte
+XMAINARGSC             := TR0 ; 1 byte
+XMAINARGSV             := TR1 ; 2 byte
+XMAINARGS_SPACEFOUND   := TR3 ; 1 byte
+XMAINARGS_MODE         := TR4 ; 1 byte
+XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
 
 
 .proc XMAINARGS_ROUTINE
 
     sta     XMAINARGS_MODE
+
     ldx     kernel_process+kernel_process_struct::kernel_current_process
 
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
@@ -87,6 +90,7 @@ XMAINARGS_MODE        := TR4 ; 1 byte
     rts
 
 @parse:
+
     ; Compute offsets
     ; Get first offset
     ldy     #XMAINARGS_STRUCT::argv_ptr
@@ -110,6 +114,9 @@ XMAINARGS_MODE        := TR4 ; 1 byte
     lda     #$01       ; 1 because there is at least the binary
     sta     XMAINARGSC ; TR0 contains number of args
 
+    lda     #$00
+    sta     XMAINARGS_DOUBLE_QUOTE
+
     ldy     #$00
 
 @loop:
@@ -118,6 +125,18 @@ XMAINARGS_MODE        := TR4 ; 1 byte
     beq     @out
     cmp     #' '
     beq     @new_arg
+    cmp     #$22 ; Is it '"' ?
+    bne     @not_double_quote
+
+    lda     XMAINARGS_DOUBLE_QUOTE
+    beq     @begin_double_quote
+
+    inc     XMAINARGS_DOUBLE_QUOTE
+
+@begin_double_quote:
+
+
+@not_double_quote:
     ; store the string
     sta     (XMAINARGSV),y
 

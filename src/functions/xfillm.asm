@@ -10,7 +10,7 @@
 	sty RESB
 	pla
 	ldy #$00
-loop:	
+loop:
 	cpy RESB
 	bcs @skip2
 	sta (RES),y
@@ -19,14 +19,14 @@ loop:
 @skip2:
 	pha
 	tya
-	
+
 	ldy #$00
 	jsr XADRES_ROUTINE
 	pla
 	cpx #$00
 	beq @skip
 	ldy #$00
-@L1:	
+@L1:
 	sta (RES),y
 	iny
 	bne @L1
