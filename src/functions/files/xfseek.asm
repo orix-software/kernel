@@ -95,7 +95,6 @@
   ; Y  : TR7
   ; 16 to 31  : RES5 (2 bytes)
 
-;  jsr     _ch376_seek_file32
 
 
   lda     KERNEL_XFSEEK_SAVE_RES

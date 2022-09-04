@@ -34,26 +34,26 @@ periods_note_octave_0:
 ; End of period
 
 XMUSIC_ROUTINE:
-	ldy $4F
-	lda $51
+	ldy $4F ; FIXME
+	lda $51 ; FIXME
 	asl
 	tax
-	LDA periods_note_octave_0,X
-	STA $4F 
-	LDA periods_note_octave_0+1,X
+	lda periods_note_octave_0,X
+	sta $4F  ; FIXME
+	lda periods_note_octave_0+1,X
 Leb68:
-	LSR
-	ROR $4F
-	DEY
-	BPL Leb68
-	STA $50
-	LDX $53
+	lsr
+	ror $4F
+	dey
+	bpl Leb68
+	sta $50
+	ldx $53
 	.byt $2c
 XSOUND_ROUTINE
-	LDX $51
-	TXA
-	BNE Leb7a
-	LDX #$10
+	ldx $51
+	txa
+	bne Leb7a
+	ldx #$10
 Leb7a:
 	LDY $4D
 	DEY

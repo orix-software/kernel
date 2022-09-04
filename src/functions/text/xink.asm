@@ -7,8 +7,8 @@
 ;Principe:A contient la couleur, X la fenêtre ou 128 si mode HIRES et C=1 si la
 ;couleur est pour l'encre, 0 pour le fond.
 ;         Changer la couleur consiste à remplir la colonne couleur correspondante
-;         avec le code de couleur. Auncun test de validit? n'étant fait, on peut 
-;         utiliser ce moyen pour remplir les colonnes 0 et 1 de n'importe quel   
+;         avec le code de couleur. Auncun test de validit? n'étant fait, on peut
+;         utiliser ce moyen pour remplir les colonnes 0 et 1 de n'importe quel
 ;         attribut.
 
   pha               ; on sauve la couleur

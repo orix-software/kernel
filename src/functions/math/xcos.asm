@@ -1,14 +1,14 @@
 .export  XCOS_ROUTINE
 .proc     XCOS_ROUTINE
-  jsr     LF8B1 
+  jsr     LF8B1
   lda     #<CONST_PI_DIVIDED_BY_TWO
   ldy     #>CONST_PI_DIVIDED_BY_TWO
   jsr     AY_add_acc1
   jmp     LF791
 .endproc
 LF8B1
-  jsr     test_if_degree_mode  
-  beq     LF8CC  
+  jsr     test_if_degree_mode
+  beq     LF8CC
 CONST_SIN_AND_COS:
 CONST_PI_DIVIDED_BY_TWO:
   .byt    $81,$49,$0F,$DA,$A2

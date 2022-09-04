@@ -1,10 +1,10 @@
 
 ;                       TRACE UN RECTANGLE EN RELATIF
 
-;Principe:On calcule les coordonnées absolues des 4 coins et on trace en absolu. 
-;         Pas très optimisé en temps tout cela, il aurait été plus simple de     
+;Principe:On calcule les coordonnées absolues des 4 coins et on trace en absolu.
+;         Pas très optimisé en temps tout cela, il aurait été plus simple de
 ;         de tracer directement en relatif !!!
-;         Le rectangle est tracé comme ABOX avec les paramètres dans HRSx.       
+;         Le rectangle est tracé comme ABOX avec les paramètres dans HRSx.
 .proc XBOX_ROUTINE
   clc              ;   C=0
   lda     HRSX     ;   on place les coordonées actuelles

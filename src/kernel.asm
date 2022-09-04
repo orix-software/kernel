@@ -215,10 +215,6 @@ start_rom:
 @L1:
 .endproc
 
-
-
-
-
 next1:
   ldx     #(ADIODB_LENGTH-1) ; Now only 18 ADIODB vectors
 @loop:
@@ -280,7 +276,7 @@ loading_vectors_telemon:
 set_buffers:
 ; this code sets buffers
   ldx     #$00   ; Start from 0
-  jsr     XDEFBU_ROUTINE 
+  jsr     XDEFBU_ROUTINE
 
 
   .ifdef WITH_DEBUG_BOARD
@@ -290,11 +286,10 @@ set_buffers:
 
 skip:
 
- 
   ldx     #$0B                            ; copy to $2F4 12 bytes
 @loop:
   lda     data_vectors_VNMI_IRQVECTOR_VAPLIC,x ; SETUP VNMI, IRQVECTOR, VAPLIC
-  sta     VNMI,x ; 
+  sta     VNMI,x ;
   dex
   bpl     @loop
 
@@ -327,14 +322,14 @@ next5:
 
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
-  
+
   .ifdef WITH_DEBUG_BOARD
   lda     #'E'
   sta     $bb80+4
   .endif
 
   lda     #$82 ; Setup screen !  on channel 0
-  BRK_TELEMON XOP0 
+  BRK_TELEMON XOP0
 
   .ifdef WITH_DEBUG_BOARD
   lda     #'F'
@@ -343,10 +338,10 @@ next5:
 
 
   BRK_TELEMON XRECLK  ; Don't know this vector
-  
+
   bit     FLGRST ; COLD RESET ?
   bpl     telemon_hot_reset  ; no
-  
+
 
   ; display telestrat at the first line
   PRINT str_telestrat
@@ -359,7 +354,7 @@ next5:
 
 
 telemon_hot_reset:
-  
+
 
 don_t_display_telemon_signature:
   lda     #<str_tofix
@@ -414,7 +409,7 @@ display_cursor:
 
 ;init_process_init_in_struct:
  ; ldx     #$00
-;@L1:  
+;@L1:
 ;  lda     str_name_process_kernel,x
   ;beq     @S1
   ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
@@ -1432,17 +1427,17 @@ vectors_telemon:
   .byt     <$00,>$00; 0d
   .byt     <$00,>$00 ; 0e
   .byt     <$00,>$00 ; 0f
-  
-  .byt     <XWR0_ROUTINE,>XWR0_ROUTINE ; ;10  
-  .byt     <$00,>$00  ; 
-  .byt     <$00,>$00 ; 
-  .byt     <$00,>$00 ; 
-; 18  
-  .byt     <XWSTR0_ROUTINE,>XWSTR0_ROUTINE ; 14 
+
+  .byt     <XWR0_ROUTINE,>XWR0_ROUTINE ; ;10
+  .byt     <$00,>$00  ;
   .byt     <$00,>$00 ;
-  .byt     <$00,>$00  ; 
-  .byt     <$00,>$00 
-; 
+  .byt     <$00,>$00 ;
+; 18
+  .byt     <XWSTR0_ROUTINE,>XWSTR0_ROUTINE ; 14
+  .byt     <$00,>$00 ;
+  .byt     <$00,>$00  ;
+  .byt     <$00,>$00
+;
   .byt     <XDECAL_ROUTINE,>XDECAL_ROUTINE  ; $18
   .byt     <XTEXT_ROUTINE,>XTEXT_ROUTINE    ; XTEXT ; 19
   .byt     <XHIRES_ROUTINE,>XHIRES_ROUTINE  ; XHIRES
@@ -1516,7 +1511,7 @@ vectors_telemon:
   .byt     $00,$00 ; $5d
   .byt     $00,$00 ; $5e
   .byt     $00,$00 ; $5f
-  .byt     $00,$00 ; $60 
+  .byt     $00,$00 ; $60
   .byt     $00,$00 ; $61
   .byt     <XFREE_ROUTINE,>XFREE_ROUTINE   ; $62
   .byt     <_XEXEC,>_XEXEC                 ; $63
@@ -1548,7 +1543,7 @@ vectors_telemon:
   .byt     <XRAND_ROUTINE,>XRAND_ROUTINE
   .byt     <XA1A2_ROUTINE,>XA1A2_ROUTINE
   .byt     <XA2A1_ROUTINE,>XA2A1_ROUTINE
-vectors_telemon_second_table:  
+vectors_telemon_second_table:
   .byt     <XIYAA1_ROUTINE,>XIYAA1_ROUTINE
   .byt     <XAYA1_ROUTINE,>XAYA1_ROUTINE
   .byt     <XA1IAY_ROUTINE,>XA1IAY_ROUTINE
@@ -1582,21 +1577,21 @@ vectors_telemon_second_table:
 
 
 display_bar_in_inverted_video_mode:
-  jsr     put_cursor_in_61_x 
+  jsr     put_cursor_in_61_x
   bit     FLGTEL ; Minitel ?
-  bvc     Lccea 
+  bvc     Lccea
   ldx     #$02
-Lccdd  
+Lccdd:
   lda     #$09
   jsr     XWR0_ROUTINE
   dex
-  bpl     Lccdd 
+  bpl     Lccdd
   lda     #$2d
-  jmp     XWR0_ROUTINE 
-Lccea  
-  ldy     ACC1M 
+  jmp     XWR0_ROUTINE
+Lccea:
+  ldy     ACC1M
   ldx     ACC1S
-Lccee  
+Lccee:
   lda     (ADSCR),y
   ora     #$80
   sta     (ADSCR),y
@@ -1611,7 +1606,7 @@ display_x_choice:
   txa
   pha
   pha
-  jsr     put_cursor_in_61_x  
+  jsr     put_cursor_in_61_x
   inx
   lda     ACC2M
   ldy     ACC2M+1
@@ -1622,18 +1617,18 @@ Lcd0c:
   dex
   beq     Lcd20
 Lcd0f:
-  iny 
+  iny
   bne     @skip
   inc     ADDRESS_READ_BETWEEN_BANK+1
 @skip:
   jsr     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
   bne     Lcd0f
-  
+
   iny
   bne     Lcd0c
   inc     ADDRESS_READ_BETWEEN_BANK+1
   bne     Lcd0c
-Lcd20  
+Lcd20:
   ldx     ADDRESS_READ_BETWEEN_BANK+1
   clc
   tya
@@ -2014,7 +2009,7 @@ loop21:
   clc
   adc     #$08
   sta     $1F ; FIXME
-loop20  ; d921
+loop20:  ; d921
   stx     VIA::PRB
 
   inx
@@ -2252,7 +2247,6 @@ LDB66:
 LDB79:
 
 LDB7D:
-
 
 ;                 GESTION DES SORTIES EN MODE TEXT
 
@@ -2520,7 +2514,7 @@ LDD14:
 @S2:
   dec     SCRDX,x   ;   on autorise colonne 0 et 1 <----------------------
   dec     SCRDX,x
-  rts       
+  rts
 LDD43:
   dec     SCRX,x    ;  on ramène le curseur un cran à gauche  <----------
   rts  ;                                                           I
@@ -2590,12 +2584,12 @@ CTRL_I_START:
   bne     LDD8E           ; non, on déplace le curseur
   jsr     CTRL_M_START    ; oui, on revient à la première colonne
 
-;        CODE 10 - CTRL J                              
-                                                                                
-;Action:déplace le curseur vers la droite                                        
+;        CODE 10 - CTRL J
+
+;Action:déplace le curseur vers la droite
 CTRL_J_START:
-  lda     SCRY,x   ;  on est en bas de la fenetre ?                     
-  cmp     SCRFY,x  ;                                                    
+  lda     SCRY,x   ;  on est en bas de la fenetre ?
+  cmp     SCRFY,x  ;
   bne     @skip    ;  non ----------------------------------------------
   lda     SCRDY,x  ;  oui, X et Y contiennent debut et fin de fenetre  I
   ldy     SCRFY,x  ;                                                   I
@@ -2603,78 +2597,78 @@ CTRL_J_START:
   jsr     XSCROH_ROUTINE  ;  on scrolle la fenetre                            I
   jmp     CTRL_M_START    ;  on revient en debut de ligne                     I
 @skip:
-  inc     SCRY,x   ;  on incremente la ligne <-------------------------I 
-  jmp     LDE07    ;  et on ajuste ADSCR                      
+  inc     SCRY,x   ;  on incremente la ligne <-------------------------I
+  jmp     LDE07    ;  et on ajuste ADSCR
 
-;                         CODE 12 - CTRL L                              
+;                         CODE 12 - CTRL L
 
 ;Action:Efface la fenêtre
 CTRL_L_START:
-  jsr     CTRL_HOME_START     ;  on remet le curseur en haut de la fenetre         
+  jsr     CTRL_HOME_START     ;  on remet le curseur en haut de la fenetre
 @loop:
   jsr     CTRL_N_START        ;  on efface la ligne courante
   lda     SCRY,x              ;  on est à la fin de la fenêtre ?
-  cmp     SCRFY,x             ;                                                     
-  beq     CTRL_HOME_START     ;  oui, on sort en replaçant le curseur en haut     
-  jsr     CTRL_J_START        ;  non, on déplace le curseur vers le bas            
-  jmp     @loop               ;  et on boucle  (Et bpl, non ?!?!)                  
+  cmp     SCRFY,x             ;
+  beq     CTRL_HOME_START     ;  oui, on sort en replaçant le curseur en haut
+  jsr     CTRL_J_START        ;  non, on déplace le curseur vers le bas
+  jmp     @loop               ;  et on boucle  (Et bpl, non ?!?!)
 
 ;  CODE 19 - CTRL S
 CTRL_S_START:
   rts
 
 CTRL_R_START:
-  rts        
-  
+  rts
+
 XOUPS_ROUTINE:
-;                             CODE 7 - CTRL G                               
+;                             CODE 7 - CTRL G
 ;
 ;Action:émet un OUPS
 
 CTRL_G_START:
-  ldx     #<XOUPS_DATA                ;   on indexe les 14 données du OUPS                  
-  ldy     #>XOUPS_DATA                                                         
-  jsr     send_14_paramaters_to_psg   ;   et on envoie au PSG                               
-  ldy     #$60                        ;   I                                                 
-  ldx     #$00                        ;   I                                                
+  ldx     #<XOUPS_DATA                ;   on indexe les 14 données du OUPS
+  ldy     #>XOUPS_DATA
+  jsr     send_14_paramaters_to_psg   ;   et on envoie au PSG
+  ldy     #$60                        ;   I
+  ldx     #$00                        ;   I
 @loop:
-  dex               ;    I Délai d'une seconde                             
+  dex               ;    I Délai d'une seconde
   bne     @loop     ;  I
-  dey               ;  I                                                 
-  bne     @loop     ;  I                                                 
-  lda     #$07      ;  un jmp init_printer suffisait ...                        
-  ldx     #$3F                                                         
+  dey               ;  I
+  bne     @loop     ;  I
+  lda     #$07      ;  un jmp init_printer suffisait ...
+  ldx     #$3F
   jmp     XEPSG_ROUTINE
 
 XOUPS_DATA:
-  .byt    $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4) 
+  .byt    $46,00,00,00,00,00;  période 1,12 ms, fréquence 880 Hz (LA 4)
 LDDF6:
-  .byt    00,$3E,$0F,00,00  ;  canal 1, volume 15 musical  
+  .byt    00,$3E,$0F,00,00  ;  canal 1, volume 15 musical
 
 ;                           INITIALISE UNE FENETRE
-;Action:on place le curseur en (0,0) et on calcule son adresse                   
+;Action:on place le curseur en (0,0) et on calcule son adresse
 ;
 CTRL_HOME_START:
-  lda     SCRDX    ;  on prend la première colonne                      
-  sta     SCRX     ;  dans SCRX                                         
-  lda     SCRDY    ;  la première ligne dans                            
+  lda     SCRDX    ;  on prend la première colonne
+  sta     SCRX     ;  dans SCRX
+  lda     SCRDY    ;  la première ligne dans
   sta     SCRY     ;  SCRY
 LDE07:
-  lda     SCRY     ;  et on calcule l'adresse                           
-  jsr     LDE12    ;  de la ligne                                       
-  sta     ADSCR    ;  dans ADSCR                                        
+  lda     SCRY     ;  et on calcule l'adresse
+  jsr     LDE12    ;  de la ligne
+  sta     ADSCR    ;  dans ADSCR
   sty     ADSCR+1  ;
-  rts      
+  rts
 
 ;  CALCULE L'ADRESSE DE LA LIGNE A
 ;Action:En entrée, A contient le numèro de la ligne et en sortie, RES contient
 ;       l'adresse à l'écran de cette ligne.
 
 LDE12:
-  jsr     XMUL40_ROUTINE    ;  RES=A*40                                          
+  jsr     XMUL40_ROUTINE    ;  RES=A*40
   lda     SCRBAL            ;  AY=adresse de la fenêtre
   ldy     SCRBAH
-  jmp     XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne   
+  jmp     XADRES_ROUTINE    ; on calcule dans RES l'adresse de la ligne
 
 XCOSCR_ROUTINE:
   clc
@@ -2719,21 +2713,21 @@ lde53:
 ; Action:inconnue... ne semble pas tre appelée et utilise des variables
 ;       IRQ dont on ne sait rien.
 
-;Note de Jede : oui :  utilisée chercher le label LDECE     
+;Note de Jede : oui :  utilisée chercher le label LDECE
 
 LDECE:
-  bcc      LDED7             ;  si C=0 on passe ------------                      
-  ldx      SCRNB             ;                             I                      
-  jsr      XCOSCR_ROUTINE    ;  on éteint le curseur       I                      
-  pla                        ;  et on sort A de la pile    I                      
-  rts                        ;                             I    
+  bcc      LDED7             ;  si C=0 on passe ------------
+  ldx      SCRNB             ;                             I
+  jsr      XCOSCR_ROUTINE    ;  on éteint le curseur       I
+  pla                        ;  et on sort A de la pile    I
+  rts                        ;                             I
 LDED7:
-  lda      #$01              ;  on met 1 en $216 <----------                      
+  lda      #$01              ;  on met 1 en $216 <----------
   sta      FLGCUR
-  lda      #$80      ; on force b7 à 1 dans $217                         
-  sta      FLGCUR_STATE                                                        
-  pla                ; on sort A                                         
-  rts           ; et on sort    
+  lda      #$80      ; on force b7 à 1 dans $217
+  sta      FLGCUR_STATE
+  pla                ; on sort A
+  rts                ; et on sort
 
   ; text mode  Text mode bytes it will  fill SCRTXT
 data_text_window:
@@ -2868,59 +2862,59 @@ le085:
 
 ;                            GESTION DE LA SOURIS
 
-;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il  
-;       ne s'agit plus avec la souris de gérer un délai de répétition (sauf pour 
-;       les boutons), mais plutot une vitesse de répétition. Dans le buffer      
-;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1. 
+;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il
+;       ne s'agit plus avec la souris de gérer un délai de répétition (sauf pour
+;       les boutons), mais plutot une vitesse de répétition. Dans le buffer
+;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1.
 
 
-  jsr     Ldf99       ;  on lit la valeur souris                         
-  and     #$1B        ;   on isole les directions                           
-  sta     VABKP1      ;   dans VABKP1                                          
-  cmp     #$1B        ;   la souris bouge ?                                 
-  bne     @S1         ;   non ---------------------------------------------- 
+  jsr     Ldf99       ;  on lit la valeur souris
+  and     #$1B        ;   on isole les directions
+  sta     VABKP1      ;   dans VABKP1
+  cmp     #$1B        ;   la souris bouge ?
+  bne     @S1         ;   non ----------------------------------------------
   dec     JCKTAB+7    ;   on déplace ?                                     I
-  bne     Le084       ;   non, on sort.                                    I 
+  bne     Le084       ;   non, on sort.                                    I
 @S1:
   lda     JCKTAB+8    ;  on place vitesse deplacement dans  <--------------
-  sta     JCKTAB+7    ;  $2A4                                              
-  lda     VABKP1      ;   on lit le code                                    
-  cmp     #$1B        ;   souris fixe ?                                     
+  sta     JCKTAB+7    ;  $2A4
+  lda     VABKP1      ;   on lit le code
+  cmp     #$1B        ;   souris fixe ?
   beq     LE0B5       ;  oui ----------------------------------------------
   and     #$1B                         ;    non, on isole les valeurs direction              I
   eor     JCDVAL                       ;    et on retourne les bits de JCDVAL                I
   and     #$1B                         ;    en isolant les bits direction                    I
-  bne     LE0B5                        ;    ce ne sont pas les memes exactement -------------O 
+  bne     LE0B5                        ;    ce ne sont pas les memes exactement -------------O
   dec     MOUSE_JOYSTICK_MANAGEMENT+1  ;    on repete ?                                      I
-  bne     LE0E0  ;    non                                              I 
+  bne     LE0E0                        ;    non                                              I
   ldx     MOUSE_JOYSTICK_MANAGEMENT+8  ;     oui, on met le diviseur répétition               I
-  jmp     LE0BB ;  ---dans le compteur                                 I 
+  jmp     LE0BB                        ;  ---dans le compteur                                 I
 LE0B5:
-  jsr     Ldf99  ; I  on lit la souris <-------------------------------- 
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant répétition   
+  jsr     Ldf99  ; I  on lit la souris <--------------------------------
+  ldx     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant répétition
 LE0BB:
   stx     MOUSE_JOYSTICK_MANAGEMENT+1 ;  -->dans le décompteur
   and     #$1B     ;     on isole les bits de direction
   sta     VABKP1   ;      dans VABKP1:
   lda     JCDVAL   ;     on prend JDCVAL
-  and     #$64 ;      %01100100, on isole les bits de Feu               
-  ora     VABKP1   ;     on ajoute les bits de direction                   
-  sta     JCDVAL   ;    dans JDCVAL                                       
-  lda     VABKP1   ;                                                       
+  and     #$64 ;      %01100100, on isole les bits de Feu
+  ora     VABKP1   ;     on ajoute les bits de direction
+  sta     JCDVAL   ;    dans JDCVAL
+  lda     VABKP1   ;
   ora     #$04     ;     on éteint le feu principal
-  ldx     #$04     ;  
+  ldx     #$04     ;
 Le0d2:
   lsr
-  pha                                                              
-  bcs     LE0DC      ;                                              
-  lda     JCKTAB,x   ; et on envoie les valeurs ASCII dans le buffer     
-  jsr     Le19d      ;                                                    
+  pha
+  bcs     LE0DC      ;
+  lda     JCKTAB,x   ; et on envoie les valeurs ASCII dans le buffer
+  jsr     Le19d      ;
 LE0DC:
   pla
-  dex                                                              
+  dex
   bpl     Le0d2
 LE0E0:
-  rts                                                              
+  rts
 
 Le0e1:
   lda     JCDVAL
@@ -3374,47 +3368,47 @@ Le624:
 
 ;POSITIONNE LE CURSEUR EN X,Y
 
-; Action:positionne le curseur à l'écran et sur le minitel s'il est actif en tant 
+; Action:positionne le curseur à l'écran et sur le minitel s'il est actif en tant
 ; que sortie vidéo.
 
 Le62a:
   lda     #$1F       ; on envoie un US
-  jsr     Le648                                                     
-  tya                ;  on envoie Y+64                                    
-  ora     #$40                                                         
-  jsr     Le648                                                    
-  txa                ;   et X+64                                           
-  ora     #$40                                                         
+  jsr     Le648
+  tya                ;  on envoie Y+64
+  ora     #$40
+  jsr     Le648
+  txa                ;   et X+64
+  ora     #$40
   jsr     Ldbb5
-.ifdef WITH_MINITEL                                                         
-  bit     FLGTEL     ; mode minitel ?                                    
-  bvc     @S1        ; non                                              
-  inx                ; on ajoute une colonne                             
-  txa                ; dans A                                            
-  dex                ; et on revient en arrière                          
-  ora     #$40       ;  on ajoute 40                                      
+.ifdef WITH_MINITEL
+  bit     FLGTEL     ; mode minitel ?
+  bvc     @S1        ; non
+  inx                ; on ajoute une colonne
+  txa                ; dans A
+  dex                ; et on revient en arrière
+  ora     #$40       ;  on ajoute 40
   jmp     LE656      ;  et on envoie au minitel
 .endif
 @S1:
   rts
 
-;                   ENVOIE UN CODE SUR LE TERMINAL VIDEO                    
+;                   ENVOIE UN CODE SUR LE TERMINAL VIDEO
 
-;Action:envoie un code sur l'écran et éventuellement sur le minitel s'il est     
-;       actif comme sortie vidéo. Seule la fenêtre 0 est gérée, ce qui ote       
-;       définitivement tout espoir de gestion d'entrée de commande sur une autre 
-;       fenêtre.                                                                 
+;Action:envoie un code sur l'écran et éventuellement sur le minitel s'il est
+;       actif comme sortie vidéo. Seule la fenêtre 0 est gérée, ce qui ote
+;       définitivement tout espoir de gestion d'entrée de commande sur une autre
+;       fenêtre.
 
 Le648:
-  bit     Le648    ;  V=0 et N=0 pour écriture <------------------------ 
-  jmp     output_window0    ;  dans la fenêtre 0                               
+  bit     Le648             ;  V=0 et N=0 pour écriture <------------------------
+  jmp     output_window0    ;  dans la fenêtre 0
 
 
-;                 ENVOIE UN CODE AU BUFFER SERIE SORTIE                    
+;                 ENVOIE UN CODE AU BUFFER SERIE SORTIE
 
 LE656:
   sta     TR0              ;  on sauve le code <--------------------------------
-  tya                  ;  on sauve Y                                       I
+  tya                      ;  on sauve Y                                       I
   pha                  ;                                                   I
   txa                  ;  et X                                             I
   pha                  ;                                                   I
@@ -3486,25 +3480,25 @@ Le7c0:
 
 hires_put_coordinate:
   sty     HRSY            ;     Y dans HRSY
-  stx     HRSX            ;     X dans HRSX                                       
-  tya                     ;     et Y dans A                                       
-  ldy     #$00            ;     AY=A, ligne du curseur                            
-  jsr     XMUL40_ROUTINE  ;     on calcule 40*ligne                            
-  sta     ADHRS           ;                                           
-  clc                                                              
-  tya                                                              
-  adc     #$A0            ;    et on ajoute $A000, écran HIRES                   
-  sta     ADHRS+1         ;    dans ADHRS                                        
-  stx     RES             ;    on met la colonne dans RES                        
+  stx     HRSX            ;     X dans HRSX
+  tya                     ;     et Y dans A
+  ldy     #$00            ;     AY=A, ligne du curseur
+  jsr     XMUL40_ROUTINE  ;     on calcule 40*ligne
+  sta     ADHRS           ;
+  clc
+  tya
+  adc     #$A0            ;    et on ajoute $A000, écran HIRES
+  sta     ADHRS+1         ;    dans ADHRS
+  stx     RES             ;    on met la colonne dans RES
   lda     #$06            ;    A=6
-  ldy     #$00            ;    et Y=0  (dans RES+1)                              
-  sty     RES+1           ;    AY=6 et RES=colonne                               
-  jsr     XDIVIS_ROUTINE  ;    on divise la colonne par 6                       
-  lda     RES             ;    on sauve colonne/6 dans HSRX40                    
+  ldy     #$00            ;    et Y=0  (dans RES+1)
+  sty     RES+1           ;    AY=6 et RES=colonne
+  jsr     XDIVIS_ROUTINE  ;    on divise la colonne par 6
+  lda     RES             ;    on sauve colonne/6 dans HSRX40
   sta     HRSX40          ;
-  lda     RESB            ;     et le reste dans HRSX6                            
-  sta     HRSX6           ;                                                        
-  rts                     ;    
+  lda     RESB            ;     et le reste dans HRSX6
+  sta     HRSX6           ;
+  rts                     ;
 
 ; These 3 includes must be kept together
 .include "functions/graphics/xbox.asm" ; don't move this include
@@ -3537,29 +3531,29 @@ Le921:
 ;Action:Vérifie si l'adressage relatif du curseur est dans les limites de l'écran
 ;       HIRES, soit si 0<=X+dX<240 et 0<=Y+dY<200.
 check_relative_parameters:
-  clc                                                              
-  lda      HRSX     ;   on prend HRSX                                     
-  adc      HRS1     ;   plus le déplacement horizontal                    
-  tax               ;   dans X                                            
   clc
-  lda      HRSY     ;   HRSY                                              
-  adc      HRS2     ;   plus le déplacement vertical                      
-  tay               ;   dans Y           
+  lda      HRSX     ;   on prend HRSX
+  adc      HRS1     ;   plus le déplacement horizontal
+  tax               ;   dans X
+  clc
+  lda      HRSY     ;   HRSY
+  adc      HRS2     ;   plus le déplacement vertical
+  tay               ;   dans Y
 
-;                       TESTE SI X ET Y SONT VALIDES                        
-; Principe:Si X>239 ou Y>199 alors on ne retourne pas au programme appelant, mais son appelant, en indiquant l'erreur dans HRSERR.                     
+;                       TESTE SI X ET Y SONT VALIDES
+; Principe:Si X>239 ou Y>199 alors on ne retourne pas au programme appelant, mais son appelant, en indiquant l'erreur dans HRSERR.
 
 hires_verify_position:
   cpx     #$F0     ;    X>=240
-  bcs     @skip    ;    oui ---------------------------------------------- 
+  bcs     @skip    ;    oui ----------------------------------------------
   cpy     #$C8     ;    Y>=200                                         I
   bcs     @skip    ;    oui ---------------------------------------------O
   rts              ;    coordonnées ok, on sort.                         I
 @skip:
   pla              ;   on dépile poids fort (>0) <-----------------------
-  sta     HRSERR   ;   dans HRSERR                                       
-  pla              ;   et poids faible de l'adresse de retour            
-  rts              ;   et on retourne a l'appelant de l'appelant    
+  sta     HRSERR   ;   dans HRSERR
+  pla              ;   et poids faible de l'adresse de retour
+  rts              ;   et on retourne a l'appelant de l'appelant
 
 
 
@@ -3572,24 +3566,24 @@ XINK_ROUTINE:
 
 ;                    FIXE LA COULEUR DE FOND OU DU TEXTE
 
-;Principe: A contient la couleur, X la fenêtre ou 128 si mode HIRES et C=1 si la  
-;couleur est pour l'encre, 0 pour le fond.                              
+;Principe: A contient la couleur, X la fenêtre ou 128 si mode HIRES et C=1 si la
+;couleur est pour l'encre, 0 pour le fond.
 ;         Changer la couleur consiste à remplir la colonne couleur correspondante
-;         avec le code de couleur. Auncun test de validité n'étant fait, on peut 
-;         utiliser ce moyen pour remplir les colonnes 0 et 1 de n'importe quel   
-;         attribut.                                                              
+;         avec le code de couleur. Auncun test de validité n'étant fait, on peut
+;         utiliser ce moyen pour remplir les colonnes 0 et 1 de n'importe quel
+;         attribut.
 
-  pha               ; on sauve la couleur                               
-  php               ; et C                                              
-  stx     RES       ; fenêtre dans RES                                  
-  bit     RES       ; HIRES ?                                           
-  bmi     LE9A7     ; oui ---------------------------------------------- 
+  pha               ; on sauve la couleur
+  php               ; et C
+  stx     RES       ; fenêtre dans RES
+  bit     RES       ; HIRES ?
+  bmi     LE9A7     ; oui ----------------------------------------------
   stx     SCRNB     ; TEXT, on met le numero de fenètre dans $28       I
-  bcc     @S2       ; si C=0, c'est PAPER                              I 
+  bcc     @S2       ; si C=0, c'est PAPER                              I
   sta     SCRCT,x   ;  on stocke la couleur d'encre                     I
-  bcs     @S1       ;  si C=1 c'est INK                                 I 
+  bcs     @S1       ;  si C=1 c'est INK                                 I
 @S2:
-  sta     SCRCF,x   ;  ou la couleur de fond  
+  sta     SCRCF,x   ;  ou la couleur de fond
 @S1:
   lda     FLGSCR    ;  est on en 38 colonnes ?                          I
   and     #$10      ;                                                   I
@@ -3618,27 +3612,27 @@ LE987:
 LE9A7:
   lda     #$00              ;  <----------------------------------------------+-- FIXME 65C02
   ldx     #$A0              ;                                                 I
-  sta     RES               ;  RES=$A000 , adresse HIRES                      I  
-  stx     RES+1             ;                                                  I  
-  ldx     #$C8              ;   X=200 pour 200 lignes                          I  
-  lda     #$00              ;   A=0 pour colonne de début = colonne 0          I  
+  sta     RES               ;  RES=$A000 , adresse HIRES                      I
+  stx     RES+1             ;                                                  I
+  ldx     #$C8              ;   X=200 pour 200 lignes                          I
+  lda     #$00              ;   A=0 pour colonne de début = colonne 0          I
 LE9B3:
-  plp                       ;   on sort C <-------------------------------------  
-  adc     #$00              ;   A=A+C                                             
+  plp                       ;   on sort C <-------------------------------------
+  adc     #$00              ;   A=A+C
   tay                       ;    dans Y
   pla                       ;    on sort le code                                   *
 LE9B8:
-  sta     (RES),y           ; -->on le place dans la colonne correspondante        
-  pha                       ; I  on le sauve                                       
-  clc                       ; I                                                    
-  lda     RES               ; I  on passe 28 colonnes                              
+  sta     (RES),y           ; -->on le place dans la colonne correspondante
+  pha                       ; I  on le sauve
+  clc                       ; I
+  lda     RES               ; I  on passe 28 colonnes
   adc     #$28              ;I  (donc une ligne)
-  sta     RES               ;I                                                    
-  bcc     @S1               ; I                                                    
-  inc     RES+1             ; I                                                    
+  sta     RES               ;I
+  bcc     @S1               ; I
+  inc     RES+1             ; I
 @S1:
-  pla                       ; I  on sort le code                                   
-  dex                       ; I  on compte X lignes                                
+  pla                       ; I  on sort le code
+  dex                       ; I  on compte X lignes
   bne     LE9B8             ;---
   rts                       ;   et on sort----------------------------------------
 
@@ -3834,8 +3828,6 @@ _strcpy:
 
 .include  "functions/process/kernel_exec_from_storage.asm"
 .include  "functions/files/XOPEN.asm"
-
-
 
 add_0_5_A_ACC1:
   lda     #<const_zero_dot_half
@@ -4782,20 +4774,20 @@ LF55F:
   and     #$80
   tax
   cpy     #$24
-  bne     LF533 
+  bne     LF533
   ldy     FLSVY
 LF58A:
   lda     $0100,y
   DEY
   cmp     #$30
-  beq     LF58A 
+  beq     LF58A
   cmp     #$2E
   beq     @S1
   iny
 @S1:
   lda     #$2B
   ldx     FLDT1
-  beq     LF5CB 
+  beq     LF5CB
   bpl     LF5A7
   lda     #$00
   sec
@@ -4812,15 +4804,15 @@ LF5A7:
 LF5B3:
   inx
   sbc     #$0A
-  bcs     LF5B3 
+  bcs     LF5B3
   adc     #$3A
   sta     $0104,y
   txa
   sta     $0103,y
-  
+
   lda     #$00
   sta     $0105,y
-  beq     LF5D0 
+  beq     LF5D0
 LF5C8:
   sta     $0100,y
 LF5CB:
@@ -4831,20 +4823,19 @@ LF5D0:
   ldy     #$01
   rts
 
-  
 const_for_decimal_convert:
-const_one_billion  
+const_one_billion:
   .byt     $9e,$6E,$6B,$28,$00 ; 1 000 000 000  float
 const_999_999_999:
   .byt     $9e,$6e,$6b,$27,$FD ; 999 999 999
 const_999_999_dot_9
   .byt     $9b,$3e,$bc,$1f,$FD ; 999 999.9
-const_zero_dot_half  
-  .byt     $80,$00,$00,$00,$00 ; 0.5 
+const_zero_dot_half:
+  .byt     $80,$00,$00,$00,$00 ; 0.5
 const_negative_100_000_000 ; 32 bits binary signed
   .byt     $FA,$0A,$1F,$00
 const_ten_million
-  .byt     $00,$98,$96,$80 ; 10 000 000 
+  .byt     $00,$98,$96,$80 ; 10 000 000
   .byt     $ff,$f0,$BD,$C0 ; -1 000 000
 
   .byt     $00,$01,$86,$a0,$ff,$ff,$d8,$f0,$00,$00,$03
@@ -4854,15 +4845,15 @@ LF609:
 LF60D:
   jmp     Lf042
 
-  
+
 ;.include "functions/math/xsqr.asm"
 
 XA2EA1_ROUTINE:
-  beq     XEXP_ROUTINE  
+  beq     XEXP_ROUTINE
   tsx
   stx     FLSVS
   lda     ACC2E
-  beq     LF60D 
+  beq     LF60D
   ldx     #$80
   ldy     #$00
   jsr     XA1XY_ROUTINE
@@ -4876,17 +4867,17 @@ XA2EA1_ROUTINE:
   tya
   ldy     FLINT
 @S1:
-  jsr     LF379  
+  jsr     LF379
   tya
   pha
-  jsr     LF149  ; 
+  jsr     LF149  ;
   lda     #$80
   ldy     #$00
-  jsr     LF184  
-  jsr     LF68F ; 
+  jsr     LF184
+  jsr     LF68F ;
   pla
   lsr
-  bcc     LF65D  
+  bcc     LF65D
 
 XNA1_ROUTINE:
   ; negative number
@@ -4916,21 +4907,21 @@ XEXP_ROUTINE:
 LF68F:
   lda     #<const_1_divide_ln_2
   ldy     #>const_1_divide_ln_2
-  jsr     LF184 
+  jsr     LF184
   lda     ACC1EX
   adc     #$50
-  bcc     LF69F 
-  jsr     XAA1_ROUTINE 
+  bcc     LF69F
+  jsr     XAA1_ROUTINE
 LF69F:
   sta     TELEMON_UNKNWON_LABEL_7F
-  jsr     LF38A 
+  jsr     LF38A
   lda     ACC1E
   cmp     #$88
   bcc     @S1
 @L1:
-  jsr     LF231 
+  jsr     LF231
 @S1:
-  jsr     XINT_ROUTINE 
+  jsr     XINT_ROUTINE
 
   lda     FLINT
   clc
@@ -4991,25 +4982,24 @@ LF6FB:
   sta     FLPOLP
   ldy     TELEMON_UNKNWON_LABEL_86
 LD70E:
-  jsr     LF184 
+  jsr     LF184
   lda     FLPOLP
   ldy     TELEMON_UNKNWON_LABEL_86
   clc
   adc     #$05
-  bcc     LF71B 
+  bcc     LF71B
   iny
 LF71B:
   sta     FLPOLP
   sty     TELEMON_UNKNWON_LABEL_86
-  jsr     AY_add_acc1  
+  jsr     AY_add_acc1
   lda     #$78
   ldy     #$00
   dec     FLPO0
-  bne     LD70E  
+  bne     LD70E
 LF72A:
   rts
-  
- 
+
 .include "functions/math/xrnd.asm"
 .include "functions/math/xrand.asm"
 
@@ -5019,7 +5009,7 @@ XADNXT_ROUTINE:
 
 
 LF8DB:
-  jsr     LF9FC 
+  jsr     LF9FC
   bcc     LF8E7
   cmp     #$41
   bcc     LF915
@@ -5029,13 +5019,13 @@ LF8E7:
   sbc     #$2F
   cmp     #$10
   bcs     LF915
-  asl   
-  asl    
-  asl    
-  asl    
+  asl
+  asl
+  asl
+  asl
   ldx     #$04
 LF8F3:
-  asl    
+  asl
   rol     MENDDY
   rol     ACC1M
   bcs     LF912
@@ -5053,7 +5043,7 @@ LF8FF:
   bcs     LF912
   bcc     LF8FF
 LF912:
-  jmp     LF0C7 
+  jmp     LF0C7
 
 LF915:
   ldx     #$90
@@ -5062,7 +5052,7 @@ LF915:
   ldx     #$00
   rts
 
-;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;
 XDECA1_ROUTINE:
   sta     RES
   sty     RES+1
@@ -5126,11 +5116,11 @@ LF976:
   jmp     LF0C7
 
 LF985:
-  asl    
-  asl    
+  asl
+  asl
   clc
   adc     FLDT1
-  asl    
+  asl
   clc
   ldy     RESB
   adc     (RES),y
@@ -5202,7 +5192,7 @@ LF9E9:
   eor     ACC1S
   sta     ACCPS
   ldx     ACC1E
-  jmp     XA1PA2_ROUTINE 
+  jmp     XA1PA2_ROUTINE
 LF9FC:
   inc     RESB
 LF9FE:
@@ -5210,7 +5200,7 @@ LF9FE:
   lda     (RES),y
   jsr     XMINMA_ROUTINE
   cmp     #$20
-  beq     LF9FC 
+  beq     LF9FC
   cmp     #$30
   bcc     LFA10
   cmp     #$3A
@@ -5223,10 +5213,10 @@ LFA10:
 
 ; ****** BEGIN CHARSET ********************
 
-.include "functions/charsets/charset_qwerty.asm"  
+.include "functions/charsets/charset_qwerty.asm"
 
 .ifdef WITH_CHARSET_AZERTY
-.include "functions/charsets/charset_azerty.asm"  
+.include "functions/charsets/charset_azerty.asm"
 .endif
 
 .include "functions/charsets/charset.asm"
@@ -5257,7 +5247,7 @@ XGOKBD_ROUTINE:
   adc     #$01
   cmp     #$40
   bne     @loop
- 
+
   lda     RES+1
   sbc     #$03
   sta     TR0
@@ -5276,7 +5266,7 @@ loop70:
   bne     @L1
   inc     RESB+1
 @L1:
-  jsr     routine_to_define_23 
+  jsr     routine_to_define_23
 
   txa
   and     #$C0
@@ -5285,18 +5275,17 @@ loop70:
   beq     @S1
   cmp     #$40
   beq     next76
-  jsr     routine_to_define_23 
-  
-  .byt    $2c 
+  jsr     routine_to_define_23
+
+  .byt    $2c
 @S1:
   ldx     #$00
 
-next76:  
+next76:
   jsr     routine_to_define_23
   bne     loop70
-  
 
-  
+
 routine_to_define_23:
   txa
   and     #$3F
@@ -5346,7 +5335,7 @@ move_chars_hires_to_text:
   ldy     #$0B
   ldx     #$05
 @loop:
-  lda     code_in_order_to_move_chars_tables,y 
+  lda     code_in_order_to_move_chars_tables,y
   sta     DECDEB,x
   dey
   dex
@@ -5409,7 +5398,7 @@ XMALLOC_ROUTINE_ENTER_POINT:
   rts
 
 ; ROutine copied in page 2
-page2_xmalloc_call:  
+page2_xmalloc_call:
   ;sei
   pha
   lda     VIA2::PRA
@@ -5423,7 +5412,7 @@ page2_xmalloc_call:
   sta     VIA2::PRA
   pla
   rts
-page2_xmalloc_call_end:   
+page2_xmalloc_call_end:
 
 .if     page2_xmalloc_call_end-page2_xmalloc_call> 30
   .error  "[page2_xmalloc_call] Not enougth space in page 2"

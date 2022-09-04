@@ -14,7 +14,7 @@
   jsr     LF184
   lda     #<const_3_dot_92_for_rnd_etc
   ldy     #>const_3_dot_92_for_rnd_etc
-  jsr     AY_add_acc1 
+  jsr     AY_add_acc1
 @S1:
   ldx     MENX
   lda     ACC1M
@@ -26,7 +26,7 @@
   sta     ACC1EX
   lda     #$80
   sta     ACC1E
-  jsr     Lf022 
+  jsr     Lf022
   ldx     #$EF ; FIXME
   ldy     #$02 ; FIXME
   jmp     XA1XY_ROUTINE

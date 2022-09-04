@@ -4,33 +4,33 @@
   lda     ACC1S
   pha
   bpl     @L1
-  jsr     XNA1_ROUTINE 
+  jsr     XNA1_ROUTINE
 @L1:
   lda     ACC1E
   pha
   cmp     #$81
   bcc     @L2
   lda     #<const_atn_1
-  ldy     #>const_atn_1 
-  jsr     Lf287 
-@L2:  
-  lda     #<const_coef_atn 
-  ldy     #>const_coef_atn 
+  ldy     #>const_atn_1
+  jsr     Lf287
+@L2:
+  lda     #<const_coef_atn
+  ldy     #>const_coef_atn
   jsr     LF6E1
   pla
-  cmp     #$81 
+  cmp     #$81
   bcc     @L3
-  lda     #<CONST_SIN_AND_COS 
+  lda     #<CONST_SIN_AND_COS
   ldy     #>CONST_SIN_AND_COS
   jsr     ACC2_ACC1
-@L3:  
+@L3:
   pla
   bpl     @L4
   jsr     XNA1_ROUTINE
-@L4:  
-  jsr     test_if_degree_mode 
+@L4:
+  jsr     test_if_degree_mode
   beq     @L5
-  jmp     XDEG_ROUTINE   
+  jmp     XDEG_ROUTINE
 @L5:
   rts
 

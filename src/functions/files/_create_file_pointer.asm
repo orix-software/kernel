@@ -58,12 +58,6 @@
   sta     (KERNEL_XOPEN_PTR1),y
 
 
-  ; set FD
-
-  ;ldy     #_KERNEL_FILE::f_fd      ; get Offset
-  ;lda     kernel_process+kernel_process_struct::kernel_next_fd
-  ;sta     (KERNEL_XOPEN_PTR1),y
-
 
   ; FIXME put readonly/writeonly etc mode
 
@@ -92,16 +86,6 @@
 
 
   jsr     _set_to_0_seek_file
-  ; Set now seek position to 0 ("32 bits")
- ; ldy     #_KERNEL_FILE::f_seek_file
-  ;lda     #$00
- ; sta     (KERNEL_XOPEN_PTR1),y
- ; iny
-  ;sta     (KERNEL_XOPEN_PTR1),y
- ; iny
- ; sta     (KERNEL_XOPEN_PTR1),y
-  ;iny
- ; sta     (KERNEL_XOPEN_PTR1),y
 
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1 ; $7c3

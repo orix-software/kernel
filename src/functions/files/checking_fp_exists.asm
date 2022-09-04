@@ -80,9 +80,7 @@
     iny
     bne     @loop_next_byte
     ; Here we should not reach this part except if there is an overflow
- ;   jsr     restore
-  ;  sec
-  ;  rts
+
 @doesnot_exists:
 
     jsr     restore
