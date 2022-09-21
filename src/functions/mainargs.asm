@@ -87,6 +87,10 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
 
 @out2:
     sta     (XMAINARGSV),y
+
+    lda     RESB
+    ldy     RESB+1
+
     rts
 
 @parse:
