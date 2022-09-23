@@ -5,10 +5,10 @@ RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
 NEXT_STACK_BANK                        := $0418
 MOUSE_JOYSTICK_MANAGEMENT              := $291 ; 12 bytes ?
 i_o_counter                            := $1A ; 1 byte
-i_o_save        := $1B ; 3 bytes ?
-TRANSITION_RS232:= $1E;  3 bytes
+i_o_save                               := $1B ; 3 bytes ?
+TRANSITION_RS232                       := $1E;  3 bytes
 
-FILESYS_BANK := $20C
+FILESYS_BANK                           := $20C
 
 KEYBOARD_COUNTER:=$02A6 ; 4 bytes
 VIA_UNKNOWN     :=$028F ; seems tobe a backup of timer  2 bytes
