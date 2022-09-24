@@ -86,7 +86,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     bne     @loop2
 
 @out2:
-    sta     (XMAINARGSV),y
+    sta     (RESB),y
 
     lda     RESB
     ldy     RESB+1
