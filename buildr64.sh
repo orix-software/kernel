@@ -1,9 +1,9 @@
 #! /bin/bash
 #make
-NAME_TO_BUILD=k2022-2.r64
+NAME_TO_BUILD=k2022-4.r64
 
 cp ../../shell/develop/shellus.rom $NAME_TO_BUILD
-cat basicus1.rom >> $NAME_TO_BUILD
+cat basicus2.rom >> $NAME_TO_BUILD
 cat kernelus.rom >> $NAME_TO_BUILD
 cat ../../empty-rom/empty-rom.rom  >> $NAME_TO_BUILD
 

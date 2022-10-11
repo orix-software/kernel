@@ -9,7 +9,7 @@
   sta     $BB80,X  ; display space on first line in mode text
   dex
   bpl     @loop
-  
+
   ldy     #$11     ; loop with $12 to fill text definitions and Hires
 @L1:
   lda     data_text_window,Y ; data_to_define_2

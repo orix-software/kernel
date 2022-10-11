@@ -9,10 +9,9 @@
     .out     .sprintf("|MODIFY:RESB:checking_fp_exists")
     .out     .sprintf("|MODIFY:TR5:checking_fp_exists")
 
-    tya
-    sta     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
+    sty     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
 
-    txa
+    txa     ; X contains the fp
     sta     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; save fp id
     ; Compute fd index in main fp struct
     sec
@@ -20,13 +19,21 @@
     cmp     #KERNEL_MAX_FP                                         ; Does X is greater than the fp ?
     bcs     @doesnot_exists                                        ; Yes error
 
-    tax
-
-    cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; is equal to 0 ? No opened files yet ...
+     ; When orix boots, kernel_fd_opened is equal to $FF, if the fd passed into arg is the same than kernel_fd_opened it means that we don't need to close and store
+    cmp     kernel_process+kernel_process_struct::kernel_fd_opened
     beq     @do_not_seek
 
+
+    ldx     kernel_process+kernel_process_struct::kernel_fd_opened
+    cpx     #$FF ; First file opened when orix boots ?
+    bne     @store_and_seek
+
+    sta     kernel_process+kernel_process_struct::kernel_fd_opened
+    jmp     @do_not_seek
+@store_and_seek:
+
     ; store the new fd to open
-    stx     kernel_process+kernel_process_struct::kernel_fd_opened
+    sta     kernel_process+kernel_process_struct::kernel_fd_opened
     ; At this step we can store the seek of the file
     ; close current file
 
@@ -53,7 +60,7 @@
     lda     #'/'
     sta     CH376_DATA
 
-    jsr     send_0_to_ch376_and_open
+    jsr     @send_0_to_ch376_and_open
 
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
@@ -62,7 +69,7 @@
 
     ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
 @loop_next_byte:
-
+    ;jmp     @loop_next_byte
     lda     (KERNEL_XOPEN_PTR1),y
 
     beq     @send_end_out
@@ -73,9 +80,7 @@
     iny
     bne     @loop_next_byte
     ; Here we should not reach this part except if there is an overflow
-    jsr     restore
-    sec
-    rts
+
 @doesnot_exists:
 
     jsr     restore
@@ -90,8 +95,10 @@
     rts
 
 @send:
+    iny
     sty     TR5
-    jsr     send_0_to_ch376_and_open
+
+    jsr     @send_0_to_ch376_and_open
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
 
@@ -101,7 +108,7 @@
 
 @send_end_out:
 
-    jsr     send_0_to_ch376_and_open
+    jsr     @send_0_to_ch376_and_open
 
     ldy     #_KERNEL_FILE::f_seek_file
 
@@ -130,11 +137,14 @@
 
     jmp     @do_not_seek
 
-send_0_to_ch376_and_open:
+@send_0_to_ch376_and_open:
     lda     #$00
     sta     CH376_DATA
 
-    jmp     _ch376_file_open ; Open slash
+    jsr     _ch376_file_open ; Open slash
+    rts
+
+    ;jmp     @do_not_seek
 
 restore:
 

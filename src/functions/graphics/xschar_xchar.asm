@@ -45,7 +45,7 @@ LEAB5:
   jsr     hires_put_coordinate
 @S3:
   pla
-  jsr     ZADCHA_ROUTINE 
+  jsr     ZADCHA_ROUTINE
   ldy     #$00
 Lead9:
   sty     RES
@@ -57,14 +57,14 @@ Lead9:
   asl
 Leae4:
   asl
-  beq     Leaf3 
+  beq     Leaf3
   pha
-  bpl     Leaed 
-  jsr     LE79C 
+  bpl     Leaed
+  jsr     LE79C
 Leaed:
-  jsr     XHRSCD_ROUTINE 
+  jsr     XHRSCD_ROUTINE
   pla
-  bne     Leae4 
+  bne     Leae4
 Leaf3:
   jsr     XHRSCB_ROUTINE
   pla
@@ -79,5 +79,4 @@ Leaf3:
   adc     #$05
   tax
   ldy     HRSY
-  jmp     hires_put_coordinate 
-  
+  jmp     hires_put_coordinate

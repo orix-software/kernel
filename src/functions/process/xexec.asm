@@ -71,7 +71,7 @@ next_bank:
 
     jsr     KERNEL_DRIVER_MEMORY
 
-    cmp     #EOK
+    cpy     #EOK
     beq     out1
 
 next:
@@ -104,6 +104,7 @@ check_memory_bank:
     and     #%00100000
     cmp     #%00100000
     beq     read_on_sdcard
+
     lda     #$00
     sta     $343
 
@@ -120,17 +121,20 @@ read_on_sdcard:
     ldy     TR1
     jsr     kernel_try_to_find_command_in_bin_path
 
-    cmp     #EOK
-    beq     out_from_bin
+    cpy     #EOK
+    beq     out2
 
     rts
 
-out_from_bin:
-    lda     KERNEL_KERNEL_XEXEC_BNKOLD
-    sta     BNK_TO_SWITCH
+out2:
+
+    ldy     KERNEL_KERNEL_XEXEC_BNKOLD  ; Use Y or else it override A (return code from binary)
+    sty     BNK_TO_SWITCH
+
 
 out1:
-
+    sta     HRS2
+skip_sta_hrs2:
     lda     kernel_process+kernel_process_struct::kernel_current_process
 
     jsr     kernel_kill_process
@@ -141,13 +145,13 @@ exit:
     sta     BNK_TO_SWITCH
 
     lda     KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM
-
     sta     $342
 
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET
-
     sta     $343
-    lda     #EOK
+
+    ldy     #EOK
+    lda     HRS2        ; Return code
 
     rts
 .endproc

@@ -7,8 +7,6 @@
 .out     .sprintf("|MODIFY:KERNEL_MALLOC_TYPE:kernel_create_process")
 .out     .sprintf("|MODIFY:KERNEL_XKERNEL_CREATE_PROCESS_TMP:kernel_create_process")
 
-
-
 ; [in]     => A & Y : pointer of the string command
 ; [modify] => TR4, TR5, TR7 (XMALLOC), A, X, Y, RESB, RES, KERNEL_ERRNO, kernel_process+kernel_process_struct::kernel_pid_list, KERNEL_MALLOC_TYPE
 ; [out]    => A contains the id of the process created if 0 then error.
@@ -156,11 +154,12 @@ save_command_line:
   iny
   cpy     #KERNEL_LENGTH_MAX_CMDLINE
   bne     @L10
+  lda     #$00    ; Store 0
 @S8:
   sta     (TR4),y
 
   ; Init fp to $00
-  ldy     #kernel_one_process_struct::fp_ptr 
+  ldy     #kernel_one_process_struct::fp_ptr
   lda     #$00
 @L5:
   sta     (RES),y
@@ -170,26 +169,25 @@ save_command_line:
 
   ; Set to "/" cwd of init process
   ; Get the offset
-  ; FIXME cwd_str must be a copy from cwd_str of PPID ! 
+  ; FIXME cwd_str must be a copy from cwd_str of PPID !
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   cpx     #$01  ; First process after init (should be sh)
   beq     @initialize_to_slash
 
-  ldx     kernel_process+kernel_process_struct::kernel_current_process  
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     KERNEL_CREATE_PROCESS_PTR1
   lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sta     KERNEL_CREATE_PROCESS_PTR1+1
 
   ldy     #kernel_one_process_struct::cwd_str
-@loop:  
+@loop:
   lda     (KERNEL_CREATE_PROCESS_PTR1),y
   beq     @out
-  ;lda     #"/"
   sta     (RES),y  ; Store / at the first car
   iny
   bne     @loop
-@out:  
+@out:
   lda     #$00
   sta     (RES),y  ; Store 0 for the last string
 

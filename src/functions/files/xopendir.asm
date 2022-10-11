@@ -13,7 +13,7 @@ CH376_DIR_INFO_READ = $37
 .proc _closedir
    jsr     XCLOSE_ROUTINE
    rts
-.endproc   
+.endproc
 
 .proc      xopendir
    ; A&Y ptr of str
@@ -23,7 +23,7 @@ CH376_DIR_INFO_READ = $37
 
    ; Add /* at the end
    ldy     #$00
-@L1:   
+@L1:
    lda     (RES),y
    beq     @end
    iny
@@ -36,7 +36,7 @@ CH376_DIR_INFO_READ = $37
    sta     (RES),y
    iny
    lda     #$00
-   sta     (RES),y   
+   sta     (RES),y
 
 
    ldy     #O_RDONLY
@@ -104,7 +104,6 @@ CH376_DIR_INFO_READ = $37
 
     lda     #ENOMEM
     sta     KERNEL_ERRNO
-   
 @error:
     lda     #$00
     tax
@@ -173,12 +172,10 @@ go:
     sta     TR0 ; Use to set "."
     jsr     display_catalog
 
-    
+
     ldx     TR7
     cpx     #READDIR_MAX_LINE
     beq     @exit
-
-    
 
     cmp     #CH376_USB_INT_DISK_READ
     beq     @next_entry
@@ -206,7 +203,7 @@ display_catalog:
   ;  bne     @skip
     pha
     lda     TR0
-    bne     @dot_already_stored 
+    bne     @dot_already_stored
     sty     TR0   ; Save pos of the dot
   ;  lda     #'.'
     ;bne     @skip
@@ -227,12 +224,7 @@ display_catalog:
     sta     (RESC),y
 @inc_y:
     iny
-    
-;    cmp     #' '        ; Is it space ?
- ;   bne     @do_not_remove_dot
-    ; Space for extension, do not display dot in this case
-  ;  lda     #$00
-    ;sta     TR0
+
 
 
     cpy     #8+3

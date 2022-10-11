@@ -32,7 +32,7 @@ skip129:
 
     ldy     #$80
     tax
-    
+
     jsr     send_command_A ; Why it sends something in the open channel ?
 
     ldx     work_channel
@@ -41,4 +41,3 @@ skip129:
     sta     IOTAB,x
     clc
     rts
-  

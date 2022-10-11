@@ -30,15 +30,42 @@
 
   clc
   adc     XOPEN_RES
+  bcc     @no_inc_byte2
+  iny
+  clc
+  lda     #$01
+  adc     (KERNEL_XOPEN_PTR1),y
+  dey
+@no_inc_byte2:
   sta     (KERNEL_XOPEN_PTR1),y
 
   iny
   lda     (KERNEL_XOPEN_PTR1),y
   adc     XOPEN_RES+1
+  bcc     @no_inc_byte3
+  iny
+  clc
+  lda     #$01
+  adc     (KERNEL_XOPEN_PTR1),y
+  dey
+@no_inc_byte3:
+
+  sta     (KERNEL_XOPEN_PTR1),y
 
   iny
   lda     (KERNEL_XOPEN_PTR1),y
   adc     #$00
+
+  bcc     @no_inc_byte4
+
+  iny
+  clc
+  lda     #$01
+  adc     (KERNEL_XOPEN_PTR1),y
+  dey
+
+@no_inc_byte4:
+  sta     (KERNEL_XOPEN_PTR1),y
 
   iny
   lda     (KERNEL_XOPEN_PTR1),y

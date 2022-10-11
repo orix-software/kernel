@@ -22,7 +22,7 @@
 
 ; This struct is always present in memory and is allocated by tag. It's the main table for process list
 
-; kernel_pid_list contains the id of the process it means that if the current process is 5, 
+; kernel_pid_list contains the id of the process it means that if the current process is 5,
 
 ; Init struct
 .struct kernel_process_struct
@@ -65,14 +65,14 @@
   kernel_process_addr        .res 2 ; Adress of the program
   ;bank_id                    .res 1
   ;is_rom_command             .res 1 ; 0 is file in memory, else it's ROM (1)
- ; twilighte_register_command .res 1  
+ ; twilighte_register_command .res 1
   .ifdef WITH_KERNEL_PROCESS_UID
  ; uid                        .res 1
   .endif
   .ifdef WITH_KERNEL_PROCESS_GID
   ;gid                        .res 1
   .endif
-.endstruct 
+.endstruct
 
 .out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))
 

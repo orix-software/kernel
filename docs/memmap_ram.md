@@ -59,19 +59,34 @@
 |RAM|<span style="color:green">FREE</span>                           | $5C-$5F     |  2   |
 |RAM|RESG                           | $6E-$6F     |  2   |
 |RAM|<span style="color:green">FREE</span>                           | $8C-$FF     |  115   |
-
 # Page 2
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
-|RAM|KERNEL_XKERNEL_CREATE_PROCESS_TMP | $0203-$0203 |  1   |
+|RAM|KERNEL_ERRNO                   | $0200-$0200 |  1   |
+|RAM|KERNEL_CH376_MOUNT             | $0201-$0201 |  1   |
+|RAM|KERNEL_X<span style="color:green">FREE</span>_TMP             | $0202-$0202 |  1   |
+|RAM|KERNEL_XKERNEL_CREATE_PROCESS_TMP| $0203-$0203 |  1   |
+|RAM|KERNEL_TMP_XEXEC             | $0204-$0204 |  1   |
+|RAM|KERNEL_KERNEL_XEXEC_BNKOLD   | $0205-$0205 |  1   |
+|RAM|KERNEL_MALLOC_TYPE           | $0206-$0206 |  1   |
+|RAM|KERNEL_SAVE_XEXEC_CURRENT_SET| $0207-$0207 |  1   |
+|RAM|KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM| $0208-$0208 |  1   |
+|RAM|KEYBOARD_COUNTER               | $02A6-$02AA |  4   |
 |RAM|<span style="color:green">FREE</span>                           | $020E-$020F |  2   |
-|RAM|IOTAB                          | $02AE-$02B1 |  X   |
-|RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
-|RAM|kernel_xmalloc_call            | $02C8-$02EF |      |
-|RAM|KBDCOL                          | $0268-$0270 |  8   |
+|RAM|<span style="color:green">FREE</span>                           | $020E-$020F |  2   |
+|RAM|TIMED                           | $0210-$0210 |  1   |
+|RAM|TIMES                           | $0211-$0211 |  1   |
+|RAM|TIMEM                           | $0212-$0212 |  1   |
+|RAM|TIMEH                           | $0213-$0213 |  1   |
+|RAM|FLGCLK                          | $0214-$0214 |  1   |
 |RAM|ADSCRL                          | $0218-$021C |  4   |
 |RAM|ADSCRH                          | $021C-$0220 |  4   |
-|RAM|<span style="color:green">FREE</span>                           | $02F0-$02ED | -2   |
+|RAM|KBDCOL                          | $0268-$0270 |  8   |
+|RAM|IOTAB                          | $02AE-$02B1 |  X   |
+|RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
+|RAM|kernel_xmalloc_call            | $02C6-$02ED |      |
+|RAM|FLGSCR                          | $0248-$024C |  4   |
+|RAM|<span style="color:green">FREE</span>                           | $02EE-$02ED | 0   |
 # Page 3
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
@@ -79,19 +94,24 @@
 # Page 4
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
+|RAM|page4 overlay_access       | $0419-$0436 |  54  |
 # Page 5&6
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
-|RAM|BUFNOM                         | $0517-$0525 |      |
-|RAM|Malloc table                   | $0525-$0579 |      |
-|RAM|main kernel process struct     | $0579-$058F |      |
-|RAM|BUFEDT                         | $0590-$05FE |      |
-|RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A3 |      |
-#Kernel bank7
-|ROM|<span style="color:green">FREE</span>                         |$f958-$fff0|   1688   |
+|RAM|BUFNOM                         | $0517-$0525 |  14  |
+|RAM|Malloc table                   | $0525-$0575 |  80    |
+|RAM|main kernel process struct     | $0575-$058B |  22    |
+|RAM|BUFEDT                         | $0590-$05FE |   110   |
+|RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A4 |   166   |
+# Kernel bank 7
+| Type      | Name                         | Range   | Size |
+| :-------- |:---------------------------- |:------- |:-----|
+|ROM|<span style="color:green">FREE</span>                         |$fbdc-$fff0|   1044   |
 #Bank 0
+| Type      | Name                         | Range   | Size |
+| :-------- |:---------------------------- |:------- |:-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f6ce-$f77a |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f77a-$f940 |     |
+|BANK0|XMALLOC (copy from kernel)    | $f898-$f944 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f944-$fbc4 |     |

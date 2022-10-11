@@ -10,7 +10,7 @@ With all the parameter all process could use 494 bytes in memory, if it's alloca
 Memory
 ==================================================================
 KERNEL_MAX_NUMBER_OF_MALLOC (max malloc for all process) : 7
-kernel_malloc_struct size (malloc table)                 : 84 bytes
+kernel_malloc_struct size (malloc table)                 : 80 bytes
 ==================================================================
 File memory
 ==================================================================
@@ -18,11 +18,11 @@ _KERNEL_FILE size (One fp struct) : $38 bytes
 ==================================================================
 Resume
 ==================================================================
-System will need almost 578 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
+System will need almost 574 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
 kernel_malloc_busy_begin : 2ba
 kernel_end_of_variables_before_BUFNOM : 503
-kernel_end_of_variables_before_BUFEDT : 58f
-kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a3
+kernel_end_of_variables_before_BUFEDT : 58b
+kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a4
 |MODIFY:RES:_create_file_pointer
 |MODIFY:KERNEL_ERRNO:_create_file_pointer
 |CALL:XMALLOC:_create_file_pointer
@@ -81,6 +81,14 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:RESB:_XFORK via kernel_create_process
 |MODIFY:TR4:_XFORK via kernel_create_process
 |MODIFY:TR5:_XFORK via kernel_create_process
+|MODIFY:TR0:XMAINARGS_ROUTINE
+|MODIFY:TR1:XMAINARGS_ROUTINE
+|MODIFY:TR2:XMAINARGS_ROUTINE
+|MODIFY:TR3:XMAINARGS_ROUTINE
+|MODIFY:TR4:XMAINARGS_ROUTINE
+|MODIFY:RES:XMAINARGS_ROUTINE
+|MODIFY:REB:XMAINARGS_ROUTINE
+|MODIFY:KERNEL_ERRNO:XMAINARGS_ROUTINE
 |MODIFY:RESB:getFileLength
 |MODIFY:RES:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESB:kernel_try_to_find_command_in_bin_path
@@ -171,14 +179,19 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|KEYBOARD_COUNTER               | $02A6-$02AA |  4   |
 |MEMMAP:RAM|FREE                           | $020E-$020F |  2   |
 |MEMMAP:RAM|FREE                           | $020E-$020F |  2   |
-|MEMMAP:RAM|IOTAB                          | $02AE-$02B1 |  X   |
-|MEMMAP:RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
-|MEMMAP:RAM|kernel_xmalloc_call            | $02C8-$02EF |      |
-|MEMMAP:RAM|KBDCOL                          | $0268-$0270 |  8   |
+|MEMMAP:RAM|TIMED                           | $0210-$0210 |  1   |
+|MEMMAP:RAM|TIMES                           | $0211-$0211 |  1   |
+|MEMMAP:RAM|TIMEM                           | $0212-$0212 |  1   |
+|MEMMAP:RAM|TIMEH                           | $0213-$0213 |  1   |
+|MEMMAP:RAM|FLGCLK                          | $0214-$0214 |  1   |
 |MEMMAP:RAM|ADSCRL                          | $0218-$021C |  4   |
 |MEMMAP:RAM|ADSCRH                          | $021C-$0220 |  4   |
+|MEMMAP:RAM|KBDCOL                          | $0268-$0270 |  8   |
+|MEMMAP:RAM|IOTAB                          | $02AE-$02B1 |  X   |
+|MEMMAP:RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
+|MEMMAP:RAM|kernel_xmalloc_call            | $02C6-$02ED |      |
 |MEMMAP:RAM|FLGSCR                          | $0248-$024C |  4   |
-|MEMMAP:RAM|FREE                           | $02F0-$02ED | -2   |
+|MEMMAP:RAM|FREE                           | $02EE-$02ED | 0   |
 |#MEMMAP: Page 3
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
@@ -190,20 +203,20 @@ CALL:XOPEN:XRM_ROUTINE
 |#MEMMAP: Page 5&6
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
-|MEMMAP:RAM|BUFNOM                         | $0517-$0525 |      |
-|MEMMAP:RAM|Malloc table                   | $0525-$0579 |      |
-|MEMMAP:RAM|main kernel process struct     | $0579-$058F |      |
-|MEMMAP:RAM|BUFEDT                         | $0590-$05FE |      |
-|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A3 |      |
+|MEMMAP:RAM|BUFNOM                         | $0517-$0525 |  14  |
+|MEMMAP:RAM|Malloc table                   | $0525-$0575 |  80    |
+|MEMMAP:RAM|main kernel process struct     | $0575-$058B |  22    |
+|MEMMAP:RAM|BUFEDT                         | $0590-$05FE |   110   |
+|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A4 |   166   |
 |#MEMMAP: Kernel bank 7
-| Type      | Name                         | Range   | Size |
-| :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fb3f-$fff0|   1201   |
+|MEMMAP: Type      | Name                         | Range   | Size |
+|MEMMAP: :-------- |:---------------------------- |:------- |:-----|
+|MEMMAP:ROM|FREE                         |$fbdc-$fff0|   1044   |
 |#MEMMAP:Bank 0
-| Type      | Name                         | Range   | Size |
-| :-------- |:---------------------------- |:------- |:-----|
+|MEMMAP: Type      | Name                         | Range   | Size |
+|MEMMAP: :-------- |:---------------------------- |:------- |:-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f7fb-$f8a7 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $f8a7-$fb27 |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f898-$f944 |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $f944-$fbc4 |     |

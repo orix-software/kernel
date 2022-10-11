@@ -1,5 +1,6 @@
 .proc compute_fp_struct
-  ; X contains the fd id
+
+  ; A contains the fd id
   sec
   sbc     #KERNEL_FIRST_FD
   asl

@@ -2,7 +2,7 @@ init_joystick:
   lda     #%01000001 ; SET mouse and joystick flag
   sta     FLGJCK
 ; init JCKTAB values
-  ldx     #$06 ; 7 bytes 
+  ldx     #$06 ; 7 bytes
 @loop:
   lda     telemon_values_for_JCKTAB,X ; data_to_define_3
   sta     JCKTAB,X

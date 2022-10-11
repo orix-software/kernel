@@ -1,13 +1,13 @@
 .export  XTAN_ROUTINE
 .proc XTAN_ROUTINE
-  jsr     LF8B1 
+  jsr     LF8B1
   jsr     LF348
   lda     #$00
   sta     FLSGN
-  jsr     LF791 
+  jsr     LF791
   ldx     #$80
   ldy     #$00
-  jsr     XA1XY_ROUTINE 
+  jsr     XA1XY_ROUTINE
   lda     #$73
   ldy     #$00
   jsr     XAYA1_ROUTINE

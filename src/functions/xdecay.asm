@@ -1,25 +1,25 @@
-;                        CONVERSION ASCII -> BINAIRE                         
+;                        CONVERSION ASCII -> BINAIRE
 
-;Principe:On lit un ? un les chiffres de la chaine stock?e en AY jusqu'? ce      
+;Principe:On lit un ? un les chiffres de la chaine stock?e en AY jusqu'à ce
 ;qu'on ait plus de chiffres. On multiplie au fur et ? mesure le resultat
-;par 10 avant d'ajouter le chiffre trouv?. Le principe est ais? ?       
-; assimiler et la routine compacte. Un bon exemple d'optimisation.       
-;En sortie, AY et RESB contient le nombre, AY l'adresse de la chaine,   
+;par 10 avant d'ajouter le chiffre trouv?. Le principe est aisee à
+; assimiler et la routine compacte. Un bon exemple d'optimisation.
+;En sortie, AY et RESB contient le nombre, AY l'adresse de la chaine,
 ; et X le nombre de caract?res d?cod?s.
 
 .proc XDECAY_ROUTINE
-                                                                                
-  sta     RES      ;   on sauve l'adresse du nombre                      
-  sty     RES+1    ;    dans RES                                          
-  ldy     #$00     ;    et on met RESB ? 0                                
+
+  sta     RES      ;   on sauve l'adresse du nombre
+  sty     RES+1    ;    dans RES
+  ldy     #$00     ;    et on met RESB ? 0
   sty     RESB
-  sty     RESB+1                                                          
+  sty     RESB+1
 loop:
-  lda     (RES),Y  ;   on lit le code <------------------------------    
-  cmp     #$30     ;   inférieur ? 0 ?                              I    
-  bcc     @S2      ;   oui -----------------------------------------+---- 
-  cmp     #$3A     ;   supérieur ? 9 ?                              I   I
-  bcs     @S2      ;   oui -----------------------------------------+---O 
+  lda     (RES),Y  ;   on lit le code <------------------------------
+  cmp     #$30     ;   inférieur à 0 ?                              I
+  bcc     @S2      ;   oui -----------------------------------------+----
+  cmp     #$3A     ;   supérieur à 9 ?                              I   I
+  bcs     @S2      ;   oui -----------------------------------------+---O
   and     #$0F     ;   on isole le chiffre                          I   I
   pha              ;    dans la pile                                I   I
   asl     RESB     ;    RESB*2                                      I   I
@@ -45,8 +45,8 @@ loop:
   bne     loop     ;     et on recommence  ----------------------------   I
 @S2:
   tya              ;     nombre de chiffres lus <--------------------------
-  tax              ;     dans X                                            
-  lda     RESB     ;     nombre dans AY et RESB                            
-  ldy     RESB+1   ;                                                      
+  tax              ;     dans X
+  lda     RESB     ;     nombre dans AY et RESB
+  ldy     RESB+1   ;
   rts
 .endproc

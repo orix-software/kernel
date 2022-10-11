@@ -5,7 +5,6 @@
 .proc XFREE_ROUTINE
   ; A & Y
 
-
   .out     .sprintf("|MODIFY:RES:XFREE_ROUTINE")
   .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
 
@@ -96,7 +95,7 @@
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
   beq     @free_chunk_is_available
   iny
-  cpy     #KERNEL_MALLOC_FREE_FRAGMENT_MAX
+  cpy     #KERNEL_MALLOC_FREE_CHUNK_MAX
   bne     @find_a_free_chunk
   ; Panic
   PRINT   str_can_not_find_any_free_chunk_available

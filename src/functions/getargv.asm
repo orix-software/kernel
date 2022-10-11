@@ -1,7 +1,7 @@
 
 
 ;.struct XMAINARGS_STRUCT
-;argc              .byte    ; number of args 
+;argc              .byte    ; number of args
 ;argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
 ;argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 ;.endstruct
@@ -21,11 +21,9 @@
     adc     RES
     bcc     @S1
     inc     RESB+1
-@S1:    
+@S1:
     ldy     RESB+1
     ; A & Y return ptr of the param
 
 	rts
-.endproc        
-
-
+.endproc

@@ -32,5 +32,3 @@ Lc7da:
 	tax
 	lda 	$1D
 	rts
-	
-	

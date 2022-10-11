@@ -43,5 +43,3 @@ FIXME_DUNNO  .res 1
 NEXT_STACK_BANK  .res 1
 VALUE_NEXT_STACK_BANK  .res 1
 .endstruct
-
-
