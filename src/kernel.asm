@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2022.4"
+.define VERSION "2023.1"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
@@ -2271,8 +2271,8 @@ Ldbb5:
   tya              ; Save Y
   pha
 
-  ldx     SCRNB     ; Get the id of the window
-  lda     ADSCRL  ; get address of the window
+  ldx     SCRNB    ; Get the id of the window
+  lda     ADSCRL   ; get address of the window
   sta     ADSCR
   lda     ADSCRH
   sta     ADSCR+1
