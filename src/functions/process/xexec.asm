@@ -73,6 +73,7 @@ next_bank:
 
     cpy     #EOK
     beq     out1
+    ;bne     read_on_sdcard
 
 next:
     ; Here continue

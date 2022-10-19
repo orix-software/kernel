@@ -106,12 +106,12 @@
 # Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fbdc-$fff0|   1044   |
+|ROM|<span style="color:green">FREE</span>                         |$fbe5-$fff0|   1035   |
 #Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f898-$f944 |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f944-$fbc4 |     |
+|BANK0|XMALLOC (copy from kernel)    | $f8a1-$f94d |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f94d-$fbcd |     |

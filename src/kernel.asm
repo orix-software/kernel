@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2023.1"
+.define VERSION "2022.4.1"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
@@ -676,7 +676,7 @@ str_telestrat:
   .byte     "CPU:65C02"
 .p02
 .else
-  .byte     "   CPU:6502"
+  .byte     " CPU:6502"
 .endif
   .byt     $00 ; end of string
 
@@ -723,9 +723,11 @@ XTSTBU_ROUTINE:
 skip2003:
   sec
   jmp     ORIX_MEMORY_DRIVER_ADDRESS+9
+
 XLISBU_ROUTINE:
   bit     XLISBU_ROUTINE
   bvc     skipme2002
+
 XECRBU_ROUTINE:
   bit     loading_vectors_page_4
 skipme2002:
@@ -1015,9 +1017,9 @@ LC691:
   bcc     LC697
   iny
 LC697:
-  cmp     BUFBUF+2,x ; FIXME
+  cmp     BUFBUF+2,x
 
-  sta     IRQSVP ; FIXME
+  sta     IRQSVP
 
 routine_to_define_16:
   tya
@@ -1057,7 +1059,6 @@ routine_to_define_16:
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
 .endif
-
 
 send_command_A:
   sty     ADDRESS_VECTOR_FOR_ADIOB
@@ -2137,12 +2138,10 @@ init_keyboard:
   sta     KBDCTC
   rts
 
-
-
 send_14_paramaters_to_psg:
   clc
   .byt    $24
-  ; Use for rambo ?
+  ; Use for rambo
 XSONPS_ROUTINE:
   sec
   php
@@ -2219,15 +2218,11 @@ LDAF7:
 @skip:
 
 
-
-
 Ldb09:
-
   rts
 
 LDB3A:
   bcs     LDB53           ;     C=1 on ferme ==================================  I
-
 
 LDB53:
   rts                     ;     et on sort--------------------------------------
@@ -2237,8 +2232,6 @@ LDB53:
 LDB5D:
   bpl     LDAF7    ;  lecture, voir MINITEL (pourquoi pas $DAF9 ?)
   bcs     Ldb09   ;   C=1, on ferme
-
-
 
 LDB66:
   rts
@@ -2263,7 +2256,6 @@ output_window0:
   pla                 ;  on lit la donnée <
 
 Ldbb5:
-
   sta     SCRNB+1 ; store the char to display
   pha              ; Save A
   txa              ; save X
@@ -2358,8 +2350,8 @@ LDC46:
   tax
   pla
   rts
-Ldc4c:
 
+Ldc4c:
   lda     FLGSCR
   and     #%00001100
   bne     Ldc9a
@@ -2483,7 +2475,7 @@ CTRL_V_START:
 CTRL_P_START:
   ror  ;           on prépare masque %01000000
 
-          ;                    CODE 17 - CTRL Q
+;                    CODE 17 - CTRL Q
 CTRL_Q_START:
 
 LDD13:
@@ -2681,6 +2673,7 @@ XCSSCR_ROUTINE:
   ror     FLGSCR
   bmi     lde53
   lda     #$80
+
 LDE2D:
   and     FLGSCR
   and     #$80
@@ -2850,9 +2843,6 @@ Ldffb:
   dec     MOUSE_JOYSTICK_MANAGEMENT
   ldx     MOUSE_JOYSTICK_MANAGEMENT+6
   ldx     MOUSE_JOYSTICK_MANAGEMENT+7
-
-
-
 
 Le084:
   rts
@@ -3189,16 +3179,18 @@ Le378:
 
   lda     #$00 ; FIXME 65C02
   sta     MENX
-  lsr     ACC1EX ; FIXME label
+  lsr     ACC1EX
+
 Le37e:
-  lda     ACC1S ; FIXME label
+  lda     ACC1S
   jsr     LDE12
-  ldy     ACC1E ; FIXME label
-  lda     ACC1S ; FIXME label
-  cmp     ACC1M ; FIXME label
+  ldy     ACC1E
+  lda     ACC1S
+  cmp     ACC1M
   beq     Le390
   ldx     SCRNB
   ldy     SCRDX,x
+
 Le390:
   lda     (RES),y
   cmp     #$20
@@ -3211,13 +3203,14 @@ Le398:
   lda     #$20
   sta     (RES),y
   bne     Le3b1
-@S1:
 
+@S1:
   inc     MENX
   cpx     ACC1J
   bcc     Le3b1
   dec     MENX
   ror     ACC1EX
+
 Le3b1:
   tya
   iny
@@ -3230,6 +3223,7 @@ Le3b1:
   lda     #$00        ; FIXME 65C02
 
   rts
+
 Le3c5:
   ldx     SCRNB
   cmp     SCRFX,x
@@ -3248,7 +3242,7 @@ display_bufedt_content:
   ldx     SCRNB
   ldy     SCRX,x
 Le3e3:
-  ldx     MENX ; fixme
+  ldx     MENX
 
   beq     Le41c
   lda     #$20
@@ -3432,7 +3426,7 @@ data_for_hires_display
 
 
 XHRSSE_ROUTINE:
-  clc            ;  C=0
+  clc                ;  C=0
   bit     HRS5+1     ;  on fait tourner HRS5+1 sur lui-même
   bpl     @skip      ;   afin de conserver le pattern
   sec
