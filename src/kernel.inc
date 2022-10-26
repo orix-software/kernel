@@ -141,10 +141,8 @@ kernel_debug:
 BUFEDT_END:
 
 KERNEL_DRIVER_MEMORY:
-    .res 170
+    .res 163
 KERNEL_DRIVER_MEMORY_END:
-
-
 
 kernel_end_of_memory_for_kernel:
 
@@ -154,5 +152,3 @@ kernel_end_of_variables_after_BUFEDT:
 .if     kernel_end_of_variables_after_BUFEDT > $7FF
   .error  "Error start of execution program for binary ($800) is written by kernel variables try to move some variables in kernel.inc before $800"
 .endif
-
-

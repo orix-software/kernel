@@ -56,6 +56,7 @@ command_not_found_no_inc:
     lda     (RESB),y
     beq     @add
     bne     command_not_found
+
 @add:
     iny
     tya
@@ -96,9 +97,10 @@ read_command_from_bank_driver_patch1:
 read_command_from_bank_driver_patch2:
     sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
 
-    lda     VIA2::PRA
-    ora     #%00000111                     ; Return to telemon
-    sta     VIA2::PRA
+    lda     #$07              ; Return to telemon
+    jsr     $46a
+
+
     jsr     _XFORK
 
     ; we reached max process to launch ?
@@ -106,9 +108,10 @@ read_command_from_bank_driver_patch2:
     cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
     beq     exit_to_kernel                    ; Yes we reached max process we exit
 
-    lda     VIA2::PRA
-    and     KERNEL_TMP_XEXEC                  ; But select a bank in BNK_TO_SWITCH
-    sta     VIA2::PRA
+    lda     KERNEL_TMP_XEXEC
+    jsr     $46A
+
+
 
     lda     TR0
     ldy     TR1                               ; Send command line in A & Y
@@ -116,9 +119,11 @@ read_command_from_bank_driver_patch2:
 read_command_from_bank_driver_to_patch:
     jsr     VEXBNK
     pha
-    lda     VIA2::PRA
-    ora     #%00000111                        ; Return to kernel
-    sta     VIA2::PRA
+
+    lda     #$07              ; Return to telemon
+    jsr     $46A
+
+
     pla
     ldy     #EOK
 

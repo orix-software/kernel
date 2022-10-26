@@ -102,16 +102,16 @@
 |RAM|Malloc table                   | $0525-$0575 |  80    |
 |RAM|main kernel process struct     | $0575-$058B |  22    |
 |RAM|BUFEDT                         | $0590-$05FE |   110   |
-|RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A4 |   166   |
+|RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A1 |   163   |
 # Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fbe5-$fff0|   1035   |
+|ROM|<span style="color:green">FREE</span>                         |$fbe0-$fff0|   1040   |
 #Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f8a1-$f94d |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f94d-$fbcd |     |
+|BANK0|XMALLOC (copy from kernel)    | $f89a-$f946 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f946-$fbc6 |     |
