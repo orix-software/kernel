@@ -1,4 +1,4 @@
-
+;DEBUG_EXEC_FROM_STORAGE=1
 
 
 
@@ -22,6 +22,11 @@
     sty     RESG+1
 
     jsr     _XFORK
+
+.ifdef DEBUG_EXEC_FROM_STORAGE
+    lda     #'A'
+    sta     $bb80+126
+.endif
 
     lda     RESG
     sta     RES
@@ -109,7 +114,10 @@
 
 @S1:
 
-
+.ifdef DEBUG_EXEC_FROM_STORAGE
+    lda     #$12
+    sta     $bb80+121
+.endif
 
     ldy     #O_RDONLY
     lda     RESE
@@ -165,6 +173,10 @@
     ldy     CH376_DATA
     iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
 
+.ifdef DEBUG_EXEC_FROM_STORAGE
+    lda     #$13
+    sta     $bb80+122
+.endif
 
     ; drop others values
     ldx     CH376_DATA
@@ -180,9 +192,6 @@
 
 
 @out_not_found:
-
-
-
     lda     RESF
     ldy     RESF+1
 
@@ -235,6 +244,11 @@
 
     jsr     XREADBYTES_ROUTINE
 
+.ifdef DEBUG_EXEC_FROM_STORAGE
+    lda     #$14
+    sta     $bb80+123
+.endif
+
     ldy     #$00
     lda     (RESD),y ; fixme 65c02
 
@@ -250,8 +264,6 @@
     cmp     #'!'
     bne     @format_unknown
     ; Shebang here
-
-
 
 @format_unknown:
 ; Don't know the format
@@ -355,7 +367,10 @@
 
 @run:
     jsr     @clean_before_execute
-
+.ifdef DEBUG_EXEC_FROM_STORAGE
+    lda     #$11
+    sta     $bb80+120
+.endif
     jsr     @execute
 
     pha     ; Save return code $91e

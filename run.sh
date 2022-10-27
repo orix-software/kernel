@@ -19,8 +19,8 @@ cl65 -ttelestrat -C  tests/orix-sdk/cfg/telestrat_900.cfg  tests/readdir.c tests
 ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  --verbose -s -ttelestrat  src/kdebug.asm -o kdebugsd.ld65 --debug-info
 ld65 -tnone -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  kdebugsd.ld65 -o kdebug.rom -Ln kdebugsd.sym -m memmap.txt -vm
 
-cp kernel.rom $ORICUTRON_PATH/roms 
-cp kdebug.rom $ORICUTRON_PATH/roms 
+cp kernel.rom $ORICUTRON_PATH/roms
+cp kdebug.rom $ORICUTRON_PATH/roms
 cp multi $ORICUTRON_PATH/sdcard/bin/a
 cp b $ORICUTRON_PATH/sdcard/bin/b
 cd $ORICUTRON_PATH

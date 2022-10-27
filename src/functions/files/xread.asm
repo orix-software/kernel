@@ -89,6 +89,9 @@
 @loop:
   lda     CH376_DATA                ; read the data
   sta     (PTR_READ_DEST),y         ; send data in the ptr address
+.ifdef DEBUG_XREAD
+  ;sta     $7000,y                  ; send DEBUG
+.endif
   iny                               ; inc next ptr addrss
   cpy     TR0                       ; do we read enough bytes
   bne     @loop                     ; no we read
