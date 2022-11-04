@@ -100,7 +100,8 @@
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
-    sta     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+
+    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
 
 
@@ -172,7 +173,7 @@
     jsr     kdebug_save
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
     ldx     #3
 
@@ -181,7 +182,7 @@
     jsr     kdebug_restore
 .endif
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     rts
 .endproc
 

@@ -1,10 +1,10 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2022.4.1"
+.define VERSION "2023.1"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
-ADIODB_LENGTH=$08
+ADIODB_LENGTH = $08
 .define KERNEL_SIZE_IOTAB $04
 
 .include   "telestrat.inc"          ; from cc65
@@ -676,7 +676,7 @@ str_telestrat:
   .byte     "CPU:65C02"
 .p02
 .else
-  .byte     " CPU:6502"
+  .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
@@ -1184,10 +1184,7 @@ Lc91e:
   bne     Lc973
   lda     #$04
   sta     FLGCLK_FLAG
-  bit     FLGLPR
 
-  bpl     @skip
-  jsr     manage_printer
 @skip:
 
 timeud_next:
@@ -1252,15 +1249,14 @@ manage_irq_T1_and_T2:
   ldy     VIA_UNKNOWN+1
   sta     VIA::T2
   sty     VIA::T2+1
-  lda     FLGJCK
-  lsr
-  bcc     routine_todefine_1
-  jmp     LC8B9
+
 
 routine_todefine_1:
   lda     #$FF
   sta     VIA::T2+1
   jmp     LC8B9
+
+
 LC9b9:
   bit     VIA::IFR
 
@@ -1296,19 +1292,11 @@ next110:
 @skip:
   sta     KEYBOARD_COUNTER ;
 next113:
-  bit     FLGJCK
-  bpl     Lca0b
-  jsr     Ldffa
-  bit     FLGJCK
+
 Lca0b:
   bvc     Lca10
 
 Lca10:
-  lda     FLGJCK
-  lsr
-  bcc     @S5
-  jsr     Le0e1
-@S5:
   jmp     LC8B9
 Lca1c:
   jmp     manage_irq_T1_and_T2
@@ -1322,23 +1310,6 @@ next112
 
 .proc manage_printer
   rts     ; Stop printer management
-  ldx     #$24
-  jsr     XLISBU_ROUTINE
-  bcc     @skip
-  asl     FLGLPR ; printer
-  sec
-  ror     FLGLPR ; printer
-  rts
-@skip:
-  sta     VIA::PRA
-  lda     VIA::PRB
-  and     #$EF
-  sta     VIA::PRB
-  ora     #$10
-  sta     VIA::PRB
-  asl     FLGLPR
-  lsr     FLGLPR
-  rts
 .endproc
 
 XDIVIDE_INTEGER32_BY_1024_ROUTINE:
@@ -2187,26 +2158,6 @@ init_printer:
   ldx     #$7F
   jmp     XEPSG_ROUTINE
 
-Lda70:
-  bmi     LDAD2
-@S2:
-  bit     FLGLPR
-  bvs     @S1
-
-  cmp     #$7F
-  bne     @S1
-
-  lda     #$20
-@S1:
-  pha
-  jsr     XECRBU_ROUTINE
-  pla
-  bcs     @S2
-  rts
-LDAD2:
-  rts
-
-
 Ldae1:
   jmp     LDB7D
 
@@ -2827,173 +2778,9 @@ next15:
 
 telemon_values_for_JCKTAB:
   .byt     $0b,$0a,$20,$08,$09,$03,$03
-Ldffa:
-  rts
-Ldffb:
-  lda     JCGVAL
-  jsr     Ldf90
-
-  stx     MOUSE_JOYSTICK_MANAGEMENT+2
 
 
-  lda     JCKTAB
-  jsr     Le19f
-@S3:
 
-  dec     MOUSE_JOYSTICK_MANAGEMENT
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+6
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+7
-
-Le084:
-  rts
-
-le085:
-
-
-;                            GESTION DE LA SOURIS
-
-;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il
-;       ne s'agit plus avec la souris de gérer un délai de répétition (sauf pour
-;       les boutons), mais plutot une vitesse de répétition. Dans le buffer
-;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1.
-
-
-  jsr     Ldf99       ;  on lit la valeur souris
-  and     #$1B        ;   on isole les directions
-  sta     VABKP1      ;   dans VABKP1
-  cmp     #$1B        ;   la souris bouge ?
-  bne     @S1         ;   non ----------------------------------------------
-  dec     JCKTAB+7    ;   on déplace ?                                     I
-  bne     Le084       ;   non, on sort.                                    I
-@S1:
-  lda     JCKTAB+8    ;  on place vitesse deplacement dans  <--------------
-  sta     JCKTAB+7    ;  $2A4
-  lda     VABKP1      ;   on lit le code
-  cmp     #$1B        ;   souris fixe ?
-  beq     LE0B5       ;  oui ----------------------------------------------
-  and     #$1B                         ;    non, on isole les valeurs direction              I
-  eor     JCDVAL                       ;    et on retourne les bits de JCDVAL                I
-  and     #$1B                         ;    en isolant les bits direction                    I
-  bne     LE0B5                        ;    ce ne sont pas les memes exactement -------------O
-  dec     MOUSE_JOYSTICK_MANAGEMENT+1  ;    on repete ?                                      I
-  bne     LE0E0                        ;    non                                              I
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+8  ;     oui, on met le diviseur répétition               I
-  jmp     LE0BB                        ;  ---dans le compteur                                 I
-LE0B5:
-  jsr     Ldf99  ; I  on lit la souris <--------------------------------
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant répétition
-LE0BB:
-  stx     MOUSE_JOYSTICK_MANAGEMENT+1 ;  -->dans le décompteur
-  and     #$1B     ;     on isole les bits de direction
-  sta     VABKP1   ;      dans VABKP1:
-  lda     JCDVAL   ;     on prend JDCVAL
-  and     #$64 ;      %01100100, on isole les bits de Feu
-  ora     VABKP1   ;     on ajoute les bits de direction
-  sta     JCDVAL   ;    dans JDCVAL
-  lda     VABKP1   ;
-  ora     #$04     ;     on éteint le feu principal
-  ldx     #$04     ;
-Le0d2:
-  lsr
-  pha
-  bcs     LE0DC      ;
-  lda     JCKTAB,x   ; et on envoie les valeurs ASCII dans le buffer
-  jsr     Le19d      ;
-LE0DC:
-  pla
-  dex
-  bpl     Le0d2
-LE0E0:
-  rts
-
-Le0e1:
-  lda     JCDVAL
-  and     #$04
-  bne     Le0fa
-  jsr     Ldf99
-  and     #$04
-  bne     Le102
-  dec     MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
-  bne     Le11b
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  jmp     Le102
-Le0fa
-  jsr     Ldf99
-  and     #$04
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
-Le102:
-  sta     VABKP1 ; CORRECTME
-  stx     MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
-  lda     JCDVAL
-  and     #$7B
-  ora     VABKP1
-  sta     JCDVAL
-  lda     VABKP1
-  bne     Le11b
-  lda     JCKTAB ; CORRECTME
-  jsr     Le19d
-Le11b:
-  lda     JCDVAL
-  and     #$20
-  bne     Le137
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  and     #$20
-  bne     Le140
-  dec     MOUSE_JOYSTICK_MANAGEMENT+4 ; CORRECTME
-  bne     Le15b
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
-  jmp     Le140
-Le137:
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
-Le140:
-  stx     MOUSE_JOYSTICK_MANAGEMENT+4 ; CORRECTME
-  and     #$20
-  sta     VABKP1
-  lda     JCDVAL
-  and     #$5F
-  ora     VABKP1
-  sta     JCDVAL
-  and     #$20
-  bne     Le15b
-  lda     JCKTAB+5
-  jsr     Le19d
-Le15b:
-  lda     JCDVAL
-  and     #$40
-  bne     Le177
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  and     #$80
-  bne     Le180
-  dec     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
-  bne     Le19c
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
-  jmp     Le180
-Le177:
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
-Le180:
-  stx     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
-  LSR
-  and     #$40
-  sta     VABKP1
-  lda     JCDVAL
-  and     #$3F ; CORRECTME
-  ora     VABKP1
-  sta     JCDVAL
-  and     #$40
-  bne     Le19c
-  lda     JCKTAB+6 ; CORRECTME
-  jmp     Le19d
-Le19c:
-  rts
-Le19d:
-
-  .byt    $38,$24
 Le19f:
 
   clc

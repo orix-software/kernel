@@ -73,10 +73,10 @@ IOTAB:
 KERNEL_ADIOB:
     .res 8
 kernel_malloc_busy_begin:
-    .tag kernel_malloc_busy_begin_struct
-    .out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
-kernel_malloc_free_size:
-    .tag kernel_malloc_free_chunk_size_struct
+  ;  .tag kernel_malloc_busy_begin_struct
+    ;.out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
+;kernel_malloc_free_size:
+    ;.tag kernel_malloc_free_chunk_size_low_struct
 kernel_xmalloc_call:
     .res 40 ; XMALLOC_ROUTINE_TO_RAM_OVERLAY
 KERNEL_ADIOB_END:
@@ -116,9 +116,14 @@ BUFNOM_END:
 
 kernel_malloc:
     .tag    kernel_malloc_struct
+;kernel_malloc_free_chunk_size_low:
+    ;.tag    kernel_malloc_free_chunk_size_low_struct
+;kernel_malloc_pid:
+ ;   .tag    kernel_malloc_pid_struct
 kernel_malloc_end:
 kernel_process:
     .tag    kernel_process_struct
+
 kernel_process_end:
 kernel_end_of_variables_before_BUFEDT:
 .out     .sprintf("kernel_end_of_variables_before_BUFEDT : %x", kernel_end_of_variables_before_BUFEDT)

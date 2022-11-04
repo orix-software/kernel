@@ -29,19 +29,33 @@ kernel_malloc_busy_chunk_size_low         .res KERNEL_MAX_NUMBER_OF_MALLOC
 
 kernel_malloc_free_chunk_size_high        .res KERNEL_MALLOC_FREE_CHUNK_MAX
 kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
-;kernel_malloc_type                         .res KERNEL_MAX_NUMBER_OF_MALLOC
-.endstruct
 
-.struct kernel_malloc_busy_begin_struct
-kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
-;kernel_malloc_busy_chunk_begin_low        .res KERNEL_MAX_NUMBER_OF_MALLOC
 .endstruct
 
 .struct kernel_malloc_free_chunk_size_struct
   kernel_malloc_free_chunk_size_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
 .endstruct
 
+.struct kernel_malloc_pid_struct
+    kernel_malloc_busy_pid_list               .res KERNEL_MAX_NUMBER_OF_MALLOC ; We store the PID of the malloc
+.endstruct
 
+;.struct kernel_malloc_busy_begin_struct
+  ;kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
+;kernel_malloc_busy_chunk_begin_low        .res KERNEL_MAX_NUMBER_OF_MALLOC
+;.endstruct
+
+
+
+
+.struct kernel_malloc_free_chunk
+kernel_malloc_free_chunk_begin_low        .res KERNEL_MALLOC_FREE_CHUNK_MAX
+kernel_malloc_free_chunk_begin_high       .res KERNEL_MALLOC_FREE_CHUNK_MAX
+kernel_malloc_free_chunk_end_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
+kernel_malloc_free_chunk_end_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
+kernel_malloc_free_chunk_size_high        .res KERNEL_MALLOC_FREE_CHUNK_MAX
+kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
+.endstruct
 
 .out     "=================================================================="
 .out     "Memory"

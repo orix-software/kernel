@@ -82,10 +82,12 @@
 |RAM|ADSCRL                          | $0218-$021C |  4   |
 |RAM|ADSCRH                          | $021C-$0220 |  4   |
 |RAM|KBDCOL                          | $0268-$0270 |  8   |
+|RAM|KBDCTC                          | $027E-$027F |  1   |
+|RAM|<span style="color:green">FREE</span>                            | $027F-$02A9 |  44   |
 |RAM|IOTAB                          | $02AE-$02B1 |  X   |
 |RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
 |RAM|kernel_xmalloc_call            | $02C6-$02ED |      |
-|RAM|FLGSCR                          | $0248-$024C |  4   |
+|RAM|FLGSCR                         | $0248-$024C |  4   |
 |RAM|<span style="color:green">FREE</span>                           | $02EE-$02ED | 0   |
 # Page 3
 |Type     | Name                          | Range       | Size |
@@ -106,12 +108,12 @@
 # Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fbe0-$fff0|   1040   |
+|ROM|<span style="color:green">FREE</span>                         |$fa49-$fff0|   1447   |
 #Bank 0
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |     |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f89a-$f946 |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f946-$fbc6 |     |
+|BANK0|XMALLOC (copy from kernel)    | $f705-$f7b1 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f7b1-$fa31 |     |

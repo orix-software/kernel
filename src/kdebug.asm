@@ -345,7 +345,7 @@ pid:
 
     ldx     #$00
 @loop2:
-    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     beq     @next_chunk2
     lda     #<str_busy
     sta     ACC2M
@@ -356,7 +356,7 @@ pid:
     lda     #'#'
     jsr     xdebug_send_printer
     
-    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     jsr     xdebug_binhex
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     jsr     xdebug_binhex
@@ -378,7 +378,7 @@ pid:
     ; lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x   
     lda     #$0D
     jsr     xdebug_send_printer
-@next_chunk2:         
+@next_chunk2:
     inx
     cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
     bne     @loop2
@@ -429,10 +429,10 @@ str_busy:
 
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES
-    
+
     lda    kernel_debug+kernel_debug_struct::RES+1
     sta    RES+1
-    
+
     lda    kernel_debug+kernel_debug_struct::RESB
     sta    RESB
 
@@ -470,14 +470,14 @@ r0000010:
     jsr    xdebug_send_printer
     rts                   ;done
 hex_table:
-    .byte "0123456789ABCDEF"                  
-.endproc     
+    .byte "0123456789ABCDEF"
+.endproc
 
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
 	
-    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
   
   ; update size

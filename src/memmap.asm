@@ -96,11 +96,15 @@
 .out     .sprintf("|MEMMAP:RAM|KBDCOL                          | $%04X-$%04X |  8   |", KBDCOL,KBDCOL+8)
 
 
+.out     .sprintf("|MEMMAP:RAM|KBDCTC                          | $%04X-$%04X |  1   |", KBDCTC,KBDCTC+1)
+.out     .sprintf("|MEMMAP:RAM|FREE                            | $%04X-$%04X |  %d   |", KBDCTC+1,HRSPAT-1,HRSPAT-KBDCTC)
+
+
 
 .out     .sprintf("|MEMMAP:RAM|IOTAB                          | $%04X-$%04X |  X   |", IOTAB, IOTAB+KERNEL_SIZE_IOTAB-1)
 .out     .sprintf("|MEMMAP:RAM|KERNEL_ADIOB                   | $%04X-$%04X | %d   |", KERNEL_ADIOB,KERNEL_ADIOB+ADIODB_LENGTH-1,KERNEL_ADIOB+ADIODB_LENGTH-KERNEL_ADIOB)
 .out     .sprintf("|MEMMAP:RAM|kernel_xmalloc_call            | $%04X-$%04X |      |", kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY)
-.out     .sprintf("|MEMMAP:RAM|FLGSCR                          | $%04X-$%04X |  4   |", FLGSCR,FLGSCR+4) ; $248
+.out     .sprintf("|MEMMAP:RAM|FLGSCR                         | $%04X-$%04X |  4   |", FLGSCR,FLGSCR+4) ; $248
 
 
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X | %d   |", KERNEL_ADIOB_END,FLGRST-1,FLGRST-KERNEL_ADIOB_END)

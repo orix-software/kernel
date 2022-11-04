@@ -5,6 +5,10 @@
 .define XVARS_KERNEL_ERRNO                4
 .define XVARS_KERNEL_BINARY_VERSION       6 ; used in untar version
 
+.define KERNEL_XVALUES_FREE_MALLOC_TABLE                            $02
+.define KERNEL_XVALUES_BUSY_MALLOC_TABLE                            $07
+.define KERNEL_XVALUES_GET_CURRENT_PROCESSNAME_FROM_ID_MALLOC_TABLE $08
+.define KERNEL_XVALUES_GET_FTELL_FROM_FD                            $0A
 
 .macro  BRK_KERNEL   value
         .byte $00,value
