@@ -22,6 +22,7 @@
 
   lda     RESB
   sta     RES5
+
   lda     RESB+1
   sta     RES5+1
 
@@ -127,8 +128,6 @@
   sta     (KERNEL_XOPEN_PTR1),y
   sta     RESB
 
-
-
   lda     TR0
   ldy     TR7
   ldx     RES5
@@ -139,6 +138,8 @@
 
   lda     #EOK ; Return ok
   rts
+
+
 @go_beginning:
   pha
   ; Seek from the beginning of the file
@@ -171,9 +172,27 @@
 
   jsr     _set_to_0_seek_file
 
-  lda     RES ; Get fd
-  sec
-  sbc     #KERNEL_FIRST_FD
+  ; Add the offset passed in arg into struct
+  ldy     #_KERNEL_FILE::f_seek_file
+  lda     (KERNEL_XOPEN_PTR1),y
+  clc
+  adc     TR0
+  sta     (KERNEL_XOPEN_PTR1),y
+
+  iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  adc     TR7
+  sta     (KERNEL_XOPEN_PTR1),y
+
+  iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  adc     RES5
+  sta     (KERNEL_XOPEN_PTR1),y
+
+  iny
+  lda     (KERNEL_XOPEN_PTR1),y
+  adc     RES5+1
+  sta     (KERNEL_XOPEN_PTR1),y
 
   lda     #EOK ; Return ok
   rts

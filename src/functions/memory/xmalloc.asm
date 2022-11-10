@@ -59,7 +59,7 @@
     jsr     kdebug_restore
 .endif
 
-    cpy     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
+    cpy     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate
 
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
@@ -84,6 +84,7 @@
 @looking_for_busy_chunck_available:
     ; Try to find a place to set the pid value
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+    ;cmp     #$FF ; UNCOMMENT MAX_PROCESS
     beq     @found
     inx
     cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
@@ -132,20 +133,20 @@
 
 
 ;
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
+    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x ; X=3 X=4 $24 $EB
     bcs     @skip3
-    dec     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $561
+    dec     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $561
 @skip3:
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low ; $45 $24
+    sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $45 $24
 
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $561 $84 $84
+    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $561 $84 $84
     sec
     sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x ; $557 X=3
 
     ; FIXME 32 bits
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high ; $84 ; $84
+    sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $84 ; $84
 
     ; Ok now inc the next free memory offset
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low

@@ -195,8 +195,6 @@ out:
 
 .proc xfree_merge_table
 
-
-
   ; add in the free malloc table
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
@@ -209,24 +207,24 @@ out:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   clc
 
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y ; $572
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y ; $572
   bcc     @do_not_inc
   pha
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	 $56B
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	 $56B
   clc
   adc     #$01
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   pla
 @do_not_inc:
 
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
 
   lda     #$00
@@ -259,10 +257,10 @@ out:
   ; update size
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   rts
 .endproc
 
@@ -325,10 +323,10 @@ out:
 
   ; Compute size
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
 
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
 
 ; [lsmem state]
@@ -339,18 +337,18 @@ out:
 ; Busy:#07C1:07F5 #0034
 
   pha
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
   clc
   adc     #$01
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   pla
 @do_not_inc:
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
   jsr     xfree_clear_free_chunk
 
@@ -428,27 +426,27 @@ out:
 
   ; Compute size
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
 
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
 
 
   pha
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
   clc
   adc     #$01
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   pla
 @do_not_inc:
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
   ; X and Y must be set
   jsr     xfree_clear_free_chunk
@@ -520,30 +518,30 @@ out:
 
   ; Compute size
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,y
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
 
 
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
   bcc     @do_not_inc
 
 
   pha
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x ; It should be better here but inc does not manage inc $xx,y	
   clc
   adc     #$01
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   pla
 @do_not_inc:
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
 
 
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,y
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   tya
   tax
   ; X and Y must be set
@@ -570,8 +568,8 @@ out:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
 
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   rts
 .endproc
 

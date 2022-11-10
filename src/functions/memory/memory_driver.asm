@@ -111,8 +111,6 @@ read_command_from_bank_driver_patch2:
     lda     KERNEL_TMP_XEXEC
     jsr     $46A
 
-
-
     lda     TR0
     ldy     TR1                               ; Send command line in A & Y
 

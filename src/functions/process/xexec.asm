@@ -7,7 +7,6 @@
 .out     .sprintf("|MODIFY:BNK_TO_SWITCH:_XEXEC")
 
 
-
 ;PARSE_VECTOR
     ; A & Y contains the string command to execute
     sta     TR0        ; Save string pointer
@@ -76,6 +75,10 @@ next_bank:
     ;bne     read_on_sdcard
 
 next:
+  ;  lda     KERNEL_ERRNO
+  ;  cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
+  ;  beq     out2                    ; Yes we reached max process we exit
+
     ; Here continue
     dec     KERNEL_TMP_XEXEC
 
@@ -125,6 +128,9 @@ read_on_sdcard:
     cpy     #EOK
     beq     out2
 
+    lda     #$00
+    sta     KERNEL_ERRNO
+
     rts
 
 out2:
@@ -151,8 +157,12 @@ exit:
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET
     sta     $343
 
+
+
     ldy     #EOK
     lda     HRS2        ; Return code
+
+
 
     rts
 .endproc

@@ -7,14 +7,11 @@ MOUSE_JOYSTICK_MANAGEMENT              := $291 ; 12 bytes ?
 i_o_counter                            := $1A ; 1 byte
 i_o_save                               := $1B ; 3 bytes ?
 TRANSITION_RS232                       := $1E;  3 bytes
-
 FILESYS_BANK                           := $20C
-
-KEYBOARD_COUNTER:=$02A6 ; 4 bytes
-VIA_UNKNOWN     :=$028F ; seems tobe a backup of timer  2 bytes
-
-ORIX_MEMORY_DRIVER_ADDRESS:=$400
-SWITCH_TO_BANK_ID              :=     $040C
+KEYBOARD_COUNTER                       := $02A6 ; 4 bytes
+VIA_UNKNOWN                            := $028F ; seems tobe a backup of timer  2 bytes
+ORIX_MEMORY_DRIVER_ADDRESS             := $400
+SWITCH_TO_BANK_ID                      := $040C
 ;NEXT_STACK_BANK:=$418
 FIXME_PAGE0_0:=$25
 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
@@ -72,11 +69,8 @@ IOTAB:
     .res 4 ; KERNEL_SIZE_IOTAB
 KERNEL_ADIOB:
     .res 8
-kernel_malloc_busy_begin:
-  ;  .tag kernel_malloc_busy_begin_struct
-    ;.out     .sprintf("kernel_malloc_busy_begin : %x", kernel_malloc_busy_begin)
-;kernel_malloc_free_size:
-    ;.tag kernel_malloc_free_chunk_size_low_struct
+kernel_malloc_free_chunk_size:
+    .tag    kernel_malloc_free_chunk_size_struct
 kernel_xmalloc_call:
     .res 40 ; XMALLOC_ROUTINE_TO_RAM_OVERLAY
 KERNEL_ADIOB_END:
@@ -116,8 +110,9 @@ BUFNOM_END:
 
 kernel_malloc:
     .tag    kernel_malloc_struct
-;kernel_malloc_free_chunk_size_low:
-    ;.tag    kernel_malloc_free_chunk_size_low_struct
+;kernel_malloc_pid_list:
+;    .tag     kernel_malloc_pid_struct
+
 ;kernel_malloc_pid:
  ;   .tag    kernel_malloc_pid_struct
 kernel_malloc_end:

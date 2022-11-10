@@ -21,8 +21,15 @@
   cpx     #$09
   beq     @xvars_get_fd_list_call   ; Used by lsof
 
-  cpx     #KERNEL_XVALUES_GET_FTELL_FROM_FD
+  cpx     #KERNEL_XVALUES_GET_FTELL_FROM_FD  ; $0A
   beq     @xvars_ftell_call   ; Used by lsof
+
+  cpx     #KERNEL_XVALUES_GET_PROCESS_ID_LIST
+  beq     @xvalues_get_process_id_list_call
+
+  cpx     #KERNEL_XVALUES_GET_PROCESS_NAME_WITH_PID
+  beq     @xvalues_get_process_name_with_pid_call
+
 
   cpx     #$00
   bne     @check_who_am_i
@@ -38,12 +45,20 @@
 
   rts
 
+@xvalues_get_process_name_with_pid_call:
+  jmp     xvalues_get_process_name_with_pid
+
+
+@xvalues_get_process_id_list_call:
+  jmp   xvalues_get_process_id_list
+
+
 @xvars_ftell_call:
   jmp     xvars_ftell
 
 @malloc_table_copy:
-  lda     #<(.sizeof(kernel_malloc_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
-  ldy     #>(.sizeof(kernel_malloc_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  lda     #<(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  ldy     #>(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
   jsr     XMALLOC_ROUTINE
 
   sta     RES
@@ -66,8 +81,8 @@
   jmp   xvars_get_fd_list
 
 @malloc_table_busy_copy:
-  lda     #<(.sizeof(kernel_malloc_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
-  ldy     #>(.sizeof(kernel_malloc_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  lda     #<(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  ldy     #>(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
   jsr     XMALLOC_ROUTINE
 
   sta     RES
@@ -128,6 +143,25 @@
   lda     #$01
   rts
 
+.endproc
+
+.proc  xvalues_get_process_name_with_pid
+  ; y the pid
+
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
+  sta     RES
+
+  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
+  ldy     RES
+
+
+  rts
+.endproc
+
+.proc  xvalues_get_process_id_list
+  lda   #<kernel_process+kernel_process_struct::kernel_pid_list
+  ldy   #>kernel_process+kernel_process_struct::kernel_pid_list
+  rts
 .endproc
 
 
@@ -217,12 +251,12 @@ continue:
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   sta     (RES),y
   iny
 
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
   sta     (RES),y
   iny
 
@@ -360,8 +394,9 @@ XVARS_TABLE_LOW:
   .byt     <KERNEL_CONF_BEGIN   ; 3
   .byt     <KERNEL_ERRNO        ; 4
   .byt     KERNEL_MAX_NUMBER_OF_MALLOC ; 5
-  .byt     CURRENT_VERSION_BINARY      ; Used in untar
-  .byte    $00 ; Table low malloc
+  .byt     CURRENT_VERSION_BINARY      ; Used in untar 6
+  .byte    $00 ; Table low malloc 7 
+  .byt     <KERNEL_MAX_PROCESS  ; 8 Used in pstree
 
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
@@ -372,3 +407,4 @@ XVARS_TABLE_HIGH:
   .byt     KERNEL_MALLOC_FREE_CHUNK_MAX
   .byt     $00
   .byt     $00 ; ; Table high
+  .byt     $00 ; KERNEL_MAX _PROCESS

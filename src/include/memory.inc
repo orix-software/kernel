@@ -1,10 +1,9 @@
 ; Number of all CURRENT malloc. If we reached this number, we won't be able to do a new malloc
-.define KERNEL_MAX_NUMBER_OF_MALLOC      7
+.define KERNEL_MAX_NUMBER_OF_MALLOC      9
 .define KERNEL_MALLOC_FREE_CHUNK_MAX     5
 .define KERNEL_MALLOC_MAX_MEM_ADRESS     $B3FF ; We can't do malloc greater than this offset
 
 ; If struct is changed see xvars.
-
 
 .struct kernel_malloc_struct
 kernel_malloc_free_chunk_begin_low        .res KERNEL_MALLOC_FREE_CHUNK_MAX
@@ -27,23 +26,28 @@ kernel_malloc_max_memory_main             .res 1  ; in KB
 kernel_malloc_busy_chunk_size_high        .res KERNEL_MAX_NUMBER_OF_MALLOC
 kernel_malloc_busy_chunk_size_low         .res KERNEL_MAX_NUMBER_OF_MALLOC
 
-kernel_malloc_free_chunk_size_high        .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 
 .endstruct
 
 .struct kernel_malloc_free_chunk_size_struct
-  kernel_malloc_free_chunk_size_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
+  kernel_malloc_free_chunk_size_high        .res KERNEL_MALLOC_FREE_CHUNK_MAX
+  kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 .endstruct
+
+.struct kernel_malloc_busy_chunk_size_struct
+  ;kernel_malloc_busy_chunk_size_high        .res KERNEL_MAX_NUMBER_OF_MALLOC
+  kernel_malloc_busy_chunk_size_low         .res KERNEL_MAX_NUMBER_OF_MALLOC
+.endstruct
+
 
 .struct kernel_malloc_pid_struct
     kernel_malloc_busy_pid_list               .res KERNEL_MAX_NUMBER_OF_MALLOC ; We store the PID of the malloc
 .endstruct
 
-;.struct kernel_malloc_busy_begin_struct
-  ;kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
+.struct kernel_malloc_busy_begin_struct
+  kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
 ;kernel_malloc_busy_chunk_begin_low        .res KERNEL_MAX_NUMBER_OF_MALLOC
-;.endstruct
+.endstruct
 
 
 

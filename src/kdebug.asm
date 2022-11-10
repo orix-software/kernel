@@ -331,9 +331,9 @@ pid:
     jsr     xdebug_send_printer
     lda     #'#'
     jsr     xdebug_send_printer
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
     jsr     xdebug_binhex
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
     jsr     xdebug_binhex
     lda     #$0D
     jsr     xdebug_send_printer
@@ -484,17 +484,17 @@ hex_table:
   
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low
   bcc     @do_not_inc
-  inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high	
+  inc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high	
 @do_not_inc:
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low
 
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
 
 .proc xdebug_send_string_to_printer
 

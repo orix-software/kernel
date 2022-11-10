@@ -246,11 +246,13 @@ loading_vectors_telemon:
   lda     ramoverlay_xfree,x
   sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree+256,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  sta     $2100,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree+256+256,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  sta     $2200,x                     ; used to copy in Overlay RAM ... see  loop40 label
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
+
+
 
   .ifdef WITH_DEBUG_BOARD
   lda     #'T'
@@ -405,18 +407,7 @@ display_cursor:
   sta     kernel_process+kernel_process_struct::kernel_current_process
   ; register init process
   lda     #$01
-  sta     kernel_process+kernel_process_struct::kernel_pid_list
-
-;init_process_init_in_struct:
- ; ldx     #$00
-;@L1:
-;  lda     str_name_process_kernel,x
-  ;beq     @S1
-  ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
- ; inx
-  ;bne     @L1
-;@S1:
-  ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
+  sta     kernel_process+kernel_process_struct::kernel_pid_list ; COMMENT TO HAVE WORKING MAX PROCESS
 
 init_process_init_cwd_in_struct:
   ldx     #$00
@@ -475,10 +466,10 @@ init_process_init_cwd_in_struct:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high
 
   lda     #<(KERNEL_MALLOC_MAX_MEM_ADRESS-kernel_end_of_memory_for_kernel) ; Get the size (free)
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low
 
   lda     #>(KERNEL_MALLOC_MAX_MEM_ADRESS-kernel_end_of_memory_for_kernel)
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
 
 
 
@@ -491,6 +482,7 @@ init_process_init_cwd_in_struct:
 
 init_malloc_busy_table:
   ldx     #KERNEL_MAX_NUMBER_OF_MALLOC
+  ; lda     #$FF ; ; UNCOMMENT MAX_PROCESS
   lda     #$00
 @loop:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
@@ -1249,7 +1241,10 @@ manage_irq_T1_and_T2:
   ldy     VIA_UNKNOWN+1
   sta     VIA::T2
   sty     VIA::T2+1
-
+  ;lda     FLGJCK
+  ;lsr
+  ;bcc     routine_todefine_1
+  ;jmp     LC8B9
 
 routine_todefine_1:
   lda     #$FF
@@ -1680,6 +1675,8 @@ convert_into_decimal_0_to_9999
 
 ; Don't put anything here ...
 
+
+
 XBINDX_ROUTINE:
 .include  "functions/xbindx.asm"
 
@@ -1810,6 +1807,10 @@ XBUSY_ROUTINE:
   plp
   rts
 
+
+
+
+
 table_to_define_prompt_charset:
   .byt     $7F ; char 127
   .byt     $00,$00,$08,$3C,$3E,$3C,$08,$00,$00
@@ -1823,7 +1824,6 @@ table_to_define_prompt_charset_empty:
 .include "functions/xvars.asm"
 
 
-
 .proc _ch376_set_usb_mode_kernel
   lda     #CH376_SET_USB_MODE ; $15
   sta     CH376_COMMAND
@@ -1832,6 +1832,7 @@ table_to_define_prompt_charset_empty:
   sta     CH376_DATA
   rts
 .endproc
+
 
 CTRL_G_KEYBOARD: ; Send oups
   jmp     XOUPS_ROUTINE
