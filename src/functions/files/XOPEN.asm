@@ -1,6 +1,18 @@
 .proc XOPEN_ROUTINE
 
 .out     .sprintf("|MODIFY:RES:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:RESB:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:TR7:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:XOPEN_SAVE:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:XOPEN_FLAGS:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:XOPEN_RES_SAVE:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:XOPEN_SAVEA:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:KERNEL_ERRNO:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:KERNEL_XOPEN_PTR1:XOPEN_ROUTINE")
+
+
+
+
 ; INPUT
 ;     this routine use :
 ;        RES, A X Y, XOPEN_SAVE XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
@@ -22,13 +34,28 @@
   ; O_APPEND        = $40
   ; O_EXCL          = $80
 
-  ; Flag     | File exists | behaviour
-  ; O_WRONLY |    No       | return Null
-  ; O_WRONLY |    Yes      | open and return FD
-  ; O_RDONLY |    Yes      | open and return FD
-  ; O_WRONLY |    No       | return Null
-  ; O_CREAT  |    No       | Create file and open and return FD
-  ; O_CREAT  |    Yes      | open and return FD
+
+; Since kernel 2023.1
+
+  ; Flag               | File exists | behaviour
+  ; O_WRONLY & O_CREAT |    No       | Create file, open and return FD
+  ; O_WRONLY           |    No       | return Null
+  ; O_WRONLY           |    Yes      | open and return FD
+  ; O_RDONLY           |    Yes      | open and return FD
+  ; O_WRONLY           |    No       | return Null
+  ; O_CREAT            |    No       | Create file and open and return FD
+  ; O_CREAT            |    Yes      | open and return FD
+
+; Before kernel 2023.1
+
+  ; Flag               | File exists | behaviour
+  ; O_WRONLY & O_CREAT |    No       | Create file, open and return FD
+  ; O_WRONLY           |    No       | open and return FD
+  ; O_WRONLY           |    Yes      | open and return FD
+  ; O_RDONLY           |    Yes      | open and return FD
+  ; O_WRONLY           |    No       | return Null
+  ; O_CREAT            |    No       | Create file and open and return FD
+  ; O_CREAT            |    Yes      | open and return FD
 
   sta     RES
   stx     RES+1
@@ -256,19 +283,26 @@
 
 @file_not_found:
   ; Checking if filesys is found
-
+ ; jmp     @exit_open_with_null
   lda     FILESYS_BANK
   beq     @filesys_bank_not_found
 
-  ; Flag     | File exists | behaviour
-  ; O_WRONLY |    No       | return Null
-  ; O_WRONLY |    Yes      | open and return FD
-  ; O_RDONLY |    Yes      | open and return FD
-  ; O_WRONLY |    No       | return Null
-  ; O_CREAT  |    No       | Create file and open
-  ; O_CREAT  |    Yes      | Create file and open
+
 
 @filesys_bank_not_found:
+  ; When we have file not found, do we have O_CREATE flag ?
+  lda     XOPEN_FLAGS
+  and     #O_CREAT
+  cmp     #O_CREAT
+  beq     @could_be_created ; Yes, create
+
+; When we have file not found, do we have O_WRONLY flag ?
+  lda     XOPEN_FLAGS ; Get flags
+  and     #O_WRONLY
+  cmp     #O_WRONLY
+  beq     @exit_open_with_null ; yes, return NULL
+
+
   lda     XOPEN_FLAGS ; Get flags
   and     #O_RDONLY
   cmp     #O_RDONLY

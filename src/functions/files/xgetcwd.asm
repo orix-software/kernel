@@ -24,6 +24,5 @@
 
     ldy     RESB+1
 
-
     rts
 .endproc
