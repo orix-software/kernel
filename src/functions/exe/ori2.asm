@@ -14,12 +14,29 @@
 ;	06	    : Inchangé
 .proc compute_all_offset_ORI2
 
-    ldy     RESD+1
+    ; Set the adress in the kernel struct
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+    sta     KERNEL_CREATE_PROCESS_PTR1
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+    sta     KERNEL_CREATE_PROCESS_PTR1+1
+
+    ldy     #kernel_one_process_struct::kernel_process_addr
+    lda     #$00
+    sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741
+    iny
+    ldx     RESD+1
+    inx
+    txa
+    sta     (KERNEL_CREATE_PROCESS_PTR1),y
+
+
+    ldy     RESD+1	; the ptr of the address allocated
     iny
 
-    sty     ORI2_PROGRAM_ADRESS+1
-    sty     ORI2_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet
-    sty     RESE+1                     ; Set address execution
+    sty     ORI2_PROGRAM_ADRESS+1 ; addr $62: $0B
+    sty     ORI2_MAP_ADRESS+1          ; Prepare adresse map but does not compute yet ; $0B
+    sty     RESE+1                     ; Set address execution   ; 0B
     sty     PTR_READ_DEST+1            ; Set address to load the next part of the program
     sty     ORI2_PROGRAM_ADRESS+1
 ;
@@ -79,8 +96,10 @@
     lda     ORI2_PAGE_LOAD            ; offset à appliquer
     beq     rel_end
 
+	; Length map $47
 	ldy     #$00                      ; Au cas ou on parte directement vers "reste"
 	lda     ORI2_LENGTH_MAP+1
+
 	beq     reste
 
 boucle:
@@ -178,11 +197,15 @@ skip82:
 suite2:
 
 	iny
+
 	dec     ORI2_LENGTH_MAP
 	bne     boucle2
 
 rel_end:
 	inc     ORI2_PAGE_LOAD				; On remet la page de chargement à sa valeur initiale
+;  @me:
+;  	jmp		@me
+;  	lda		ORI2_PROGRAM_ADRESS+1
 
 	rts									; Pour utilisation éventuelle par une autre routine
 .endproc
