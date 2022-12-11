@@ -316,9 +316,12 @@
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
     sta     KERNEL_CREATE_PROCESS_PTR1+1
 
-    lda     #$00
+
+
+    ldy     #kernel_one_process_struct::kernel_process_addr
+    lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESE
-    ldy     #kernel_one_process_struct::kernel_process_addr+1
+    iny
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESE+1
 

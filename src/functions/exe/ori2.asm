@@ -21,13 +21,36 @@
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
     sta     KERNEL_CREATE_PROCESS_PTR1+1
 
+
+    ; Get execution address low
+    ldy     #18
+    clc
+    lda     (RESD),y        ; Get execution address low
     ldy     #kernel_one_process_struct::kernel_process_addr
-    lda     #$00
     sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741
-    iny
+
+    ; Gère le cas de l'adresse d'éxecution <> loading adress
+    ; Dans ce cas on prend l'execution adress, et on soustrait
+    ; cela donnera l'offset de poids fort à ajouter
+
+    ldy     #15             ; Get execution address high
+    lda     (RESD),y
+    sta     RESE            ; Use RESE as temp value
+
+    ldy     #19             ; Get execution address high
+    lda     (RESD),y
+    sec
+    sbc     RESE
+    sta     RESE
+
+
+    ldy     #kernel_one_process_struct::kernel_process_addr+1
+
     ldx     RESD+1
     inx
     txa
+    clc
+    adc     RESE
     sta     (KERNEL_CREATE_PROCESS_PTR1),y
 
 
