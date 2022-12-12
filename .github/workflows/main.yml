@@ -90,8 +90,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-          with:
-            ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Set job variables
         id: job_vars
         run: |
