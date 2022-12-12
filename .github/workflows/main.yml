@@ -62,11 +62,11 @@ jobs:
           echo "src/include" >> .git/info/sparse-checkout
           git checkout
           cd ../..
-          git clone --no-checkout --depth 1 --single-branch --branch master https://github.com/orix-software/kernel orix-software/kernel
-          cd orix-software/kernel
-          git config --local core.sparseCheckout true
-          echo "src/include" >> .git/info/sparse-checkout
-          git checkout
+          # git clone --no-checkout --depth 1 --single-branch --branch master https://github.com/orix-software/kernel orix-software/kernel
+          # cd orix-software/kernel
+          # git config --local core.sparseCheckout true
+          # echo "src/include" >> .git/info/sparse-checkout
+          # git checkout
 
       - name: Compile orix-sdk
         if: steps.cache-sdk.outputs.cache-hit != 'true'
