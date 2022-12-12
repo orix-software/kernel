@@ -31,7 +31,7 @@ LDE62:
   ldx     SCRNB
   jsr     LDE12      ;   on calcule l'adresse de la ligne
   clc
-  adc     SCRDX,x    ;   l'adresse exacte de la ligne dans la fenetre
+  adc     SCRDX      ;   l'adresse exacte de la ligne dans la fenetre
   bcc     @skip2
   iny
 @skip2:
@@ -49,8 +49,8 @@ LDE62:
   bmi     LDECD      ;  si négatif, on sort ------------------------------
   sec                ;  on calcule                                       I
   ldx     SCRNB      ;                                                   I
-  lda     SCRFX,x    ; la largeur de la fenètre                          I
-  sbc     SCRDX,x    ;                                                   I
+  lda     SCRFX    ; la largeur de la fenètre                          I
+  sbc     SCRDX    ;                                                   I
   sta     RES+1      ;  dans RES+1                                       I
 LDE9D:
   ldy     RES+1

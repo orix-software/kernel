@@ -31,7 +31,7 @@ scroll_XSCROB_ROUTINE:
   ldx     SCRNB
   jsr     LDE12      ;   on calcule l'adresse de la ligne
   clc
-  adc     SCRDX,x    ;   l'adresse exacte de la ligne dans la fenêtre
+  adc     SCRDX    ;   l'adresse exacte de la ligne dans la fenêtre
   bcc     @skip2
   iny
 @skip2:
@@ -49,8 +49,8 @@ scroll_XSCROB_ROUTINE:
   bmi     LDECD      ;  si négatif, on sort ------------------------------
   sec                ;  on calcule                                       I
   ldx     SCRNB      ;                                                   I
-  lda     SCRFX,x    ; la largeur de la fenêtre                          I
-  sbc     SCRDX,x    ;                                                   I
+  lda     SCRFX    ; la largeur de la fenêtre                          I
+  sbc     SCRDX    ;                                                   I
   sta     RES+1      ;  dans RES+1                                       I
 LDE9D:
   ldy     RES+1
