@@ -18,12 +18,12 @@
   bmi     @S4       ; oui ----------------------------------------------
   stx     SCRNB     ; TEXT, on met le numero de fenetre dans $28       I
   bcc     @S2       ; si C=0, c'est PAPER                              I
-  sta     SCRCT,x   ; on stocke la couleur d'encre                     I
+  sta     SCRCT     ; on stocke la couleur d'encre                     I
   bcs     @S1       ; si C=1 c'est INK                                 I
 @S2:
-  sta     SCRCF,x   ; ou la couleur de fond
+  sta     SCRCF     ; ou la couleur de fond
 @S1:
-  lda     FLGSCR,x  ; est on en 38 colonnes ?                          I
+  lda     FLGSCR    ; est on en 38 colonnes ?                          I
   and     #$10      ;                                                   I
   bne     @S3       ; mode 38 colonnes ------------------------------  I
   lda     #$0C      ;  mode 40 colonnes, on efface l'ecran           I  I
@@ -32,17 +32,17 @@
   jsr     Ldbb5     ;  (on envoie CHR$(29))                          I  I
   ldx     SCRNB     ;  on prend X=numéro de fen?tre                  I  I
 @S3:
-  lda     SCRDY,x           ;  on prend la ligne 0 de la fenêtre <------------  I
+  lda     SCRDY             ;  on prend la ligne 0 de la fenêtre <------------  I
   jsr     XMUL40_ROUTINE    ;  *40 dans RES                                     I
-  lda     SCRBAL,x          ;  AY=adresse de base de la fenêtre                 I
-  ldy     SCRBAH,x          ;                                                   I
+  lda     SCRBAL          ;  AY=adresse de base de la fenêtre                 I
+  ldy     SCRBAH            ;                                                   I
   jsr     XADRES_ROUTINE    ;  on ajoute l'adresse à RES (ligne 0 *40) dans RES I
-  ldy     SCRDX,x           ;  on prend la première colonne de la fenêtre       I
+  ldy     SCRDX             ;  on prend la première colonne de la fenêtre       I
   dey                       ;  on enlève deux colonnes                          I
   dey                       ;                                                   I
   sec                       ;                                                   I
-  lda     SCRFY,x           ;   on calcule le nombre de lignes                   I
-  sbc     SCRDY,x           ;   de la fenêtre                                    I
+  lda     SCRFY             ;   on calcule le nombre de lignes                   I
+  sbc     SCRDY             ;   de la fenêtre                                    I
   tax                       ;   dans X                                           I
   inx                       ;                                                    I
   tya                       ;   colonne 0 dans Y                                 I

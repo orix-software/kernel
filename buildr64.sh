@@ -2,7 +2,7 @@
 #make
 NAME_TO_BUILD=k2022-5.r64
 
-cp ../../shell/develop/shellus.rom $NAME_TO_BUILD
+cp ../../shell/develop/shell.rom $NAME_TO_BUILD
 cat basicus2.rom >> $NAME_TO_BUILD
 cat kernelus.rom >> $NAME_TO_BUILD
 cat ../../empty-rom/empty-rom.rom  >> $NAME_TO_BUILD

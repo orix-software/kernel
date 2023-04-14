@@ -331,9 +331,9 @@ pid:
     jsr     xdebug_send_printer
     lda     #'#'
     jsr     xdebug_send_printer
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high,x
+    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
     jsr     xdebug_binhex
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low,x
+    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
     jsr     xdebug_binhex
     lda     #$0D
     jsr     xdebug_send_printer
@@ -345,7 +345,7 @@ pid:
 
     ldx     #$00
 @loop2:
-    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     beq     @next_chunk2
     lda     #<str_busy
     sta     ACC2M
@@ -356,7 +356,7 @@ pid:
     lda     #'#'
     jsr     xdebug_send_printer
     
-    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     jsr     xdebug_binhex
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     jsr     xdebug_binhex
@@ -378,7 +378,7 @@ pid:
     ; lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x   
     lda     #$0D
     jsr     xdebug_send_printer
-@next_chunk2:         
+@next_chunk2:
     inx
     cpx     #(KERNEL_MAX_NUMBER_OF_MALLOC)
     bne     @loop2
@@ -429,10 +429,10 @@ str_busy:
 
     lda    kernel_debug+kernel_debug_struct::RES
     sta    RES
-    
+
     lda    kernel_debug+kernel_debug_struct::RES+1
     sta    RES+1
-    
+
     lda    kernel_debug+kernel_debug_struct::RESB
     sta    RESB
 
@@ -470,31 +470,31 @@ r0000010:
     jsr    xdebug_send_printer
     rts                   ;done
 hex_table:
-    .byte "0123456789ABCDEF"                  
-.endproc     
+    .byte "0123456789ABCDEF"
+.endproc
 
 
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
 	
-    lda     kernel_malloc_busy_begin+kernel_malloc_busy_begin_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
   
   ; update size
   
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low
   bcc     @do_not_inc
-  inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high	
+  inc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high	
 @do_not_inc:
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low
 
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   clc
-  adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
 
 .proc xdebug_send_string_to_printer
 

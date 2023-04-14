@@ -173,6 +173,7 @@
     ldy     CH376_DATA
     iny                 ; Add 256 bytes because reloc files (version 2 and 3) will be aligned to a page
 
+    ; $543
 .ifdef DEBUG_EXEC_FROM_STORAGE
     lda     #$13
     sta     $bb80+122
@@ -181,7 +182,7 @@
     ; drop others values
     ldx     CH376_DATA
     ldx     CH376_DATA
-
+    ; Allocate the size of the binary + 256
     jsr     XMALLOC_ROUTINE
 
     cmp     #NULL
@@ -205,7 +206,7 @@
 
 @not_null2:
 
-
+    ; $0A05
   ;   RESD contains pointer to header and the length is equal to the file to load
     sta     RESD
     sty     RESD+1 ; $842
@@ -226,10 +227,9 @@
     lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
     sta     KERNEL_CREATE_PROCESS_PTR1+1
 
-
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     RESD
-    sta     (KERNEL_CREATE_PROCESS_PTR1),y
+    sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741
     iny
     lda     RESD+1
     sta     (KERNEL_CREATE_PROCESS_PTR1),y
@@ -310,18 +310,22 @@
 
     ; Now get the execution address
 
-    ldy     #18
-    clc
-    lda     (RESD),y
+    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+    sta     KERNEL_CREATE_PROCESS_PTR1
+    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+    sta     KERNEL_CREATE_PROCESS_PTR1+1
+
+
+
+    ldy     #kernel_one_process_struct::kernel_process_addr
+    lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESE
-
-    ldy     #19
-    lda     (RESD),y
-    adc     ORI2_PAGE_LOAD
+    iny
+    lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESE+1
-    dec     RESE+1
 
-    ;
+
 ;
     jmp     @run
 
@@ -417,6 +421,7 @@
     rts
 
 @execute:
+    ;jmp     @execute
     jmp     (RESE) ; jmp : it means that if program launched do an rts, it returns to interpreter
 
 @read_program:
@@ -425,15 +430,22 @@
     ldx     RESF     ; FP
 
     jsr     XREADBYTES_ROUTINE
-    ; FIXME return nb_bytes read malloc must be done
+    ; $52F
 
-    lda     PTR_READ_DEST+1
-    sec
-    sbc     RESC+1
+    ; FIXME return nb_bytes read malloc must be done
+    pha
+    txa
     tay
-    lda     PTR_READ_DEST
-    sec
-    sbc     RES
+    pla
+; @me:
+;     jmp     @me
+    ; lda     PTR_READ_DEST+1
+    ; sec
+    ; sbc     RESC+1
+    ; tay
+    ; lda     PTR_READ_DEST
+    ; sec
+    ; sbc     RES
     ; A and Y contains the length of the file
 
     ; Save length of the file

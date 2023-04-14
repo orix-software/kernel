@@ -98,7 +98,7 @@ read_command_from_bank_driver_patch2:
     sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
 
     lda     #$07              ; Return to telemon
-    jsr     $46a
+    jsr     $46A
 
 
     jsr     _XFORK
@@ -110,8 +110,6 @@ read_command_from_bank_driver_patch2:
 
     lda     KERNEL_TMP_XEXEC
     jsr     $46A
-
-
 
     lda     TR0
     ldy     TR1                               ; Send command line in A & Y

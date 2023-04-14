@@ -38,7 +38,8 @@
 
 ; Get first pid
   ldx     #$00   ; Because the first is init (
-
+;@me:
+ ; jmp     @me
 @L3:
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
   beq     @found
@@ -46,6 +47,12 @@
   cpx     #KERNEL_MAX_PROCESS
   bne     @L3
   ; Error here  KERNEL_MAX_PROCESS reached
+
+  PRINT   str_max_process_reached
+  jsr     XCRLF_ROUTINE
+  PRINT   str_kernel_panic
+@loop:
+  jmp     @loop
 
   lda     #KERNEL_ERRNO_MAX_PROCESS_REACHED
   sta     KERNEL_ERRNO
@@ -171,7 +178,7 @@ save_command_line:
   ; Get the offset
   ; FIXME cwd_str must be a copy from cwd_str of PPID !
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  cpx     #$01  ; First process after init (should be sh)
+  cpx     #$01  ; First process after init (should be sh) ; COMMENT TO HAVE WORKING MAX PROCESS
   beq     @initialize_to_slash
 
   ldx     kernel_process+kernel_process_struct::kernel_current_process
@@ -212,3 +219,7 @@ save_command_line:
   ; at this step, list pid contains 1 : init
 
 .endproc
+
+str_max_process_reached:
+  .asciiz "Max process reached "
+

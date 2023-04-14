@@ -1,10 +1,10 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2022.4.1"
+.define VERSION "2023.1"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
-ADIODB_LENGTH=$08
+ADIODB_LENGTH = $08
 .define KERNEL_SIZE_IOTAB $04
 
 .include   "telestrat.inc"          ; from cc65
@@ -246,11 +246,13 @@ loading_vectors_telemon:
   lda     ramoverlay_xfree,x
   sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree+256,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  sta     $2100,x                     ; used to copy in Overlay RAM ... see  loop40 label
   lda     ramoverlay_xfree+256+256,x
-  sta     $2000,x                     ; used to copy in Overlay RAM ... see  loop40 label
+  sta     $2200,x                     ; used to copy in Overlay RAM ... see  loop40 label
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
+
+
 
   .ifdef WITH_DEBUG_BOARD
   lda     #'T'
@@ -405,18 +407,7 @@ display_cursor:
   sta     kernel_process+kernel_process_struct::kernel_current_process
   ; register init process
   lda     #$01
-  sta     kernel_process+kernel_process_struct::kernel_pid_list
-
-;init_process_init_in_struct:
- ; ldx     #$00
-;@L1:
-;  lda     str_name_process_kernel,x
-  ;beq     @S1
-  ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
- ; inx
-  ;bne     @L1
-;@S1:
-  ;sta     kernel_process+kernel_process_struct::kernel_init_string,x
+  sta     kernel_process+kernel_process_struct::kernel_pid_list ; COMMENT TO HAVE WORKING MAX PROCESS
 
 init_process_init_cwd_in_struct:
   ldx     #$00
@@ -475,10 +466,10 @@ init_process_init_cwd_in_struct:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high
 
   lda     #<(KERNEL_MALLOC_MAX_MEM_ADRESS-kernel_end_of_memory_for_kernel) ; Get the size (free)
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_low
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low
 
   lda     #>(KERNEL_MALLOC_MAX_MEM_ADRESS-kernel_end_of_memory_for_kernel)
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_size_high
+  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
 
 
 
@@ -491,6 +482,7 @@ init_process_init_cwd_in_struct:
 
 init_malloc_busy_table:
   ldx     #KERNEL_MAX_NUMBER_OF_MALLOC
+  ; lda     #$FF ; ; UNCOMMENT MAX_PROCESS
   lda     #$00
 @loop:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
@@ -676,7 +668,7 @@ str_telestrat:
   .byte     "CPU:65C02"
 .p02
 .else
-  .byte     " CPU:6502"
+  .byte     "   CPU:6502"
 .endif
   .byt     $00 ; end of string
 
@@ -1184,10 +1176,7 @@ Lc91e:
   bne     Lc973
   lda     #$04
   sta     FLGCLK_FLAG
-  bit     FLGLPR
 
-  bpl     @skip
-  jsr     manage_printer
 @skip:
 
 timeud_next:
@@ -1252,15 +1241,17 @@ manage_irq_T1_and_T2:
   ldy     VIA_UNKNOWN+1
   sta     VIA::T2
   sty     VIA::T2+1
-  lda     FLGJCK
-  lsr
-  bcc     routine_todefine_1
-  jmp     LC8B9
+  ;lda     FLGJCK
+  ;lsr
+  ;bcc     routine_todefine_1
+  ;jmp     LC8B9
 
 routine_todefine_1:
   lda     #$FF
   sta     VIA::T2+1
   jmp     LC8B9
+
+
 LC9b9:
   bit     VIA::IFR
 
@@ -1296,19 +1287,11 @@ next110:
 @skip:
   sta     KEYBOARD_COUNTER ;
 next113:
-  bit     FLGJCK
-  bpl     Lca0b
-  jsr     Ldffa
-  bit     FLGJCK
+
 Lca0b:
   bvc     Lca10
 
 Lca10:
-  lda     FLGJCK
-  lsr
-  bcc     @S5
-  jsr     Le0e1
-@S5:
   jmp     LC8B9
 Lca1c:
   jmp     manage_irq_T1_and_T2
@@ -1322,23 +1305,6 @@ next112
 
 .proc manage_printer
   rts     ; Stop printer management
-  ldx     #$24
-  jsr     XLISBU_ROUTINE
-  bcc     @skip
-  asl     FLGLPR ; printer
-  sec
-  ror     FLGLPR ; printer
-  rts
-@skip:
-  sta     VIA::PRA
-  lda     VIA::PRB
-  and     #$EF
-  sta     VIA::PRB
-  ora     #$10
-  sta     VIA::PRB
-  asl     FLGLPR
-  lsr     FLGLPR
-  rts
 .endproc
 
 XDIVIDE_INTEGER32_BY_1024_ROUTINE:
@@ -1709,6 +1675,8 @@ convert_into_decimal_0_to_9999
 
 ; Don't put anything here ...
 
+
+
 XBINDX_ROUTINE:
 .include  "functions/xbindx.asm"
 
@@ -1839,6 +1807,10 @@ XBUSY_ROUTINE:
   plp
   rts
 
+
+
+
+
 table_to_define_prompt_charset:
   .byt     $7F ; char 127
   .byt     $00,$00,$08,$3C,$3E,$3C,$08,$00,$00
@@ -1852,7 +1824,6 @@ table_to_define_prompt_charset_empty:
 .include "functions/xvars.asm"
 
 
-
 .proc _ch376_set_usb_mode_kernel
   lda     #CH376_SET_USB_MODE ; $15
   sta     CH376_COMMAND
@@ -1861,6 +1832,7 @@ table_to_define_prompt_charset_empty:
   sta     CH376_DATA
   rts
 .endproc
+
 
 CTRL_G_KEYBOARD: ; Send oups
   jmp     XOUPS_ROUTINE
@@ -2187,26 +2159,6 @@ init_printer:
   ldx     #$7F
   jmp     XEPSG_ROUTINE
 
-Lda70:
-  bmi     LDAD2
-@S2:
-  bit     FLGLPR
-  bvs     @S1
-
-  cmp     #$7F
-  bne     @S1
-
-  lda     #$20
-@S1:
-  pha
-  jsr     XECRBU_ROUTINE
-  pla
-  bcs     @S2
-  rts
-LDAD2:
-  rts
-
-
 Ldae1:
   jmp     LDB7D
 
@@ -2332,13 +2284,13 @@ LDBED:
 
 LDC2B:
   ldx     SCRNB      ; Get screen number
-  ldy     SCRX,x     ; Get position X
+  ldy     SCRX     ; Get position X
   lda     (ADSCR),y  ; get previous char on the cursor
-  sta     CURSCR,x   ; and save it
+  sta     CURSCR   ; and save it
   lda     ADSCR      ; get current addr (low)
-  sta     ADSCRL,x   ; save it
+  sta     ADSCRL   ; save it
   lda     ADSCR+1
-  sta     ADSCRH,x
+  sta     ADSCRH
   pla
   sta     FLGSCR
   jsr     LDE2D
@@ -2383,8 +2335,8 @@ display_char:
 
   tya
   ora     SCRNB+1
-  sta     CURSCR,x
-  ldy     SCRX,x
+  sta     CURSCR
+  ldy     SCRX
   sta     (ADSCR),y
   rts
 
@@ -2414,11 +2366,11 @@ Ldc9a:
 
   lda     SCRNB+1          ;   on lit Y                                         I
   and     #$3F             ;   on vire b4 (protocole US)                        I
-  sta     SCRY,x           ;   et on fixe Y                                     I
+  sta     SCRY           ;   et on fixe Y                                     I
   jsr     LDE07            ;   on ajuste l'adresse dans la fenêtre              I
-  sta     ADSCRL,x         ;   dans ADSCRL                                      I
+  sta     ADSCRL         ;   dans ADSCRL                                      I
   tya                      ;                                                    I
-  sta     ADSCRH,x         ;   et ADSCRH                                        I
+  sta     ADSCRH        ;   et ADSCRH                                        I
   pla                      ;   on indique prochain code pour X                  I
   ora     #$01             ;                                                    I
   pha                      ;                                                    I
@@ -2426,7 +2378,7 @@ Ldc9a:
 @S2:
   lda     SCRNB+1          ;   on lit X <----------------------------------------
   and     #$3F             ;   on vire b4
-  sta     SCRX,x           ;   dans SCRX
+  sta     SCRX           ;   dans SCRX
   pla
   and     #$FA             ;   on indique fin de US
   pha
@@ -2495,64 +2447,64 @@ LDD14:
   ldx     SCRNB     ;   on prend le numero de fenetre <-------------------
   and     RES       ;  mode monochrome (ou 40 colonnes) ?
   beq     @S2       ;   oui ----------------------------------------------
-  inc     SCRDX,x   ;  non, on interdit la première colonne             I
-  inc     SCRDX,x   ;  et la deuxième                                   I
-  lda     SCRX,x    ;  est-on dans une colonne                          I
-  cmp     SCRDX,x   ;  interdite ?                                      I
+  inc     SCRDX   ;  non, on interdit la première colonne             I
+  inc     SCRDX   ;  et la deuxième                                   I
+  lda     SCRX    ;  est-on dans une colonne                          I
+  cmp     SCRDX   ;  interdite ?                                      I
   bcs     @S1       ;  non                                               I
   jmp     CTRL_M_START     ;  I  oui,on en sort                                    I
 @S1:
   rts   ;  <---                                                    I
 @S2:
-  dec     SCRDX,x   ;   on autorise colonne 0 et 1 <----------------------
-  dec     SCRDX,x
+  dec     SCRDX   ;   on autorise colonne 0 et 1 <----------------------
+  dec     SCRDX
   rts
 LDD43:
-  dec     SCRX,x    ;  on ramène le curseur un cran à gauche  <----------
+  dec     SCRX    ;  on ramène le curseur un cran à gauche  <----------
   rts  ;                                                           I
 
  ;                             CODE 8 - CTRL H                              I
  ;                                                                              I
 ;Action:déplace le curseur vers la gauche                                       I
 CTRL_H_START:
-  lda     SCRX,x   ; est-on déja au début de la fenêtre ?             I
-  cmp     SCRDX,x  ;                                                  I
+  lda     SCRX   ; est-on déja au début de la fenêtre ?             I
+  cmp     SCRDX  ;                                                  I
   bne     LDD43    ; non, on ramène à gauche --------------------------
-  lda     SCRFX,x  ; oui, on se place à la fin de la fenètre
-  sta     SCRX,x
+  lda     SCRFX  ; oui, on se place à la fin de la fenètre
+  sta     SCRX
 
 ;                              CODE 11 - CTRL K
 
 ;Action:déplace le curseur vers le haut
 CTRL_K_START:
-  lda     SCRY,x            ;   et si on est pas
-  cmp     SCRDY,x           ; au sommet de la fenêtre,
+  lda     SCRY            ;   et si on est pas
+  cmp     SCRDY           ; au sommet de la fenêtre,
   bne     LDD6E             ; on remonte d'une ligne ---------------------------
-  lda     SCRDY,x           ; X et Y contiennent le début et la                I
-  ldy     SCRFY,x           ;  fin de la fentre X                              I
+  lda     SCRDY           ; X et Y contiennent le début et la                I
+  ldy     SCRFY           ;  fin de la fentre X                              I
   tax                       ;                                                  I
   jsr     XSCROB_ROUTINE    ; on scrolle l'écran vers le bas ligne X à Y       I
 CTRL_M_START:
-  lda     SCRDX,x           ;  on place début de la fenêtre dans X              I
-  sta     SCRX,x            ;                                                   I
+  lda     SCRDX           ;  on place début de la fenêtre dans X              I
+  sta     SCRX            ;                                                   I
   rts                       ;                                                   I
 LDD6E:
-  dec     SCRY,x            ; on remontre le curseur <--------------------------
+  dec     SCRY            ; on remontre le curseur <--------------------------
   jmp     LDE07             ;  et on ajuste ADSCR
 
 ;                              CODE 14 - CTRL N
 
 ;Action:efface la ligne courante
 CTRL_N_START:
-  ldy     SCRDX,x  ;    on prend la première colonne de la fenetre
+  ldy     SCRDX  ;    on prend la première colonne de la fenetre
   jmp     LDD7D    ;    et on efface ce qui suit (bpl aurait été mieux...)
 
 ;                             CODE 24 - CTRL X
 ;Action:efface la fin de la ligne courante
 CTRL_X_START:
-  ldy     SCRX,x    ;  on prend la colonne du curseur
+  ldy     SCRX    ;  on prend la colonne du curseur
 LDD7D:
-  lda     SCRFX,x   ;  et la dernière colonne de la fenetre
+  lda     SCRFX   ;  et la dernière colonne de la fenetre
   sta     SCRNB+1   ;  dans $29
 
   lda     #$20      ;  on envoie un espace
@@ -2564,15 +2516,15 @@ LDD7D:
   sta     (ADSCR),y ; et à la dernière position aussi
   rts               ; (INC $29 avant la boucle aurait été mieux !)
 LDD8E:
-  inc     SCRX,x
+  inc     SCRX
   rts
 
 ;                             CODE 9 - CTRL I
 
 ;Action:déplace le curseur à droite
 CTRL_I_START:
-  lda     SCRX,x          ; on lit la colonne du curseur
-  cmp     SCRFX,x         ; dernière colonne ?
+  lda     SCRX          ; on lit la colonne du curseur
+  cmp     SCRFX         ; dernière colonne ?
   bne     LDD8E           ; non, on déplace le curseur
   jsr     CTRL_M_START    ; oui, on revient à la première colonne
 
@@ -2580,17 +2532,17 @@ CTRL_I_START:
 
 ;Action:déplace le curseur vers la droite
 CTRL_J_START:
-  lda     SCRY,x   ;  on est en bas de la fenetre ?
-  cmp     SCRFY,x  ;
+  lda     SCRY   ;  on est en bas de la fenetre ?
+  cmp     SCRFY  ;
   bne     @skip    ;  non ----------------------------------------------
-  lda     SCRDY,x  ;  oui, X et Y contiennent debut et fin de fenetre  I
-  ldy     SCRFY,x  ;                                                   I
+  lda     SCRDY  ;  oui, X et Y contiennent debut et fin de fenetre  I
+  ldy     SCRFY  ;                                                   I
   tax          ;                                                   I
   jsr     XSCROH_ROUTINE  ;  on scrolle la fenetre                            I
   jmp     CTRL_M_START    ;  on revient en debut de ligne                     I
 @skip:
-  inc     SCRY,x   ;  on incremente la ligne <-------------------------I
-  jmp     LDE07    ;  et on ajuste ADSCR
+  inc     SCRY            ;  on incremente la ligne <-------------------------I
+  jmp     LDE07           ;  et on ajuste ADSCR
 
 ;                         CODE 12 - CTRL L
 
@@ -2599,8 +2551,8 @@ CTRL_L_START:
   jsr     CTRL_HOME_START     ;  on remet le curseur en haut de la fenetre
 @loop:
   jsr     CTRL_N_START        ;  on efface la ligne courante
-  lda     SCRY,x              ;  on est à la fin de la fenêtre ?
-  cmp     SCRFY,x             ;
+  lda     SCRY                ;  on est à la fin de la fenêtre ?
+  cmp     SCRFY               ;
   beq     CTRL_HOME_START     ;  oui, on sort en replaçant le curseur en haut
   jsr     CTRL_J_START        ;  non, on déplace le curseur vers le bas
   jmp     @loop               ;  et on boucle  (Et bpl, non ?!?!)
@@ -2686,7 +2638,7 @@ LDE2D:
 
   beq     @skip
   lda     SCRY
-  cmp     SCRFY,x
+  cmp     SCRFY
   beq     @skip
   tya
   adc     #$28
@@ -2777,21 +2729,21 @@ next18:
 
 ; loop 4 times to set color ink/paper and flags on the 4 possibles screens
   lda     #$07
-  sta     SCRCT,x ; Set ink to white
+  sta     SCRCT ; Set ink to white
   lda     #$00
-  sta     SCRCF,x ; set paper to black
+  sta     SCRCF ; set paper to black
   lda     #$00
   sta     FLGSCR
-  lda     SCRDX,x
-  sta     SCRX,x ; init cursor to 0 (beginning of the line)
-  lda     SCRDY,x
-  sta     SCRY,x
-  lda     SCRBAL,x
-  sta     ADSCRL,x
-  lda     SCRBAH,x
-  sta     ADSCRH,x
+  lda     SCRDX
+  sta     SCRX ; init cursor to 0 (beginning of the line)
+  lda     SCRDY
+  sta     SCRY
+  lda     SCRBAL
+  sta     ADSCRL
+  lda     SCRBAH
+  sta     ADSCRH
   lda     #$20
-  sta     CURSCR,x
+  sta     CURSCR
   lda     SCRNB
   pha
   stx     SCRNB
@@ -2827,173 +2779,9 @@ next15:
 
 telemon_values_for_JCKTAB:
   .byt     $0b,$0a,$20,$08,$09,$03,$03
-Ldffa:
-  rts
-Ldffb:
-  lda     JCGVAL
-  jsr     Ldf90
-
-  stx     MOUSE_JOYSTICK_MANAGEMENT+2
 
 
-  lda     JCKTAB
-  jsr     Le19f
-@S3:
 
-  dec     MOUSE_JOYSTICK_MANAGEMENT
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+6
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+7
-
-Le084:
-  rts
-
-le085:
-
-
-;                            GESTION DE LA SOURIS
-
-;Action:Gère la souris comme précédemment le joystick gauche, à ceci près qu'il
-;       ne s'agit plus avec la souris de gérer un délai de répétition (sauf pour
-;       les boutons), mais plutot une vitesse de répétition. Dans le buffer
-;       clavier, l'octet KBDSHT ajouté au codes ASCII souris est 8, soit b3 à 1.
-
-
-  jsr     Ldf99       ;  on lit la valeur souris
-  and     #$1B        ;   on isole les directions
-  sta     VABKP1      ;   dans VABKP1
-  cmp     #$1B        ;   la souris bouge ?
-  bne     @S1         ;   non ----------------------------------------------
-  dec     JCKTAB+7    ;   on déplace ?                                     I
-  bne     Le084       ;   non, on sort.                                    I
-@S1:
-  lda     JCKTAB+8    ;  on place vitesse deplacement dans  <--------------
-  sta     JCKTAB+7    ;  $2A4
-  lda     VABKP1      ;   on lit le code
-  cmp     #$1B        ;   souris fixe ?
-  beq     LE0B5       ;  oui ----------------------------------------------
-  and     #$1B                         ;    non, on isole les valeurs direction              I
-  eor     JCDVAL                       ;    et on retourne les bits de JCDVAL                I
-  and     #$1B                         ;    en isolant les bits direction                    I
-  bne     LE0B5                        ;    ce ne sont pas les memes exactement -------------O
-  dec     MOUSE_JOYSTICK_MANAGEMENT+1  ;    on repete ?                                      I
-  bne     LE0E0                        ;    non                                              I
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+8  ;     oui, on met le diviseur répétition               I
-  jmp     LE0BB                        ;  ---dans le compteur                                 I
-LE0B5:
-  jsr     Ldf99  ; I  on lit la souris <--------------------------------
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+9 ;  I  on place le compteur avant répétition
-LE0BB:
-  stx     MOUSE_JOYSTICK_MANAGEMENT+1 ;  -->dans le décompteur
-  and     #$1B     ;     on isole les bits de direction
-  sta     VABKP1   ;      dans VABKP1:
-  lda     JCDVAL   ;     on prend JDCVAL
-  and     #$64 ;      %01100100, on isole les bits de Feu
-  ora     VABKP1   ;     on ajoute les bits de direction
-  sta     JCDVAL   ;    dans JDCVAL
-  lda     VABKP1   ;
-  ora     #$04     ;     on éteint le feu principal
-  ldx     #$04     ;
-Le0d2:
-  lsr
-  pha
-  bcs     LE0DC      ;
-  lda     JCKTAB,x   ; et on envoie les valeurs ASCII dans le buffer
-  jsr     Le19d      ;
-LE0DC:
-  pla
-  dex
-  bpl     Le0d2
-LE0E0:
-  rts
-
-Le0e1:
-  lda     JCDVAL
-  and     #$04
-  bne     Le0fa
-  jsr     Ldf99
-  and     #$04
-  bne     Le102
-  dec     MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
-  bne     Le11b
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+6 ; CORRECTME
-  jmp     Le102
-Le0fa
-  jsr     Ldf99
-  and     #$04
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+7 ; CORRECTME
-Le102:
-  sta     VABKP1 ; CORRECTME
-  stx     MOUSE_JOYSTICK_MANAGEMENT+3 ; CORRECTME
-  lda     JCDVAL
-  and     #$7B
-  ora     VABKP1
-  sta     JCDVAL
-  lda     VABKP1
-  bne     Le11b
-  lda     JCKTAB ; CORRECTME
-  jsr     Le19d
-Le11b:
-  lda     JCDVAL
-  and     #$20
-  bne     Le137
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  and     #$20
-  bne     Le140
-  dec     MOUSE_JOYSTICK_MANAGEMENT+4 ; CORRECTME
-  bne     Le15b
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
-  jmp     Le140
-Le137:
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
-Le140:
-  stx     MOUSE_JOYSTICK_MANAGEMENT+4 ; CORRECTME
-  and     #$20
-  sta     VABKP1
-  lda     JCDVAL
-  and     #$5F
-  ora     VABKP1
-  sta     JCDVAL
-  and     #$20
-  bne     Le15b
-  lda     JCKTAB+5
-  jsr     Le19d
-Le15b:
-  lda     JCDVAL
-  and     #$40
-  bne     Le177
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  and     #$80
-  bne     Le180
-  dec     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
-  bne     Le19c
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+11 ; CORRECTME
-  jmp     Le180
-Le177:
-  jsr     Ldf99
-  lda     VIA2::PRA2
-  ldx     MOUSE_JOYSTICK_MANAGEMENT+10 ; CORRECTME
-Le180:
-  stx     MOUSE_JOYSTICK_MANAGEMENT+5 ; CORRECTME
-  LSR
-  and     #$40
-  sta     VABKP1
-  lda     JCDVAL
-  and     #$3F ; CORRECTME
-  ora     VABKP1
-  sta     JCDVAL
-  and     #$40
-  bne     Le19c
-  lda     JCKTAB+6 ; CORRECTME
-  jmp     Le19d
-Le19c:
-  rts
-Le19d:
-
-  .byt    $38,$24
 Le19f:
 
   clc
@@ -3076,8 +2864,8 @@ LE2D0:
 
   rts
 Le2de:
-put_cursor_on_last_char_of_the_line
-  ldy     SCRFX,x
+put_cursor_on_last_char_of_the_line:
+  ldy     SCRFX
   .byt    $24
 @L1:
   dey
@@ -3085,7 +2873,7 @@ put_cursor_on_last_char_of_the_line
   cmp     #$20
   bne     test_if_prompt_is_on_beginning_of_the_line
   tya
-  cmp     SCRDX,x
+  cmp     SCRDX
   bne     @L1
   rts
 
@@ -3093,17 +2881,17 @@ test_if_prompt_is_on_beginning_of_the_line
   cmp     #$7F
   bne     @skip
   tya
-  cmp     SCRDX,x
+  cmp     SCRDX
 @skip:
   rts
 Le2f9:
-  ldy     SCRDX,x
+  ldy     SCRDX
   lda     (RES),y
   cmp     #$7F
   rts
 LE301:
   ldx     SCRNB
-  lda     SCRY,x
+  lda     SCRY
   sta     ACC1M
 Le2ed:
   lda     ACC1M
@@ -3112,7 +2900,7 @@ Le2ed:
 
   beq     @S1
   lda     ACC1M
-  cmp     SCRDY,x
+  cmp     SCRDY
 
   beq     @S2
   dec     ACC1M
@@ -3126,7 +2914,7 @@ Le2ed:
 
 put_cursor_on_beginning_of_the_line:
   ldx     SCRNB
-  lda     SCRY,x
+  lda     SCRY
   sta     MENDFY
   jsr     LDE12
   jsr     put_cursor_on_last_char_of_the_line
@@ -3134,7 +2922,7 @@ Le32f:
   sty     MENDDY
   beq     Le34e
   lda     MENDFY
-  cmp     SCRFY,x
+  cmp     SCRFY
   beq     Le34d
   inc     MENDFY
   lda     MENDFY
@@ -3157,20 +2945,20 @@ LE34F:
 
 send_the_end_of_line_in_bufedt:
   ldx     SCRNB
-  lda     SCRX,x
-  sta     ACC1E ; FIXME label
-  lda     SCRY,x
-  sta     ACC1M ; FIXME label
+  lda     SCRX
+  sta     ACC1E
+  lda     SCRY
+  sta     ACC1M
 LE361:
   jsr     put_cursor_on_beginning_of_the_line
 
-  lda     ACC1M ; FIXME label
-  sta     ACC1S ; FIXME label
+  lda     ACC1M
+  sta     ACC1S
   cmp     MENDFY
   bne     Le378
 
   lda     MENDDY
-  cmp     ACC1E ; FIXME label
+  cmp     ACC1E
   bcs     Le378
   lda     #$00    ; FIXME 65c02
 
@@ -3189,7 +2977,7 @@ Le37e:
   cmp     ACC1M
   beq     Le390
   ldx     SCRNB
-  ldy     SCRDX,x
+  ldy     SCRDX
 
 Le390:
   lda     (RES),y
@@ -3226,7 +3014,7 @@ Le3b1:
 
 Le3c5:
   ldx     SCRNB
-  cmp     SCRFX,x
+  cmp     SCRFX
   bne     Le390
   inc     ACC1S
   bne     Le37e
@@ -3240,7 +3028,7 @@ display_bufedt_content:
   sta     RES
   sty     RES+1
   ldx     SCRNB
-  ldy     SCRX,x
+  ldy     SCRX
 Le3e3:
   ldx     MENX
 
@@ -3263,12 +3051,12 @@ Le405:
   tya
   iny
   ldx     SCRNB
-  cmp     SCRFX,x
+  cmp     SCRFX
   bne     Le418
   lda     #$28
   ldy     #$00
   jsr     XADRES_ROUTINE
-  ldy     SCRDX,x
+  ldy     SCRDX
 Le418:
   inc     MENX
   bne     Le3e3
@@ -3283,7 +3071,7 @@ Le42a:
   ldy     SCRX
   lda     (ADSCR),y
   ldx     SCRNB     ; FIXME 65C02
-  sta     CURSCR,x
+  sta     CURSCR
   rts
 
 Le45a:
@@ -3327,8 +3115,8 @@ Le5ee:
   cmp     #$0A
   bne     Le604
   ldx     SCRNB
-  lda     SCRY,x
-  cmp     SCRFY,x
+  lda     SCRY
+  cmp     SCRFY
   bne     Le615
   lda     #$0A
   .byt    $2C
@@ -3340,8 +3128,8 @@ Le604:
   cmp     #$0B
   bne     Le617
   ldx     SCRNB
-  lda     SCRY,x
-  cmp     SCRDY,x
+  lda     SCRY
+  cmp     SCRDY
   beq     Le5ff
   lda     #$0B
 
@@ -3574,10 +3362,10 @@ XINK_ROUTINE:
   bmi     LE9A7     ; oui ----------------------------------------------
   stx     SCRNB     ; TEXT, on met le numero de fenètre dans $28       I
   bcc     @S2       ; si C=0, c'est PAPER                              I
-  sta     SCRCT,x   ;  on stocke la couleur d'encre                     I
+  sta     SCRCT     ;  on stocke la couleur d'encre                     I
   bcs     @S1       ;  si C=1 c'est INK                                 I
 @S2:
-  sta     SCRCF,x   ;  ou la couleur de fond
+  sta     SCRCF     ;  ou la couleur de fond
 @S1:
   lda     FLGSCR    ;  est on en 38 colonnes ?                          I
   and     #$10      ;                                                   I
@@ -3588,17 +3376,17 @@ XINK_ROUTINE:
   jsr     Ldbb5     ;  (on envoie CHR$(29))                          I  I
   ldx     SCRNB     ;  on prend X=numéro de fenêtre                  I  I
 LE987:
-  lda     SCRDY,x           ;  on prend la ligne 0 de la fenêtre <------------  I
+  lda     SCRDY           ;  on prend la ligne 0 de la fenêtre <------------  I
   jsr     XMUL40_ROUTINE    ;  *40 dans RES                                     I
-  lda     SCRBAL,x          ;  AY=adresse de base de la fenêtre                 I
-  ldy     SCRBAH,x  ;                                                   I
+  lda     SCRBAL          ;  AY=adresse de base de la fenêtre                 I
+  ldy     SCRBAH  ;                                                   I
   jsr     XADRES_ROUTINE    ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I
-  ldy     SCRDX,x           ;  on prend la première colonne de la fenêtre       I
+  ldy     SCRDX           ;  on prend la première colonne de la fenêtre       I
   dey                       ;   on enlève deux colonnes                          I
   dey         ;                                                    I
   sec         ;                                                    I
-  lda     SCRFY,x           ;   on calcule le nombre de lignes  gg                I
-  sbc     SCRDY,x           ;   de la fenêtre                                    I
+  lda     SCRFY           ;   on calcule le nombre de lignes  gg                I
+  sbc     SCRDY           ;   de la fenêtre                                    I
   tax                       ;   dans X                                           I
   inx                       ;                                                    I
   tya                       ;   colonne 0 dans Y                                 I

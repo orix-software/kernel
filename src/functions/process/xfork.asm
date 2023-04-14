@@ -59,11 +59,12 @@
   ; we reached max process to launch ?
   lda     KERNEL_ERRNO
   cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-  beq     exit_to_kernel    ; Yes we
+  beq     exit_to_kernel_rts    ; Yes we
   rts
 exit_to_kernel:
 ; pull from stack old pc
   pla
   pla
+exit_to_kernel_rts:
   rts
 .endproc
