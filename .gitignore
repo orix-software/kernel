@@ -7,4 +7,5 @@ error.txt
 *.ld65
 *.lib
 *.o
+tmp/
 

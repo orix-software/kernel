@@ -57,8 +57,6 @@
   lda     XOPEN_FLAGS
   sta     (KERNEL_XOPEN_PTR1),y
 
-
-
   ; FIXME put readonly/writeonly etc mode
 
   lda     #_KERNEL_FILE::f_path
@@ -68,7 +66,6 @@
   inc     KERNEL_XOPEN_PTR2+1
 @S1:
   sta     KERNEL_XOPEN_PTR2
-
 
   ; Copy PATH
   ldy     #$00

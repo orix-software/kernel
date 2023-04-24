@@ -24,6 +24,6 @@ cp kdebug.rom $ORICUTRON_PATH/roms
 cp multi $ORICUTRON_PATH/sdcard/bin/a
 cp b $ORICUTRON_PATH/sdcard/bin/b
 cd $ORICUTRON_PATH
-./oricutron
+./oricutron  -r :bp.txt
 cd -
 

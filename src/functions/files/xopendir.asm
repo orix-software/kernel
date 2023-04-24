@@ -166,12 +166,10 @@ go:
     sta     CH376_COMMAND
     lda     CH376_DATA
 
-
 @read_entry:
     lda     #$00
     sta     TR0 ; Use to set "."
     jsr     display_catalog
-
 
     ldx     TR7
     cpx     #READDIR_MAX_LINE

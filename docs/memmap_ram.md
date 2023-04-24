@@ -102,14 +102,25 @@
 |RAM|KBDCOL                          | $0268-$0270 |  8   |
 |RAM|KBDFLG_KEY                      | $0270-$0272 |  2  |
 |RAM|KBDVRR                      | $0272-$0273 | 1   |
+|RAM|KBDVRL                      | $0273-$0275 | 2   |
+|RAM|FLGKBD                      | $0275-$0276 | 1   |
+|RAM|KBDFCT                      | $0276-$0277 | 1   |
+|RAM|KBDSHT                      | $0278-$0279 | 1   |
+|RAM|KBDKEY                       | $0279-$027E | 1   |
 |RAM|KBDCTC                          | $027E-$027F |  1   |
-|RAM|<span style="color:green">FREE</span>                            | $027F-$02A9 |  44   |
-|RAM|KEYBOARD_COUNTER               | $02A6-$02AA |  4   |
+|RAM|<span style="color:green">FREE</span>                            | $027F-$02A5 |  40   |
+|RAM|KEYBOARD_COUNTER               | $02A6-$02A9 |  3   |
+|RAM|HRSPAT                            | $02AA-$02AA |  1   |
 |RAM|IOTAB                          | $02AE-$02B1 |  X   |
 |RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
 |RAM|kernel_malloc_free_chunk_size_low                   | $02BA-$02C3 | 10   |
+|RAM|FLGRST                            | $02EE-$02EE |  1   |
+|RAM|CSRND                            | $02EF-$02EF |  1   |
 |RAM|kernel_xmalloc_call            | $02C4-$02EB |      |
 |RAM|VNMI            | $02F4-$02F7 |   3   |
+|RAM|ADIODB_VECTOR            | $02F7-$02FA |   3   |
+|RAM|IRQVECTOR            | $02FA-$02FD |   3   |
+|RAM|VAPLIC            | $02FD-$0300 |   3   |
 |RAM|<span style="color:green">FREE</span>                           | $02EC-$02ED | 2   |
 # Page 3
 |Type     | Name                          | Range       | Size |
@@ -130,12 +141,12 @@
 # Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fbdc-$fff0|   1044   |
+|ROM|<span style="color:green">FREE</span>                         |$fc1c-$fff0|   980   |
 #Bank 0
 | Type      | Name                         | Range   | Size |
 | --------  | ---------------------------- | ------- |-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f898-$f944 |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f944-$fbc4 |     |
+|BANK0|XMALLOC (copy from kernel)    | $f8d8-$f984 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f984-$fc04 |     |

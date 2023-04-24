@@ -10,3 +10,4 @@
 * _XFORK via kernel_create_process
 * getFileLength
 * kernel_try_to_find_command_in_bin_path
+* XOPEN_ROUTINE

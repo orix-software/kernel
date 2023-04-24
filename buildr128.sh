@@ -15,10 +15,7 @@ cat ../../empty-rom/empty-rom.rom  >> $NAME_TO_BUILD
 
 #cp $NAME_TO_BUILD /mnt/s/devus.r64
 
-
 #cat ../../shell/develop/shellus.rom >>initromD.all
 #cat basicus2.rom >> initromD.all
 #cat kernelud.rom >> initromD.all
 #cat ../../empty-rom/empty-rom.rom  >> initromD.all
-
-

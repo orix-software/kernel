@@ -1,6 +1,3 @@
-
-;
-
 .proc checking_fp_exists
     ; X fp to find
     ; Save A & X
@@ -30,8 +27,8 @@
 
     sta     kernel_process+kernel_process_struct::kernel_fd_opened
     jmp     @do_not_seek
-@store_and_seek:
 
+@store_and_seek:
     ; store the new fd to open
     sta     kernel_process+kernel_process_struct::kernel_fd_opened
     ; At this step we can store the seek of the file
@@ -46,8 +43,6 @@
     jsr     _ch376_file_close
 
     ; seek now
-
-
     lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X ; Get again FD id
 
     jsr     compute_fp_struct
@@ -56,7 +51,6 @@
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
 
-
     lda     #'/'
     sta     CH376_DATA
 
@@ -64,8 +58,6 @@
 
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
-
-
 
     ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
 @loop_next_byte:
@@ -88,9 +80,7 @@
     rts
 
 @do_not_seek:
-
     jsr     restore
-
     clc
     rts
 
@@ -105,9 +95,7 @@
     ldy     TR5
     jmp     @loop_next_byte
 
-
 @send_end_out:
-
     jsr     @send_0_to_ch376_and_open
 
     ldy     #_KERNEL_FILE::f_seek_file
@@ -144,14 +132,9 @@
     jsr     _ch376_file_open ; Open slash
     rts
 
-    ;jmp     @do_not_seek
-
 restore:
-
     ldy     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y
-
     ldx     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X
     rts
 
 .endproc
-

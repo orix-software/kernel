@@ -1032,7 +1032,6 @@ routine_to_define_16:
 .include  "functions/XRDW.asm"
 .include  "functions/XWRD.asm"
 .include  "functions/XOP.asm"
-.include  "functions/files/xcl.asm"
 .include  "functions/files/_create_file_pointer.asm"
 .include  "functions/files/checking_fp_exists.asm"
 .include  "functions/files/compute_fp_struct.asm"
@@ -1380,7 +1379,7 @@ vectors_telemon:
   .byt     <$00,>$00 ; 2
   .byt     <$00,>$00
 
-  .byt     <XCL0_ROUTINE,>XCL0_ROUTINE ; 4
+  .byt     $00,$00   ; 4 Was XCL in telemon
   .byt     <$00,>$00 ; 5
   .byt     <$00,>$00 ; 6
   .byt     <$00,>$00 ; 7
@@ -5247,6 +5246,8 @@ version_binary: ; 3 bytes
   .byte CURRENT_VERSION_BINARY
   .byte $00
 
+osname:
+  .asciiz "Orix"
 
 signature:
   .byte     "Kernel v"

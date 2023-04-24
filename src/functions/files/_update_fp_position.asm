@@ -23,9 +23,7 @@
   ; A is the id of the fp
   jsr     compute_fp_struct
 
-
   ldy     #_KERNEL_FILE::f_seek_file
-
   lda     (KERNEL_XOPEN_PTR1),y ; Get first byte
   clc
   adc     XOPEN_RES
@@ -46,8 +44,6 @@
 
 
 @no_inc_byte2:
-
-
   ldy     #(_KERNEL_FILE::f_seek_file+1)
   lda     (KERNEL_XOPEN_PTR1),y
   adc     XOPEN_RES+1
@@ -63,12 +59,8 @@
   jsr     inc_byte_superior ; byte 4
 
 @no_inc_byte3:
-
-
   lda     XOPEN_RES
   ldx     XOPEN_RES+1
-
-
   rts
 
 inc_byte_superior:
@@ -77,6 +69,4 @@ inc_byte_superior:
   adc     (KERNEL_XOPEN_PTR1),y
   sta     (KERNEL_XOPEN_PTR1),y
   rts
-
-
 .endproc

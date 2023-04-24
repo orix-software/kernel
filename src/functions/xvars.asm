@@ -30,6 +30,11 @@
   cpx     #KERNEL_XVALUES_GET_PROCESS_NAME_WITH_PID
   beq     @xvalues_get_process_name_with_pid_call
 
+  cpx     #KERNEL_XVALUES_GET_OSNAME
+  beq     @xvalues_get_osname
+
+  cpx     #KERNEL_XVALUES_GET_TIME
+  beq     @xvalues_get_time
 
   cpx     #$00
   bne     @check_who_am_i
@@ -98,7 +103,34 @@
 
   rts
 
+@xvalues_get_osname:
+  lda     #<5
+  ldy     #>5
+  jsr     XMALLOC_ROUTINE
+  sta     RES
+  sty     RES+1
 
+  ldy     #$00
+@loop_osname:
+  lda     osname,y
+  beq     @eos_osname
+  sta     (RES),y
+  iny
+  bne     @loop_osname
+
+@eos_osname:
+  sta     (RES),y
+
+  lda     RES
+  ldy     RES+1
+
+  rts
+@xvalues_get_time:
+  ror     FLGCLK
+  lda     TIMES
+  ldy     TIMEM
+  ldx     TIMEH
+  rts
 
 @check_who_am_i:
   cpx     #$01
@@ -395,8 +427,9 @@ XVARS_TABLE_LOW:
   .byt     <KERNEL_ERRNO        ; 4
   .byt     KERNEL_MAX_NUMBER_OF_MALLOC ; 5
   .byt     CURRENT_VERSION_BINARY      ; Used in untar 6
-  .byte    $00 ; Table low malloc 7 
+  .byte    $00 ; Table low malloc 7
   .byt     <KERNEL_MAX_PROCESS  ; 8 Used in pstree
+  .byt     <osname              ; 9
 
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
@@ -408,3 +441,4 @@ XVARS_TABLE_HIGH:
   .byt     $00
   .byt     $00 ; ; Table high
   .byt     $00 ; KERNEL_MAX _PROCESS
+  .byt     >osname             ; 9
