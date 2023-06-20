@@ -1,6 +1,21 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
 
-.define VERSION "2023.1"
+.macro  STZ_ABS    arg             ; Define macro ldax
+        lda     #$00
+        sta     arg
+.endmacro
+
+.macro  STZ_ABS_X    arg             ; Define macro ldax
+        lda     #$00
+        sta     arg,x
+.endmacro
+
+.macro  INCA
+        clc
+        adc     #$01
+.endmacro
+
+.define VERSION "2023.2"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
@@ -38,13 +53,34 @@ ADIODB_LENGTH = $08
 
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
+.org $04
+RESC: ; is also DECDEB
+  .res 2
+RESD: ; is also DECFIN
+  .res 2
+RESE: ; is also DECCIB
+  .res 2
+RESF: ; is also  DECTRV
+  .res 2
+.org $59 ;  RS232T          := $59 & RS232C          := $5A
+RESG:
+  .res 2
+.org $60  ; ACC1E
+RESH:
+  .res 2 ; ACC1M+1 $62
+RESI:
+  .res 2 ; $ACC1M+3 $64
+RESCONCAT:
+  .res 2  ; ACC1S+1 $66
+
 RES5                       := $0A
 
-RESC                       := DECDEB  ; $04
-RESD                       := DECFIN  ; $06
-RESE                       := DECCIB  ;
-RESF                       := DECTRV  ;
-RESG                       := ACCPS   ;
+;RESC                       := DECDEB  ; $04
+;RESD                       := DECFIN  ; $06
+;RESE                       := DECCIB  ;
+;RESF                       := DECTRV  ;
+;RESG                       := ACCPS   ;
+;RESH                       := ACC1E
 
 KERNEL_XOPEN_PTR1          := $04 ; DECBIN
 KERNEL_XOPEN_PTR2          := $06 ; DECFIN
@@ -129,6 +165,14 @@ start_rom:
 .endif
 
   sta     KERNEL_CH376_MOUNT
+
+  ; BUSY_BANK_TABLE_RAM is used to know if a ram bank is empty or not
+
+  lda     #$03  ; bank 33 and 34 are reserved (loader/network)
+  sta     BUSY_BANK_TABLE_RAM ; Set BUSY BANK_table
+  lda     #$00
+  sta     BUSY_BANK_TABLE_RAM+1 ; Set BUSY BANK_table
+  sta     BUSY_BANK_TABLE_RAM+2 ; Set BUSY BANK_table
 
 
 @usb_controler_not_detected:
@@ -1047,6 +1091,8 @@ routine_to_define_16:
 .include  "functions/xinteg.asm"
 .include  "functions/exe/ori2.asm"
 
+.include  "common/strcpy_RESI.asm"
+
 .ifdef WITH_DEBUG
 .include   "functions/xdebug.asm"
 .endif
@@ -1439,8 +1485,8 @@ vectors_telemon:
   .byt     <XSCROH_ROUTINE,>XSCROH_ROUTINE                                          ; $37
   .byt     <XSCROB_ROUTINE,>XSCROB_ROUTINE                                          ; $38 XSCROB
   .byt     <XSCRNE_ROUTINE,>XSCRNE_ROUTINE                                          ; $39
-  .byt     <XCLOSE_ROUTINE,>XCLOSE_ROUTINE ; $3a
-  .byt     <XWRITEBYTES_ROUTINE,>XWRITEBYTES_ROUTINE ; nothing  $3b
+  .byt     <XCLOSE_ROUTINE,>XCLOSE_ROUTINE                                          ; $3a
+  .byt     <XWRITEBYTES_ROUTINE,>XWRITEBYTES_ROUTINE                                ; nothing  $3b
   .byt     <_xreclk,>_xreclk ; $3c
   .byt     <_xclcl,>_xclcl ; $3d
   .byt     <XWRCLK_ROUTINE,>XWRCLK_ROUTINE ; $3e
@@ -1642,8 +1688,6 @@ put_cursor_in_61_x:
   ora     #$40
   jmp     XWR0_ROUTINE
 
-
-
 data_for_decimal_conversion:
 const_10_decimal_low
   .byt     $0A ; 19
@@ -1665,7 +1709,6 @@ Lcde5:
   .byt    $2C
 
 convert_into_decimal_0_to_65535:
-
   ldx     #$03
   .byt    $2C
 
@@ -1673,8 +1716,6 @@ convert_into_decimal_0_to_9999
   ldx     #$02
 
 ; Don't put anything here ...
-
-
 
 XBINDX_ROUTINE:
 .include  "functions/xbindx.asm"
@@ -1718,7 +1759,8 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/files/_update_fp_position.asm"
 .include  "functions/files/_ch376_seek_file32.asm"
 .include  "functions/files/byte_wr_go.asm"
-
+.include  "functions/files/compute_path_relative.asm"
+.include  "functions/process/kernel_get_struct_process_ptr.asm"
 
 .include  "functions/strings/xminma.asm"
 
@@ -1741,9 +1783,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/text/xfwr.asm"
 
 ; Network
-
 .include "functions/network/_ch395_write_send_buf_sn.s"
-
 
 .proc _trim
 ; This routine modify RES
@@ -1807,9 +1847,6 @@ XBUSY_ROUTINE:
   rts
 
 
-
-
-
 table_to_define_prompt_charset:
   .byt     $7F ; char 127
   .byt     $00,$00,$08,$3C,$3E,$3C,$08,$00,$00
@@ -1820,8 +1857,7 @@ table_to_define_prompt_charset_empty:
 
 .include "functions/files/getFileLength.asm"
 
-.include "functions/xvars.asm"
-
+.include "functions/xvars/xvars.asm"
 
 .proc _ch376_set_usb_mode_kernel
   lda     #CH376_SET_USB_MODE ; $15
@@ -1831,7 +1867,6 @@ table_to_define_prompt_charset_empty:
   sta     CH376_DATA
   rts
 .endproc
-
 
 CTRL_G_KEYBOARD: ; Send oups
   jmp     XOUPS_ROUTINE
@@ -1869,6 +1904,7 @@ XKBDAS_ROUTINE:
   tya
   adc     #$3F
   tay
+
 @skip2:
   tya
   cmp     #$20
@@ -1877,8 +1913,10 @@ XKBDAS_ROUTINE:
   cmp     #$58
   bcc     @skip3
   sbc     #$08
+
 @skip3:
   tay
+
 @skip4:
   txa
   and     #$20
@@ -1891,6 +1929,7 @@ XKBDAS_ROUTINE:
   cmp     #$7B
   bcs     @skip5
   sbc     #$1F
+
 @skip5:
   tay
   txa
@@ -1900,6 +1939,7 @@ XKBDAS_ROUTINE:
   beq     @skip6
   lda     #$80
   sta     KBDCTC
+
 @skip6:
   pla
   ora     #$80
@@ -1907,8 +1947,10 @@ XKBDAS_ROUTINE:
   tya
   and     #$1F
   tay
+
 next68:
   tya
+
 Ld882:
   ldx     #$00
   pha
@@ -1917,8 +1959,8 @@ Ld882:
   lda     FLGKBD ; CORRECTME
   eor     #$40
   bcs     @S12
-@S9:
 
+@S9:
   cmp     #$14
   beq     @S11
   cmp     #$17
@@ -1989,6 +2031,7 @@ loop20:  ; d921
 
   and     VIA::PRB
   bne     skipme2001
+
 loop23:
   cpx     $1F ; FIXME
   bne     loop20
@@ -2080,7 +2123,6 @@ flush_keyboard_buffer:
   ldx     #$00
   jmp     XVIDBU_ROUTINE
 
-
 data_to_define_KBDCOL:
   .byt     $01,$02,$04,$08,$10,$20,$40
   .byt     $80
@@ -2166,8 +2208,8 @@ LDAF7:
   bmi     @skip
   ldx     #$0C
   jmp     XLISBU_ROUTINE
-@skip:
 
+@skip:
 
 Ldb09:
   rts
@@ -2177,7 +2219,6 @@ LDB3A:
 
 LDB53:
   rts                     ;     et on sort--------------------------------------
-
 
                ;          GESTION DE L'ENTREE RS232
 LDB5D:
@@ -2243,8 +2284,6 @@ Ldbce:   ; $d27e
   lda     #$00
   sec
   rts
-
-
 
 TABLE_OF_SHORTCUT_KEYBOARD:
   .byt     <(KEYBOARD_NO_SHORTCUT-1),>(KEYBOARD_NO_SHORTCUT-1)  ; Nothing
@@ -2312,8 +2351,8 @@ Ldc4c:
   bcs     Ldc5d ; is it a normal code ?
   ; yes don't display
   and     #$7F  ; yes let's write code
-Ldc5d:
 
+Ldc5d:
   sta     SCRNB+1
   jsr     display_char
   lda     #$09
@@ -2322,8 +2361,8 @@ skip_code:
   jmp     Ldbce
 LDC69:
   sta     SCRNB+1
-display_char:
 
+display_char:
   ldy     #$80
   lda     FLGSCR
   and     #$20      ; inverse video ?
@@ -2353,7 +2392,8 @@ Ldc9a:
   jsr     Ldbb5            ;                                                   I
   lda     #$1B             ;  on envoie un ESC (fin de ESC)                    I
   jsr     Ldbb5            ;                                                   I
-  jmp     LDC46            ;  et on sort                                        I
+  jmp     LDC46            ;  et on sort                                       I
+
 @S1:
   lda     FLGSCR           ;   US, on lit FLGSCR <-------------------------------
   pha                      ;   que l'on sauve
@@ -2365,11 +2405,11 @@ Ldc9a:
 
   lda     SCRNB+1          ;   on lit Y                                         I
   and     #$3F             ;   on vire b4 (protocole US)                        I
-  sta     SCRY           ;   et on fixe Y                                     I
+  sta     SCRY             ;   et on fixe Y                                     I
   jsr     LDE07            ;   on ajuste l'adresse dans la fenêtre              I
-  sta     ADSCRL         ;   dans ADSCRL                                      I
+  sta     ADSCRL           ;   dans ADSCRL                                      I
   tya                      ;                                                    I
-  sta     ADSCRH        ;   et ADSCRH                                        I
+  sta     ADSCRH           ;   et ADSCRH                                        I
   pla                      ;   on indique prochain code pour X                  I
   ora     #$01             ;                                                    I
   pha                      ;                                                    I
@@ -2377,11 +2417,12 @@ Ldc9a:
 @S2:
   lda     SCRNB+1          ;   on lit X <----------------------------------------
   and     #$3F             ;   on vire b4
-  sta     SCRX           ;   dans SCRX
+  sta     SCRX             ;   dans SCRX
   pla
   and     #$FA             ;   on indique fin de US
   pha
   jmp     LDC2B            ;   et on sort
+
 KEYBOARD_NO_SHORTCUT:      ;   USED TO rts keyboard shortcut not managed
   rts
 
@@ -2446,10 +2487,10 @@ LDD14:
   ldx     SCRNB     ;   on prend le numero de fenetre <-------------------
   and     RES       ;  mode monochrome (ou 40 colonnes) ?
   beq     @S2       ;   oui ----------------------------------------------
-  inc     SCRDX   ;  non, on interdit la première colonne             I
-  inc     SCRDX   ;  et la deuxième                                   I
-  lda     SCRX    ;  est-on dans une colonne                          I
-  cmp     SCRDX   ;  interdite ?                                      I
+  inc     SCRDX     ;  non, on interdit la première colonne             I
+  inc     SCRDX     ;  et la deuxième                                   I
+  lda     SCRX      ;  est-on dans une colonne                          I
+  cmp     SCRDX     ;  interdite ?                                      I
   bcs     @S1       ;  non                                               I
   jmp     CTRL_M_START     ;  I  oui,on en sort                                    I
 @S1:
@@ -2476,11 +2517,11 @@ CTRL_H_START:
 
 ;Action:déplace le curseur vers le haut
 CTRL_K_START:
-  lda     SCRY            ;   et si on est pas
-  cmp     SCRDY           ; au sommet de la fenêtre,
+  lda     SCRY              ;   et si on est pas
+  cmp     SCRDY             ; au sommet de la fenêtre,
   bne     LDD6E             ; on remonte d'une ligne ---------------------------
-  lda     SCRDY           ; X et Y contiennent le début et la                I
-  ldy     SCRFY           ;  fin de la fentre X                              I
+  lda     SCRDY             ; X et Y contiennent le début et la                I
+  ldy     SCRFY             ;  fin de la fentre X                              I
   tax                       ;                                                  I
   jsr     XSCROB_ROUTINE    ; on scrolle l'écran vers le bas ligne X à Y       I
 CTRL_M_START:
@@ -2502,6 +2543,7 @@ CTRL_N_START:
 ;Action:efface la fin de la ligne courante
 CTRL_X_START:
   ldy     SCRX    ;  on prend la colonne du curseur
+
 LDD7D:
   lda     SCRFX   ;  et la dernière colonne de la fenetre
   sta     SCRNB+1   ;  dans $29
@@ -2645,9 +2687,10 @@ LDE2D:
   pla
   sta     (ADSCR),y
   rts
-@skip:
 
+@skip:
   pla
+
 lde53:
 
   rts
@@ -2665,6 +2708,7 @@ LDECE:
   jsr      XCOSCR_ROUTINE    ;  on éteint le curseur       I
   pla                        ;  et on sort A de la pile    I
   rts                        ;                             I
+
 LDED7:
   lda      #$01              ;  on met 1 en $216 <----------
   sta      FLGCUR
@@ -2711,8 +2755,8 @@ next18:
 
   lda     (ADDRESS_READ_BETWEEN_BANK),y
   bcc     @S3
-@skip:
 
+@skip:
   jsr     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
 @S3:
@@ -2764,6 +2808,7 @@ Ldf90:
   and     #$3F
   ora     #$40
   bne     next15
+
 Ldf99:
   lda     VIA2::PRB
   and     #$3F
@@ -2775,94 +2820,28 @@ next15:
   and     #$1F
   rts
 
-
-telemon_values_for_JCKTAB:
-  .byt     $0b,$0a,$20,$08,$09,$03,$03
-
-
-
-Le19f:
-
-  clc
-  php
-  stx     VABKP1
-  ldx     #$00
-  jsr     XECRBU_ROUTINE
-  lda     #$08
-  plp
-  bcs     Le1af
-  lda     #$20
-Le1af:
-  ldx     #$00
-  jsr     XECRBU_ROUTINE
-  ldx     VABKP1
-  rts
-Le1b7:
-  sec
-  rts
+; Le19f:
+;   clc
+;   php
+;   stx     VABKP1
+;   ldx     #$00
+;   jsr     XECRBU_ROUTINE
+;   lda     #$08
+;   plp
+;   bcs     Le1af
+;   lda     #$20
+; Le1af:
+;   ldx     #$00
+;   jsr     XECRBU_ROUTINE
+;   ldx     VABKP1
+;   rts
+; Le1b7:
+;   sec
+;   rts
 
 XHCHRS_ROUTINE:
-
-hard_copy_hires:
-
-LE25E:
-
-  dex
-  bne     LE25E
-  stx     TR0
-LE269:
-  ldx     #$06
-LE26B:
-
-
-LE276:
-  lda     #$05
-  sta     TR2
-LE27A:
-  lda     TR0
-  asl
-  asl
-  asl
-  jsr     XMUL40_ROUTINE
-  sta     TR5
-  tya
-  clc
-  adc     #$A0
-  sta     TR6
-  lda     #$08
-  sta     TR4
-  ldy     TR1
-LE290:
-  lda     (TR5),y
-  tax
-  and     #$40
-  bne     LE29B
-  txa
-  and     #$80
-  tax
-LE29B:
-  txa
-  bpl     LE2A0
-  eor     #$3F
-LE2A0:
-  ldx     TR2
-LE2A2:
-  lsr
-  dex
-  bpl     LE2A2
-  rol     TR3
-  tya
-  clc
-  adc     #$28
-  tay
-  bcc     LE2B1
-  inc     TR6
-LE2B1:
-
-LE2D0:
-
   rts
-Le2de:
+
 put_cursor_on_last_char_of_the_line:
   ldy     SCRFX
   .byt    $24
@@ -2876,7 +2855,7 @@ put_cursor_on_last_char_of_the_line:
   bne     @L1
   rts
 
-test_if_prompt_is_on_beginning_of_the_line
+test_if_prompt_is_on_beginning_of_the_line:
   cmp     #$7F
   bne     @skip
   tya
@@ -2930,13 +2909,15 @@ Le32f:
   beq     Le34b
   jsr     put_cursor_on_last_char_of_the_line
   bne     Le32f
+
 Le34b:
   dec     MENDFY
+
 Le34d:
   rts
+
 Le34e:
   rts
-
 
 LE34F:
   jsr     LE301
@@ -2962,8 +2943,8 @@ LE361:
   lda     #$00    ; FIXME 65c02
 
   rts
-Le378:
 
+Le378:
   lda     #$00 ; FIXME 65C02
   sta     MENX
   lsr     ACC1EX
@@ -3123,6 +3104,7 @@ Le5ff:
   lda     #$0B
 
   jmp     Le479
+
 Le604:
   cmp     #$0B
   bne     Le617
@@ -3223,13 +3205,13 @@ XHRSSE_ROUTINE:
 LE79C:
   ldy     HRSX40     ;   sinon on prend X/6                               I
   lda     (ADHRS),y  ;   on lit le code actuel                            I
-  asl            ;   on sort b7                                       I
+  asl                ;   on sort b7                                       I
   bpl     Le7c0      ;   pas pixel, on sort ------------------------------O
   ldx     HRSX6      ;   on prend le reste de X/6                         I
   lda     data_for_hires_display,x  ;  on lit le bit correspondant                      I
   bit     HRSFB      ;   b7 de HRSFB ? 1 ?                                I
-  bmi     @S2      ;   b7 ? 1, donc 3 ou 2                              I
-  bvc     @S1       ;   FB=0 ----------------------------------------    I
+  bmi     @S2        ;   b7 ? 1, donc 3 ou 2                              I
+  bvc     @S1        ;   FB=0 ----------------------------------------    I
   ora     (ADHRS),y  ;   FB=1, on ajoute le code                     I    I
   sta     (ADHRS),y  ;   et on le place                              I    I
   rts
@@ -3237,13 +3219,14 @@ LE79C:
   eor     #$7F       ;   on inverse le bit  <-------------------------    I
   and     (ADHRS),y  ;   et on l'?teint                                   I
   sta     (ADHRS),y  ;   avant de le placer                               I
-  rts            ;                                                    I
+  rts                ;                                                    I
 @S2:
   bvs     Le7c0      ;   FB=3, on sort -----------------------------------O
   eor     (ADHRS),y  ;   FB=2, on inverse le bit                          I
   sta     (ADHRS),y  ;    et on sort       a                               I
 Le7c0:
   rts
+
 
 .include "functions/xhrscb.asm"
 .include "functions/xhrsch.asm"
@@ -3287,9 +3270,7 @@ hires_put_coordinate:
 .include "functions/graphics/xdrawa.asm" ; don't move this include
 .include "functions/graphics/xdrawr.asm" ; don't move this include
 
-
-
-  ;   CALCUL LA TANGENTE (*256) D'UN TRAIT
+;   CALCUL LA TANGENTE (*256) D'UN TRAIT
 Le921:
 
   stx     RES+1             ;   dX (ou dY)*256 dans RES+1
@@ -3375,9 +3356,9 @@ XINK_ROUTINE:
   jsr     Ldbb5     ;  (on envoie CHR$(29))                          I  I
   ldx     SCRNB     ;  on prend X=numéro de fenêtre                  I  I
 LE987:
-  lda     SCRDY           ;  on prend la ligne 0 de la fenêtre <------------  I
+  lda     SCRDY             ;  on prend la ligne 0 de la fenêtre <------------  I
   jsr     XMUL40_ROUTINE    ;  *40 dans RES                                     I
-  lda     SCRBAL          ;  AY=adresse de base de la fenêtre                 I
+  lda     SCRBAL            ;  AY=adresse de base de la fenêtre                 I
   ldy     SCRBAH  ;                                                   I
   jsr     XADRES_ROUTINE    ;   on ajoute l'adresse à RES (ligne 0 *40) dans RES I
   ldy     SCRDX           ;  on prend la première colonne de la fenêtre       I
@@ -3439,6 +3420,7 @@ XFILL_ROUTINE:
   jsr     XADRES_ROUTINE
   dec     HRS1
   bne     @loop2
+
 Lea92:
   rts
 
@@ -5171,6 +5153,7 @@ read_a_code_in_15_and_y:
   bpl     @skip
   lda     (ADDRESS_READ_BETWEEN_BANK),y
   rts
+
 @skip:
   jmp     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
 
@@ -5252,6 +5235,11 @@ osname:
 signature:
   .byte     "Kernel v"
   .asciiz VERSION
+
+.IFP816
+  .byt     "65C816"
+.endif
+
 .IFPC02
 .pc02
   .byt     " 65C02"

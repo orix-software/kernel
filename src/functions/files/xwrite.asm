@@ -8,12 +8,8 @@
 ; [MODIFIED] TR0,PTR_READ_DEST, YA
 ; X contains the fp
 
-
-
 ; fwrite( void * restrict buffer, size_t blocSize, FILE * restrict stream );
 ; [UNCHANGED] X
-
-
 
   pha
   lda     PTR_READ_DEST
@@ -63,7 +59,6 @@
   ;;  Compute nb of written bytes
   jmp     _update_fp_position
 
-
 @we_write:
   lda     #CH376_CMD_WR_REQ_DATA
   sta     CH376_COMMAND
@@ -72,6 +67,7 @@
   beq     @end
 
   ldy     #$00
+
 @loop:
   lda     (PTR_READ_DEST),y
   sta     CH376_DATA
@@ -91,7 +87,7 @@
   inc     PTR_READ_DEST+1
 @next:
   sta     PTR_READ_DEST
+
   rts
 
 .endproc
-

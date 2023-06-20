@@ -189,8 +189,9 @@ go:
     rts
 
 display_catalog:
-    lda     #$00
-    sta     TR0
+
+    STZ_ABS TR0
+
 
     ldy     #$00
 @loop2:
@@ -222,16 +223,12 @@ display_catalog:
     sta     (RESC),y
 @inc_y:
     iny
-
-
-
     cpy     #8+3
     bne     @loop2
 
     lda     #$00
     sta     (RESC),y ; Store EOS
     iny
-
 
     lda     CH376_DATA  ; Attribute
 

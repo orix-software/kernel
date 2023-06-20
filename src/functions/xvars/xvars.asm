@@ -15,10 +15,10 @@
   cpx     #KERNEL_XVALUES_BUSY_MALLOC_TABLE
   beq     @malloc_table_busy_copy   ; Used by lsmem
 
-  cpx     #$08
+  cpx     #KERNEL_XVALUES_GET_CURRENT_PROCESSNAME_FROM_PID
   beq     @XVARS_GET_PROCESS_NAME_PTR_CALL ; Used by lsmem
 
-  cpx     #$09
+  cpx     #KERNEL_XVALUES_PATH_FROM_FD
   beq     @xvars_get_fd_list_call   ; Used by lsof
 
   cpx     #KERNEL_XVALUES_GET_FTELL_FROM_FD  ; $0A
@@ -35,6 +35,9 @@
 
   cpx     #KERNEL_XVALUES_GET_TIME
   beq     @xvalues_get_time
+
+  cpx     #KERNEL_XVALUES_GET_FREE_BANK ; $10
+  beq     @xvalues_get_free_ram_bank
 
   cpx     #$00
   bne     @check_who_am_i
@@ -53,13 +56,14 @@
 @xvalues_get_process_name_with_pid_call:
   jmp     xvalues_get_process_name_with_pid
 
-
 @xvalues_get_process_id_list_call:
   jmp   xvalues_get_process_id_list
 
-
 @xvars_ftell_call:
   jmp     xvars_ftell
+
+@xvalues_get_free_ram_bank:
+  jmp     xvalues_get_free_ram_bank_routine
 
 @malloc_table_copy:
   lda     #<(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
@@ -177,15 +181,133 @@
 
 .endproc
 
+.proc xvalues_get_free_ram_bank_routine
+
+  ; Y contains if the type of bank
+  ; Y=0 RAM
+  ; Y=1 ROM
+  cpy   #01 ; Is rom ?
+  beq   @not_managed
+
+  ldx   #$00
+  lda   BUSY_BANK_TABLE_RAM
+
+@search_available_bank:
+  clc
+  ror
+  bcc   @found
+
+  inx
+  cpx   #08 ; For instance, manage only 8 banks
+  beq   @error
+  bne   @search_available_bank
+  ; not found
+
+@found:
+  ; X contains the id of the bank
+  stx   RES ; Save
+
+  lda   #01 ; 4
+@continue:
+  asl
+  dex    ; 0
+  bne   @continue
+  ora   BUSY_BANK_TABLE_RAM
+  sta   BUSY_BANK_TABLE_RAM
+
+  lda   RES
+  clc
+  adc   #33
+  sta   RES
+  jsr   get_registers_from_id_bank
+  ; A and X contains value
+  ; X contains set
+  ; A the bank
+  ; Y the id of the bank
+
+  ldy   RES
+
+  rts
+
+@not_managed:
+@error:
+  lda   #$00
+  tax
+  tay
+  rts
+.endproc
+
+.proc get_registers_from_id_bank
+    cmp     #$00
+    beq     @bank0
+    tay
+    lda     set,y
+    tax
+    lda     bank,y
+    rts
+@bank0:
+    ; Impossible to have bank 0
+    tax
+    rts
+
+set:
+    ; Rom
+    .byt 0
+    .byte    0,0,0,0
+    .byte    4,4,4,4
+    .byte    1,1,1,1
+    .byte    5,5,5,5
+    .byte    2,2,2,2
+    .byte    6,6,6,6
+    .byte    3,3,3,3
+    .byte    7,7,7,7
+
+    ; Ram
+    .byte    0,0,0,0
+    .byte    1,1,1,1
+    .byte    2,2,2,2
+    .byte    3,3,3,3
+    .byte    4,4,4,4
+    .byte    5,5,5,5
+    .byte    6,6,6,6
+    .byte    7,7,7,7
+
+bank:
+    .byt 0
+    ; Rom
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+
+    ; Ram
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+    .byte    1,2,3,4
+
+.endproc
+
 .proc  xvalues_get_process_name_with_pid
   ; y the pid
+  tya
+  tax
+  jsr     kernel_get_struct_process_ptr
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
-  sta     RES
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
-  ldy     RES
+  ; lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
+  ; sta     RES
 
+  ; lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
+  ; ldy     RES
 
   rts
 .endproc
@@ -195,7 +317,6 @@
   ldy   #>kernel_process+kernel_process_struct::kernel_pid_list
   rts
 .endproc
-
 
 .proc xvars_ftell
   ; A contains the fd
@@ -219,20 +340,16 @@
   lda     RESB
   ldy     RESB+1
   rts
-
-
 .endproc
 
 .proc xvars_get_fd_list
   ; Y contains the fd to get
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
-
+  tya
+  tax
+  jsr     kernel_get_struct_process_ptr
   sta     RES
+  sty     RES+1
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
-  sta     RES+1
-
-  ; ptr Fd = $0000 if yes no fd opened
   lda     RES
   bne     continue
 
@@ -241,10 +358,7 @@
 
   rts
 
-
-
 continue:
-
   lda   #_KERNEL_FILE::f_path
   clc
   adc   RES
@@ -369,18 +483,10 @@ continue:
   cmp     #$FF    ; is init ?
   beq     @init
 
-  tay
+  tax
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
-  sta     RES
+  jsr     kernel_get_struct_process_ptr
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
-  sta     RES+1
-
-  ; now get name
-
-  lda     RES
-  ldy     RES+1
 
   rts
 @init:
@@ -399,7 +505,6 @@ continue:
   sta     RES
   rts
 .endproc
-
 
 .proc XVARS_COPY_MALLOC_TABLE_COMPUTE_OFFSET_BUSY_CHUNK
   lda     RES
@@ -430,6 +535,7 @@ XVARS_TABLE_LOW:
   .byte    $00 ; Table low malloc 7
   .byt     <KERNEL_MAX_PROCESS  ; 8 Used in pstree
   .byt     <osname              ; 9
+  .byt     <kernel_process+kernel_process_struct::kernel_pid_list ; $0A
 
 XVARS_TABLE_HIGH:
   .byt     >kernel_process
@@ -442,3 +548,5 @@ XVARS_TABLE_HIGH:
   .byt     $00 ; ; Table high
   .byt     $00 ; KERNEL_MAX _PROCESS
   .byt     >osname             ; 9
+  .byt     >kernel_process+kernel_process_struct::kernel_pid_list ; $0A
+

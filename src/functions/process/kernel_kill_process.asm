@@ -65,11 +65,14 @@
 
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  ; FIXME use kernel_get_struct_process_ptr routine
+  jsr     kernel_get_struct_process_ptr
+  ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
+  sty     RES+1
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  sta     RES+1
+;  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  ;sta     RES+1
 
   ldy     #kernel_one_process_struct::ppid
 
@@ -95,13 +98,15 @@
 
   ; restore zp of the PPID
 
-  ldy     kernel_process+kernel_process_struct::kernel_current_process
-
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  jsr     kernel_get_struct_process_ptr
   sta     RES
+  sty     RES+1
+  ; lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
+  ; sta     RES
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
-  sta     RES+1
+  ; lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,y
+  ; sta     RES+1
 
 
   ldx     #$00
@@ -115,11 +120,7 @@
   bne     @L1
 
 @skip_load_zp:
-
-
   rts
-
-
 
 close_all_fp:
   ldx     #$00
@@ -136,12 +137,9 @@ close_all_fp:
   tax
   lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
-
 @next:
   inx
   cpx     #KERNEL_MAX_FP
   bne     @init_fp
   rts
-
-
 .endproc

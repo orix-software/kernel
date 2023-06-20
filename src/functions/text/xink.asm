@@ -30,7 +30,7 @@
   jsr     Ldbb5     ;  (on envoie CHR$(12))                          I  I
   lda     #$1D      ;  et on passe en 38 colonnes                    I  I
   jsr     Ldbb5     ;  (on envoie CHR$(29))                          I  I
-  ldx     SCRNB     ;  on prend X=numéro de fen?tre                  I  I
+  ldx     SCRNB     ;  on prend X=numéro de fenetre                  I  I
 @S3:
   lda     SCRDY             ;  on prend la ligne 0 de la fenêtre <------------  I
   jsr     XMUL40_ROUTINE    ;  *40 dans RES                                     I
@@ -60,7 +60,7 @@
   tay                       ;    dans Y
   pla                       ;    on sort le code                                   *
 @S7:
-  sta     (RES),Y; -->on le place dans la colonne correspondante
+  sta     (RES),y           ; -->on le place dans la colonne correspondante
   pha        ; I  on le sauve
   clc        ; I
   lda     RES    ; I  on passe 28 colonnes

@@ -45,35 +45,51 @@
     iny
     cpy     #13                    ; Because we don't manage longfilename shortname =11
     bne     @mloop
+.IFPC02
+.else
     lda     #$00
+.endif
 @mend:
+
+.IFPC02
+.pc02
+    stz     CH376_DATA
+.p02
+.else
     sta     CH376_DATA
+.endif
 
     sta     KERNEL_ERRNO
     jmp     _ch376_dir_create
 
 @launch_xopen:
+
+.IFPC02
+.pc02
+    stz     CH376_DATA
+.p02
+.else
     lda     #$00
     sta     CH376_DATA
+.endif
+
     jmp     _ch376_file_open
 
 @isabsolute:
     rts
+
     lda     ptr1
     ldy     #O_RDONLY
     ldx     ptr1+1
 
-
     jmp     XOPEN_ROUTINE
-
 
     lda     #CH376_SET_FILE_NAME        ;$2f
     sta     CH376_COMMAND
     lda     #"/"
     sta     CH376_DATA
 
-    lda     #$00
-    sta     CH376_DATA
+    STZ_ABS CH376_DATA
 
     jsr     _ch376_file_open
 
@@ -81,6 +97,7 @@
     sta     CH376_COMMAND
 
     ldy     #$00                   ; skip /
+
 @next_folder:
     ldx     #$00
 @next_char:

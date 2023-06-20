@@ -36,11 +36,10 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
 
     ldx     kernel_process+kernel_process_struct::kernel_current_process
 
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-    sta     RES
+    jsr     kernel_get_struct_process_ptr
 
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-    sta     RES+1
+    sta     RES
+    sty     RES+1
 
 
     lda     RES
@@ -60,6 +59,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     bne     @continue
     cpy     #$00
     bne     @continue
+
     lda     #ENOMEM
     sta     KERNEL_ERRNO
     ldx     #$00 ; Return argc=0
@@ -67,6 +67,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     ; oom
 
     rts
+
 @continue:
     ; Save malloc
     sta     RESB

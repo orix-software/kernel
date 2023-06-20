@@ -87,6 +87,7 @@
 
   lda     #EOK ; Return ok
   rts
+
 @error_bad_seek:
   lda     #$FF ; EBADSEEK
   rts

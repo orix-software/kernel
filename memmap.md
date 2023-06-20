@@ -22,6 +22,20 @@ System will need almost 578 bytes in memory, if we reached KERNEL_MAX_PROCESS, K
 kernel_end_of_variables_before_BUFNOM : 503
 kernel_end_of_variables_before_BUFEDT : 58f
 kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a1
+int MALLOC_BUSY_SIZE_LOW=0x570;
+int MALLOC_BUSY_SIZE_HIGH=0x567;
+int MALLOC_BUSY_BEGIN_HIGH=0x539;
+int MALLOC_BUSY_END_HIGH=0x54b;
+int MALLOC_BUSY_BEGIN_LOW=0x542;
+int MALLOC_BUSY_END_LOW=0x554;
+int KERNEL_MAX_NUMBER_OF_MALLOC=0x9;
+int MALLOC_FREE_SIZE_HIGH=0x2ba;
+int MALLOC_FREE_SIZE_LOW=0x2bf;
+int MALLOC_FREE_BEGIN_HIGH=0x52a;
+int MALLOC_FREE_BEGIN_LOW=0x525;
+int MALLOC_FREE_END_HIGH=0x534;
+int MALLOC_FREE_END_LOW=0x52f;
+int KERNEL_MALLOC_FREE_CHUNK_MAX=0x5;
 |MODIFY:RES:_create_file_pointer
 |MODIFY:KERNEL_ERRNO:_create_file_pointer
 |CALL:XMALLOC:_create_file_pointer
@@ -67,6 +81,11 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:RESC:XOPENDIR
 |MODIFY:TR0:XOPENDIR
 |MODIFY:TR7:XOPENDIR
+|MODIFY:RESB:compute_path_relative
+|MODIFY:RESC:compute_path_relative
+|MODIFY:RESD:compute_path_relative
+|MODIFY:RESE:compute_path_relative
+|MODIFY:RESF:compute_path_relative
 |MODIFY:RES:_XEXEC
 |MODIFY:TR0:_XEXEC
 |MODIFY:TR1:_XEXEC
@@ -88,6 +107,8 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:RES:XMAINARGS_ROUTINE
 |MODIFY:REB:XMAINARGS_ROUTINE
 |MODIFY:KERNEL_ERRNO:XMAINARGS_ROUTINE
+|MODIFY:RES:XGETARGV_ROUTINE
+|MODIFY:RESB:_XEXEC
 |MODIFY:RESB:getFileLength
 |MODIFY:RES:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESB:kernel_try_to_find_command_in_bin_path
@@ -95,8 +116,10 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:RESD:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESE:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESF:kernel_try_to_find_command_in_bin_path
-|MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESG:kernel_try_to_find_command_in_bin_path
+|MODIFY:RESH:kernel_try_to_find_command_in_bin_path
+|MODIFY:RESI:kernel_try_to_find_command_in_bin_path
+|MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path
 |MODIFY:RES:XOPEN_ROUTINE
 |MODIFY:RESB:XOPEN_ROUTINE
 |MODIFY:TR7:XOPEN_ROUTINE
@@ -119,6 +142,10 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|RESD                           | $06-$07     |  2   |
 |MEMMAP:RAM|RESE                           | $08-$09     |  2   |
 |MEMMAP:RAM|RESF                           | $0A-$0B     |  2   |
+|MEMMAP:RAM|RESG                           | $59-$5A     |  2   |
+|MEMMAP:RAM|RESH                           | $60-$61     |  2   |
+|MEMMAP:RAM|RESI                           | $62-$63     |  2   |
+|MEMMAP:RAM|RESCONCAT                      | $64-$65     |  2   |
 |MEMMAP:RAM|TR0                            | $0C-$0C     |  1   |
 |MEMMAP:RAM|TR1                            | $0D-$0D     |  1   |
 |MEMMAP:RAM|TR2                            | $0E-$0E     |  1   |
@@ -169,7 +196,6 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|FREE                           | $59-$5A     |  2   |
 |MEMMAP:RAM|INDRS                          | $5B-$5B     |  1   |
 |MEMMAP:RAM|FREE                           | $5C-$5F     |  2   |
-|MEMMAP:RAM|RESG                           | $6E-$6F     |  2   |
 |MEMMAP:RAM|FREE                           | $8C-$FF     |  115   |
 |#MEMMAP: Page 2
 |MEMMAP:Type     | Name                          | Range       | Size |
@@ -192,24 +218,25 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|FLGCLK_FLAG                     | $0215-$0215 |  1   |
 |MEMMAP:RAM|FLGCUR                          | $0216-$0216 |  1   |
 |MEMMAP:RAM|FLGCUR_STATE                         | $0217-$0217 |  1   |
-|MEMMAP:RAM|ADSCRL                          | $0218-$021C |  4   |
-|MEMMAP:RAM|ADSCRH                          | $021C-$0220 |  4   |
-|MEMMAP:RAM|SCRX                         | $0220-$0220 |  548   |
-|MEMMAP:RAM|SCRY                         | $0224-$0224 |  552   |
-|MEMMAP:RAM|SCRDX                         | $0228-$0228 |  556   |
-|MEMMAP:RAM|SCRFX                         | $022C-$022C |  560   |
-|MEMMAP:RAM|SCRFY                         | $0234-$0234 |  568   |
-|MEMMAP:RAM|SCRDY                         | $0230-$0230 |  564   |
-|MEMMAP:RAM|SCRBAL                         | $0238-$0238 |  572   |
-|MEMMAP:RAM|SCRBAH                         | $023C-$023C |  576   |
-|MEMMAP:RAM|SCRCT                         | $0240-$0240 |  580   |
-|MEMMAP:RAM|SCRCF                         | $0244-$0244 |  584   |
+|MEMMAP:RAM|ADSCRL                          | $0218-$021B |  4   |
+|MEMMAP:RAM|ADSCRH                          | $021C-$021F |  4   |
+|MEMMAP:RAM|SCRX                         | $0220-$0220 |  1   |
+|MEMMAP:RAM|BUSY_BANK_TABLE_RAM             | $0221-$0224 |  3   |
+|MEMMAP:RAM|SCRY                         | $0224-$0224 |  1   |
+|MEMMAP:RAM|SCRDX                         | $0228-$0228 |  1   |
+|MEMMAP:RAM|SCRFX                         | $022C-$022C |  1   |
+|MEMMAP:RAM|SCRFY                         | $0234-$0234 |  1   |
+|MEMMAP:RAM|SCRDY                         | $0230-$0230 |  1   |
+|MEMMAP:RAM|SCRBAL                         | $0238-$0238 |  1   |
+|MEMMAP:RAM|SCRBAH                         | $023C-$023C |  1   |
+|MEMMAP:RAM|SCRCT                         | $0240-$0240 |  1   |
+|MEMMAP:RAM|SCRCF                         | $0244-$0244 |  1   |
 |MEMMAP:RAM|FIXME                          | $0248-$0220 |  80   |
 |MEMMAP:RAM|FLGSCR                          | $0248-$024C |  4   |
 |MEMMAP:RAM|CURSCR                          | $024C-$0250 |  4   |
 |MEMMAP:RAM|FREE                          | $0250-$0256 |  6   |
-|MEMMAP:RAM|SCRTXT                          | $0256-$025C |  17   |
-|MEMMAP:RAM|SCRHIR                          | $025C-$0260 |  4   |
+|MEMMAP:RAM|SCRTXT                          | $0256-$025C |  6   |
+|MEMMAP:RAM|SCRHIR  (not used)              | $025C-$0260 |  4   |
 |MEMMAP:RAM|SCRTRA                          | $0262-$0266 |  6   |
 |MEMMAP:RAM|KBDCOL                          | $0268-$0270 |  8   |
 |MEMMAP:RAM|KBDFLG_KEY                      | $0270-$0272 |  2  |
@@ -219,7 +246,7 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|KBDFCT                      | $0276-$0277 | 1   |
 |MEMMAP:RAM|KBDSHT                      | $0278-$0279 | 1   |
 |MEMMAP:RAM|KBDKEY                       | $0279-$027E | 1   |
-|MEMMAP:RAM|KBDCTC                          | $027E-$027F |  1   |
+|MEMMAP:RAM|KBDCTC                          | $027E-$027F |  2   |
 |MEMMAP:RAM|FREE                            | $027F-$02A5 |  40   |
 |MEMMAP:RAM|KEYBOARD_COUNTER               | $02A6-$02A9 |  3   |
 |MEMMAP:RAM|HRSPAT                            | $02AA-$02AA |  1   |
@@ -228,7 +255,7 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|kernel_malloc_free_chunk_size_low                   | $02BA-$02C3 | 10   |
 |MEMMAP:RAM|FLGRST                            | $02EE-$02EE |  1   |
 |MEMMAP:RAM|CSRND                            | $02EF-$02EF |  1   |
-|MEMMAP:RAM|kernel_xmalloc_call            | $02C4-$02EB |      |
+|MEMMAP:RAM|kernel_xmalloc_call            | $02C4-$02EB |    39  |
 |MEMMAP:RAM|VNMI            | $02F4-$02F7 |   3   |
 |MEMMAP:RAM|ADIODB_VECTOR            | $02F7-$02FA |   3   |
 |MEMMAP:RAM|IRQVECTOR            | $02FA-$02FD |   3   |
@@ -253,12 +280,12 @@ CALL:XOPEN:XRM_ROUTINE
 |#MEMMAP: Kernel bank 7
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fbec-$fff0|   1028   |
+|MEMMAP:ROM|FREE                         |$fecc-$fff0|   292   |
 |#MEMMAP:Bank 0
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: --------  | ---------------------------- | ------- |-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $f8a8-$f954 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $f954-$fbd4 |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fb7e-$fc2a |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc2a-$feaf |     |

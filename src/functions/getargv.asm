@@ -6,6 +6,10 @@
 ;argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 ;.endstruct
 ; X Contain the id of the argument
+
+.out     .sprintf("|MODIFY:RES:XGETARGV_ROUTINE")
+.out     .sprintf("|MODIFY:RESB:_XEXEC")
+
 .proc XGETARGV_ROUTINE
 
    ; lda     RES

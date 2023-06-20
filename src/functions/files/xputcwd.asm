@@ -21,6 +21,7 @@
     jsr     @compute
      ; Copy the arg to pid struct.
     ldy     #$00
+
 @L1:
     lda     (RES),y
     beq     @S2
@@ -77,11 +78,13 @@
 @compute:
     ldx     kernel_process+kernel_process_struct::kernel_current_process
 
+    jsr     kernel_get_struct_process_ptr
 
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+    ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
     sta     RESB
-    lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-    sta     RESB+1
+    sty     RESB+1
+    ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+    ;sta     RESB+1
 
     lda     #kernel_one_process_struct::cwd_str
     clc

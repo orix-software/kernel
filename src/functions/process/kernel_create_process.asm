@@ -38,8 +38,7 @@
 
 ; Get first pid
   ldx     #$00   ; Because the first is init (
-;@me:
- ; jmp     @me
+
 @L3:
   lda     kernel_process+kernel_process_struct::kernel_pid_list,x
   beq     @found
@@ -89,8 +88,8 @@
 
   lda     #ENOMEM
   rts
-@S2:
 
+@S2:
   ; now register ptr adress of process
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
@@ -110,12 +109,9 @@
 ;                                          Save ppid
 ; ***********************************************************************************************************************
 
-
-
   ldy     #kernel_one_process_struct::ppid
 
   lda     kernel_process+kernel_process_struct::kernel_current_process   ; $57A
-
   sta     (RES),y ; $6AE
 
 @register_processname:
@@ -182,12 +178,14 @@ save_command_line:
   beq     @initialize_to_slash
 
   ldx     kernel_process+kernel_process_struct::kernel_current_process
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  jsr     kernel_get_struct_process_ptr
   sta     KERNEL_CREATE_PROCESS_PTR1
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  sta     KERNEL_CREATE_PROCESS_PTR1+1
+  sty     KERNEL_CREATE_PROCESS_PTR1+1
 
+
+; Copy cwd from ppid
   ldy     #kernel_one_process_struct::cwd_str
+
 @loop:
   lda     (KERNEL_CREATE_PROCESS_PTR1),y
   beq     @out
@@ -200,6 +198,7 @@ save_command_line:
 
   jmp     @skip
 
+; initialize  cwd to slash when pid equinit
 @initialize_to_slash:
   ldy     #kernel_one_process_struct::cwd_str
   lda     #"/"
@@ -207,12 +206,10 @@ save_command_line:
   iny
   lda     #$00
   sta     (RES),y  ; Store 0 for the last string
+
 @skip:
-
-
   ; Set pid number in the struct
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-
   stx     kernel_process+kernel_process_struct::kernel_current_process
   rts
 
@@ -221,5 +218,4 @@ save_command_line:
 .endproc
 
 str_max_process_reached:
-  .asciiz "Max process reached "
-
+  .asciiz "Max process reached"

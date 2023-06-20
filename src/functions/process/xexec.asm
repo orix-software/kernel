@@ -27,8 +27,9 @@
     and     #%11011111
     sta     $342
 
-    lda     #$00
-    sta     $343
+
+    STZ_ABS $343
+
 
     ; Copy in BUFEDT
     ldy     #$00
@@ -36,6 +37,8 @@
     lda     (TR0),y
     beq     @S6
     sta     BUFEDT,y
+
+
     iny
     cpy     #110
     bne     @L7
@@ -72,13 +75,8 @@ next_bank:
 
     cpy     #EOK
     beq     out1
-    ;bne     read_on_sdcard
 
 next:
-  ;  lda     KERNEL_ERRNO
-  ;  cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-  ;  beq     out2                    ; Yes we reached max process we exit
-
     ; Here continue
     dec     KERNEL_TMP_XEXEC
 
@@ -109,8 +107,8 @@ check_memory_bank:
     cmp     #%00100000
     beq     read_on_sdcard
 
-    lda     #$00
-    sta     $343
+
+    STZ_ABS $343
 
     lda     $342
     ora     #%00100000
@@ -120,7 +118,6 @@ check_memory_bank:
     jmp     next_bank
 
 read_on_sdcard:
-
     lda     TR0
     ldy     TR1
     jsr     kernel_try_to_find_command_in_bin_path
@@ -128,26 +125,24 @@ read_on_sdcard:
     cpy     #EOK
     beq     out2
 
-    lda     #$00
-    sta     KERNEL_ERRNO
+
+    STZ_ABS      KERNEL_ERRNO
 
     rts
 
 out2:
-
     ldy     KERNEL_KERNEL_XEXEC_BNKOLD  ; Use Y or else it override A (return code from binary)
     sty     BNK_TO_SWITCH
 
-
 out1:
     sta     HRS2
+
 skip_sta_hrs2:
     lda     kernel_process+kernel_process_struct::kernel_current_process
-
     jsr     kernel_kill_process
+
 exit:
     ; Restore current set
-
     lda     KERNEL_KERNEL_XEXEC_BNKOLD
     sta     BNK_TO_SWITCH
 
@@ -157,12 +152,8 @@ exit:
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET
     sta     $343
 
-
-
     ldy     #EOK
     lda     HRS2        ; Return code
-
-
 
     rts
 .endproc

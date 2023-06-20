@@ -63,13 +63,24 @@
     sty     PTR_READ_DEST+1            ; Set address to load the next part of the program
     sty     ORI2_PROGRAM_ADRESS+1
 ;
+
+.IFPC02
+.pc02
+    stz     ORI2_PROGRAM_ADRESS
+    stz     ORI2_MAP_ADRESS
+    stz     RESE             ; Set address execution
+    stz     PTR_READ_DEST
+    stz     ORI2_PAGE_LOAD  ; Set to 0 for instance before compute
+.p02
+.else
     lda     #$00
     sta     ORI2_PROGRAM_ADRESS
     sta     ORI2_MAP_ADRESS
     sta     RESE             ; Set address execution
     sta     PTR_READ_DEST
-
     sta     ORI2_PAGE_LOAD  ; Set to 0 for instance before compute
+.endif
+
 
     ldy     #15              ; High start adress
     lda     RESD+1      ; Align
@@ -217,8 +228,8 @@ skip82:
 	sta     ORI2_PROGRAM_ADRESS
 	bcc     *+4
 	inc     ORI2_PROGRAM_ADRESS+1
-suite2:
 
+suite2:
 	iny
 
 	dec     ORI2_LENGTH_MAP
@@ -226,9 +237,7 @@ suite2:
 
 rel_end:
 	inc     ORI2_PAGE_LOAD				; On remet la page de chargement à sa valeur initiale
-;  @me:
-;  	jmp		@me
-;  	lda		ORI2_PROGRAM_ADRESS+1
+
 
 	rts									; Pour utilisation éventuelle par une autre routine
 .endproc

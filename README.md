@@ -6,19 +6,21 @@
 
 Orix is designed to work with ORICHD (telestrat) and Twilighte card (atmos). See : http://orix.oric.org
 
-Some code is done by Fabrice Broche (70%) and Jede (30%). Anyway, all minitel and FDC routines had been removed
+Some code is done by Fabrice Broche (60%) and Jede (40%). Anyway, all minitel and FDC routines had been removed
 
 Assembler : ca65
-CPU : 6502 & 65C02 (but 65c22 not tested)
+CPU : 6502 & 65C02 (but 65C02 not tested)
 
 ## How to use it ?
+
 This kernel is a set of primitives to displays string, open/close/write files ...
 
 You need at least "shell" bank to use this kernel
 
 ## Build option
 
-### Root file on sdcard 
+### Root file on sdcard
+
 Pass to ca65 command line : -DWITH_SDCARD_FOR_ROOT=1
 or else it will reads en usb key
 

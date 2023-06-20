@@ -1,5 +1,5 @@
 .export XFREE_ROUTINE
-
+; DBF1
  ; 6c6 b3ff ac3c
 
 .proc XFREE_ROUTINE
@@ -77,15 +77,14 @@
   ; FIXME BUG
 
   ; We try to find where the free chunk is
-  lda     #$00
+
   ; Erase pid reference
   ; FR : On set 0 dans la table de malloc (dans la liste des pid de malloc) pour dire que le chunk "busy" est libre
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+  STZ_ABS_X kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list
 
   jsr     xfree_find_free_chunk
   cmp     #$00
   beq     @merge_with_free_table
-
 
 ; at this step we can not merge the chunk, we needs to create a new free chunk
 
@@ -127,19 +126,10 @@ out:
 
 ; Don't move this proc
 
-
 .proc xfree_exit
   jsr     xfree_garbage
   jsr     xfree_garbage_from_end
-
-
   jsr     xfree_garbage_from_end_for_main
-
- ; jsr     xfree_find_free_chunk
- ; cmp     #$01
- ; beq     @exit
- ; jsr     xfree_merge_table
-
 
   ; trying to merge with main chunk
 
@@ -154,14 +144,18 @@ out:
   rts
 .endproc
 
-
 .proc xfree_find_free_chunk
-  lda     #$00
-  sta     RES
+
+  STZ_ABS RES
+
   ; X contains the id of the busy chunk
   ; FR : on essaie de trouver un chunk libre
   ldy     #$00
 @try_another_free_chunk:
+  ; On regarde si le chunk libre à sa valeur high de début à 0, si oui, alors on ne peut pas recoller avec ce chunk
+  ; Parce qu'il n'est pas setté
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y ; $FC $B4
+  beq     @next_free_chunk
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y ; $FC $B4
 
   ; FIXME 65C02, use 'dec A'
@@ -194,8 +188,10 @@ out:
 .endproc
 
 .proc xfree_merge_table
+  ; X contient l'index du chunk busy qu'on va merger avec le chunk free
 
   ; add in the free malloc table
+  ; On prend l'offset de début de chunk busy, ce qui est le début du chunk free
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
@@ -215,6 +211,8 @@ out:
   clc
   adc     #$01
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+
+
   pla
 @do_not_inc:
 
@@ -232,12 +230,14 @@ out:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+
   rts
 .endproc
 
-
-
 .proc free_clear_free_chunk
+  ; Y contient l'index du chunk libre à populer
+  ; X contient l'index du chunk busy qu'on va recopier dans libre
+  ; On arrive ici parce qu'on n'a pas pu recoller avec un chunk déjà existant, donc on le popule
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
@@ -251,16 +251,17 @@ out:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
 
-
-  jsr     xfree_clear_busy_chunk
-
-  ; update size
-
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+
+  jsr     xfree_clear_busy_chunk
+
+  ; update size
+
+
   rts
 .endproc
 
@@ -270,16 +271,14 @@ out:
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
   rts
 .endproc
-
 
 .proc xfree_garbage
 
   ldx     #$01
-  lda     #$00
-  sta     RES
+  STZ_ABS RES
   ; FR : on essaie de trouver un chunk libre
   ldy     #$02
   cpy     #(KERNEL_MALLOC_FREE_CHUNK_MAX-1)
@@ -293,9 +292,8 @@ out:
   beq     @next_free
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
-  ; FIXME 65C02, use 'dec A'
-  clc
-  adc     #$01
+
+  INCA    ; macro inca
 
   bcc     @skip_inc_high
   inc     RES
@@ -329,17 +327,10 @@ out:
   adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
 
-; [lsmem state]
-; Free:#07F6:B3FF #AC0D
-; Busy:#06C2:0734 #0072
-; Busy#0735:075B #0026
-; Busy:#075C:07C0 #0064
-; Busy:#07C1:07F5 #0034
-
   pha
   lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
-  clc
-  adc     #$01
+  INCA
+
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   pla
 @do_not_inc:
@@ -350,9 +341,8 @@ out:
   adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
+
   jsr     xfree_clear_free_chunk
-
-
 
 @not_same:
 @next_free:
@@ -378,14 +368,10 @@ out:
   ; FR : on essaie de trouver un chunk libre
   ldy     #$01
 
-
-
-
-
 @try_another_free_chunk:
 
-  lda     #$00
-  sta     RES
+  STZ_ABS RES
+
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
 
   beq     @next_free
@@ -396,9 +382,7 @@ out:
 
 
 @continue:
-  ; FIXME 65C02, use 'dec A'
-  clc
-  adc     #$01
+  INCA
 
   bcc     @skip_inc_high
   inc     RES
@@ -435,9 +419,9 @@ out:
 
   pha
   lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
-  clc
-  adc     #$01
+  INCA
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+
   pla
 @do_not_inc:
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
@@ -450,8 +434,6 @@ out:
 
   ; X and Y must be set
   jsr     xfree_clear_free_chunk
-
-
 
 @not_same:
 @next_free:
@@ -478,8 +460,7 @@ out:
   ldy     #$01
 
 @try_another_free_chunk:
-  lda     #$00
-  sta     RES
+  STZ_ABS   RES
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   beq     @next_free
@@ -489,9 +470,8 @@ out:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
 @continue:
-  ; FIXME 65C02, use 'dec A'
-  clc
-  adc     #$01
+
+  INCA
 
   bcc     @skip_inc_high
   inc     RES
@@ -519,9 +499,6 @@ out:
   ; Compute size
 
   lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
-
-
-
   clc
   adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
   bcc     @do_not_inc
@@ -529,25 +506,23 @@ out:
 
   pha
   lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x ; It should be better here but inc does not manage inc $xx,y	
-  clc
-  adc     #$01
+  INCA
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+
   pla
 @do_not_inc:
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
-
-
 
   lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   clc
   adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+
+
   tya
   tax
   ; X and Y must be set
   jsr     xfree_clear_free_chunk
-
-
 
 @not_same:
 @next_free:
@@ -560,7 +535,7 @@ out:
 .endproc
 
 .proc xfree_clear_free_chunk
-    ; Clear the free chunk
+  ; Clear the free chunk FIXME 6502
   lda     #$00
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
   sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
@@ -572,8 +547,6 @@ out:
   sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   rts
 .endproc
-
-
 
 
 str_can_not_find_any_free_chunk_available:

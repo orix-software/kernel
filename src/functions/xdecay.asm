@@ -1,8 +1,8 @@
 ;                        CONVERSION ASCII -> BINAIRE
 
-;Principe:On lit un ? un les chiffres de la chaine stock?e en AY jusqu'à ce
-;qu'on ait plus de chiffres. On multiplie au fur et ? mesure le resultat
-;par 10 avant d'ajouter le chiffre trouv?. Le principe est aisee à
+;Principe:On lit un à un les chiffres de la chaine stockée en AY jusqu'à ce
+;qu'on ait plus de chiffres. On multiplie au fur et à mesure le resultat
+;par 10 avant d'ajouter le chiffre trouvé. Le principe est aisee à
 ; assimiler et la routine compacte. Un bon exemple d'optimisation.
 ;En sortie, AY et RESB contient le nombre, AY l'adresse de la chaine,
 ; et X le nombre de caract?res d?cod?s.
