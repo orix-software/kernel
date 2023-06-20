@@ -14,6 +14,7 @@
 	sei
 	lda     #$1F
 	sta     $BF67
+	sta     $BFDF
 	jsr     wait_0_3_seconds
 	jsr     move_chars_text_to_hires
 	lda     #$5C

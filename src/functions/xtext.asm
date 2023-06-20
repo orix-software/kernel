@@ -13,7 +13,7 @@
 	ldy     #$02
 	ldx     #$00
 	jsr     ROUTINE_TO_DEFINE_7
-	
+
 	lda     #$1A
 	sta     $BFDF
 	jsr     wait_0_3_seconds
@@ -28,4 +28,4 @@
 	plp
 @skip:
 	rts
-.endproc	
+.endproc
