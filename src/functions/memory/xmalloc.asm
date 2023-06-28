@@ -1,11 +1,11 @@
-
 .export XMALLOC_ROUTINE
 
 .proc XMALLOC_ROUTINE
 
+; $fb64
+
 .out     .sprintf("|MODIFY:TR7:XMALLOC_ROUTINE")
 .out     .sprintf("|MODIFY:KERNEL_ERRNO:XMALLOC_ROUTINE")
-
 
 ; IN [A & Y ] the length requested
 ;
@@ -14,8 +14,6 @@
 ; Don't use RES or RESB in this routine, if it's used, it affects kernel_create_process routine and kernel_try_to_find_command_in_bin_path
 ; Verify if there is enough memory
 ;
-
-
 
 .ifdef WITH_DEBUG
     jsr     kdebug_save
@@ -64,18 +62,15 @@
 
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
-
-
     lda     #ENOMEM
     sta     KERNEL_ERRNO
 
     lda     #NULL
     ldy     #NULL
 
-
     rts
-@allocate:
 
+@allocate:
     ; found first available busy table
     sta     TR7                                  ; Save A (low value of the malloc), Y is not saved because we don't modify it
 
@@ -105,7 +100,6 @@
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
 
-
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
@@ -126,12 +120,9 @@
     adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
     ; FIXME for 32 bits mode in the future
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
-
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 
     ; update now the memory available in the chunk memory free
-
-
 ;
     lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
     sec
@@ -152,16 +143,11 @@
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
     bne     @skip4
     inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+
 @skip4:
-
-  ;  lda     KERNEL_MALLOC_TYPE
-   ; sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_type,x
-
-
     lda     kernel_process+kernel_process_struct::kernel_current_process
 @store:
     sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-
 
     ; Restore type
 
@@ -184,6 +170,7 @@
 .endif
     lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+
     rts
 .endproc
 
@@ -201,11 +188,7 @@ _print_hexa:
     jsr     XWR0_ROUTINE
     rts
 
-
-
 _print_hexa_no_sharp:
-
-
     jsr     XHEXA_ROUTINE
     sty     TR7
 

@@ -3,7 +3,7 @@ XSCROH_ROUTINE:
 ;                     SCROLLE UNE FENETRE VERS LE BAS
 ;Action:scrolle vers le bas de la ligne X à la ligne Y la fenêtre courante.
 
-  lda     #$00     ;  on prend $0028, soit 40
+  lda     #$00     ;  on prend $0028, soit 40 FIXME 65c02
   sta     DECFIN+1
   lda     #$28
   bne     LDE62    ;  inconditionnel

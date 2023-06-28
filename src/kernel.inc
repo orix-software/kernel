@@ -55,10 +55,21 @@ KERNEL_SAVE_XEXEC_CURRENT_SET:
     .res 1
 KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM:
     .res 1
+;KERNEL
 KERNEL_END_PROCESS_VARIABLES:
 .if  KERNEL_END_PROCESS_VARIABLES > FLGTEL
   .error  "Error KERNEL_END_PROCESS_VARIABLES overlap FLGTEL"
 .endif
+
+.org SCRX+1
+BUSY_BANK_TABLE_RAM:
+    .res 3
+
+.org SCRDX
+    ; SCRDX
+    .res 1
+SCRFX_KERNEL:
+    .res 1
 
 .org $282
 ; Was VDTPIL
@@ -152,3 +163,24 @@ kernel_end_of_variables_after_BUFEDT:
 .if     kernel_end_of_variables_after_BUFEDT > $7FF
   .error  "Error start of execution program for binary ($800) is written by kernel variables try to move some variables in kernel.inc before $800"
 .endif
+
+.out .sprintf("int MALLOC_BUSY_SIZE_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low)
+.out .sprintf("int MALLOC_BUSY_SIZE_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high)
+.out .sprintf("int MALLOC_BUSY_BEGIN_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high)
+.out .sprintf("int MALLOC_BUSY_END_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high)
+.out .sprintf("int MALLOC_BUSY_BEGIN_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low)
+.out .sprintf("int MALLOC_BUSY_END_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low)
+.out .sprintf("int KERNEL_MAX_NUMBER_OF_MALLOC=0x%x;",KERNEL_MAX_NUMBER_OF_MALLOC)
+
+
+.out .sprintf("int MALLOC_FREE_SIZE_HIGH=0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high)
+.out .sprintf("int MALLOC_FREE_SIZE_LOW=0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low)
+
+.out .sprintf("int MALLOC_FREE_BEGIN_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high)
+.out .sprintf("int MALLOC_FREE_BEGIN_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low)
+
+.out .sprintf("int MALLOC_FREE_END_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high)
+.out .sprintf("int MALLOC_FREE_END_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low)
+
+.out .sprintf("int KERNEL_MALLOC_FREE_CHUNK_MAX=0x%x;",KERNEL_MALLOC_FREE_CHUNK_MAX)
+

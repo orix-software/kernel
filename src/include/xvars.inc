@@ -1,4 +1,5 @@
 .define WHO_AM_IAM        $01
 .define MALLOC_TABLE_COPY $02
 
-.define KERNEL_XVARS_MAX_NUMBER_OF_MALLOC_AND_FREE_CHUNK $05
+
+

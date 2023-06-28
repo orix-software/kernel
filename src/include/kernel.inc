@@ -5,14 +5,26 @@
 .define XVARS_KERNEL_ERRNO                4
 .define XVARS_KERNEL_BINARY_VERSION       6 ; used in untar version
 .define XVARS_KERNEL_MAX_PROCESS          8
+.define KERNEL_XVARS_MAX_NUMBER_OF_MALLOC_AND_FREE_CHUNK $05
+.define KERNEL_XVARS_CURRENT_VERSION_BINARY              $06
+.define KERNEL_XVARS_KERNEL_MAX_PROCESS                  $08
+.define KERNEL_XVARS_PID_LIST_PTR                        $0A
+
 
 .define KERNEL_XVALUES_FREE_MALLOC_TABLE                            $02
 .define KERNEL_XVALUES_BUSY_MALLOC_TABLE                            $07
-.define KERNEL_XVALUES_GET_CURRENT_PROCESSNAME_FROM_ID_MALLOC_TABLE $08
+.define KERNEL_XVALUES_GET_CURRENT_PROCESSNAME_FROM_PID             $08
+.define KERNEL_XVALUES_PATH_FROM_FD                                 $09
 .define KERNEL_XVALUES_GET_FTELL_FROM_FD                            $0A
 .define KERNEL_XVALUES_GET_PROCESS_TREE                             $0B
 .define KERNEL_XVALUES_GET_PROCESS_ID_LIST                          $0C
 .define KERNEL_XVALUES_GET_PROCESS_NAME_WITH_PID                    $0D
+.define KERNEL_XVALUES_GET_OSNAME                                   $0E
+.define KERNEL_XVALUES_GET_TIME                                     $0F
+.define KERNEL_XVALUES_GET_FREE_BANK                                $10
+
+; Returns the string of the opened file of the current process
+;.define KERNEL_XVALUES_GET_PROCESS_ID                       $0A
 
 .macro  BRK_KERNEL   value
         .byte $00,value

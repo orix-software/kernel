@@ -114,8 +114,8 @@ str_enter_malloc:
 .endproc
 
 .proc xdebug_enter_XMALLOC_return_adress
-    lda  #$00
-    sta  $343
+    lda     #$00
+    sta     $343
    ; jsr    xdebug_save
     lda    #<str_enter_found
     ldy    #>str_enter_found
@@ -151,7 +151,6 @@ r0000010:
 hex_table:
     .byte "0123456789ABCDEF"
 .endproc
-
 
 .proc xdebug_send_ay_to_printer
     rts
@@ -266,8 +265,6 @@ str_enter_free:
     rts
 
 .endproc
-
-
 
 .proc kdebug_restore
 

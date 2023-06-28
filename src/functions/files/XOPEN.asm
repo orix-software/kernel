@@ -104,9 +104,9 @@
   lda     (RES),y
   ;
   cmp     #"/"
-  beq     @it_is_absolute ; It's absolute then skip currentpath
+  beq     @it_is_absolute      ; It's absolute then skip currentpath
   ; concat
-  jsr     XGETCWD_ROUTINE ; Modify RESB
+  jsr     XGETCWD_ROUTINE      ; Modify RESB
 
   jsr     _create_file_pointer ; Modify RES
   ; Check if oom or other too much busy chunk
@@ -115,6 +115,7 @@
   cpy     #$00
   bne     @not_null_2
   ; For cc65 compatibility
+
 @oom_error:
   lda     #ENOMEM
   sta	    KERNEL_ERRNO
@@ -176,6 +177,7 @@
 
   bne     @L4
   ; Bof return NULL
+
   jmp     @exit_open_with_null
 
 @end_of_path_from_arg:
@@ -185,9 +187,8 @@
   jmp     @open_from_device
 
 @it_is_absolute:
-
-
   ; Pass arg to createfile_pointer
+
   lda     RES
   ldy     RES+1
   ; and XOPEN_FLAGS too at this step
@@ -219,7 +220,7 @@
   sta     CH376_COMMAND
 
 @next_char:
-
+  ; $eb55
   lda     (KERNEL_XOPEN_PTR1),y
   beq     @slash_found_or_end_of_string_stop
   cmp     #"/"
@@ -230,6 +231,10 @@
   bcs     @do_not_uppercase
   sbc     #$1F
 @do_not_uppercase:
+
+ ; sta     $bb80,y
+
+
   sta     CH376_DATA
   iny
   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
@@ -284,6 +289,7 @@
 @file_not_found:
   ; Checking if filesys is found
  ; jmp     @exit_open_with_null
+
   lda     FILESYS_BANK
   beq     @filesys_bank_not_found
 
@@ -307,6 +313,7 @@
   and     #O_RDONLY
   cmp     #O_RDONLY
   bne     @could_be_created
+
 
 @exit_open_with_null:
 
@@ -356,12 +363,13 @@
   ;       store pointer in process struct
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
 
+  jsr     kernel_get_struct_process_ptr
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct
+  ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x   ; Get current process struct
   sta     RES
-
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  sta     RES+1
+  sty     RES+1
+  ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  ;sta     RES+1
 
   ; Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
@@ -401,6 +409,7 @@
   ; Now try to find an available FD
 
   ldx     #$00
+
 @init_fp:
   lda     kernel_process+kernel_process_struct::kernel_fd,x
   beq     @found_fp_slot

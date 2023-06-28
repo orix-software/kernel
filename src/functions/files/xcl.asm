@@ -1,2 +1,0 @@
-XCL0_ROUTINE:
-	rts

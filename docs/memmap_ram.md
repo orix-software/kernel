@@ -7,6 +7,10 @@
 |RAM|RESD                           | $06-$07     |  2   |
 |RAM|RESE                           | $08-$09     |  2   |
 |RAM|RESF                           | $0A-$0B     |  2   |
+|RAM|RESG                           | $59-$5A     |  2   |
+|RAM|RESH                           | $60-$61     |  2   |
+|RAM|RESI                           | $62-$63     |  2   |
+|RAM|RESCONCAT                      | $64-$65     |  2   |
 |RAM|TR0                            | $0C-$0C     |  1   |
 |RAM|TR1                            | $0D-$0D     |  1   |
 |RAM|TR2                            | $0E-$0E     |  1   |
@@ -57,7 +61,6 @@
 |RAM|<span style="color:green">FREE</span>                           | $59-$5A     |  2   |
 |RAM|INDRS                          | $5B-$5B     |  1   |
 |RAM|<span style="color:green">FREE</span>                           | $5C-$5F     |  2   |
-|RAM|RESG                           | $6E-$6F     |  2   |
 |RAM|<span style="color:green">FREE</span>                           | $8C-$FF     |  115   |
 # Page 2
 |Type     | Name                          | Range       | Size |
@@ -80,36 +83,48 @@
 |RAM|FLGCLK_FLAG                     | $0215-$0215 |  1   |
 |RAM|FLGCUR                          | $0216-$0216 |  1   |
 |RAM|FLGCUR_STATE                         | $0217-$0217 |  1   |
-|RAM|ADSCRL                          | $0218-$021C |  4   |
-|RAM|ADSCRH                          | $021C-$0220 |  4   |
-|RAM|SCRX                         | $0220-$0220 |  548   |
-|RAM|SCRY                         | $0224-$0224 |  552   |
-|RAM|SCRDX                         | $0228-$0228 |  556   |
-|RAM|SCRFX                         | $022C-$022C |  560   |
-|RAM|SCRFY                         | $0234-$0234 |  568   |
-|RAM|SCRDY                         | $0230-$0230 |  564   |
-|RAM|SCRBAL                         | $0238-$0238 |  572   |
-|RAM|SCRBAH                         | $023C-$023C |  576   |
-|RAM|SCRCT                         | $0240-$0240 |  580   |
-|RAM|SCRCF                         | $0244-$0244 |  584   |
+|RAM|ADSCRL                          | $0218-$021B |  4   |
+|RAM|ADSCRH                          | $021C-$021F |  4   |
+|RAM|SCRX                         | $0220-$0220 |  1   |
+|RAM|BUSY_BANK_TABLE_RAM             | $0221-$0224 |  3   |
+|RAM|SCRY                         | $0224-$0224 |  1   |
+|RAM|SCRDX                         | $0228-$0228 |  1   |
+|RAM|SCRFX                         | $022C-$022C |  1   |
+|RAM|SCRFY                         | $0234-$0234 |  1   |
+|RAM|SCRDY                         | $0230-$0230 |  1   |
+|RAM|SCRBAL                         | $0238-$0238 |  1   |
+|RAM|SCRBAH                         | $023C-$023C |  1   |
+|RAM|SCRCT                         | $0240-$0240 |  1   |
+|RAM|SCRCF                         | $0244-$0244 |  1   |
 |RAM|FIXME                          | $0248-$0220 |  80   |
 |RAM|FLGSCR                          | $0248-$024C |  4   |
 |RAM|CURSCR                          | $024C-$0250 |  4   |
 |RAM|<span style="color:green">FREE</span>                          | $0250-$0256 |  6   |
-|RAM|SCRTXT                          | $0256-$025C |  17   |
-|RAM|SCRHIR                          | $025C-$0260 |  4   |
+|RAM|SCRTXT                          | $0256-$025C |  6   |
+|RAM|SCRHIR  (not used)              | $025C-$0260 |  4   |
 |RAM|SCRTRA                          | $0262-$0266 |  6   |
 |RAM|KBDCOL                          | $0268-$0270 |  8   |
 |RAM|KBDFLG_KEY                      | $0270-$0272 |  2  |
 |RAM|KBDVRR                      | $0272-$0273 | 1   |
-|RAM|KBDCTC                          | $027E-$027F |  1   |
-|RAM|<span style="color:green">FREE</span>                            | $027F-$02A9 |  44   |
-|RAM|KEYBOARD_COUNTER               | $02A6-$02AA |  4   |
+|RAM|KBDVRL                      | $0273-$0275 | 2   |
+|RAM|FLGKBD                      | $0275-$0276 | 1   |
+|RAM|KBDFCT                      | $0276-$0277 | 1   |
+|RAM|KBDSHT                      | $0278-$0279 | 1   |
+|RAM|KBDKEY                       | $0279-$027E | 1   |
+|RAM|KBDCTC                          | $027E-$027F |  2   |
+|RAM|<span style="color:green">FREE</span>                            | $027F-$02A5 |  40   |
+|RAM|KEYBOARD_COUNTER               | $02A6-$02A9 |  3   |
+|RAM|HRSPAT                            | $02AA-$02AA |  1   |
 |RAM|IOTAB                          | $02AE-$02B1 |  X   |
 |RAM|KERNEL_ADIOB                   | $02B2-$02B9 | 8   |
 |RAM|kernel_malloc_free_chunk_size_low                   | $02BA-$02C3 | 10   |
-|RAM|kernel_xmalloc_call            | $02C4-$02EB |      |
+|RAM|FLGRST                            | $02EE-$02EE |  1   |
+|RAM|CSRND                            | $02EF-$02EF |  1   |
+|RAM|kernel_xmalloc_call            | $02C4-$02EB |    39  |
 |RAM|VNMI            | $02F4-$02F7 |   3   |
+|RAM|ADIODB_VECTOR            | $02F7-$02FA |   3   |
+|RAM|IRQVECTOR            | $02FA-$02FD |   3   |
+|RAM|VAPLIC            | $02FD-$0300 |   3   |
 |RAM|<span style="color:green">FREE</span>                           | $02EC-$02ED | 2   |
 # Page 3
 |Type     | Name                          | Range       | Size |
@@ -130,12 +145,12 @@
 # Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fbdc-$fff0|   1044   |
+|ROM|<span style="color:green">FREE</span>                         |$fedb-$fff0|   277   |
 #Bank 0
 | Type      | Name                         | Range   | Size |
 | --------  | ---------------------------- | ------- |-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $f898-$f944 |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $f944-$fbc4 |     |
+|BANK0|XMALLOC (copy from kernel)    | $fb8d-$fc39 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc39-$febe |     |

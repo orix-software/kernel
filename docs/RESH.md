@@ -1,3 +1,2 @@
-# RESF
-* compute_path_relative
+# RESH
 * kernel_try_to_find_command_in_bin_path

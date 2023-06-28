@@ -7,14 +7,9 @@ LDFILES=
 all : init kernel memmap
 .PHONY : all
 
-HOMEDIR=/home/travis/bin/
-ORIX_VERSION=1
-
 SOURCE=src/kernel.asm
 
 PROGRAM_NAME=kernel
-
-MYDATE = $(shell date +"%Y-%m-%d %H:%m")
 
 ifeq ($(CC65_HOME),)
         CC = cl65
@@ -28,17 +23,9 @@ else
         AR = $(CC65_HOME)/bin/ar65
 endif
 
-ifdef TRAVIS_BRANCH
-ifeq ($(TRAVIS_BRANCH), master)
-RELEASE:=$(shell cat VERSION)
-else
-RELEASE:=alpha
-endif
-endif
-
 
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
-RELEASE_PATH=release/
+
 init:
 	@mkdir -p $(PATH_PACKAGE_ROM)/
 	@mkdir -p $(PATH_PACKAGE_ROM)/
@@ -49,8 +36,7 @@ init:
 	@mkdir -p build/usr/src/kernel/
 
 kernel: $(SOURCE)
-	#@ca65 -ttelestrat src/functions/files/xgetcwd.asm -o src/functions/files/xgetcwd.o
-	#@ar65 r lib/kernel.lib src/functions/files/xgetcwd.o
+
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@date +'.define __DATE__ "%F %R"' > src/build.inc
 	@echo Build kernelsd.rom for Telestrat
@@ -58,7 +44,6 @@ kernel: $(SOURCE)
 	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
 	@$(LD) -tnone kernel-telestrat.ld65 -m kernel.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym > output.log
 	@echo Build kernelsd.rom for Twilighte board
-
 
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1  $(SOURCE) $(ASFLAGS) > output.log
 	@$(LD) -tnone kernelsd.ld65 -m kernelsd.map -o kernelsd.rom -DWITH_SDCARD_FOR_ROOT=1 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelsd.sym > output.log
@@ -93,6 +78,14 @@ kernel: $(SOURCE)
 	@cp kernelu0.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelu0.map $(PATH_PACKAGE_ROM)/
 
+	@echo Build kernlus.c02 : Kernel for 65C02
+	@$(AS) --cpu 65C02 --verbose -s -tnone --debug-info -o kernelusc02.ld65  $(SOURCE) $(ASFLAGS) > output.log
+	@$(LD) -tnone kernelusc02.ld65 -m kernelus.map -o kernelus.c02 -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym > output.log
+
+	@echo Build kernlus.c02 : Kernel for 65C816
+	@$(AS) --cpu 65816 --verbose -s -tnone --debug-info -o kernelus816.ld65  $(SOURCE) $(ASFLAGS) > output.log
+	@$(LD) -tnone kernelus816.ld65 -m kernelus.map -o kernelus.816 -DWITH_TWILIGHTE_BOARD=1 -Ln kernelus.sym > output.log
+
 unittest:
 	$(CC) $(CFLAGS) tests/mkdir.c -o tmkdir
 	$(CC) $(CFLAGS) tests/fwrite.c -o tfwrite
@@ -114,4 +107,4 @@ test:
 	filepack  $(PROGRAM_NAME).tar $(PROGRAM_NAME).pkg
 	gzip $(PROGRAM_NAME).tar
 	mv $(PROGRAM_NAME).tar.gz $(PROGRAM_NAME).tgz
-	echo Release : $(RELEASE)
+

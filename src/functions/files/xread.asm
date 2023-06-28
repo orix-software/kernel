@@ -60,7 +60,6 @@
   sta     CH376_COMMAND
   jsr     _ch376_wait_response
 
-
 .IFPC02
 .pc02
   bra     @continue
@@ -101,7 +100,9 @@
   adc     PTR_READ_DEST
   bcc     @next
   inc     PTR_READ_DEST+1
+
 @next:
   sta     PTR_READ_DEST
+
   rts
 .endproc

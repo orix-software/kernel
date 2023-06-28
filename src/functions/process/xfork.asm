@@ -10,6 +10,8 @@
 
 .proc _XFORK
 
+; At the end of XFORK, the current process is the new process
+
 .out     .sprintf("|MODIFY:RES:_XFORK")
 .out     .sprintf("|MODIFY:TR0:_XFORK")
 .out     .sprintf("|MODIFY:TR1:_XFORK")
@@ -34,11 +36,10 @@
   cpx     #$FF ; is it init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  jsr     kernel_get_struct_process_ptr
   sta     RES
+  sty     RES+1
 
-  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  sta     RES+1
 
   ldx     #$00
   ldy     #kernel_one_process_struct::zp_save_userzp
