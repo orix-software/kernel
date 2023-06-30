@@ -654,30 +654,30 @@ str_root_bin:
 
 ; ; For debug
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+;     ldx     kernel_process+kernel_process_struct::kernel_current_process
 
-    jsr     kernel_get_struct_process_ptr
+;     jsr     kernel_get_struct_process_ptr
 
-    sta     KERNEL_CREATE_PROCESS_PTR1
-    sty     KERNEL_CREATE_PROCESS_PTR1+1
+;     sta     KERNEL_CREATE_PROCESS_PTR1
+;     sty     KERNEL_CREATE_PROCESS_PTR1+1
 
-    lda     KERNEL_CREATE_PROCESS_PTR1
-    clc
-    adc     #kernel_one_process_struct::cmdline
-    bcc     @S70
-    inc     KERNEL_CREATE_PROCESS_PTR1+1
-@S70:
-    sta     KERNEL_CREATE_PROCESS_PTR1
+;     lda     KERNEL_CREATE_PROCESS_PTR1
+;     clc
+;     adc     #kernel_one_process_struct::cmdline
+;     bcc     @S70
+;     inc     KERNEL_CREATE_PROCESS_PTR1+1
+; @S70:
+;     sta     KERNEL_CREATE_PROCESS_PTR1
 
 
-    ; Display debug
-    ldy     #$00
-@ME:
-    lda     (KERNEL_CREATE_PROCESS_PTR1),y
-    beq     @exit_me
-    sta     $bb80,y
-    iny
-    bne     @ME
+;     ; Display debug
+;     ldy     #$00
+; @ME:
+;     lda     (KERNEL_CREATE_PROCESS_PTR1),y
+;     beq     @exit_me
+;     sta     $bb80,y
+;     iny
+;     bne     @ME
 
 @exit_me:
     jmp     kernel_try_to_find_command_in_bin_path::open_binary_and_exec
