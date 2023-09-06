@@ -1,7 +1,4 @@
-.struct XMAINARGS_STRUCT
-    argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
-    argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
-.endstruct
+
 
 .if     .sizeof(XMAINARGS_STRUCT) > 255
   .error  "XMAINARGS_STRUCT size is greater than 255. It's impossible because code does not handle a struct greater than 255"
@@ -35,12 +32,9 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     sta     XMAINARGS_MODE
 
     ldx     kernel_process+kernel_process_struct::kernel_current_process
-
     jsr     kernel_get_struct_process_ptr
-
     sta     RES
     sty     RES+1
-
 
     lda     RES
     clc
@@ -54,6 +48,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     sta     KERNEL_MALLOC_TYPE
     lda     #<.sizeof(XMAINARGS_STRUCT)
     ldy     #>.sizeof(XMAINARGS_STRUCT)
+
     jsr     XMALLOC_ROUTINE
     cmp     #$00
     bne     @continue
@@ -159,9 +154,8 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     ; return ptr
     lda     RESB ; $7C9
     ldy     RESB+1
-
-
     rts
+
 @new_arg:
     lda     XMAINARGS_SPACEFOUND
     bne     @no_new_arg
@@ -188,6 +182,5 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
 @no_new_arg:
     iny
     jmp     @loop
-
 
 .endproc
