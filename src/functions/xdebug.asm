@@ -169,8 +169,8 @@ hex_table:
 
 .proc xdebug_enter_XFREE_new_freechunk
     rts
-    jsr    xdebug_save
-    lda    #<str_enter_free
+    jsr     xdebug_save
+    lda     #<str_enter_free
     ldy    #>str_enter_free
     sta    RES
     sty    RES+1
@@ -204,7 +204,7 @@ str_enter_free:
     beq    @out
     jsr    xdebug_send_printer
     iny
-    jmp    @L1
+    jmp     @L1
 @out:
     rts
 .endproc

@@ -186,52 +186,52 @@
   ; Y contains if the type of bank
   ; Y=0 RAM
   ; Y=1 ROM
-  cpy   #01 ; Is rom ?
-  beq   @not_managed
+  cpy     #01 ; Is rom ?
+  beq     @not_managed
 
-  ldx   #$00
-  lda   BUSY_BANK_TABLE_RAM
+  ldx     #$00
+  lda     BUSY_BANK_TABLE_RAM
 
 @search_available_bank:
   clc
   ror
-  bcc   @found
+  bcc     @found
 
   inx
-  cpx   #08 ; For instance, manage only 8 banks
-  beq   @error
-  bne   @search_available_bank
+  cpx     #08 ; For instance, manage only 8 banks
+  beq     @error
+  bne     @search_available_bank
   ; not found
 
 @found:
   ; X contains the id of the bank
-  stx   RES ; Save
+  stx     RES ; Save
 
-  lda   #01 ; 4
+  lda     #01 ; 4
 @continue:
   asl
   dex    ; 0
-  bne   @continue
-  ora   BUSY_BANK_TABLE_RAM
-  sta   BUSY_BANK_TABLE_RAM
+  bne     @continue
+  ora     BUSY_BANK_TABLE_RAM
+  sta     BUSY_BANK_TABLE_RAM
 
-  lda   RES
+  lda     RES
   clc
-  adc   #33
-  sta   RES
-  jsr   get_registers_from_id_bank
+  adc     #33
+  sta     RES
+  jsr     get_registers_from_id_bank
   ; A and X contains value
   ; X contains set
   ; A the bank
   ; Y the id of the bank
 
-  ldy   RES
+  ldy     RES
 
   rts
 
 @not_managed:
 @error:
-  lda   #$00
+  lda     #$00
   tax
   tay
   rts
@@ -313,8 +313,8 @@ bank:
 .endproc
 
 .proc  xvalues_get_process_id_list
-  lda   #<kernel_process+kernel_process_struct::kernel_pid_list
-  ldy   #>kernel_process+kernel_process_struct::kernel_pid_list
+  lda     #<kernel_process+kernel_process_struct::kernel_pid_list
+  ldy     #>kernel_process+kernel_process_struct::kernel_pid_list
   rts
 .endproc
 
@@ -359,14 +359,14 @@ bank:
   rts
 
 continue:
-  lda   #_KERNEL_FILE::f_path
+  lda     #_KERNEL_FILE::f_path
   clc
-  adc   RES
-  bcc   @S1
-  inc   RES+1
+  adc     RES
+  bcc     @S1
+  inc     RES+1
 @S1:
   ; A is valid
-  ldy   RES+1
+  ldy     RES+1
 
   rts
 .endproc
@@ -490,8 +490,8 @@ continue:
 
   rts
 @init:
-  lda   #$00 ; Return null if it's init
-  ldy   #$00
+  lda     #$00 ; Return null if it's init
+  ldy     #$00
   rts
 .endproc
 

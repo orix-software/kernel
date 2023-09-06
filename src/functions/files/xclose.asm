@@ -3,12 +3,10 @@
 .proc XCLOSE_ROUTINE
     ; A & Y contains fd
     ; Calls XFREE
-    .out     .sprintf("|MODIFY:RESB:XCLOSE_ROUTINE")
-    .out     .sprintf("|MODIFY:TR7:XCLOSE_ROUTINE")
+    .out    .sprintf("|MODIFY:RESB:XCLOSE_ROUTINE")
+    .out    .sprintf("|MODIFY:TR7:XCLOSE_ROUTINE")
     sta     RESB
     sty     RESB+1 ; save fp
-
-
 
 .ifdef WITH_DEBUG
     pha
@@ -61,7 +59,6 @@
     jsr     xdebug_print
     pla
 .endif
-
 
     txa
     asl

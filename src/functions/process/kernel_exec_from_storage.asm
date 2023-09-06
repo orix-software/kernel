@@ -76,7 +76,6 @@
 
     jmp     @is_absolute_no_concat_bin
 
-
 @malloc_path:
     jsr     kernel_exec_from_storage_malloc_path_store_RESE
     cpx     #$00 ; X=0 OK, else error
@@ -84,7 +83,6 @@
     rts
 
 @malloc_ok:
-
     sta     RESC
     sty     RESC+1
 
@@ -407,6 +405,7 @@ open_binary_and_exec:
 
     pha     ; Save return code $91e
 
+
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESD
@@ -428,7 +427,6 @@ open_binary_and_exec:
     ldy     RESD+1
     jsr     XFREE_ROUTINE
     jsr     process_kill_and_exit
-
 
     ldy     #ENOEXEC   ; Return format error
     rts

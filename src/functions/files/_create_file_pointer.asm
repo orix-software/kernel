@@ -25,6 +25,7 @@
 
   lda     #KERNEL_FP_MALLOC_TYPE
   sta     KERNEL_MALLOC_TYPE
+
   lda     #<.sizeof(_KERNEL_FILE)
   ldy     #>.sizeof(_KERNEL_FILE)
   jsr     XMALLOC_ROUTINE               ; Malloc Size of kernel_file MODIFY TR7
@@ -47,12 +48,12 @@
   sty     KERNEL_XOPEN_PTR2+1
 
 
-  ldy     #_KERNEL_FILE::f_flags      ; get Offset
+  ldy     #_KERNEL_FILE::f_flags       ; get Offset
   ; Store flag
   lda     #_FOPEN
   sta     (KERNEL_XOPEN_PTR1),y
 
-  ldy     #_KERNEL_FILE::f_mode      ; get Offset
+  ldy     #_KERNEL_FILE::f_mode        ; get Offset
   ; Store flag
   lda     XOPEN_FLAGS
   sta     (KERNEL_XOPEN_PTR1),y
