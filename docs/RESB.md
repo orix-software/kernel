@@ -8,6 +8,7 @@
 * XFSEEK_ROUTINE
 * XOPENDIR
 * compute_path_relative
+* _XEXEC
 * _XFORK via kernel_create_process
 * _XEXEC
 * getFileLength

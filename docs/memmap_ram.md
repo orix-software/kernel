@@ -87,7 +87,7 @@
 |RAM|ADSCRH                          | $021C-$021F |  4   |
 |RAM|SCRX                         | $0220-$0220 |  1   |
 |RAM|BUSY_BANK_TABLE_RAM             | $0221-$0224 |  3   |
-|RAM|SCRY                         | $0224-$0224 |  1   |
+|RAM|SCRY                         | $0224-$0228 |  1   |
 |RAM|SCRDX                         | $0228-$0228 |  1   |
 |RAM|SCRFX                         | $022C-$022C |  1   |
 |RAM|SCRFY                         | $0234-$0234 |  1   |
@@ -98,9 +98,9 @@
 |RAM|SCRCF                         | $0244-$0244 |  1   |
 |RAM|FIXME                          | $0248-$0220 |  80   |
 |RAM|FLGSCR                          | $0248-$024C |  4   |
-|RAM|CURSCR                          | $024C-$0250 |  4   |
-|RAM|<span style="color:green">FREE</span>                          | $0250-$0256 |  6   |
-|RAM|SCRTXT                          | $0256-$025C |  6   |
+|RAM|CURSCR                          | $024C-$024D |  1   |
+|RAM|<span style="color:green">FREE</span>                          | $024D-$0256 |  11   |
+|RAM|SCRTXT                          | $0256-$025C |  604   |
 |RAM|SCRHIR  (not used)              | $025C-$0260 |  4   |
 |RAM|SCRTRA                          | $0262-$0266 |  6   |
 |RAM|KBDCOL                          | $0268-$0270 |  8   |
@@ -121,11 +121,11 @@
 |RAM|FLGRST                            | $02EE-$02EE |  1   |
 |RAM|CSRND                            | $02EF-$02EF |  1   |
 |RAM|kernel_xmalloc_call            | $02C4-$02EB |    39  |
+|RAM|<span style="color:green">FREE</span>                           | $02EC-$02ED | 2   |
 |RAM|VNMI            | $02F4-$02F7 |   3   |
 |RAM|ADIODB_VECTOR            | $02F7-$02FA |   3   |
 |RAM|IRQVECTOR            | $02FA-$02FD |   3   |
 |RAM|VAPLIC            | $02FD-$0300 |   3   |
-|RAM|<span style="color:green">FREE</span>                           | $02EC-$02ED | 2   |
 # Page 3
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
@@ -145,12 +145,12 @@
 # Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fedb-$fff0|   277   |
+|ROM|<span style="color:green">FREE</span>                         |$feea-$fff0|   262   |
 #Bank 0
 | Type      | Name                         | Range   | Size |
 | --------  | ---------------------------- | ------- |-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $fb8d-$fc39 |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc39-$febe |     |
+|BANK0|XMALLOC (copy from kernel)    | $fb9c-$fc48 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc48-$fecd |     |
