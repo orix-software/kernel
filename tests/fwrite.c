@@ -10,5 +10,5 @@ main () {
     nb=fwrite(buf,4,1,fp);
     printf("nb %d\n",nb);
     fclose(fp);
-    
+
 }

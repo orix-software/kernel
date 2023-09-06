@@ -9,6 +9,7 @@ XEXEC = $63
     stx save_return
     ldy save_x
 
+    ldx     #$00 ; FORK
     .byte $00,XEXEC ; BRK_KERNEL XEXEC
 
     ldx     save_return
@@ -20,4 +21,3 @@ save_return:
     .res 1
 save_x:
     .res 1
-    
