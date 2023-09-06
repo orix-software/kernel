@@ -22,7 +22,10 @@ cp kernel.rom $ORICUTRON_PATH/roms
 cp kdebug.rom $ORICUTRON_PATH/roms
 cp tests/test_kernel $ORICUTRON_PATH/sdcard/bin/test
 
+cp tests/kopened $ORICUTRON_PATH/sdcard/bin/
+
 cd $ORICUTRON_PATH
-./oricutron  -r :bp.txt
+./oricutron
+#-r :bp.txt
 cd -
 
