@@ -2,37 +2,37 @@
 	pha
 	sec
 	tya
-	sbc RES
+	sbc     RES
 	tay
 	txa
-	sbc RES+1
+	sbc     RES+1
 	tax
-	sty RESB
+	sty     RESB
 	pla
-	ldy #$00
+	ldy     #$00
 loop:
-	cpy RESB
-	bcs @skip2
-	sta (RES),y
+	cpy     RESB
+	bcs     @skip2
+	sta     (RES),y
 	iny
-	bne loop
+	bne     loop
 @skip2:
 	pha
 	tya
 
-	ldy #$00
-	jsr XADRES_ROUTINE
+	ldy     #$00
+	jsr     XADRES_ROUTINE
 	pla
-	cpx #$00
-	beq @skip
-	ldy #$00
+	cpx     #$00
+	beq     @skip
+	ldy     #$00
 @L1:
-	sta (RES),y
+	sta     (RES),y
 	iny
-	bne @L1
-	inc RES+1
+	bne     @L1
+	inc     RES+1
 	dex
-	bne @L1
+	bne     @L1
 @skip:
 	rts
 .endproc

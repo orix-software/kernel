@@ -20,6 +20,12 @@
     sty     RESG+1
 
     jsr     _XFORK
+    cmp     #EOK
+    beq     @fork_process_ok
+    ; XFORK returns an error, return error in Y
+    rts
+
+@fork_process_ok:
 
     lda     #$00
     sta     RESH ; Flag to say if XFREE must be performed
@@ -394,17 +400,17 @@ open_binary_and_exec:
     lda     (RESD),y    ; Does high byte for malloc ptr is $7f
     cmp     RESD        ; greater than the loading adress
     bcc     @error
+
 @start_to_read:
     jsr     @read_program
-
 
 @run:
     jsr     @clean_before_execute
 
     jsr     @execute
 
+    stx     HRS2+1
     pha     ; Save return code $91e
-
 
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
@@ -419,6 +425,7 @@ open_binary_and_exec:
 
     ldy     #EOK
     pla     ; get return code
+    ldx     HRS2+1
     rts
 
 @error:

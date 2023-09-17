@@ -10,17 +10,17 @@ kernel_memory_driver_to_copy:
 
     lda     $FFFE
     cmp     #$FA                           ; Is it an Orix rom ?
-    bne     exit_to_kernel
+    bne     exit_to_kernel_ENOENT
 
     lda     $FFF7                          ; The bank contains no any command in the current rom ($fff7=0) then skip
-    beq     exit_to_kernel
+    beq     exit_to_kernel_ENOENT
 
 test_debug:
     lda     $FFF5  ; List command
     sta     RESB
     lda     $FFF6  ; List command
     cmp     #$C0
-    bcc     exit_to_kernel
+    bcc     exit_to_kernel_ENOENT
     sta     RESB+1
 ; d15E
     ldx     #$00
@@ -38,7 +38,7 @@ read_command_from_bank_driver_no_space:
     cmp     #$00            ; Test end of command name or EOL
     beq     read_command_from_bank_driver_command_found
     iny
-    cpy     #$08
+    cpy     #$10
     bne     read_command_from_bank_driver_next_char
 
 command_not_found:
@@ -50,7 +50,7 @@ command_not_found:
 
     ; Theses following lines are here to exit this routine, if we reach y=12, because it's impossible to have a command longer than 12 bytes.
     cpy     #12
-    beq     exit_to_kernel
+    beq     exit_to_kernel_ENOENT
 
 command_not_found_no_inc:
     lda     (RESB),y
@@ -70,13 +70,12 @@ read_command_from_bank_driver_do_not_inc:
     cpx     $FFF7 ; loop until we reach number of command of the rom
     bne     read_command_from_bank_driver_mloop
     ; at this step we did not found the command in the rom
+exit_to_kernel_ENOENT:
+    ldy     #ENOENT  ; error
 exit_to_kernel:
     lda     VIA2::PRA
     ora     #%00000111                     ; Return to telemon
     sta     VIA2::PRA
-
-    ldy     #ENOENT  ; error
-
     rts
 
 read_command_from_bank_driver_command_found:
@@ -94,6 +93,7 @@ read_command_from_bank_driver_patch1:
     sta     VEXBNK+1           ; Will store in read_command_from_bank_driver_to_patch
     iny
     lda     (RES),y
+
 read_command_from_bank_driver_patch2:
     sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
 
@@ -102,10 +102,13 @@ read_command_from_bank_driver_patch2:
 
     jsr     _XFORK
 
-    ; we reached max process to launch ?
-    lda     KERNEL_ERRNO
-    cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-    beq     exit_to_kernel                    ; Yes we reached max process we exit
+    cpy     #EOK
+    bne     exit_to_kernel
+
+    ; ; we reached max process to launch ?
+    ; lda     KERNEL_ERRNO
+    ; cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
+    ; beq     exit_to_kernel_ENOENT                    ; Yes we reached max process we exit
 
     lda     KERNEL_TMP_XEXEC
     jsr     $46A

@@ -30,8 +30,48 @@
 ;                                          Save ZP of the current process
 ; ***********************************************************************************************************************
 
+  ldx     HRS3
+  cpx     #KERNEL_NOFORK_PROCESS ; HRS3 contains the value of XEXEC mode call ()
+  bne     @perform_fork
 
+  ; At this step we replace the process
+  ; ; Let's free all memory from this process
+  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ;jsr     erase_all_chunk_from_current_process
 
+  ; Change command line
+  lda     kernel_process+kernel_process_struct::kernel_current_process
+  jsr     kernel_get_struct_process_ptr
+
+  sty     KERNEL_CREATE_PROCESS_PTR1+1
+  sta     KERNEL_CREATE_PROCESS_PTR1
+
+  clc
+  adc     #kernel_one_process_struct::cmdline
+  bcc     @S7
+  inc     KERNEL_CREATE_PROCESS_PTR1+1
+@S7:
+  sta     KERNEL_CREATE_PROCESS_PTR1
+
+; Shebang management
+; Copy new cmdline with #!
+  ldy     #$00
+@L10:
+  lda     (TR0),y ; Get the command launched (full command)
+  beq     @S8
+  sta     (KERNEL_CREATE_PROCESS_PTR1),y
+  iny
+  cpy     #(KERNEL_LENGTH_MAX_CMDLINE-1)
+  bne     @L10
+  lda     #$00    ; Store 0
+@S8:
+  sta     (KERNEL_CREATE_PROCESS_PTR1),y
+
+  ldy     #EOK
+
+  rts
+
+@perform_fork:
   ldx     kernel_process+kernel_process_struct::kernel_current_process
   cpx     #$FF ; is it init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
@@ -39,7 +79,6 @@
   jsr     kernel_get_struct_process_ptr
   sta     RES
   sty     RES+1
-
 
   ldx     #$00
   ldy     #kernel_one_process_struct::zp_save_userzp
@@ -57,15 +96,6 @@
 
   jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
 
-  ; we reached max process to launch ?
-  lda     KERNEL_ERRNO
-  cmp     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-  beq     exit_to_kernel_rts    ; Yes we
   rts
-exit_to_kernel:
-; pull from stack old pc
-  pla
-  pla
-exit_to_kernel_rts:
-  rts
+
 .endproc

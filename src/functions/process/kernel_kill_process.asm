@@ -16,7 +16,6 @@
 
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Save index to remove
 
-
 .ifdef WITH_DEBUG
   pha
   ldx     #XDEBUG_KILL_PROCESS_ENTER
@@ -25,42 +24,14 @@
 .endif
   ; Try to close fp from this process
 
-  jsr     close_all_fp
+  jsr     close_all_fp_from_current_process
 
-@continue:
-  ; destroy it's own memory chunks
+  ; destroy process memory chunks
+  ; Try to find all malloc from this process
 
 
-; Try to find all malloc from this process
-  ldx     #$00
-@L2:
-
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-
-  beq     @skip             ; is it 0 ? Yes it's a free chunk
-
-  cmp     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  beq     @erase_chunk
-
-@skip:
-  inx
-  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
-  bne     @L2
-  beq     @all_chunk_are_free
-@erase_chunk:
-  txa
-  pha
-
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-  ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
-
-  jsr     XFREE_ROUTINE
-
-  pla
-  tax
-  jmp     @L2
-
-@all_chunk_are_free:
+  lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; Get the process to flush
+  jsr     erase_all_chunk_from_current_process
   ; Get the PPID
 
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
@@ -122,8 +93,13 @@
 @skip_load_zp:
   rts
 
-close_all_fp:
+
+.endproc
+
+.proc close_all_fp_from_current_process
+  ; Bug, FIXME, it remove all FD of all process !
   ldx     #$00
+
 @init_fp:
   cmp     kernel_process+kernel_process_struct::kernel_fd,x
   bne     @next
@@ -135,11 +111,49 @@ close_all_fp:
   jsr     XCLOSE_ROUTINE ; Close
   pla
   tax
+  ; ???? FIXME
   lda     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
 @next:
   inx
   cpx     #KERNEL_MAX_FP
   bne     @init_fp
+  rts
+.endproc
+
+.proc erase_all_chunk_from_current_process
+  ; A contains the process id 
+
+  sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+; Try to find all malloc from this process
+  ldx     #$00
+@L2:
+
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+
+  beq     @skip             ; is it 0 ? Yes it's a free chunk
+
+  cmp     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+  beq     @erase_chunk
+
+@skip:
+  inx
+  cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
+  bne     @L2
+  beq     @all_chunk_are_free
+@erase_chunk:
+  txa
+  pha
+
+  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+
+  jsr     XFREE_ROUTINE
+
+  pla
+  tax
+  jmp     @L2
+
+@all_chunk_are_free:
   rts
 .endproc
