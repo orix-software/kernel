@@ -10,7 +10,6 @@
 .define KERNEL_XVARS_KERNEL_MAX_PROCESS                  $08
 .define KERNEL_XVARS_PID_LIST_PTR                        $0A
 
-
 .define KERNEL_XVALUES_FREE_MALLOC_TABLE                            $02
 .define KERNEL_XVALUES_BUSY_MALLOC_TABLE                            $07
 .define KERNEL_XVALUES_GET_CURRENT_PROCESSNAME_FROM_PID             $08
@@ -33,7 +32,6 @@
 .define PATH_CURRENT_MAX_LEVEL                    4 ; Only in telemon 3.0 number of level, if we add more, we should have more RAM, if you need to set more level add bytes here : ptr_path_current_low and ptr_path_current_high
 .define MAX_LENGTH_OF_FILES                       8+3+1+1 ;  We say 8 chars for file  and end of string
 .define KERNEL_MAX_LENGTH_OF_FILES                8+3+1+1 ;  We say 8 chars for file  and end of string
-
 
 .define ORIX_MAX_PATH_LENGTH                      MAX_LENGTH_OF_FILES*PATH_CURRENT_MAX_LEVEL+PATH_CURRENT_MAX_LEVEL
 
@@ -75,3 +73,5 @@ KERNEL_CONF_BEGIN                :=  $D201
 KERNEL_CONF_END                  :=  $D210
 
 
+KERNEL_FORK_PROCESS              = 0
+KERNEL_NOFORK_PROCESS            = 1 ; Performs an EXEC like unix/linux, it destroy memory from current process

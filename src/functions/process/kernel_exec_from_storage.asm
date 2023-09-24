@@ -20,6 +20,12 @@
     sty     RESG+1
 
     jsr     _XFORK
+    cmp     #EOK
+    beq     @fork_process_ok
+    ; XFORK returns an error, return error in Y
+    rts
+
+@fork_process_ok:
 
     lda     #$00
     sta     RESH ; Flag to say if XFREE must be performed
@@ -76,7 +82,6 @@
 
     jmp     @is_absolute_no_concat_bin
 
-
 @malloc_path:
     jsr     kernel_exec_from_storage_malloc_path_store_RESE
     cpx     #$00 ; X=0 OK, else error
@@ -84,7 +89,6 @@
     rts
 
 @malloc_ok:
-
     sta     RESC
     sty     RESC+1
 
@@ -396,15 +400,16 @@ open_binary_and_exec:
     lda     (RESD),y    ; Does high byte for malloc ptr is $7f
     cmp     RESD        ; greater than the loading adress
     bcc     @error
+
 @start_to_read:
     jsr     @read_program
-
 
 @run:
     jsr     @clean_before_execute
 
     jsr     @execute
 
+    stx     HRS2+1
     pha     ; Save return code $91e
 
     ldy     #kernel_one_process_struct::kernel_process_addr
@@ -420,6 +425,7 @@ open_binary_and_exec:
 
     ldy     #EOK
     pla     ; get return code
+    ldx     HRS2+1
     rts
 
 @error:
@@ -428,7 +434,6 @@ open_binary_and_exec:
     ldy     RESD+1
     jsr     XFREE_ROUTINE
     jsr     process_kill_and_exit
-
 
     ldy     #ENOEXEC   ; Return format error
     rts

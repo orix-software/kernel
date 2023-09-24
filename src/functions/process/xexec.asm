@@ -5,17 +5,25 @@
 .out     .sprintf("|MODIFY:BUFEDT:_XEXEC")
 .out     .sprintf("|MODIFY:BNKOLD:_XEXEC")
 .out     .sprintf("|MODIFY:BNK_TO_SWITCH:_XEXEC")
+.out     .sprintf("|MODIFY:KERNEL_TMP_XEXEC:_XEXEC")
+.out     .sprintf("|MODIFY:KERNEL_KERNEL_XEXEC_BNKOLD:_XEXEC")
+.out     .sprintf("|MODIFY:HRS2:_XEXEC")
+.out     .sprintf("|MODIFY:HRS3:_XEXEC")
+
+.out     .sprintf("|MODIFY:VEXBNK:_XEXEC") ; with KERNEL_DRIVER_MEMORY call
+.out     .sprintf("|MODIFY:RESB:_XEXEC")  ; with KERNEL_DRIVER_MEMORY call
 
 
 ;PARSE_VECTOR
     ; A & Y contains the string command to execute
     sta     TR0        ; Save string pointer
     sty     TR1        ;
+    stx     HRS3       ; Save X, if X=0 fork, if X=1 performs an standard EXEC like linux/unix
+
 .ifdef WITH_DEBUG
     ldx    #XDEBUG_XEXEC_ENTER
     jsr    xdebug_print_with_ay_string
 .endif
-
 
     ; Save current set
     lda     $343
@@ -27,9 +35,7 @@
     and     #%11011111
     sta     $342
 
-
     STZ_ABS $343
-
 
     ; Copy in BUFEDT
     ldy     #$00
@@ -73,6 +79,9 @@ next_bank:
 
     jsr     KERNEL_DRIVER_MEMORY
 
+    cpy     #EINVAL
+    beq     exit
+
     cpy     #EOK
     beq     out1
 
@@ -99,6 +108,7 @@ store:
     stx     KERNEL_TMP_XEXEC
 
     jmp     next_bank
+
 check_memory_bank:
 
     ; Is it already memory bank  ?
@@ -107,12 +117,12 @@ check_memory_bank:
     cmp     #%00100000
     beq     read_on_sdcard
 
-
     STZ_ABS $343
 
     lda     $342
     ora     #%00100000
     sta     $342
+
     lda     #$04
     sta     KERNEL_TMP_XEXEC
     jmp     next_bank
@@ -125,7 +135,6 @@ read_on_sdcard:
     cpy     #EOK
     beq     out2
 
-
     STZ_ABS      KERNEL_ERRNO
 
     rts
@@ -135,11 +144,16 @@ out2:
     sty     BNK_TO_SWITCH
 
 out1:
-    sta     HRS2
+    ; At this step, the binary passed in XEXEC had been executed
+
+    sta     HRS2   ; Save in HRS2 the value of A (return value of the previous process)
+    stx     HRS2+1
 
 skip_sta_hrs2:
     lda     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
+
+    ldy     #EOK
 
 exit:
     ; Restore current set
@@ -152,8 +166,9 @@ exit:
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET
     sta     $343
 
-    ldy     #EOK
+
     lda     HRS2        ; Return code
+    ldx     HRS2+1
 
     rts
 .endproc

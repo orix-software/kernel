@@ -23,11 +23,13 @@ CH376_DIR_INFO_READ = $37
 
    ; Add /* at the end
    ldy     #$00
+
 @L1:
    lda     (RES),y
    beq     @end
    iny
    bne     @L1
+
 @end:
    lda     #'/'
    sta     (RES),y
@@ -44,6 +46,7 @@ CH376_DIR_INFO_READ = $37
    ldx     RES+1
 
    jsr     XOPEN_ROUTINE
+
    rts
 .endproc
 
@@ -104,10 +107,12 @@ CH376_DIR_INFO_READ = $37
 
     lda     #ENOMEM
     sta     KERNEL_ERRNO
+
 @error:
     lda     #$00
     tax
     rts
+
 @continue:
     ; Save PTR
     sta     RESB
@@ -140,27 +145,19 @@ CH376_DIR_INFO_READ = $37
 
     lda     #$00
     sta     CH376_DATA
-
     jsr     _ch376_file_open
-
-
     cmp     #CH376_ERR_MISS_FILE
     beq     @error
-
     cmp     #CH376_USB_INT_SUCCESS
+
 @start:
-;display_one_file_catalog:
     lda     #CH376_DIR_INFO_READ
     sta     CH376_COMMAND
     lda     #$ff
     sta     CH376_DATA
     jsr     _ch376_wait_response
     cmp     #CH376_USB_INT_SUCCESS
-  ;  cmp     #CH376_USB_INT_SUCCESS
 
-  ;  bne     @error
-
-go:
 @next_entry:
     lda     #CH376_RD_USB_DATA0
     sta     CH376_COMMAND
@@ -170,11 +167,9 @@ go:
     lda     #$00
     sta     TR0 ; Use to set "."
     jsr     display_catalog
-
     ldx     TR7
     cpx     #READDIR_MAX_LINE
     beq     @exit
-
     cmp     #CH376_USB_INT_DISK_READ
     beq     @next_entry
 
@@ -189,29 +184,26 @@ go:
     rts
 
 display_catalog:
-
     STZ_ABS TR0
-
-
     ldy     #$00
+
 @loop2:
     lda     CH376_DATA
     cmp     #' '   ; Space ?
     bne     @not_space
-
-  ;  bne     @skip
     pha
     lda     TR0
     bne     @dot_already_stored
+
     sty     TR0   ; Save pos of the dot
-  ;  lda     #'.'
-    ;bne     @skip
 
 @dot_already_stored:
     pla
+
 @not_space:
     cmp     #'Z'+1 ;
     bcs     @skip
+
     cmp     #'A'
     bcc     @skip
 
@@ -229,11 +221,8 @@ display_catalog:
     lda     #$00
     sta     (RESC),y ; Store EOS
     iny
-
     lda     CH376_DATA  ; Attribute
-
     sta     (RESC),y
-
 
 @continue:
     iny
@@ -272,13 +261,13 @@ display_catalog:
     cmp     #'8'   ; 8 position ? Do not move ext
     beq     @no_dot
 
-    ldy     #8
+    ldy     #$08
     lda     (RESC),y
     ldy     TR0
     iny
     sta     (RESC),y
 
-    ldy     #9
+    ldy     #$09
     lda     (RESC),y
     ldy     TR0
     iny

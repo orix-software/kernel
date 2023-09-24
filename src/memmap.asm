@@ -45,7 +45,7 @@
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $%02X-$%02X     |      |", tmp1+1,ADCLK-1)
 .out     .sprintf("|MEMMAP:RAM|ADCLK                          | $%02X-$%02X     |  2   |", ADCLK,ADCLK+1)
 .out     .sprintf("|MEMMAP:RAM|TIMEUS                         | $%02X-$%02X     |  2   |", TIMEUS,TIMEUS+1)
-.out     .sprintf("|MEMMAP:RAM|TIMEUD                         | $%02X-$%02X     |  2   |", TIMEUD,TIMEUD+1)
+.out     .sprintf("|MEMMAP:RAM|TIMEUD (used in cc65 clock function)| $%02X-$%02X     |  2   |", TIMEUD,TIMEUD+1)
 .out     .sprintf("|MEMMAP:RAM|HRSX                           | $%02X-$%02X     |  1   |", HRSX,HRSX)
 .out     .sprintf("|MEMMAP:RAM|HRSY                           | $%02X-$%02X     |  1   |", HRSY,HRSY)
 .out     .sprintf("|MEMMAP:RAM|FREE                           | $48-$48     |  1   |")
@@ -105,38 +105,35 @@
 .out     .sprintf("|MEMMAP:RAM|ADSCRL                          | $%04X-$%04X |  4   |", ADSCRL,ADSCRL+3)
 .out     .sprintf("|MEMMAP:RAM|ADSCRH                          | $%04X-$%04X |  4   |", ADSCRH,ADSCRH+3)
 
-.out     .sprintf("|MEMMAP:RAM|SCRX                         | $%04X-$%04X |  %d   |", SCRX, SCRX, 1)
+.out     .sprintf("|MEMMAP:RAM|SCRX                         | $%04X-$%04X |  1   |", SCRX, SCRX)
 
 .out     .sprintf("|MEMMAP:RAM|BUSY_BANK_TABLE_RAM             | $%04X-$%04X |  %d   |", BUSY_BANK_TABLE_RAM, BUSY_BANK_TABLE_RAM+3, 3)
 
+.out     .sprintf("|MEMMAP:RAM|SCRY                         | $%04X-$%04X |  4   |", SCRY, SCRY+3)
+
+.out     .sprintf("|MEMMAP:RAM|SCRDX                         | $%04X-$%04X |  1   |", SCRDX, SCRDX)
+.out     .sprintf("|MEMMAP:RAM|SCRFX                         | $%04X-$%04X |  1   |", SCRFX, SCRFX)
+
+.out     .sprintf("|MEMMAP:RAM|SCRFY                         | $%04X-$%04X |  1   |", SCRFY, SCRFY)
+.out     .sprintf("|MEMMAP:RAM|SCRDY                         | $%04X-$%04X |  1   |", SCRDY, SCRDY)
+
+.out     .sprintf("|MEMMAP:RAM|SCRBAL                         | $%04X-$%04X |  1   |", SCRBAL, SCRBAL)
+
+.out     .sprintf("|MEMMAP:RAM|SCRBAH                         | $%04X-$%04X |  1   |", SCRBAH, SCRBAH)
 
 
-.out     .sprintf("|MEMMAP:RAM|SCRY                         | $%04X-$%04X |  %d   |", SCRY, SCRY, 1)
-
-.out     .sprintf("|MEMMAP:RAM|SCRDX                         | $%04X-$%04X |  %d   |", SCRDX, SCRDX, 1)
-.out     .sprintf("|MEMMAP:RAM|SCRFX                         | $%04X-$%04X |  %d   |", SCRFX, SCRFX, 1)
-
-.out     .sprintf("|MEMMAP:RAM|SCRFY                         | $%04X-$%04X |  %d   |", SCRFY, SCRFY, 1)
-.out     .sprintf("|MEMMAP:RAM|SCRDY                         | $%04X-$%04X |  %d   |", SCRDY, SCRDY, 1)
-
-.out     .sprintf("|MEMMAP:RAM|SCRBAL                         | $%04X-$%04X |  %d   |", SCRBAL, SCRBAL, 1)
-
-.out     .sprintf("|MEMMAP:RAM|SCRBAH                         | $%04X-$%04X |  %d   |", SCRBAH, SCRBAH, 1)
-
-
-.out     .sprintf("|MEMMAP:RAM|SCRCT                         | $%04X-$%04X |  %d   |", SCRCT, SCRCT, 1)
-.out     .sprintf("|MEMMAP:RAM|SCRCF                         | $%04X-$%04X |  %d   |", SCRCF, SCRCF, 1)
-
+.out     .sprintf("|MEMMAP:RAM|SCRCT                         | $%04X-$%04X |  1   |", SCRCT, SCRCT)
+.out     .sprintf("|MEMMAP:RAM|SCRCF                         | $%04X-$%04X |  1   |", SCRCF, SCRCF)
 
 
 .out     .sprintf("|MEMMAP:RAM|FIXME                          | $%04X-$%04X |  %d   |", SCRCF+4,ADSCRH+4,KBDCOL-ADSCRH+4)
 
 .out     .sprintf("|MEMMAP:RAM|FLGSCR                          | $%04X-$%04X |  4   |", FLGSCR,FLGSCR+4) ; $248
-.out     .sprintf("|MEMMAP:RAM|CURSCR                          | $%04X-$%04X |  %d   |", CURSCR,CURSCR+4,4) ; $248
+.out     .sprintf("|MEMMAP:RAM|CURSCR                          | $%04X-$%04X |  1   |", CURSCR,CURSCR+1) ; $248
 
-.out     .sprintf("|MEMMAP:RAM|FREE                          | $%04X-$%04X |  %d   |", HARD_COPY_HIRES,HARD_COPY_HIRES+6,6) ; $248
+.out     .sprintf("|MEMMAP:RAM|FREE                          | $%04X-$%04X |  %d   |", CURSCR+1,SCRTXT,SCRTXT-CURSCR+1) ; $248
 
-.out     .sprintf("|MEMMAP:RAM|SCRTXT                          | $%04X-$%04X |  %d   |", SCRTXT,SCRHIR,6) ; $248
+.out     .sprintf("|MEMMAP:RAM|SCRTXT                          | $%04X-$%04X |  4   |", SCRTXT,SCRHIR+4) ; $248
 .out     .sprintf("|MEMMAP:RAM|SCRHIR  (not used)              | $%04X-$%04X |  %d   |", SCRHIR,SCRHIR+4,4) ; $248
 
 .out     .sprintf("|MEMMAP:RAM|SCRTRA                          | $%04X-$%04X |  %d   |", SCRTRA,SCRTRA+4,6) ; $248
@@ -164,12 +161,15 @@
 .out     .sprintf("|MEMMAP:RAM|IOTAB                          | $%04X-$%04X |  X   |", IOTAB, IOTAB+KERNEL_SIZE_IOTAB-1)
 .out     .sprintf("|MEMMAP:RAM|KERNEL_ADIOB                   | $%04X-$%04X | %d   |", KERNEL_ADIOB,KERNEL_ADIOB+ADIODB_LENGTH-1,KERNEL_ADIOB+ADIODB_LENGTH-KERNEL_ADIOB)
 
-.out     .sprintf("|MEMMAP:RAM|kernel_malloc_free_chunk_size_low                   | $%04X-$%04X | %d   |", kernel_malloc_free_chunk_size,kernel_malloc_free_chunk_size+.sizeof(kernel_malloc_free_chunk_size_struct)-1,.sizeof(kernel_malloc_free_chunk_size_struct))
+.out     .sprintf("|MEMMAP:RAM|kernel_malloc_free_chunk_size                   | $%04X-$%04X | %d   |", kernel_malloc_free_chunk_size,kernel_malloc_free_chunk_size+.sizeof(kernel_malloc_free_chunk_size_struct)-1,.sizeof(kernel_malloc_free_chunk_size_struct))
+
+.out     .sprintf("|MEMMAP:RAM|kernel_xmalloc_call            | $%04X-$%04X |    %d  |", kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY-kernel_xmalloc_call)
 
 .out     .sprintf("|MEMMAP:RAM|FLGRST                            | $%04X-$%04X |  %d   |", FLGRST,FLGRST,1)
 .out     .sprintf("|MEMMAP:RAM|CSRND                            | $%04X-$%04X |  %d   |", CSRND,CSRND,1)
 
-.out     .sprintf("|MEMMAP:RAM|kernel_xmalloc_call            | $%04X-$%04X |    %d  |", kernel_xmalloc_call,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY,kernel_xmalloc_call+XMALLOC_ROUTINE_TO_RAM_OVERLAY-kernel_xmalloc_call)
+
+.out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X | %d   |", KERNEL_ADIOB_END,FLGRST-1,FLGRST-KERNEL_ADIOB_END)
 
 .out     .sprintf("|MEMMAP:RAM|VNMI            | $%04X-$%04X |   3   |", VNMI,VNMI+3)
 
@@ -180,7 +180,7 @@
 .out     .sprintf("|MEMMAP:RAM|VAPLIC            | $%04X-$%04X |   %d   |", VAPLIC,VAPLIC+3,3)
 
 
-.out     .sprintf("|MEMMAP:RAM|FREE                           | $%04X-$%04X | %d   |", KERNEL_ADIOB_END,FLGRST-1,FLGRST-KERNEL_ADIOB_END)
+
 
 
 

@@ -392,16 +392,10 @@
   beq     @exit_open_with_null
   ;
 @fp_is_not_busy:
-
-
-
   lda     KERNEL_XOPEN_PTR1+1
   sta     (RES),y
-
   dey
   lda     KERNEL_XOPEN_PTR1
-
-
   sta     (RES),y
 
   ;kernel_process
@@ -434,12 +428,12 @@
   lda     #$FF
   tax
   rts
+
   ; not found
 @found_fp_slot:
 
   lda     kernel_process+kernel_process_struct::kernel_current_process ; Get the current process
-  sta     kernel_process+kernel_process_struct::kernel_fd,x ; and store in fd slot the id of the process
-
+  sta     kernel_process+kernel_process_struct::kernel_fd,x            ; and store in fd slot the id of the process
  ; stx     TR7 ; save FD id
   txa
   pha ; save Id of the fd
@@ -452,11 +446,8 @@
   inx
   lda     KERNEL_XOPEN_PTR1+1
   sta     kernel_process+kernel_process_struct::fp_ptr,x
-
   pla   ; restore Id of the fd
-
   sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
-
   clc
   adc     #KERNEL_FIRST_FD
 

@@ -12,7 +12,6 @@
 .define KERNEL_ERRNO_XFREE_NO_CHUNK_FOUND          21
 .define KERNEL_ERRNO_MAX_PROCESS_REACHED           22
 
-
 .define KERNEL_PROCESS_STRUCT_MALLOC_TYPE          $10
 .define KERNEL_UNKNOWN_MALLOC_TYPE                 $11
 .define KERNEL_BINARY_MALLOC_TYPE                  $12
@@ -47,13 +46,13 @@
 .out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s bytes", .string(KERNEL_USERZP_SAVE_LENGTH))
 .out     .sprintf("KERNEL_LENGTH_MAX_CMDLINE                                : %s", .string(KERNEL_LENGTH_MAX_CMDLINE))
 
-.out     .sprintf("kernel_process_struct size (struct init process)         : %s bytes", .string(.sizeof(kernel_process_struct)))
+.out     .sprintf("kernel_process_struct size (struct init process)         : $%X bytes", .sizeof(kernel_process_struct))
 
 .if     .sizeof(kernel_process_struct) > 255
   .error  "kernel_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
 
-; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct 
+; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct
 .struct kernel_one_process_struct
   process_name               .res KERNEL_MAX_LENGTH_COMMAND+1 ; don't move it in the struct, because code handle process_name when it's at the first position. If it moves, the code will generate bugs
   cwd_str                    .res KERNEL_MAX_PATH_LENGTH
@@ -74,7 +73,7 @@
   .endif
 .endstruct
 
-.out     .sprintf("kernel_one_process_struct size (struct for one process)  : %s bytes", .string(.sizeof(kernel_one_process_struct)))
+.out     .sprintf("kernel_one_process_struct size (struct for one process)  : $%X bytes", .sizeof(kernel_one_process_struct))
 
 .if     .sizeof(kernel_one_process_struct) > 255
   .error  "kernel_one_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"

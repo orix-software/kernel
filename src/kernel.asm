@@ -15,7 +15,7 @@
         adc     #$01
 .endmacro
 
-.define VERSION "2023.2"
+.define VERSION "2023.3"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
 
@@ -296,8 +296,6 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
 
-
-
   .ifdef WITH_DEBUG_BOARD
   lda     #'T'
   sta     $bb80+20
@@ -439,11 +437,8 @@ display_cursor:
   dex
   bpl     @loop
 
-
-
 ; kernel_process+kernel_process_struct::kernel_current_process  doit contenir l'offset dans kernel_process+kernel_process_struct::kernel_pid_list
 ; kernel_process+kernel_process_struct::kernel_pid_list doit contenir le pid
-
 
   lda     #$FF  ; Init
   ; Set process foreground
@@ -552,6 +547,7 @@ launch_systemd:
 
   lda     #<kernel_end_of_memory_for_kernel
   ldy     #>kernel_end_of_memory_for_kernel
+  ldx     #KERNEL_FORK_PROCESS
 
   jsr     _XEXEC ; start shell
 .endif
@@ -581,6 +577,7 @@ launch_command:
 
   lda     #<kernel_end_of_memory_for_kernel
   ldy     #>kernel_end_of_memory_for_kernel
+  ldx     #KERNEL_FORK_PROCESS
 
   jmp     _XEXEC ; start shell
 

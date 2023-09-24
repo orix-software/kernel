@@ -13,16 +13,16 @@ VIA_UNKNOWN                            := $028F ; seems tobe a backup of timer  
 ORIX_MEMORY_DRIVER_ADDRESS             := $400
 SWITCH_TO_BANK_ID                      := $040C
 ;NEXT_STACK_BANK:=$418
-FIXME_PAGE0_0:=$25
+FIXME_PAGE0_0                          :=$25
 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:=$411 ; .dsb 3
 
-work_channel  :=$19     ; 1 byte
-KBD_UNKNOWN   :=$271  ;FIXME
+work_channel                           :=$19     ; 1 byte
+KBD_UNKNOWN                            :=$271  ;FIXME
 
-FUFTRV=$0100; working Buffer
+FUFTRV                                 =$0100; working Buffer
 
 NULL = 0
-BUFROU:= $C500 ; Routines for buffers gestion
+BUFROU                                 := $C500 ; Routines for buffers gestion
 
 SIZE_OF_STACK_BANK = 3
 

@@ -50,16 +50,11 @@
   PRINT   str_max_process_reached
   jsr     XCRLF_ROUTINE
   PRINT   str_kernel_panic
+
 @loop:
+  ; Crash kernel
   jmp     @loop
 
-  lda     #KERNEL_ERRNO_MAX_PROCESS_REACHED
-  sta     KERNEL_ERRNO
-
-  lda     #NULL
-  tay
-
-  rts
 
 @found:
   ; At this step KERNEL_XKERNEL_CREATE_PROCESS_TMP contains the current PID
@@ -86,7 +81,7 @@
   lda     #KERNEL_UNKNOWN_MALLOC_TYPE
   sta     KERNEL_MALLOC_TYPE
 
-  lda     #ENOMEM
+  ldy     #ENOMEM
   rts
 
 @S2:
@@ -95,13 +90,9 @@
 
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
-
   tya
-
   sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
   sty     RES+1
-
-
 
   ; prepare to copy 'process' string
 
@@ -147,6 +138,8 @@ save_command_line:
 @S7:
   sta     TR4
 
+
+; Attention, vérifier parce qu'il semble que c'est aussi fait dans XFORK ! FIXME
 ; Now TR4 & TR5 are set the the beginning of cmdline
 
   ldy     #$00
@@ -155,9 +148,10 @@ save_command_line:
   beq     @S8
   sta     (TR4),y
   iny
-  cpy     #KERNEL_LENGTH_MAX_CMDLINE
+  cpy     #(KERNEL_LENGTH_MAX_CMDLINE-1)
   bne     @L10
-  lda     #$00    ; Store 0
+  ldy     #EINVAL
+  rts
 @S8:
   sta     (TR4),y
 
@@ -211,6 +205,7 @@ save_command_line:
   ; Set pid number in the struct
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
   stx     kernel_process+kernel_process_struct::kernel_current_process
+  ldy     #EOK
   rts
 
   ; at this step, list pid contains 1 : init

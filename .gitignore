@@ -8,4 +8,7 @@ error.txt
 *.lib
 *.o
 tmp/
-
+*.r64
+*.c02
+*.816
+*.log
