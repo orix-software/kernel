@@ -23,7 +23,6 @@ else
         AR = $(CC65_HOME)/bin/ar65
 endif
 
-
 PATH_PACKAGE_ROM=build/usr/share/$(PROGRAM_NAME)/
 
 init:
@@ -51,7 +50,6 @@ kernel: $(SOURCE)
 	@cp kernelsd.rom $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.sym  $(PATH_PACKAGE_ROM)/
 	@cp kernelsd.map $(PATH_PACKAGE_ROM)/
-
 
 	@echo Build kernelus.rom for Twilighte board
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
