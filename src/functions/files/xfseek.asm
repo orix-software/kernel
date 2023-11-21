@@ -5,6 +5,7 @@
 ; [IN] RES fd
   .out     .sprintf("|MODIFY:TR0:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:TR7:XFSEEK_ROUTINE")
+  .out     .sprintf("|MODIFY:TR7:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:TR4:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:RESB:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:RES:XFSEEK_ROUTINE")
@@ -12,7 +13,7 @@
 ;EBADF : le descripteur de flux (FILE *) passé en paramètre est invalide.
 ;EINVAL : le référentiel proposé (paramètre whence) n'est pas valide.
 
-  pha
+
 
   sta     TR0
   lda     RES
@@ -36,6 +37,7 @@
 
   lda     #EBADF
   rts
+
 @continue_xfseek:
   ldx     TR4 ; Whence
   ldy     TR7 ; save Y
@@ -50,7 +52,6 @@
   lda     KERNEL_XFSEEK_SAVE_RESB+1
   sta     RESB+1
 
-  pla
 
   cpx     #SEEK_CUR
   beq     @move
@@ -60,8 +61,8 @@
   beq     @go_beginning
   lda     #EINVAL ; Return error
   rts
-@go_end:
 
+@go_end:
   lda     CH376_DATA
   ldx     CH376_DATA
   ldy     CH376_DATA
@@ -89,6 +90,7 @@
   rts
 
 @error_bad_seek:
+
   lda     #$FF ; EBADSEEK
   rts
 
@@ -136,13 +138,11 @@
   cmp     #$14
   bne     @error_bad_seek
 
-
   lda     #EOK ; Return ok
   rts
 
-
 @go_beginning:
-  pha
+  sta     TR6
   ; Seek from the beginning of the file
   lda     #$00
   tay
@@ -153,12 +153,11 @@
   bne     @error_bad_seek
 
   ; And seek with offset now
-
   lda     RES5+1
   sta     RESB
 
   ldy     TR7
-  pla
+  lda     TR6
   ldx     RES5
 
 
@@ -169,7 +168,6 @@
   ; Get fd id
   lda     KERNEL_XFSEEK_SAVE_RES
   jsr     compute_fp_struct
-
 
   jsr     _set_to_0_seek_file
 
