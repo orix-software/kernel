@@ -34,7 +34,7 @@
   kernel_cwd_str                       .res .strlen("/")+1
   fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
   ; kernel_fd contains ...
-  kernel_fd                            .res KERNEL_MAX_FP
+  kernel_fd                            .res KERNEL_MAX_FP ; Va contenir l'id du process qui possède ce FD
   kernel_fd_opened                     .res 1 ; the id of the current fd opened
   ;kernel_process_addr                  .res KERNEL_MAX_PROCESS*2
   ;kernel_next_fd                       .res 1

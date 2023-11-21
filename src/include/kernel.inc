@@ -51,8 +51,6 @@
 ; You can increase this number but when this number is increased, there is more memory consumed for many features
 ;.define KERNEL_PATH_CURRENT_MAX_LEVEL  PATH_CURRENT_MAX_LEVEL
 
-
-
 ; 4 systems Buffers 6 for user (telemon historical)
 .define KERNEL_NUMBER_BUFFER 4+6
 
@@ -71,7 +69,6 @@ TELEMON_PRINTER_BUFFER_END       = $D200
 
 KERNEL_CONF_BEGIN                :=  $D201
 KERNEL_CONF_END                  :=  $D210
-
 
 KERNEL_FORK_PROCESS              = 0
 KERNEL_NOFORK_PROCESS            = 1 ; Performs an EXEC like unix/linux, it destroy memory from current process

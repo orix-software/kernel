@@ -50,12 +50,14 @@
   adc     #kernel_one_process_struct::cmdline
   bcc     @S7
   inc     KERNEL_CREATE_PROCESS_PTR1+1
+
 @S7:
   sta     KERNEL_CREATE_PROCESS_PTR1
 
 ; Shebang management
 ; Copy new cmdline with #!
   ldy     #$00
+
 @L10:
   lda     (TR0),y ; Get the command launched (full command)
   beq     @S8

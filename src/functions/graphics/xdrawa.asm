@@ -1,7 +1,7 @@
 
 ;                         TRACE DE TRAIT EN ABSOLU
 
-; Action:on calcule dX et dY les d?placements dans HRS1 et HRS2 et on trace en
+; Action:on calcule dX et dY les deplacements dans HRS1 et HRS2 et on trace en
 ; relatif. En entr?e, comme ADRAW dans HRSx.
 
 .proc XDRAWA_ROUTINE

@@ -47,18 +47,17 @@
 .endstruct
 
 .struct kernel_malloc_busy_begin_struct
-  kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
+    kernel_malloc_busy_chunk_begin_high       .res KERNEL_MAX_NUMBER_OF_MALLOC
 ;kernel_malloc_busy_chunk_begin_low        .res KERNEL_MAX_NUMBER_OF_MALLOC
 .endstruct
 
-
 .struct kernel_malloc_free_chunk
-kernel_malloc_free_chunk_begin_low        .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_free_chunk_begin_high       .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_free_chunk_end_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_free_chunk_end_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_free_chunk_size_high        .res KERNEL_MALLOC_FREE_CHUNK_MAX
-kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
+    kernel_malloc_free_chunk_begin_low        .res KERNEL_MALLOC_FREE_CHUNK_MAX
+    kernel_malloc_free_chunk_begin_high       .res KERNEL_MALLOC_FREE_CHUNK_MAX
+    kernel_malloc_free_chunk_end_low          .res KERNEL_MALLOC_FREE_CHUNK_MAX
+    kernel_malloc_free_chunk_end_high         .res KERNEL_MALLOC_FREE_CHUNK_MAX
+    kernel_malloc_free_chunk_size_high        .res KERNEL_MALLOC_FREE_CHUNK_MAX
+    kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 .endstruct
 
 .out     "=================================================================="
@@ -76,9 +75,4 @@ kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
     argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 .endstruct
 
-
 .out     .sprintf("XMAINARGS_STRUCT size               : $%X bytes", .sizeof(XMAINARGS_STRUCT))
-
-
-
-

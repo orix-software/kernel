@@ -65,5 +65,4 @@
         garbage     .res 19
 .endstruct
 
-
 .define KERNEL_FIRST_FD 3

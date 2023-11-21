@@ -19,9 +19,8 @@
 ; Register Modify : A,X,Y
 ; Memory modify : RES,RESB,TR0,TR1,TR2,TR3,TR4
 
-
 XMAINARGSC             := TR0 ; 1 byte
-XMAINARGSV             := TR1 ; 2 byte
+XMAINARGSV             := TR1 ; 2 bytes
 XMAINARGS_SPACEFOUND   := TR3 ; 1 byte
 XMAINARGS_MODE         := TR4 ; 1 byte
 XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte

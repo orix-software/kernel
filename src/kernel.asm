@@ -15,9 +15,9 @@
         adc     #$01
 .endmacro
 
-.define VERSION "2023.3"
+.define VERSION "2023.4"
 
-XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
+XMALLOC_ROUTINE_TO_RAM_OVERLAY = 39
 
 ADIODB_LENGTH = $08
 .define KERNEL_SIZE_IOTAB $04
@@ -31,7 +31,7 @@ ADIODB_LENGTH = $08
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
 .include   "include/process.inc"
-.include   "include/process_bss.inc"
+;.include   "include/process_bss.inc"
 .include   "include/memory.inc"
 .include   "include/files.inc"
 .include   "include/ori2.inc"
@@ -176,7 +176,6 @@ start_rom:
 
 
 @usb_controler_not_detected:
-
   ; Mapping FILESYS
   lda     #$00
   sta     FILESYS_BANK
@@ -890,7 +889,6 @@ code_adress_4A1:
   sta     VIA2::PRA
   pla
   rts
-
 
 ; this routine read a value in a bank
 ;
@@ -1885,11 +1883,13 @@ XKBDAS_ROUTINE:
   asl
   tay
   lda     KBD_UNKNOWN ;
+
 @loop:
   LSR
   bcs     @skip
   iny
   bcc     @loop
+
 @skip:
   lda     KBDCOL+4
   tax

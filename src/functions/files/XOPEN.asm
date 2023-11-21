@@ -11,8 +11,6 @@
 .out     .sprintf("|MODIFY:KERNEL_XOPEN_PTR1:XOPEN_ROUTINE")
 
 
-
-
 ; INPUT
 ;     this routine use :
 ;        RES, A X Y, XOPEN_SAVE XOPEN_FLAGS, XOPEN_RES_SAVE, XOPEN_SAVEA
@@ -288,12 +286,8 @@
 
 @file_not_found:
   ; Checking if filesys is found
- ; jmp     @exit_open_with_null
-
   lda     FILESYS_BANK
   beq     @filesys_bank_not_found
-
-
 
 @filesys_bank_not_found:
   ; When we have file not found, do we have O_CREATE flag ?
@@ -308,15 +302,12 @@
   cmp     #O_WRONLY
   beq     @exit_open_with_null ; yes, return NULL
 
-
   lda     XOPEN_FLAGS ; Get flags
   and     #O_RDONLY
   cmp     #O_RDONLY
   bne     @could_be_created
 
-
 @exit_open_with_null:
-
   lda     KERNEL_XOPEN_PTR1
   ldy     KERNEL_XOPEN_PTR1+1
   jsr     XFREE_ROUTINE
@@ -350,16 +341,10 @@
   and     #O_WRONLY
   cmp     #O_WRONLY
   beq     @write_only
-  ; not write
-  ;bne     @open_and_register_fp
-
 
 @write_only:
 @open_and_register_fp:
-
-
   ; Register fp in process struct
-
   ;       store pointer in process struct
   ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
 
@@ -431,7 +416,6 @@
 
   ; not found
 @found_fp_slot:
-
   lda     kernel_process+kernel_process_struct::kernel_current_process ; Get the current process
   sta     kernel_process+kernel_process_struct::kernel_fd,x            ; and store in fd slot the id of the process
  ; stx     TR7 ; save FD id
