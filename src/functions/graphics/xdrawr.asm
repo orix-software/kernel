@@ -84,7 +84,7 @@ LE8ED:
   lda     HRS2   ;  I  on trace la droite selon dY <---------------------
   beq     LE8EA  ; ---dY=0, on sort
   ldx     HRS1   ;     X=dX
-  jsr     Le921 ;     on calcule dX/dY dans RES
+  jsr     Le921  ;     on calcule dX/dY dans RES
 LE8F6:
   bit     HRS2+1
   bpl     LE900  ;    dY>0 ---------------------------------------------
@@ -102,8 +102,10 @@ LE903:
   bpl     LE916      ;   dX>0 ------------------------------------        I
   jsr     XHRSCG_ROUTINE   ;   dX<0, on déplace vers                   I        I
   jmp     LE919            ; ---la gauche                               I        I
+
 LE916:
   jsr     XHRSCD_ROUTINE   ; I  on déplace vers la droite <--------------        I
+
 LE919:
   jsr     XHRSSE_ROUTINE   ; -->on affiche le point <-----------------------------
   dec     HRS2             ;    et on décrit dY       FIXME

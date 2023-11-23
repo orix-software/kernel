@@ -117,8 +117,19 @@ FLPO0                    := $87
 ; 2- Flush page 0,2,4,5 : Because on atmos memory are not set to 0, if it's not set to 0, we have strange behavior (as keyboard), don't change it !
 ; 3- Launch mount on the device but don't test the result, because we don't care at this step : it's a quick hack to mount quickly mass storage gadget
 
+
+.segment "BANK8"
+; .bss
+.res 100
+
+.segment "BANK0"
+; .bss
+.res 100
+
+.segment "BANK7"
+
 .org      $C000
-.code
+
 start_rom:
 .proc _main
 
@@ -1755,6 +1766,12 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/files/_ch376_seek_file32.asm"
 .include  "functions/files/byte_wr_go.asm"
 .include  "functions/files/compute_path_relative.asm"
+.include  "functions/files/ch376_open_filename.asm"
+.include  "functions/files/send_0_to_ch376_and_open.asm"
+.include  "functions/files/restore_position_into_file.asm"
+.include  "functions/files/open_full_filename.asm"
+
+
 .include  "functions/process/kernel_get_struct_process_ptr.asm"
 
 .include  "functions/strings/xminma.asm"

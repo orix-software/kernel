@@ -186,7 +186,7 @@
   ; Y contains if the type of bank
   ; Y=0 RAM
   ; Y=1 ROM
-  cpy     #01 ; Is rom ?
+  cpy     #$01 ; Is rom ?
   beq     @not_managed
 
   ldx     #$00
@@ -198,7 +198,7 @@
   bcc     @found
 
   inx
-  cpx     #08 ; For instance, manage only 8 banks
+  cpx     #$08 ; For instance, manage only 8 banks
   beq     @error
   bne     @search_available_bank
   ; not found
@@ -208,6 +208,7 @@
   stx     RES ; Save
 
   lda     #01 ; 4
+
 @continue:
   asl
   dex    ; 0
@@ -342,32 +343,41 @@ bank:
   rts
 .endproc
 
+; Arg = $09
 .proc xvars_get_fd_list
   ; Y contains the fd to get
+  ; Returns : X the mode of the opened file$
+
   tya
+  sec
+  sbc     #KERNEL_FIRST_FD
+  asl
   tax
-  jsr     kernel_get_struct_process_ptr
+
+  lda     kernel_process+kernel_process_struct::fp_ptr,x
   sta     RES
-  sty     RES+1
+  lda     kernel_process+kernel_process_struct::fp_ptr+1,x
+  beq     @no_ptr
+  sta     RES+1
 
-  lda     RES
-  bne     continue
+  ; Get the mode
+  ldy     #_KERNEL_FILE::f_mode
+  lda     (RES),y
+  tax
 
-  lda     RES+1
-  bne     continue
-
-  rts
-
-continue:
   lda     #_KERNEL_FILE::f_path
   clc
   adc     RES
   bcc     @S1
   inc     RES+1
-@S1:
-  ; A is valid
-  ldy     RES+1
 
+@S1:
+  ; A is valid path
+  ldy     RES+1
+  rts
+
+@no_ptr:
+  ldy     #$00
   rts
 .endproc
 
@@ -378,6 +388,7 @@ continue:
 
   ldy     #$01 ; Because we store the number of line
   ldx     #$00
+
 @loop_copy_free_chunk_begin_low:
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
   beq     @free_slot_not_used      ; Begin low is equal to 0 ? Yes, it's empty
@@ -418,7 +429,6 @@ continue:
   sta     (RES),y
 
 ; Store number of line at the first byte
-
 
   rts
 .endproc
@@ -472,7 +482,6 @@ continue:
   lda     TR0
   sta     (RES),y
 
-
   rts
 .endproc
 
@@ -486,9 +495,8 @@ continue:
   tax
 
   jsr     kernel_get_struct_process_ptr
-
-
   rts
+
 @init:
   lda     #$00 ; Return null if it's init
   ldy     #$00
@@ -517,28 +525,29 @@ continue:
   rts
 .endproc
 
-
 XVARS_TABLE_VALUE_LOW:
   .byt     <KERNEL_ERRNO
+
 XVARS_TABLE_VALUE_HIGH:
   .byt     >KERNEL_ERRNO
 
 XVARS_TABLE:
 XVARS_TABLE_LOW:
-  .byt     <kernel_process      ; 0
-  .byt     <kernel_malloc       ; 1
+  .byt     <kernel_process             ; 0
+  .byt     <kernel_malloc               ; 1
   .byt     <KERNEL_CH376_MOUNT  ; 2
   .byt     <KERNEL_CONF_BEGIN   ; 3
   .byt     <KERNEL_ERRNO        ; 4
   .byt     KERNEL_MAX_NUMBER_OF_MALLOC ; 5
   .byt     CURRENT_VERSION_BINARY      ; Used in untar 6
-  .byte    $00 ; Table low malloc 7
-  .byt     <KERNEL_MAX_PROCESS  ; 8 Used in pstree
+  .byt     $00 ; Table low malloc 7
+  .byt     KERNEL_MAX_PROCESS   ; 8 Used in pstree
   .byt     <osname              ; 9
+  .byt     <kernel_process+kernel_process_struct::kernel_pid_list ; $0A
   .byt     <kernel_process+kernel_process_struct::kernel_pid_list ; $0A
 
 XVARS_TABLE_HIGH:
-  .byt     >kernel_process
+  .byt     >kernel_process ; 0
   .byt     >kernel_malloc
   .byt     >KERNEL_CH376_MOUNT
   .byt     >KERNEL_CONF_BEGIN
@@ -546,7 +555,7 @@ XVARS_TABLE_HIGH:
   .byt     KERNEL_MALLOC_FREE_CHUNK_MAX
   .byt     $00
   .byt     $00 ; ; Table high
-  .byt     $00 ; KERNEL_MAX _PROCESS
+  .byt     KERNEL_MAX_FP       ; 8  KERNEL_MAX _PROCESS for low, MAX FP for high
   .byt     >osname             ; 9
   .byt     >kernel_process+kernel_process_struct::kernel_pid_list ; $0A
 

@@ -66,11 +66,12 @@ int KERNEL_MALLOC_FREE_CHUNK_MAX=0x5;
 |MODIFY:RES:XWRITEBYTES_ROUTINE
 |MODIFY:RESB:XWRITEBYTES_ROUTINE
 |MODIFY:TR0:XFSEEK_ROUTINE
-|MODIFY:TR7:XFSEEK_ROUTINE
+|MODIFY:TR6:XFSEEK_ROUTINE
 |MODIFY:TR7:XFSEEK_ROUTINE
 |MODIFY:TR4:XFSEEK_ROUTINE
 |MODIFY:RESB:XFSEEK_ROUTINE
 |MODIFY:RES:XFSEEK_ROUTINE
+|MODIFY:KERNEL_XOPEN_PTR1:XFSEEK_ROUTINE
 |MODIFY:RES:XMKDIR_ROUTINE
 |MODIFY:ptr1:XMKDIR_ROUTINE
 |MODIFY:TR7:XMKDIR_ROUTINE
@@ -130,6 +131,7 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path
 |MODIFY:RES:XOPEN_ROUTINE
 |MODIFY:RESB:XOPEN_ROUTINE
+|MODIFY:TR5:XOPEN_ROUTINE
 |MODIFY:TR7:XOPEN_ROUTINE
 |MODIFY:XOPEN_SAVE:XOPEN_ROUTINE
 |MODIFY:XOPEN_FLAGS:XOPEN_ROUTINE
@@ -289,12 +291,12 @@ CALL:XOPEN:XRM_ROUTINE
 |##MEMMAP: Kernel bank 7
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$fee8-$fff0|   264   |
+|MEMMAP:ROM|FREE                         |$ff11-$fff0|   223   |
 |##MEMMAP:Bank 0
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: --------  | ---------------------------- | ------- |-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fb9a-$fc46 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc46-$fecb |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fbc3-$fc6f |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc6f-$fef4 |     |

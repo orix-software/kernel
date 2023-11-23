@@ -2,7 +2,7 @@
 .define KERNEL_NUMBER_OF_CHILD_PER_PROCESS         1
 .define KERNEL_MAX_LENGTH_COMMAND                  8
 .define KERNEL_MAX_FP_PER_PROCESS                  2  ; Can't be greater than KERNEL_MAX_FP
-.define KERNEL_MAX_FP                              2  ; Max filepointer available can
+.define KERNEL_MAX_FP                              2  ; Max filepointers availables
 .define KERNEL_USERZP_SAVE_LENGTH                  16 ; Each process has userzp variable, this value says that the kernel needs to save this size
 .define KERNEL_LENGTH_MAX_CMDLINE                  37
 

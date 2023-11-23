@@ -4,18 +4,17 @@
 ; [IN] RESB position 0 to 31
 ; [IN] RES fd
   .out     .sprintf("|MODIFY:TR0:XFSEEK_ROUTINE")
-  .out     .sprintf("|MODIFY:TR7:XFSEEK_ROUTINE")
+  .out     .sprintf("|MODIFY:TR6:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:TR7:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:TR4:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:RESB:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:RES:XFSEEK_ROUTINE")
+  .out     .sprintf("|MODIFY:KERNEL_XOPEN_PTR1:XFSEEK_ROUTINE") ; From checking_fp_exists
 
 ;EBADF : le descripteur de flux (FILE *) passé en paramètre est invalide.
 ;EINVAL : le référentiel proposé (paramètre whence) n'est pas valide.
 
-
-
-  sta     TR0
+  sta     TR0 ; 09
   lda     RES
   sta     KERNEL_XFSEEK_SAVE_RES
   lda     RES+1
@@ -27,7 +26,7 @@
   lda     RESB+1
   sta     RES5+1
 
-  sty     TR7                    ; save Y
+  sty     TR7                     ; save Y $02
   stx     TR4
 
   ldx     KERNEL_XFSEEK_SAVE_RES ; Load FP in order to store
@@ -40,7 +39,7 @@
 
 @continue_xfseek:
   ldx     TR4 ; Whence
-  ldy     TR7 ; save Y
+  ldy     TR7 ; get Y
 
   lda     KERNEL_XFSEEK_SAVE_RES
   sta     RES
@@ -51,7 +50,6 @@
   sta     RESB
   lda     KERNEL_XFSEEK_SAVE_RESB+1
   sta     RESB+1
-
 
   cpx     #SEEK_CUR
   beq     @move
@@ -106,6 +104,7 @@
   jsr     compute_fp_struct
 
   ldy     #_KERNEL_FILE::f_seek_file
+
   lda     (KERNEL_XOPEN_PTR1),y
   clc
   adc     TR0
@@ -142,7 +141,7 @@
   rts
 
 @go_beginning:
-  sta     TR6
+  ;sta     TR6
   ; Seek from the beginning of the file
   lda     #$00
   tay
@@ -156,8 +155,8 @@
   lda     RES5+1
   sta     RESB
 
-  ldy     TR7
-  lda     TR6
+  ldy     TR7 ; Get Y
+  lda     TR0
   ldx     RES5
 
 

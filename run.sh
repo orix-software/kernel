@@ -11,7 +11,7 @@ echo Error
 exit
 fi
 
-ld65 -tnone -DWITH_SDCARD_FOR_ROOT=1  tmp/kernelsd.ld65 -o kernel.rom -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
+ld65  -C src/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
 #cl65 -ttelestrat -C  tests/orix-sdk/cfg/telestrat_900.cfg  tests/multiples_files_opened.c tests/multiples_files_fopen.s tests/exec.s -o multi
 #cl65 -ttelestrat -C  tests/orix-sdk/cfg/telestrat_900.cfg  tests/readdir.c tests/kernel_calls/readdir_extern.s  -o b
 

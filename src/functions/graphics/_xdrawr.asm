@@ -32,6 +32,7 @@
   eor     #$FF           ;   dX                                               I
   sta     HRS1           ;                                                    I
   inc     HRS1           ;   à 2                                              I
+
 @S1:
   bit     HRS2+1         ;   dY négatif ? <------------------------------------
   bpl     @S2            ;   non ----------------------------------------------
@@ -39,6 +40,7 @@
   eor     #$FF           ;   dY                                               I
   sta     HRS2           ;                                                    I
   inc     HRS2           ;   à 2                                              I
+
 @S2:
   lda     HRS1           ;   on teste dX et dY <-------------------------------
   cmp     HRS2
@@ -52,13 +54,16 @@
   bne     LE8C0          ;   dX<>dY -----------------------------------  I    I
   lda     #$FF           ;   dX=dY, la tangente est 1                 I  I    I
   sta     RES            ;   en fait, -1, mais c'est la même chose    I  I    I
+
 LE8C0:
   bit     HRS1+1         ; I
   bpl     @S2            ; I dX>0 -------------------------------------  I    I
   jsr     XHRSCG_ROUTINE ; I dX<0, on d?place le curseur à gauche     I  I    I
   jmp     @S3            ; I---                                       I  I    I
+
 @S2:
   jsr     XHRSCD_ROUTINE ; II  on on déplace le curseur à droite <-------  I    I
+
 @S3:
   clc                    ; I-->a-t-on parcouru une valeur de la tangente   I    I
   lda     RES            ; I                                               I    I
@@ -69,6 +74,7 @@ LE8C0:
   bmi     @S4          ; I   oui -------------------------------      I  I    I
   jsr     XHRSCB_ROUTINE ; I   non, on déplace le curseur        I      I  I    I
   jmp     @S5          ;I---vers le bas                       I      I  I    I
+
 @S4:
   jsr     XHRSCH_ROUTINE ; II  on déplace vers le haut <----------      I  I    I
 @S5:

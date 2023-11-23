@@ -16,6 +16,7 @@
   bcs     @S1                    ;   si DX<0, on inverse le signe de HRS1
   stx     HRS1+1                 ;   dec $4E aurait été mieux...
   sec
+
 @S1:
   lda     HRS4                   ;  on prend Y2
   sbc     HRS2                   ;  -Y1

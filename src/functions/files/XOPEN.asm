@@ -2,6 +2,7 @@
 
 .out     .sprintf("|MODIFY:RES:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:RESB:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:TR5:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:TR7:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:XOPEN_SAVE:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:XOPEN_FLAGS:XOPEN_ROUTINE")
@@ -151,7 +152,6 @@
   iny
 
 @don_t_add_slash:
-
   sty    RES
 
   lda    #$00
@@ -205,83 +205,83 @@
   sty     KERNEL_XOPEN_PTR1+1
 
 @open_from_device:
-  ldy     #_KERNEL_FILE::f_path ; skip /
-
-
   ; Reset flag to say that end of string is reached
   lda     #$01
   sta     XOPEN_SAVEA
 
-@next_filename:
+  ldy     #_KERNEL_FILE::f_path ; skip /
 
+@next_filename:
   lda     #CH376_SET_FILE_NAME        ;$2F
   sta     CH376_COMMAND
 
 @next_char:
   ; $eb55
-  lda     (KERNEL_XOPEN_PTR1),y
-  beq     @slash_found_or_end_of_string_stop
-  cmp     #"/"
-  beq     @slash_found_or_end_of_string
-  cmp     #"a"                        ; 'a'
-  bcc     @do_not_uppercase
-  cmp     #"z"+1                      ; 'z'
-  bcs     @do_not_uppercase
-  sbc     #$1F
-@do_not_uppercase:
 
- ; sta     $bb80,y
+    jsr     ch376_open_filename
 
+    cmp     #$00
+    beq     @slash_found_or_end_of_string_stop
+    bne     @slash_found_or_end_of_string
 
-  sta     CH376_DATA
-  iny
-  cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
-  bne     @next_char
-    ; error buffer overflow
+;   lda     (KERNEL_XOPEN_PTR1),y
+;   beq     @slash_found_or_end_of_string_stop
+;   cmp     #"/"
+;   beq     @slash_found_or_end_of_string
+;   cmp     #"a"                        ; 'a'
+;   bcc     @do_not_uppercase
+;   cmp     #"z"+1                      ; 'z'
+;   bcs     @do_not_uppercase
+;   sbc     #$1F
 
-  beq     @exit_open_with_null
+; @do_not_uppercase:
+;   sta     CH376_DATA
+;   iny
+;   cpy     #_KERNEL_FILE::f_path+KERNEL_MAX_PATH_LENGTH ; Max
+;   bne     @next_char
+
+  ; error buffer overflow
+  ;beq     @exit_open_with_null
 
 @slash_found_or_end_of_string_stop:
-  sta    XOPEN_SAVEA
-  cpy    #_KERNEL_FILE::f_path+1  ; Do we reach $00 ? at the second char ? It means that it's '/' only
-  beq    @open_and_register_fp
-  bne    @S3
+  sta     XOPEN_SAVEA
+  cpy     #_KERNEL_FILE::f_path+1  ; Do we reach $00 ? at the second char ? It means that it's '/' only
+  beq     @open_and_register_fp
+  bne     @S3
 
 @slash_found_or_end_of_string:
   ; do we reach / at the first char ? It should, then we enter
-  sta    XOPEN_SAVEA
-  cpy    #_KERNEL_FILE::f_path
-  bne    @S3
-  sta    CH376_DATA
+  sta     XOPEN_SAVEA
+  cpy     #_KERNEL_FILE::f_path
+  bne     @S3
+  sta     CH376_DATA
 
 @S3:
 
 .IFPC02
 .pc02
-  stz    CH376_DATA ; INIT
+  stz     CH376_DATA ; INIT
 .p02
 .else
-  lda    #$00 ; used to write in BUFNOM
-  sta    CH376_DATA ; INIT
+  lda     #$00 ; used to write in BUFNOM
+  sta     CH376_DATA ; INIT
 .endif
 
-  sty    XOPEN_SAVEY
-  jsr    _ch376_file_open
-  cmp    #CH376_ERR_MISS_FILE
-  beq    @file_not_found
+  sty     XOPEN_SAVEY
+  jsr     _ch376_file_open
+  cmp     #CH376_ERR_MISS_FILE
+  beq     @file_not_found
 
-  ldy    XOPEN_SAVEY ; reload Y
-  lda    XOPEN_SAVEA
-  beq    @could_be_created
+  ldy     XOPEN_SAVEY ; reload Y
+  lda     XOPEN_SAVEA
+  beq     @could_be_created
   iny
-  lda    (KERNEL_XOPEN_PTR1),y
-  bne    @next_filename
-  cpy    #_KERNEL_FILE::f_path+1
-  beq    @open_and_register_fp
+  lda     (KERNEL_XOPEN_PTR1),y
+  bne     @next_filename
+  cpy     #_KERNEL_FILE::f_path+1
+  beq     @open_and_register_fp
 
-
-
-  bne    @next_filename
+  bne     @next_filename
 
 
 @file_not_found:
@@ -296,7 +296,7 @@
   cmp     #O_CREAT
   beq     @could_be_created ; Yes, create
 
-; When we have file not found, do we have O_WRONLY flag ?
+  ; When we have 'file not found', do we have O_WRONLY flag ?
   lda     XOPEN_FLAGS ; Get flags
   and     #O_WRONLY
   cmp     #O_WRONLY
@@ -306,6 +306,16 @@
   and     #O_RDONLY
   cmp     #O_RDONLY
   bne     @could_be_created
+
+  ; Le fichier n'a pas été trouvé,
+  ; On va vérifier qu'on avait un fichier ouvert avant
+  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
+  cmp     #$FF
+  beq     @exit_open_with_null
+
+  clc
+  adc     #KERNEL_FIRST_FD
+  jsr     open_full_filename
 
 @exit_open_with_null:
   lda     KERNEL_XOPEN_PTR1
@@ -360,6 +370,7 @@
   ; Manage only 1 FP for instance FIXME bug
   ldx     #$00
   ldy     #(kernel_one_process_struct::fp_ptr+1)
+
 @try_to_find_a_free_fp_for_current_process:
   lda     (RES),y                             ; Load high
   beq     @fp_is_not_busy                     ; If it's equal to $00, it means that it's empty because it's impossible to have a fp registered in zp
@@ -436,8 +447,6 @@
   adc     #KERNEL_FIRST_FD
 
   ; Store the id of the fp opened in ch376
-
-
 .ifdef WITH_DEBUG2
   pha
   ldx     #XDEBUG_FD
