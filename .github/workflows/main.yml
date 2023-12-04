@@ -140,11 +140,11 @@ jobs:
   unit_test:
     needs: build
     runs-on: ubuntu-22.04
-  
+
     steps:
       - name: Install sdk
-      uses: actions/cache@v2
-      with:
+        uses: actions/cache@v2
+        with:
         path: |
            cc65/**/*
            orix-sdk/**/*
