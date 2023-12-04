@@ -119,7 +119,7 @@ jobs:
           key: ${{ secrets.CACHE_ID }}-orix-sdk_
 
       - name: Prepare environment for project
-        run: mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../ && mv oricutron ../
+        run: mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../ 
 
       - name: Compile project
         run: CC65_HOME=${GITHUB_WORKSPACE}/../cc65 make
@@ -136,7 +136,7 @@ jobs:
             !build/obj/*
 
       - name: Post compilation
-        run: mv ../cc65 . && mv ../orix-software . && mv ../orix-sdk . && mv ../md2hlp . && mv oricutron .
+        run: mv ../cc65 . && mv ../orix-software . && mv ../orix-sdk . && mv ../md2hlp . 
 
   unit_test:
     needs: build
