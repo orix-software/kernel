@@ -145,6 +145,8 @@ jobs:
         run: |
           echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
           echo "xvfb-run ${GITHUB_WORKSPACE}/oricutron" >> xvfb.sh
+          ls -l  ${GITHUB_WORKSPACE}
+          ls -l  ${GITHUB_WORKSPACE}/oricutron
           chmod +x xvfb.sh
           timeout 5 ./xvfb.sh
 
