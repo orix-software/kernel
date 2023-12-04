@@ -75,6 +75,8 @@ jobs:
           git clone https://github.com/pete-gordon/oricutron.git
           cd oricutron && make && pwd && ls -l
           echo Timeout oricutron : $TMOUT_ORICUTRON
+          PATH=$PATH:/home/runner/work/kernel/kernel/oricutron
+          export PATH
 
 
 
@@ -137,6 +139,18 @@ jobs:
 
       - name: Post compilation
         run: mv ../cc65 . && mv ../orix-software . && mv ../orix-sdk . && mv ../md2hlp .
+
+  unit_test:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Launch oricutron
+        run: |
+          echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
+          echo "xvfb-run /home/runner/work/kernel/kernel/oricutron" >> xvfb.sh
+          chmod +x xvfb.sh
+          timeout 5 ./xvfb.sh
+
 
   upload:
     needs: build
