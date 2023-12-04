@@ -13,7 +13,9 @@
     iny
     bne     @loop_next_byte
 
-@send_end_out:
 @send:
+
+@send_end_out:
+
     rts
 .endproc

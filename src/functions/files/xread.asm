@@ -15,10 +15,8 @@
 ; Compute with update_position
 ; [OUT]  A contains the last size of bytes (low)
 ; [OUT]  X contains the last size of bytes (high)
-  ;jmp     XREADBYTES_ROUTINE
 
-
-  ; Save PTR_READ_DEST to compute bytes
+; Save PTR_READ_DEST to compute bytes
 
 
   pha

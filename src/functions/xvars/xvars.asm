@@ -39,6 +39,9 @@
   cpx     #KERNEL_XVALUES_GET_FREE_BANK ; $10
   beq     @xvalues_get_free_ram_bank
 
+  ; cpx     #KERNEL_XVALUES_GET_FILESIZE ; $10
+  ; beq     @xvalues_get_filesize
+
   cpx     #$00
   bne     @check_who_am_i
 
@@ -106,6 +109,9 @@
   ldy     RESB+1
 
   rts
+
+; @xvalues_get_filesize:
+;   rts
 
 @xvalues_get_osname:
   lda     #<5

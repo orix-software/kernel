@@ -24,7 +24,7 @@ cp tests/test_kernel $ORICUTRON_PATH/sdcard/bin/test
 
 cp tests/kopened $ORICUTRON_PATH/sdcard/bin/
 
-cp autoboot $ORICUTRON_PATH/sdcard/etc/
+cp tests/unit_test/xopen.sub $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
 
 cd $ORICUTRON_PATH
 ./oricutron

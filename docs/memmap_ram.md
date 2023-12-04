@@ -146,12 +146,12 @@
 ## Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$ff11-$fff0|   223   |
+|ROM|<span style="color:green">FREE</span>                         |$fef4-$fff0|   252   |
 ##Bank 0
 | Type      | Name                         | Range   | Size |
 | --------  | ---------------------------- | ------- |-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $fbc3-$fc6f |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc6f-$fef4 |     |
+|BANK0|XMALLOC (copy from kernel)    | $fba6-$fc52 |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc52-$fed7 |     |

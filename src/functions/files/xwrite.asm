@@ -41,15 +41,12 @@
   tax
   rts
 
-
-
 @writeme:
   jsr     @we_write
 
   lda     #CH376_BYTE_WR_GO
-	sta     CH376_COMMAND
-	jsr     _ch376_wait_response
-
+  sta     CH376_COMMAND
+  jsr     _ch376_wait_response
 
 @continue:
   cmp     #CH376_USB_INT_DISK_WRITE
@@ -74,8 +71,8 @@
   iny
   dex
   bne     @loop
+
 @end:
-  ;sty     RESB ; save Y
   tya
 
   ; Returns number of bytes
