@@ -71,9 +71,10 @@ jobs:
       - name: Prepare environment for oricutron
         if: steps.cache-sdk.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y xvfb libgtk-3-0 libsdl1.2debian libsdl2-dev
+          sudo apt-get install -y xvfb libgtk-3-0 libsdl1.2debian libsdl1.2-dev
           git clone https://github.com/pete-gordon/oricutron.git
           cd oricutron && make && pwd && ls -l
+          echo Timeout oricutron : $TMOUT_ORICUTRON
 
 
       # - name: Compile orix-sdk

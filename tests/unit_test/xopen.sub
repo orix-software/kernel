@@ -1,0 +1,9 @@
+#! /bin/submit
+# touch test XOPEN O_CREAT only
+touch /toto
+if exist /toto echo /toto is here OK
+rm /toto
+if not exist /toto echo /toto is removed
+
+
+
