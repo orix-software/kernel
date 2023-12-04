@@ -145,13 +145,13 @@ jobs:
       - name: Install sdk
         uses: actions/cache@v2
         with:
-        path: |
-           cc65/**/*
-           orix-sdk/**/*
-           md2hlp/**/*
-           orix-software/**/*
-           oricutron/**/*
-        key: ${{ secrets.CACHE_ID }}-orix-sdk_
+          path: |
+            cc65/**/*
+            orix-sdk/**/*
+            md2hlp/**/*
+            orix-software/**/*
+            oricutron/**/*
+          key: ${{ secrets.CACHE_ID }}-orix-sdk_
       - name: Launch oricutron
         run: |
           echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
