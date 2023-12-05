@@ -85,6 +85,7 @@ jobs:
         run: |
           PATH=$PATH:${GITHUB_WORKSPACE}/cc65/bin
           cc65 -V
+          ls -l ${GITHUB_WORKSPACE}
           ls -lR orix-sdk
           ls -l cc65/bin
           pwd
