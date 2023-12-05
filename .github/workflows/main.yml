@@ -132,6 +132,25 @@ jobs:
       - name: List build directory content
         run: ls -lR build
 
+      - name: unit-test/Launch oricutron
+        run: |
+          git clone https://github.com/orix-software/docker-unit-test.git
+          cp docker-unit-test/roms/*.rom ${GITHUB_WORKSPACE}/oricutron/roms
+          cp docker-unit-test/roms/oricutron.cfg ${GITHUB_WORKSPACE}/oricutron/
+          cp docker-unit-test/orix_keymap ${GITHUB_WORKSPACE}/oricutron/
+          cp docker-unit-test/plugins/twilighte_board/twilighte.cfg ${GITHUB_WORKSPACE}/oricutron/plugins/twilighte_board/
+          echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
+          echo "xvfb-run ./oricutron" >> xvfb.sh
+          ls -l
+          sudo apt-get install -y xvfb libgtk-3-0 libgtk-3-dev libsdl1.2debian libsdl1.2-dev
+          cp xvfb.sh ${GITHUB_WORKSPACE}/oricutron
+          cd ${GITHUB_WORKSPACE}/oricutron
+          ls -l  ${GITHUB_WORKSPACE}/orix-software
+          ls -l  ${GITHUB_WORKSPACE}/oricutron
+          chmod +x xvfb.sh
+          timeout 5 ./xvfb.sh
+
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -145,44 +164,10 @@ jobs:
           mv ../cc65 . && mv ../orix-software . && mv ../orix-sdk . && mv ../md2hlp .
           ls -l
 
-  unit_test:
-    needs: build
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Install sdk
-        uses: actions/cache@v2
-        with:
-          path: |
-            cc65/**/*
-            orix-sdk/**/*
-            md2hlp/**/*
-            orix-software/**/*
-            oricutron/**/*
-          key: ${{ secrets.CACHE_ID }}-orix-sdk_
-
-      - name: Download Artifact
-        id: download
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ needs.build.outputs.repo_name }}
-          path: artifact
-
-      - name: Launch oricutron
-        run: |
-          echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
-          echo "xvfb-run ./oricutron" >> xvfb.sh
-          ls -l
-          sudo apt-get install -y xvfb libgtk-3-0 libgtk-3-dev libsdl1.2debian libsdl1.2-dev
-          cp xvfb.sh ${GITHUB_WORKSPACE}/oricutron
-          cd ${GITHUB_WORKSPACE}/oricutron
-          ls -l  ${GITHUB_WORKSPACE}/orix-software
-          ls -l  ${GITHUB_WORKSPACE}/oricutron
-          chmod +x xvfb.sh
-          timeout 5 ./xvfb.sh
+ 
 
   upload:
-    needs: unit_test
+    needs: build
     runs-on: ubuntu-22.04
     defaults:
       run:
