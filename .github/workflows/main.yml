@@ -115,7 +115,7 @@ jobs:
              orix-sdk/**/*
              md2hlp/**/*
              orix-software/**/*
-             oricutron/**/*
+#             oricutron/**/*
           key: ${{ secrets.CACHE_ID }}-orix-sdk_
 
       - name: Prepare environment for project
