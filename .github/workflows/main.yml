@@ -163,8 +163,10 @@ jobs:
       - name: Launch oricutron
         run: |
           echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
-          echo "xvfb-run ${GITHUB_WORKSPACE}/oricutron" >> xvfb.sh
-          ls -l ../
+          echo "xvfb-run ./oricutron" >> xvfb.sh
+          pwd
+          cp xvfb.sh ${GITHUB_WORKSPACE}/oricutron
+          cd ${GITHUB_WORKSPACE}/oricutron
           ls -l  ${GITHUB_WORKSPACE}
           ls -l  ${GITHUB_WORKSPACE}/oricutron
           chmod +x xvfb.sh
