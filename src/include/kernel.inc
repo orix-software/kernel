@@ -21,6 +21,7 @@
 .define KERNEL_XVALUES_GET_OSNAME                                   $0E
 .define KERNEL_XVALUES_GET_TIME                                     $0F
 .define KERNEL_XVALUES_GET_FREE_BANK                                $10
+.define KERNEL_XVALUES_GET_FILESIZE                                 $11
 
 ; Returns the string of the opened file of the current process
 ;.define KERNEL_XVALUES_GET_PROCESS_ID                       $0A
