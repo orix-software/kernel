@@ -140,6 +140,10 @@ jobs:
           timeout --preserve-status 5 ./xvfb.sh || exit 0
           ls -l ${GITHUB_WORKSPACE}/oricutron/SDCARD
 
+      - name: Check unit-test
+        run: |
+          ls -l ${GITHUB_WORKSPACE}/oricutron/SDCARD
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
