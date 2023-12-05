@@ -137,7 +137,7 @@ jobs:
           git clone https://github.com/orix-software/docker-unit-test.git
           cd docker-unit-test && bash install.sh ${GITHUB_WORKSPACE} && cd ..
           cd ${GITHUB_WORKSPACE}/oricutron
-          timeout 5 ./xvfb.sh
+          timeout 5 --preserve-status ./xvfb.sh
           ls -l ${GITHUB_WORKSPACE}/oricutron/SDCARD
 
       - name: Upload Artifact
