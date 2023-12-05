@@ -1,4 +1,7 @@
 #! /bin/submit
+
+touch started
+
 # touch test XOPEN O_CREAT only
 echo -n Testing XOPEN O_CREAT
 touch /toto
