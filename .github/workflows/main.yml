@@ -136,7 +136,7 @@ jobs:
         run: |
           git clone https://github.com/orix-software/docker-unit-test.git
           cp docker-unit-test/roms/*.rom ${GITHUB_WORKSPACE}/oricutron/roms
-          cp docker-unit-test/roms/oricutron.cfg ${GITHUB_WORKSPACE}/oricutron/
+          cp docker-unit-test/oricutron.cfg ${GITHUB_WORKSPACE}/oricutron/
           cp docker-unit-test/orix_keymap ${GITHUB_WORKSPACE}/oricutron/
           cp docker-unit-test/plugins/twilighte_board/twilighte.cfg ${GITHUB_WORKSPACE}/oricutron/plugins/twilighte_board/
           echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
