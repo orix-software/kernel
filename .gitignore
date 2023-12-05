@@ -12,3 +12,5 @@ tmp/
 *.c02
 *.816
 *.log
+build.inc
+*.bin

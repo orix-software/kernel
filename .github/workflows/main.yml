@@ -125,14 +125,13 @@ jobs:
           ls -l && ls -l ../
           mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../
 
-
       - name: Compile project
         run: CC65_HOME=${GITHUB_WORKSPACE}/../cc65 make
 
       - name: List build directory content
         run: ls -lR build
 
-      - name: unit-test/Launch oricutron
+      - name: Unit-test with oricutron
         run: |
           git clone https://github.com/orix-software/docker-unit-test.git
           cd docker-unit-test && bash install.sh ${GITHUB_WORKSPACE} && cd ..
@@ -144,7 +143,7 @@ jobs:
       - name: Check unit-test
         run: |
           ls -l ${GITHUB_WORKSPACE}/oricutron/sdcard/
-          ls -l ${GITHUB_WORKSPACE}/oricutron/sdcard/BIN
+          bash tests/unit_test/verify.sh ${GITHUB_WORKSPACE}/oricutron/sdcard/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
