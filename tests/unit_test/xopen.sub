@@ -1,9 +1,17 @@
 #! /bin/submit
 # touch test XOPEN O_CREAT only
+echo -n Testing XOPEN O_CREAT
 touch /toto
-if exist /toto echo /toto is here OK
+if exist /toto echo ^[B [OK]
+echo -n Testing XRM
 rm /toto
-if not exist /toto echo /toto is removed
+if exist /toto goto error_rm
+echo ^[B [OK]
+exit
+
+:error_rm
+echo ^[A il y a un dysfonctionnement avec rm, le fichier n'a pas été supprimé
+exit
 
 
 

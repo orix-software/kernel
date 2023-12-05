@@ -160,11 +160,19 @@ jobs:
             orix-software/**/*
             oricutron/**/*
           key: ${{ secrets.CACHE_ID }}-orix-sdk_
+
+      - name: Download Artifact
+        id: download
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ needs.build.outputs.repo_name }}
+          path: artifact
+
       - name: Launch oricutron
         run: |
           echo "export SDL_AUDIODRIVER=dummy" > xvfb.sh
           echo "xvfb-run ./oricutron" >> xvfb.sh
-          pwd
+          ls -l
           sudo apt-get install -y xvfb libgtk-3-0 libgtk-3-dev libsdl1.2debian libsdl1.2-dev
           cp xvfb.sh ${GITHUB_WORKSPACE}/oricutron
           cd ${GITHUB_WORKSPACE}/oricutron
