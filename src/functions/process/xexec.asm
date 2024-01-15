@@ -43,8 +43,6 @@
     lda     (TR0),y
     beq     @S6
     sta     BUFEDT,y
-
-
     iny
     cpy     #110
     bne     @L7
@@ -62,6 +60,7 @@
     cmp     #$07
     bne     @do_not_correct
     lda     #$05 ; Shell by default
+
 @do_not_correct:
     sta     KERNEL_KERNEL_XEXEC_BNKOLD
 
@@ -150,9 +149,13 @@ out1:
     stx     HRS2+1
 
 skip_sta_hrs2:
+
     lda     kernel_process+kernel_process_struct::kernel_current_process
+    cmp     #$01 ; Dans le cas d'exec, il y a 2 kill qui se font FIXME bug
+    beq     @no_kill
     jsr     kernel_kill_process
 
+@no_kill:
     ldy     #EOK
 
 exit:
@@ -165,7 +168,6 @@ exit:
 
     lda     KERNEL_SAVE_XEXEC_CURRENT_SET
     sta     $343
-
 
     lda     HRS2        ; Return code
     ldx     HRS2+1

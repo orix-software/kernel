@@ -19,12 +19,13 @@ ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  --verbose -s -ttelestra
 ld65 -tnone -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  kdebugsd.ld65 -o kdebug.rom -Ln kdebugsd.sym -m memmap.txt -vm
 
 cp kernel.rom $ORICUTRON_PATH/roms
-cp kdebug.rom $ORICUTRON_PATH/roms
+# cp kdebug.rom $ORICUTRON_PATH/roms
 cp tests/test_kernel $ORICUTRON_PATH/sdcard/bin/test
 
-cp tests/kopened $ORICUTRON_PATH/sdcard/bin/
+#cp tests/kopened $ORICUTRON_PATH/sdcard/bin/
 
-cp tests/unit_test/xopen.sub $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
+#cat  tests/unit_test/xopen.sub > $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
+#cat  tests/unit_test/xrm.sub >> $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
 
 cd $ORICUTRON_PATH
 ./oricutron

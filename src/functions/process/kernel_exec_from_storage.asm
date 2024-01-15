@@ -478,8 +478,6 @@ open_binary_and_exec:
 
     rts
 
-
-
 str_root_bin:
     ; If you change this path, you need to change .strlen("/bin/") above
     .asciiz "/bin/"

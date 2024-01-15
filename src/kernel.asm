@@ -15,7 +15,7 @@
         adc     #$01
 .endmacro
 
-.define VERSION "2023.4"
+.define VERSION "2024.1"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY = 39
 
@@ -5035,6 +5035,7 @@ XGOKBD_ROUTINE:
   sta     RESB
   sty     RESB+1
   ldy     #$00
+
 loop70:
   ldx     #$00
   lda     (RESB,x)
@@ -5097,6 +5098,7 @@ next81:
   iny
   bne     @skip
   inc     RES+1
+
 @skip:
   pla
   lsr
