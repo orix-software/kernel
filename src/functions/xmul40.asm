@@ -9,6 +9,7 @@
 	adc     RES
 	bcc     @skip
 	inc     RES+1
+
 @skip:
 	asl
 	rol     RES+1

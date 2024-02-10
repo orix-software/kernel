@@ -1,5 +1,12 @@
 ; AY contains the number
 ; X ...
+.out     .sprintf("|MODIFY:TR0:XBINDX")
+.out     .sprintf("|MODIFY:TR1:XBINDX")
+.out     .sprintf("|MODIFY:TR2:XBINDX")
+.out     .sprintf("|MODIFY:TR3:XBINDX")
+.out     .sprintf("|MODIFY:TR4:XBINDX")
+.out     .sprintf("|MODIFY:TR5:XBINDX")
+
 	sta     TR1
 	sty     TR2
 
@@ -29,6 +36,7 @@
 	beq     @L2
 	sta     TR3
 	bne     @L3+1
+
 @L2:
 	ldy     TR3
 	bne     @L3+1
@@ -42,6 +50,7 @@
 	bpl     @L5
 	lda     TR1
 	ora     #$30
+
 @L1:
 	ldy     TR4
 

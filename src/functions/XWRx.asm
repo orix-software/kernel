@@ -1,8 +1,14 @@
 XWR0_ROUTINE:
+   .out     .sprintf("|MODIFY:work_channel:XWR0")
+   .out     .sprintf("|MODIFY:i_o_save:XWR0")
+   .out     .sprintf("|MODIFY:i_o_counter:XWR0")
+   .out     .sprintf("|MODIFY:ADIODB_VECTOR:XWR0")
+
 	pha                      ; Push byte to write
 	lda     #$00
 	sta     work_channel
 	pla                      ; Get byte to write
+
 XWSTR0_re_enter_from_XDECAL:
 	sta     i_o_save         ; save the byte to write in I_O_save
 	lda     #$04

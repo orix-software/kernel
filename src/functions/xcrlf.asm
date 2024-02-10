@@ -1,3 +1,4 @@
+  .out     .sprintf("|CALL:XCRLF:XWR0")
 .proc     XCRLF_ROUTINE
 ; Attention, parfois, il y a des tests bne/beq dans le shell (voir commande cat) pour faire des branchements et eviter le jmp.
 ; modifier en consequence cette routine

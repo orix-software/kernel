@@ -1,6 +1,8 @@
 .export XHIRES_ROUTINE
 
 .proc XHIRES_ROUTINE
+   .out     .sprintf("|MODIFY:HRSPAT:XHIRES")
+
 	ldx     #$00
 	ldy     #$FF
 	sty     HRSPAT ; pattern

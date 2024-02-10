@@ -1,5 +1,6 @@
 .proc XLOADCHARSET_ROUTINE
     ldx     #$00
+
 @loop:
     lda     charset_text,x
     sta     $B400+8*32,x

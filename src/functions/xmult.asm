@@ -8,6 +8,7 @@
 	stx     RESB
 	stx     RESB+1
 	ldx     #$10
+
 LCEAB:
 	lsr     TR4+1
 	ror     TR4
@@ -40,5 +41,6 @@ LCECA:
 	beq     Lcedb
 	dex
 	bne     LCEAB
+
 Lcedb:
 	rts

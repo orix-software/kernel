@@ -1,9 +1,14 @@
+   .out     .sprintf("|MODIFY:TR0:XDIVIS")
+   .out     .sprintf("|MODIFY:TR1:XDIVIS")
+   .out     .sprintf("|MODIFY:RES:XDIVIS")
+   .out     .sprintf("|MODIFY:RESB:XDIVIS")
 	sta     TR0
 	sty     TR1
 	ldx     #$00
 	stx     RESB
 	stx     RESB+1
 	ldx     #$10
+
 @loop:
 	asl     RES
 	rol     RES+1
@@ -20,6 +25,7 @@
 	sty     RESB
 	sta     RESB+1
 	inc     RES
+
 @skip:
 	dex
 	bne     @loop

@@ -5,6 +5,7 @@
 * kernel_create_process
 * kernel_kill_process
 * kernel_kill_process via XFREE_ROUTINE
+* XDIVIS
 * XREADBYTES_ROUTINE
 * XPUTCWD_ROUTINE
 * XWRITEBYTES_ROUTINE
@@ -12,6 +13,7 @@
 * XMKDIR_ROUTINE
 * XRM_ROUTINE
 * XOPENDIR
+* XFILLM
 * _XEXEC
 * _XFORK
 * _XFORK via kernel_create_process

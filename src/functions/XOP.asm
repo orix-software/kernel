@@ -21,7 +21,8 @@ XOP0_ROUTINE:
 skip129:
 
     ldy     #(KERNEL_SIZE_IOTAB-1)
-  @loop:
+
+@loop:
     cmp     IOTAB,y
     beq     @skip2
     dey

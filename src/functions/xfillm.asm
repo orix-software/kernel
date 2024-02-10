@@ -1,4 +1,6 @@
 .proc XFILLM_ROUTINE
+   .out     .sprintf("|MODIFY:RES:XFILLM")
+   .out     .sprintf("|MODIFY:RESB:XFILLM")
 	pha
 	sec
 	tya
@@ -10,12 +12,14 @@
 	sty     RESB
 	pla
 	ldy     #$00
+
 loop:
 	cpy     RESB
 	bcs     @skip2
 	sta     (RES),y
 	iny
 	bne     loop
+
 @skip2:
 	pha
 	tya
@@ -26,6 +30,7 @@ loop:
 	cpx     #$00
 	beq     @skip
 	ldy     #$00
+
 @L1:
 	sta     (RES),y
 	iny
@@ -33,6 +38,7 @@ loop:
 	inc     RES+1
 	dex
 	bne     @L1
+
 @skip:
 	rts
 .endproc

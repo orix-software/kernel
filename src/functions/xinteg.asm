@@ -11,6 +11,7 @@
   sbc     ACC2E
   bcc     @S3
   tax
+
 @L1:
   dex
   beq     @S2
@@ -20,11 +21,13 @@
   ror     $6C
   bcc     @L1
   bcs     @S3
+
 @S1:
   ldx     #$03
   sta     ACC2M,x
   dex
   bpl     @L1
+
 @S2:
   lda     #$01
   rts
