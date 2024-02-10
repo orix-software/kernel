@@ -2,6 +2,7 @@
 * checking_fp_exists
 * kernel_create_process
 * ZADCHA
+* XDECAY
 * XDIVIS
 * XCLOSE_ROUTINE
 * XGETCWD_ROUTINE

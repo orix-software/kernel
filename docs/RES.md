@@ -5,6 +5,8 @@
 * kernel_create_process
 * kernel_kill_process
 * kernel_kill_process via XFREE_ROUTINE
+* XDECAY
+* XADRESS
 * XDIVIS
 * XREADBYTES_ROUTINE
 * XPUTCWD_ROUTINE

@@ -188,6 +188,12 @@
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
 .out     .sprintf("|MEMMAP:RAM|page4 overlay_access       | $%04X-$%04X |  %d  |", $400+code_adress_419-code_adress_400,$400+code_adress_436-code_adress_400,code_adress_436-code_adress_400)
+.out     .sprintf("|MEMMAP:RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $%04X-$%04X |  3  |", ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY,ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY)
+
+
+
+
+
 
 .out     .sprintf("|##MEMMAP: Page 5&6")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
@@ -206,7 +212,7 @@
 
 .out     .sprintf("|MEMMAP:ROM|FREE                         |$%x-$fff0|   %d   |", free_bytes,$fff0-free_bytes)
 
-.out     .sprintf("|##MEMMAP:Bank 0")
+.out     .sprintf("|##MEMMAP: Bank 0")
 .out              "|MEMMAP: Type      | Name                         | Range   | Size |"
 .out              "|MEMMAP: --------  | ---------------------------- | ------- |-----|"
 .out     .sprintf("|MEMMAP:BANK0|BUFBUF                        | $%x-$%x |  %d   |", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER,BUFBUF+12*KERNEL_NUMBER_BUFFER-BUFBUF)

@@ -1,8 +1,18 @@
 XWR0_ROUTINE:
+
+   .out     .sprintf("|CALL:XWR0:XCOSCR")
    .out     .sprintf("|MODIFY:work_channel:XWR0")
    .out     .sprintf("|MODIFY:i_o_save:XWR0")
    .out     .sprintf("|MODIFY:i_o_counter:XWR0")
    .out     .sprintf("|MODIFY:ADIODB_VECTOR:XWR0")
+   .out     .sprintf("|MODIFY:SCRNB:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:ADSCR:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:FLGCUR:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:FLGCUR_STATE:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:CURSCR:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:ADSCRL:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:ADSCRH:XWR0") ; IOTAB
+   .out     .sprintf("|MODIFY:FLGSCR:XWR0") ; IOTAB
 
 	pha                      ; Push byte to write
 	lda     #$00

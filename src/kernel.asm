@@ -46,7 +46,6 @@ ADIODB_LENGTH = $08
 .include   "include/debug.inc"
 .endif
 
-
 .include   "orix.mac"
 .include   "kernel.inc"
 .include   "build.inc"
@@ -1279,8 +1278,9 @@ Lc973:
   bit     FLGSCR
   bpl     @L3
   bvs     @L3
-  ldx     SCRNB
+  ;ldx     SCRNB
   jmp     LDE2D
+
 @L3:
   rts
 
@@ -1292,16 +1292,11 @@ manage_irq_T1_and_T2:
   ldy     VIA_UNKNOWN+1
   sta     VIA::T2
   sty     VIA::T2+1
-  ;lda     FLGJCK
-  ;lsr
-  ;bcc     routine_todefine_1
-  ;jmp     LC8B9
 
 routine_todefine_1:
   lda     #$FF
   sta     VIA::T2+1
   jmp     LC8B9
-
 
 LC9b9:
   bit     VIA::IFR
@@ -1312,8 +1307,10 @@ LC9b9:
   ldx     IRQSVX
   ldy     IRQSVY
   jmp     ORIX_MEMORY_DRIVER_ADDRESS
+
 next111:
   jmp     LC8B6
+
 next110:
   lsr     TRANSITION_RS232
   bit     VIA::IFR
@@ -1344,14 +1341,16 @@ Lca0b:
 
 Lca10:
   jmp     LC8B9
+
 Lca1c:
   jmp     manage_irq_T1_and_T2
-next112
+
+next112:
   lda     VIA::IFR
   and     #$02
   beq     Lca1c
   bit     VIA::PRA
-  jsr     manage_printer
+  ;jsr     manage_printer
   jmp     LC8B9
 
 .proc manage_printer
@@ -1405,10 +1404,12 @@ Lca75:
   sta     (ADCLK),y
   iny
   lda     TIMES
+
 telemon_display_clock_chars:
 ; display clock at the adress specified
   ldx     #$2F
   sec
+
 @loop:
   sbc     #$0A
   inx
@@ -2335,7 +2336,7 @@ LDBED:
   .byt     <(CTRL_US_START-1),>(CTRL_US_START-1) ;  US
 
 LDC2B:
-  ldx     SCRNB      ; Get screen number
+  ;ldx     SCRNB      ; Get screen number
   ldy     SCRX     ; Get position X
   lda     (ADSCR),y  ; get previous char on the cursor
   sta     CURSCR   ; and save it

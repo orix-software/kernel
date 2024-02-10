@@ -135,6 +135,7 @@
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
 |RAM|page4 overlay_access       | $0419-$0436 |  54  |
+|RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0411 |  3  |
 ## Page 5&6
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
@@ -146,12 +147,12 @@
 ## Kernel bank 7
 | Type      | Name                         | Range   | Size |
 | :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$fef5-$fff0|   251   |
-##Bank 0
+|ROM|<span style="color:green">FREE</span>                         |$feee-$fff0|   258   |
+## Bank 0
 | Type      | Name                         | Range   | Size |
 | --------  | ---------------------------- | ------- |-----|
 |BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |BANK0|BUFROU                        | $c500-$c54e |     |
 |BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $fba7-$fc53 |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc53-$fed8 |     |
+|BANK0|XMALLOC (copy from kernel)    | $fba0-$fc4c |     |
+|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc4c-$fed1 |     |
