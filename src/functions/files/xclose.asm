@@ -1,7 +1,7 @@
 .export XCLOSE_ROUTINE
 
 .proc XCLOSE_ROUTINE
-    ; A & Y contains fd
+    ; A contains FD
     ; Calls XFREE
     .out    .sprintf("|MODIFY:RESB:XCLOSE_ROUTINE")
     .out    .sprintf("|MODIFY:TR7:XCLOSE_ROUTINE")
@@ -16,29 +16,21 @@
 .endif
 
   ; Try to found FP
-  ;ldx     #$00
   ; kernel_process+kernel_process_struct::kernel_fd contient un tableau où la position 0 est le FD 3 (car on commence à 3 avec stin- 0 , stdout, stderr)
 
   ; kernel_process+kernel_process_struct::kernel_fd,x contient 0 si le FD n'est pas connu
   ; si c'est différent de 0, alors cela contient le process concerné
-
-  ; $580
     sec
     sbc     #KERNEL_FIRST_FD
-
     sta     TR7
 
-    ; Cheking if we tries to close a fp greater than the max allowed
-
+    ; Checking if we tries to close a fp greater than the max allowed
     cmp     #KERNEL_MAX_FP
     bcs     @exit
 
-
-
     tax
-    lda     kernel_process+kernel_process_struct::kernel_fd,x ;
+    lda     kernel_process+kernel_process_struct::kernel_fd,x ; A contient l'id du process, X contient l'id du FD retranché de 3
     bne     @found_fp_slot
-
 
 .ifdef WITH_DEBUG
     jsr     kdebug_save
@@ -60,8 +52,8 @@
     pla
 .endif
 
-    txa
-    asl
+    txa ; Transfert fd 'id slot'
+    asl ; Multiply
     tax
     ; remove fp from main struct
 
@@ -85,6 +77,7 @@
     sty     RESB+1
 
     ldy     #kernel_one_process_struct::fp_ptr
+
 @try_to_find_a_free_fp_for_current_process:
     lda     (RESB),y
 

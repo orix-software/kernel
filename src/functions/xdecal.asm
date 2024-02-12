@@ -8,6 +8,11 @@
 ; DOC_MEMORY_WRITE_1=DECTRV
 
 ; This routine could be replace with a simple routine in 65C816 mode
+
+.out     .sprintf("|MODIFY:DECTRV:XDECAL")
+.out     .sprintf("|MODIFY:DECCIB:XDECAL")
+.out     .sprintf("|MODIFY:DECFIN:XDECAL")
+.out     .sprintf("|MODIFY:DECDEB:XDECAL")
 	pha
 	txa
 	pha

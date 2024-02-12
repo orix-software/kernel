@@ -1,0 +1,20 @@
+#! /bin/submit
+
+touch started
+
+# XOPEN O_CREAT only (touch test )
+echo ^[TTest XOPEN
+echo -n O_CREAT
+touch /toto
+if exist /toto echo ^[B [OK]
+
+# XOPEN O_RDONLY only AND O_WRONLY|O_CREAT
+echo -n O_RDONLY & O_WRONLY|O_CREAT
+
+cp started starcop
+if exist /starcop echo ^[B [OK]
+
+
+
+
+

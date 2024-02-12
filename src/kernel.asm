@@ -15,9 +15,9 @@
         adc     #$01
 .endmacro
 
-.define VERSION "2023.3"
+.define VERSION "2024.1"
 
-XMALLOC_ROUTINE_TO_RAM_OVERLAY=39
+XMALLOC_ROUTINE_TO_RAM_OVERLAY = 39
 
 ADIODB_LENGTH = $08
 .define KERNEL_SIZE_IOTAB $04
@@ -31,7 +31,7 @@ ADIODB_LENGTH = $08
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
 .include   "include/process.inc"
-.include   "include/process_bss.inc"
+;.include   "include/process_bss.inc"
 .include   "include/memory.inc"
 .include   "include/files.inc"
 .include   "include/ori2.inc"
@@ -45,7 +45,6 @@ ADIODB_LENGTH = $08
 .ifdef WITH_DEBUG
 .include   "include/debug.inc"
 .endif
-
 
 .include   "orix.mac"
 .include   "kernel.inc"
@@ -117,8 +116,19 @@ FLPO0                    := $87
 ; 2- Flush page 0,2,4,5 : Because on atmos memory are not set to 0, if it's not set to 0, we have strange behavior (as keyboard), don't change it !
 ; 3- Launch mount on the device but don't test the result, because we don't care at this step : it's a quick hack to mount quickly mass storage gadget
 
+
+.segment "BANK8"
+; .bss
+.res 100
+
+.segment "BANK0"
+; .bss
+.res 100
+
+.segment "BANK7"
+
 .org      $C000
-.code
+
 start_rom:
 .proc _main
 
@@ -176,7 +186,6 @@ start_rom:
 
 
 @usb_controler_not_detected:
-
   ; Mapping FILESYS
   lda     #$00
   sta     FILESYS_BANK
@@ -891,7 +900,6 @@ code_adress_4A1:
   pla
   rts
 
-
 ; this routine read a value in a bank
 ;
 code_adress_4AF:
@@ -1270,8 +1278,9 @@ Lc973:
   bit     FLGSCR
   bpl     @L3
   bvs     @L3
-  ldx     SCRNB
+  ;ldx     SCRNB
   jmp     LDE2D
+
 @L3:
   rts
 
@@ -1283,16 +1292,11 @@ manage_irq_T1_and_T2:
   ldy     VIA_UNKNOWN+1
   sta     VIA::T2
   sty     VIA::T2+1
-  ;lda     FLGJCK
-  ;lsr
-  ;bcc     routine_todefine_1
-  ;jmp     LC8B9
 
 routine_todefine_1:
   lda     #$FF
   sta     VIA::T2+1
   jmp     LC8B9
-
 
 LC9b9:
   bit     VIA::IFR
@@ -1303,8 +1307,10 @@ LC9b9:
   ldx     IRQSVX
   ldy     IRQSVY
   jmp     ORIX_MEMORY_DRIVER_ADDRESS
+
 next111:
   jmp     LC8B6
+
 next110:
   lsr     TRANSITION_RS232
   bit     VIA::IFR
@@ -1335,14 +1341,16 @@ Lca0b:
 
 Lca10:
   jmp     LC8B9
+
 Lca1c:
   jmp     manage_irq_T1_and_T2
-next112
+
+next112:
   lda     VIA::IFR
   and     #$02
   beq     Lca1c
   bit     VIA::PRA
-  jsr     manage_printer
+  ;jsr     manage_printer
   jmp     LC8B9
 
 .proc manage_printer
@@ -1396,10 +1404,12 @@ Lca75:
   sta     (ADCLK),y
   iny
   lda     TIMES
+
 telemon_display_clock_chars:
 ; display clock at the adress specified
   ldx     #$2F
   sec
+
 @loop:
   sbc     #$0A
   inx
@@ -1757,6 +1767,12 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 .include  "functions/files/_ch376_seek_file32.asm"
 .include  "functions/files/byte_wr_go.asm"
 .include  "functions/files/compute_path_relative.asm"
+.include  "functions/files/ch376_open_filename.asm"
+.include  "functions/files/send_0_to_ch376_and_open.asm"
+.include  "functions/files/restore_position_into_file.asm"
+.include  "functions/files/open_full_filename.asm"
+
+
 .include  "functions/process/kernel_get_struct_process_ptr.asm"
 
 .include  "functions/strings/xminma.asm"
@@ -1885,11 +1901,13 @@ XKBDAS_ROUTINE:
   asl
   tay
   lda     KBD_UNKNOWN ;
+
 @loop:
   LSR
   bcs     @skip
   iny
   bcc     @loop
+
 @skip:
   lda     KBDCOL+4
   tax
@@ -2318,7 +2336,7 @@ LDBED:
   .byt     <(CTRL_US_START-1),>(CTRL_US_START-1) ;  US
 
 LDC2B:
-  ldx     SCRNB      ; Get screen number
+  ;ldx     SCRNB      ; Get screen number
   ldy     SCRX     ; Get position X
   lda     (ADSCR),y  ; get previous char on the cursor
   sta     CURSCR   ; and save it
@@ -5018,6 +5036,7 @@ XGOKBD_ROUTINE:
   sta     RESB
   sty     RESB+1
   ldy     #$00
+
 loop70:
   ldx     #$00
   lda     (RESB,x)
@@ -5080,6 +5099,7 @@ next81:
   iny
   bne     @skip
   inc     RES+1
+
 @skip:
   pla
   lsr

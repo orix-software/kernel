@@ -35,14 +35,10 @@
   bne     @perform_fork
 
   ; At this step we replace the process
-  ; ; Let's free all memory from this process
+  ; Let's free all memory from this process
   ldx     kernel_process+kernel_process_struct::kernel_current_process
-  ;jsr     erase_all_chunk_from_current_process
 
-  ; Change command line
-  lda     kernel_process+kernel_process_struct::kernel_current_process
   jsr     kernel_get_struct_process_ptr
-
   sty     KERNEL_CREATE_PROCESS_PTR1+1
   sta     KERNEL_CREATE_PROCESS_PTR1
 
@@ -50,12 +46,12 @@
   adc     #kernel_one_process_struct::cmdline
   bcc     @S7
   inc     KERNEL_CREATE_PROCESS_PTR1+1
+
 @S7:
   sta     KERNEL_CREATE_PROCESS_PTR1
 
-; Shebang management
-; Copy new cmdline with #!
   ldy     #$00
+
 @L10:
   lda     (TR0),y ; Get the command launched (full command)
   beq     @S8
@@ -64,11 +60,11 @@
   cpy     #(KERNEL_LENGTH_MAX_CMDLINE-1)
   bne     @L10
   lda     #$00    ; Store 0
+
 @S8:
   sta     (KERNEL_CREATE_PROCESS_PTR1),y
 
   ldy     #EOK
-
   rts
 
 @perform_fork:
@@ -82,6 +78,7 @@
 
   ldx     #$00
   ldy     #kernel_one_process_struct::zp_save_userzp
+
 @L1:
   lda     userzp,x
   sta     (RES),y

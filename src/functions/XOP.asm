@@ -1,7 +1,11 @@
 ; A contains channel
 XOP0_ROUTINE:
+   .out     .sprintf("|MODIFY:IOTAB:XOP0")
+   .out     .sprintf("|MODIFY:work_channel:XOP0")
+
     ldx     #$00 ; Channel 0
     pha
+
 
 @loop:
     pla
@@ -15,13 +19,14 @@ XOP0_ROUTINE:
     and     #$03
     bne     @loop
     pla
+
   @skip2:
     rts
 
 skip129:
-
     ldy     #(KERNEL_SIZE_IOTAB-1)
-  @loop:
+
+@loop:
     cmp     IOTAB,y
     beq     @skip2
     dey

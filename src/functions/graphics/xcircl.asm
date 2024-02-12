@@ -148,6 +148,7 @@
   sta     TR6       ; on place la partie fractionnaire dans $12
   stx     TR7       ; et la partie enti?re dans $13
   ldx     TR0       ; X=N tel que Rayon<2^N
+
 @L1:
   lda     TR7       ; on garde le signe du résultat
   rol

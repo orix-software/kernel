@@ -12,14 +12,11 @@
 ; Modify : RES, PTR_READ_DEST, TR0
 
 ; [OUT]  PTR_READ_DEST updated
+; Compute with update_position
+; [OUT]  A contains the last size of bytes (low)
+; [OUT]  X contains the last size of bytes (high)
 
-
-; [OUT]  A could contains 0 or the CH376 state
-; [OUT]  Y contains the last size of bytes
-  ;jmp     XREADBYTES_ROUTINE
-
-
-  ; Save PTR_READ_DEST to compute bytes
+; Save PTR_READ_DEST to compute bytes
 
 
   pha

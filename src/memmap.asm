@@ -1,5 +1,5 @@
-
-.out     .sprintf("|#MEMMAP: Page 0")
+.out     .sprintf("|#MEMMAP: Memmap")
+.out     .sprintf("|##MEMMAP: Page 0")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
 .out     .sprintf("|MEMMAP:RAM|RES                            | $%02X-$%02X     |  2   |", RES,RES+1)
@@ -69,7 +69,7 @@
 ; Used by A : FLGSCR, FLGKBD, CURSCR, SCRX, SCRY, KBDCTC, KBDSHT, KBDFCT
 ; used in cc65 :  SCRX, SCRY, ADSCR, SCRDY
 
-.out     .sprintf("|#MEMMAP: Page 2")
+.out     .sprintf("|##MEMMAP: Page 2")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
 .out     .sprintf("|MEMMAP:RAM|KERNEL_ERRNO                   | $%04X-$%04X |  1   |", KERNEL_ERRNO, KERNEL_ERRNO)
@@ -179,25 +179,21 @@
 
 .out     .sprintf("|MEMMAP:RAM|VAPLIC            | $%04X-$%04X |   %d   |", VAPLIC,VAPLIC+3,3)
 
-
-
-
-
-
-.out     .sprintf("|#MEMMAP: Page 3")
+.out     .sprintf("|##MEMMAP: Page 3")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
 .out     .sprintf("|MEMMAP:IO |VIA1                           | $0300-$030F     |     |")
 
-.out     .sprintf("|#MEMMAP: Page 4")
+.out     .sprintf("|##MEMMAP: Page 4")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
+.out     .sprintf("|MEMMAP:RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $%04X-$%04X |  3  |", ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY,ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY+3)
 .out     .sprintf("|MEMMAP:RAM|page4 overlay_access       | $%04X-$%04X |  %d  |", $400+code_adress_419-code_adress_400,$400+code_adress_436-code_adress_400,code_adress_436-code_adress_400)
 
-.out     .sprintf("|#MEMMAP: Page 5&6")
+.out     .sprintf("|##MEMMAP: Page 5&6")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
 .out              "|MEMMAP: :------- |:----------------------------- |:----------- |:-----|"
-.out     .sprintf("|MEMMAP:RAM|BUFNOM                         | $%04X-$%04X |  %d  |", BUFNOM, BUFNOM_END,BUFNOM_END-BUFNOM)
+.out     .sprintf("|MEMMAP:RAM|FREE                         | $%04X-$%04X |  %d  |", BUFNOM, BUFNOM_END,BUFNOM_END-BUFNOM)
 .out     .sprintf("|MEMMAP:RAM|Malloc table                   | $%04X-$%04X |  %d    |", kernel_malloc,kernel_malloc_end,kernel_malloc_end-kernel_malloc)
 .out     .sprintf("|MEMMAP:RAM|main kernel process struct     | $%04X-$%04X |  %d    |", kernel_process,kernel_process_end,kernel_process_end-kernel_process)
 
@@ -205,13 +201,13 @@
 .out     .sprintf("|MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $%04X-$%04X |   %d   |", KERNEL_DRIVER_MEMORY,KERNEL_DRIVER_MEMORY_END,KERNEL_DRIVER_MEMORY_END-KERNEL_DRIVER_MEMORY)
 
 
-.out     .sprintf("|#MEMMAP: Kernel bank 7")
+.out     .sprintf("|##MEMMAP: Kernel bank 7")
 .out              "|MEMMAP: Type      | Name                         | Range   | Size |"
 .out              "|MEMMAP: :-------- |:---------------------------- |:------- |:-----|"
 
 .out     .sprintf("|MEMMAP:ROM|FREE                         |$%x-$fff0|   %d   |", free_bytes,$fff0-free_bytes)
 
-.out     .sprintf("|#MEMMAP:Bank 0")
+.out     .sprintf("|##MEMMAP: Bank 0")
 .out              "|MEMMAP: Type      | Name                         | Range   | Size |"
 .out              "|MEMMAP: --------  | ---------------------------- | ------- |-----|"
 .out     .sprintf("|MEMMAP:BANK0|BUFBUF                        | $%x-$%x |  %d   |", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER,BUFBUF+12*KERNEL_NUMBER_BUFFER-BUFBUF)

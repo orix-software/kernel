@@ -9,6 +9,9 @@
 
 .proc XDECAY_ROUTINE
 
+.out     .sprintf("|MODIFY:RES:XDECAY")
+.out     .sprintf("|MODIFY:RESB:XDECAY")
+
   sta     RES      ;   on sauve l'adresse du nombre
   sty     RES+1    ;    dans RES
   ldy     #$00     ;    et on met RESB ? 0

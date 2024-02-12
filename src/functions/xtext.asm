@@ -1,6 +1,10 @@
 .export     XTEXT_ROUTINE
 
+
+
 .proc XTEXT_ROUTINE
+   .out     .sprintf("|CALL:XTEXT:XCSSCR")
+   .out     .sprintf("|MODIFY:FLGTEL:XTEXT")
 	lda     FLGTEL
 	bpl     @skip ; already in text mode
 	php
@@ -26,6 +30,7 @@
 	bne     @loop
 	jsr     XCSSCR_ROUTINE
 	plp
+
 @skip:
 	rts
 .endproc

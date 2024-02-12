@@ -1,5 +1,5 @@
 .proc _ch376_seek_file32
-    ; A Y X RES : 32 bits
+    ; A Y X RESB : 32 bits
     pha
     lda     #CH376_BYTE_LOCATE
     sta     CH376_COMMAND

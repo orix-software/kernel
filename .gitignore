@@ -1,7 +1,7 @@
 build/
 a.o65
 error.txt
-*.rom
+kernel*.rom
 *.sym
 *.map
 *.ld65
@@ -12,3 +12,5 @@ tmp/
 *.c02
 *.816
 *.log
+build.inc
+*.bin

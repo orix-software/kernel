@@ -10,13 +10,14 @@
 ;                 avant le deplacement, de vous de gerer cela.
 
 ;                    DEPLACE LE CURSEUR HIRES VERS LE BAS
-
+   .out     .sprintf("|MODIFY:ADHRS:XHRSCB")
   clc               ;    on ajoute 40
   lda     ADHRS     ;    à ADHRS
   adc     #$28
   sta     ADHRS
   bcc     skip
   inc     ADHRS+1
+
 skip:
   rts
 .endproc

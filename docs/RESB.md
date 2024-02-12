@@ -1,6 +1,9 @@
 # RESB
 * checking_fp_exists
 * kernel_create_process
+* ZADCHA
+* XDECAY
+* XDIVIS
 * XCLOSE_ROUTINE
 * XGETCWD_ROUTINE
 * XPUTCWD_ROUTINE
@@ -8,9 +11,10 @@
 * XFSEEK_ROUTINE
 * XOPENDIR
 * compute_path_relative
+* XFILLM
 * _XEXEC
 * _XFORK via kernel_create_process
-* _XEXEC
+* XGETARGV_ROUTINE
 * getFileLength
 * kernel_try_to_find_command_in_bin_path
 * XOPEN_ROUTINE

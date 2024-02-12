@@ -37,6 +37,51 @@ int MALLOC_FREE_BEGIN_LOW=0x525;
 int MALLOC_FREE_END_HIGH=0x534;
 int MALLOC_FREE_END_LOW=0x52f;
 int KERNEL_MALLOC_FREE_CHUNK_MAX=0x5;
+|CALL:XCRLF:XWR0
+|CALL:XWR0:XCOSCR
+|MODIFY:work_channel:XWR0
+|MODIFY:i_o_save:XWR0
+|MODIFY:i_o_counter:XWR0
+|MODIFY:ADIODB_VECTOR:XWR0
+|MODIFY:SCRNB:XWR0
+|MODIFY:ADSCR:XWR0
+|MODIFY:FLGCUR:XWR0
+|MODIFY:FLGCUR_STATE:XWR0
+|MODIFY:CURSCR:XWR0
+|MODIFY:ADSCRL:XWR0
+|MODIFY:ADSCRH:XWR0
+|MODIFY:FLGSCR:XWR0
+|MODIFY:i_o_save:XWSTR0
+|MODIFY:work_channel:XWSTR0
+|MODIFY:ADDRESS_READ_BETWEEN_BANK:XWSTR0
+|MODIFY:i_o_save:XWR0
+|MODIFY:i_o_counter:XWR0
+|MODIFY:ADIODB_VECTOR:XWR0
+|MODIFY:SCRNB:XWR0
+|MODIFY:ADSCR:XWR0
+|MODIFY:FLGCUR:XWR0
+|MODIFY:FLGCUR_STATE:XWR0
+|MODIFY:CURSCR:XWR0
+|MODIFY:ADSCRL:XWR0
+|MODIFY:ADSCRH:XWR0
+|MODIFY:FLGSCR:XWR0
+|MODIFY:work_channel:XRD0
+|MODIFY:i_o_counter:XRD0
+|MODIFY:ADDRESS_VECTOR_FOR_ADIOB:XRD0
+|MODIFY:ADIODB_VECTOR:XRD0
+|MODIFY:KEYBOARD_COUNTER:XRD0
+|MODIFY:KBDKEY:XRD0
+|MODIFY:KBDSHT:XRD0
+|MODIFY:$1B:XRDW0
+|MODIFY:work_channel:XRD0
+|MODIFY:i_o_counter:XRD0
+|MODIFY:ADDRESS_VECTOR_FOR_ADIOB:XRD0
+|MODIFY:ADIODB_VECTOR:XRD0
+|MODIFY:KEYBOARD_COUNTER:XRD0
+|MODIFY:KBDKEY:XRD0
+|MODIFY:KBDSHT:XRD0
+|MODIFY:IOTAB:XOP0
+|MODIFY:work_channel:XOP0
 |MODIFY:RES:_create_file_pointer
 |MODIFY:KERNEL_ERRNO:_create_file_pointer
 |CALL:XMALLOC:_create_file_pointer
@@ -54,6 +99,25 @@ int KERNEL_MALLOC_FREE_CHUNK_MAX=0x5;
 |MODIFY:RES:kernel_kill_process
 |MODIFY:TR5:kernel_kill_process via XFREE_ROUTINE
 |MODIFY:RES:kernel_kill_process via XFREE_ROUTINE
+|MODIFY:RESB:ZADCHA
+|MODIFY:RES:XDECAY
+|MODIFY:RESB:XDECAY
+|MODIFY:TR0:XBINDX
+|MODIFY:TR1:XBINDX
+|MODIFY:TR2:XBINDX
+|MODIFY:TR3:XBINDX
+|MODIFY:TR4:XBINDX
+|MODIFY:TR5:XBINDX
+|CALL:XDECIM:XBINDX
+|CALL:XDECIM:XWR0
+|MODIFY:TR4:XDECIM
+|MODIFY:TR5:XDECIM
+|MODIFY:TR6:XDECIM
+|MODIFY:RES:XADRESS
+|MODIFY:TR0:XDIVIS
+|MODIFY:TR1:XDIVIS
+|MODIFY:RES:XDIVIS
+|MODIFY:RESB:XDIVIS
 |MODIFY:RESB:XCLOSE_ROUTINE
 |MODIFY:TR7:XCLOSE_ROUTINE
 |MODIFY:PTR_READ_DEST:XREADBYTES_ROUTINE
@@ -66,10 +130,12 @@ int KERNEL_MALLOC_FREE_CHUNK_MAX=0x5;
 |MODIFY:RES:XWRITEBYTES_ROUTINE
 |MODIFY:RESB:XWRITEBYTES_ROUTINE
 |MODIFY:TR0:XFSEEK_ROUTINE
+|MODIFY:TR6:XFSEEK_ROUTINE
 |MODIFY:TR7:XFSEEK_ROUTINE
 |MODIFY:TR4:XFSEEK_ROUTINE
 |MODIFY:RESB:XFSEEK_ROUTINE
 |MODIFY:RES:XFSEEK_ROUTINE
+|MODIFY:KERNEL_XOPEN_PTR1:XFSEEK_ROUTINE
 |MODIFY:RES:XMKDIR_ROUTINE
 |MODIFY:ptr1:XMKDIR_ROUTINE
 |MODIFY:TR7:XMKDIR_ROUTINE
@@ -87,6 +153,15 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:RESD:compute_path_relative
 |MODIFY:RESE:compute_path_relative
 |MODIFY:RESF:compute_path_relative
+|MODIFY:DECTRV:XDECAL
+|MODIFY:DECCIB:XDECAL
+|MODIFY:DECFIN:XDECAL
+|MODIFY:DECDEB:XDECAL
+|MODIFY:RES:XFILLM
+|MODIFY:RESB:XFILLM
+|MODIFY:HRSPAT:XHIRES
+|CALL:XTEXT:XCSSCR
+|MODIFY:FLGTEL:XTEXT
 |MODIFY:RES:_XEXEC
 |MODIFY:TR0:_XEXEC
 |MODIFY:TR1:_XEXEC
@@ -115,8 +190,14 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:REB:XMAINARGS_ROUTINE
 |MODIFY:KERNEL_ERRNO:XMAINARGS_ROUTINE
 |MODIFY:RES:XGETARGV_ROUTINE
-|MODIFY:RESB:_XEXEC
+|MODIFY:RESB:XGETARGV_ROUTINE
 |MODIFY:RESB:getFileLength
+|MODIFY:ADHRS:XHRSCB
+|MODIFY:ADHRS:XHRSCH
+|MODIFY:HRSX40:XHRSCD
+|MODIFY:HRSX6:XHRSCD
+|MODIFY:HRSX40:XHRSCG
+|MODIFY:HRSX6:XHRSCG
 |MODIFY:RES:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESB:kernel_try_to_find_command_in_bin_path
 |MODIFY:RESC:kernel_try_to_find_command_in_bin_path
@@ -129,6 +210,7 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path
 |MODIFY:RES:XOPEN_ROUTINE
 |MODIFY:RESB:XOPEN_ROUTINE
+|MODIFY:TR5:XOPEN_ROUTINE
 |MODIFY:TR7:XOPEN_ROUTINE
 |MODIFY:XOPEN_SAVE:XOPEN_ROUTINE
 |MODIFY:XOPEN_FLAGS:XOPEN_ROUTINE
@@ -140,7 +222,8 @@ CALL:XOPEN:XRM_ROUTINE
 |MODIFY:KERNEL_ERRNO:XMALLOC_ROUTINE
 |MODIFY:RES:XFREE_ROUTINE
 |MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE
-|#MEMMAP: Page 0
+|#MEMMAP: Memmap
+|##MEMMAP: Page 0
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:RAM|RES                            | $00-$01     |  2   |
@@ -204,7 +287,7 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|INDRS                          | $5B-$5B     |  1   |
 |MEMMAP:RAM|FREE                           | $5C-$5F     |  2   |
 |MEMMAP:RAM|FREE                           | $8C-$FF     |  115   |
-|#MEMMAP: Page 2
+|##MEMMAP: Page 2
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:RAM|KERNEL_ERRNO                   | $0200-$0200 |  1   |
@@ -268,31 +351,32 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|ADIODB_VECTOR            | $02F7-$02FA |   3   |
 |MEMMAP:RAM|IRQVECTOR            | $02FA-$02FD |   3   |
 |MEMMAP:RAM|VAPLIC            | $02FD-$0300 |   3   |
-|#MEMMAP: Page 3
+|##MEMMAP: Page 3
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:IO |VIA1                           | $0300-$030F     |     |
-|#MEMMAP: Page 4
+|##MEMMAP: Page 4
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:RAM|page4 overlay_access       | $0419-$0436 |  54  |
-|#MEMMAP: Page 5&6
+|MEMMAP:RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0411 |  3  |
+|##MEMMAP: Page 5&6
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
-|MEMMAP:RAM|BUFNOM                         | $0517-$0525 |  14  |
+|MEMMAP:RAM|FREE                         | $0517-$0525 |  14  |
 |MEMMAP:RAM|Malloc table                   | $0525-$0579 |  84    |
 |MEMMAP:RAM|main kernel process struct     | $0579-$058F |  22    |
 |MEMMAP:RAM|BUFEDT                         | $0590-$05FE |   110   |
 |MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A1 |   163   |
-|#MEMMAP: Kernel bank 7
+|##MEMMAP: Kernel bank 7
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$feea-$fff0|   262   |
-|#MEMMAP:Bank 0
+|MEMMAP:ROM|FREE                         |$feee-$fff0|   258   |
+|##MEMMAP: Bank 0
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: --------  | ---------------------------- | ------- |-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fb9c-$fc48 |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc48-$fecd |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fba0-$fc4c |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc4c-$fed1 |     |

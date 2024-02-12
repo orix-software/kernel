@@ -38,12 +38,9 @@
 
   ; FIXME use kernel_get_struct_process_ptr routine
   jsr     kernel_get_struct_process_ptr
-  ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+
   sta     RES
   sty     RES+1
-
-;  lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  ;sta     RES+1
 
   ldy     #kernel_one_process_struct::ppid
 
@@ -69,7 +66,7 @@
 
   ; restore zp of the PPID
 
-  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     kernel_process+kernel_process_struct::kernel_current_process ; $57D
   jsr     kernel_get_struct_process_ptr
   sta     RES
   sty     RES+1

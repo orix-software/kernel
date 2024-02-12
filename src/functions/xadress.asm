@@ -1,4 +1,6 @@
 ; RES +AY = RES and AY
+
+.out     .sprintf("|MODIFY:RES:XADRESS")
 	clc
 	adc     RES
 	sta     RES

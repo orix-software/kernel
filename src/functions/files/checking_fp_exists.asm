@@ -2,6 +2,8 @@
     ; X fp to find
     ; Save A & X
 
+
+
     .out     .sprintf("|MODIFY:RES:checking_fp_exists")
     .out     .sprintf("|MODIFY:RESB:checking_fp_exists")
     .out     .sprintf("|MODIFY:TR5:checking_fp_exists")
@@ -16,7 +18,7 @@
     cmp     #KERNEL_MAX_FP                                         ; Does X is greater than the fp ?
     bcs     @doesnot_exists                                        ; Yes error
 
-     ; When orix boots, kernel_fd_opened is equal to $FF, if the fd passed into arg is the same than kernel_fd_opened it means that we don't need to close and store
+    ; When orix boots, kernel_fd_opened is equal to $FF, if the fd passed into arg is the same than kernel_fd_opened it means that we don't need to close and store
     cmp     kernel_process+kernel_process_struct::kernel_fd_opened
     beq     @do_not_seek
 
@@ -47,31 +49,43 @@
 
     jsr     compute_fp_struct
 
-
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
 
     lda     #'/'
     sta     CH376_DATA
 
-    jsr     @send_0_to_ch376_and_open
+    jsr     send_0_to_ch376_and_open
 
+    ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
+
+@set_filename:
     lda     #CH376_SET_FILE_NAME        ;$2F
     sta     CH376_COMMAND
 
-    ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
 @loop_next_byte:
-    ;jmp     @loop_next_byte
-    lda     (KERNEL_XOPEN_PTR1),y
-
+    jsr     ch376_open_filename
+    cmp     #$00
     beq     @send_end_out
-    cmp     #'/'
-    beq     @send
-    jsr     XMINMA_ROUTINE
-    sta     CH376_DATA
+
     iny
-    bne     @loop_next_byte
-    ; Here we should not reach this part except if there is an overflow
+    sty     TR5
+
+    jsr     send_0_to_ch376_and_open
+
+    ldy     TR5
+    jmp     @set_filename
+
+;     lda     (KERNEL_XOPEN_PTR1),y
+
+;     beq     @send_end_out
+;     cmp     #'/'
+;     beq     @send
+;     jsr     XMINMA_ROUTINE
+;     sta     CH376_DATA
+;     iny
+;     bne     @loop_next_byte
+;     ; Here we should not reach this part except if there is an overflow
 
 @doesnot_exists:
 
@@ -84,38 +98,11 @@
     clc
     rts
 
-@send:
-    iny
-    sty     TR5
-
-    jsr     @send_0_to_ch376_and_open
-    lda     #CH376_SET_FILE_NAME        ;$2F
-    sta     CH376_COMMAND
-
-    ldy     TR5
-    jmp     @loop_next_byte
 
 @send_end_out:
-    jsr     @send_0_to_ch376_and_open
+    jsr     send_0_to_ch376_and_open
 
-    ldy     #_KERNEL_FILE::f_seek_file
-
-    lda     (KERNEL_XOPEN_PTR1),y
-    sta     RES
-    iny
-    lda     (KERNEL_XOPEN_PTR1),y
-    sta     RES+1
-    iny
-    lda     (KERNEL_XOPEN_PTR1),y
-    tax
-    iny
-    lda     (KERNEL_XOPEN_PTR1),y
-    sta     RESB
-
-    lda     RES
-    ldy     RES+1
-
-    jsr     _ch376_seek_file32
+    jsr     restore_position_into_file
 
     lda     KERNEL_XFSEEK_SAVE_RESB
     sta     RES
@@ -124,20 +111,6 @@
     sta     RES+1
 
     jmp     @do_not_seek
-
-@send_0_to_ch376_and_open:
-
-.IFPC02
-.pc02
-    stz     CH376_DATA
-.p02
-.else
-    lda     #$00
-    sta     CH376_DATA
-.endif
-
-    jsr     _ch376_file_open ; Open slash
-    rts
 
 restore:
     ldy     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y

@@ -143,6 +143,7 @@ save_command_line:
 ; Now TR4 & TR5 are set the the beginning of cmdline
 
   ldy     #$00
+
 @L10:
   lda     (RESB),y
   beq     @S8
@@ -152,12 +153,14 @@ save_command_line:
   bne     @L10
   ldy     #EINVAL
   rts
+
 @S8:
   sta     (TR4),y
 
   ; Init fp to $00
   ldy     #kernel_one_process_struct::fp_ptr
   lda     #$00
+
 @L5:
   sta     (RES),y
   iny
@@ -186,6 +189,7 @@ save_command_line:
   sta     (RES),y  ; Store / at the first car
   iny
   bne     @loop
+
 @out:
   lda     #$00
   sta     (RES),y  ; Store 0 for the last string

@@ -8,7 +8,7 @@
 ; X Contain the id of the argument
 
 .out     .sprintf("|MODIFY:RES:XGETARGV_ROUTINE")
-.out     .sprintf("|MODIFY:RESB:_XEXEC")
+.out     .sprintf("|MODIFY:RESB:XGETARGV_ROUTINE")
 
 .proc XGETARGV_ROUTINE
 
