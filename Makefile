@@ -50,6 +50,7 @@ kernel: $(SOURCE)
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) > output.log
 	@$(LD) -C src/kernel.cfg kernelus.ld65 -m kernelus.map  -DWITH_TWILIGHTE_BOARD=1  -Ln kernelus.sym > output.log
 	@cp kernel.rom kernelus.rom
+	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 
 unittest:
 	$(CC) $(CFLAGS) tests/mkdir.c -o tmkdir
