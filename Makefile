@@ -4,7 +4,7 @@ CFLAGS=-ttelestrat
 ASFLAGS=-ttelestrat
 LDFILES=
 
-all : init kernel memmap
+all : init kernel memmap unittest
 .PHONY : all
 
 SOURCE=src/kernel.asm
