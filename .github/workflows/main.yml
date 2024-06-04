@@ -139,8 +139,8 @@ jobs:
           cp build/usr/share/kernel/kernelsd.rom ${GITHUB_WORKSPACE}/oricutron/roms/kernel.rom
           cat tests/unit_test/xopen.sub > ${GITHUB_WORKSPACE}/oricutron/sdcard/ETC/AUTOBOOT
           cat tests/unit_test/xrm.sub >> ${GITHUB_WORKSPACE}/oricutron/sdcard/ETC/AUTOBOOT
-          cp mainarg ${GITHUB_WORKSPACE}/oricutron/sdcard/BIN
-          cat mainarg >> ${GITHUB_WORKSPACE}/oricutron/sdcard/ETC/AUTOBOOT
+          #cp mainarg ${GITHUB_WORKSPACE}/oricutron/sdcard/BIN
+          #cat mainarg >> ${GITHUB_WORKSPACE}/oricutron/sdcard/ETC/AUTOBOOT
           cd ${GITHUB_WORKSPACE}/oricutron
           timeout --preserve-status 10 ./xvfb.sh || exit 0
 
