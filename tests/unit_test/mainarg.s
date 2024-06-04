@@ -20,7 +20,6 @@ start_adress:
 
     initmainargs argv, argc, 0
 
-
 nop
     lda     argc
     cmp     #$03
