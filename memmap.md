@@ -358,8 +358,8 @@ CALL:XOPEN:XRM_ROUTINE
 |##MEMMAP: Page 4
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
+|MEMMAP:RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0414 |  3  |
 |MEMMAP:RAM|page4 overlay_access       | $0419-$0436 |  54  |
-|MEMMAP:RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0411 |  3  |
 |##MEMMAP: Page 5&6
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
@@ -371,12 +371,12 @@ CALL:XOPEN:XRM_ROUTINE
 |##MEMMAP: Kernel bank 7
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$feee-$fff0|   258   |
+|MEMMAP:ROM|FREE                         |$ff0e-$fff0|   226   |
 |##MEMMAP: Bank 0
 |MEMMAP: Type      | Name                         | Range   | Size |
 |MEMMAP: --------  | ---------------------------- | ------- |-----|
 |MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
 |MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
 |MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fba0-$fc4c |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc4c-$fed1 |     |
+|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fbc0-$fc6c |     |
+|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc6c-$fef1 |     |

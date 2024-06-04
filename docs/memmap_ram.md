@@ -134,8 +134,8 @@
 ## Page 4
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
+|RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0414 |  3  |
 |RAM|page4 overlay_access       | $0419-$0436 |  54  |
-|RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0411 |  3  |
 ## Page 5&6
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|

@@ -3,12 +3,11 @@
 	cmp #CH376_DETECTED
 	beq @detected
 
-
-
 	; let's start reset
 	jsr _ch376_reset_all
 	lda #$01 ; error
 	rts
+
 @detected:
 	jsr _ch376_set_usb_mode_kernel
 

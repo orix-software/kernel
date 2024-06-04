@@ -15,7 +15,7 @@
         adc     #$01
 .endmacro
 
-.define VERSION "2024.1"
+.define VERSION "2024.3"
 
 XMALLOC_ROUTINE_TO_RAM_OVERLAY = 39
 

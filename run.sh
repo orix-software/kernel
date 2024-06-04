@@ -15,8 +15,8 @@ ld65  -C src/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 -Ln tmp/kerne
 #cl65 -ttelestrat -C  tests/orix-sdk/cfg/telestrat_900.cfg  tests/multiples_files_opened.c tests/multiples_files_fopen.s tests/exec.s -o multi
 #cl65 -ttelestrat -C  tests/orix-sdk/cfg/telestrat_900.cfg  tests/readdir.c tests/kernel_calls/readdir_extern.s  -o b
 
-ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  --verbose -s -ttelestrat  src/kdebug.asm -o kdebugsd.ld65 --debug-info
-ld65 -tnone -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  kdebugsd.ld65 -o kdebug.rom -Ln kdebugsd.sym -m memmap.txt -vm
+#ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  --verbose -s -ttelestrat  src/kdebug.asm -o kdebugsd.ld65 --debug-info
+#ld65 -tnone -DWITH_SDCARD_FOR_ROOT=1 -DWITH_DEBUG=1  kdebugsd.ld65 -o kdebug.rom -Ln kdebugsd.sym -m memmap.txt -vm
 
 cp kernel.rom $ORICUTRON_PATH/roms
 # cp kdebug.rom $ORICUTRON_PATH/roms
@@ -25,7 +25,16 @@ cp tests/test_kernel $ORICUTRON_PATH/sdcard/bin/test
 #cp tests/kopened $ORICUTRON_PATH/sdcard/bin/
 
 #cat  tests/unit_test/xopen.sub > $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
-#cat  tests/unit_test/xrm.sub >> $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
+cat  tests/unit_test/start.sub >> $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
+
+cp  tests/unit_test/mainarg.sub $ORICUTRON_PATH/sdcard/bin/mainarg.sub
+
+cl65 -ttelestrat tests/unit_test/mainarg.s -o 1000 --start-addr 2048
+cl65 -ttelestrat tests/unit_test/mainarg.s -o 1256 --start-addr 2304
+dependencies/orix-sdk/bin/relocbin.py3 -o mainarg -2 1000 1256
+
+
+cp mainarg $ORICUTRON_PATH/sdcard/bin/mainarg
 
 cd $ORICUTRON_PATH
 ./oricutron

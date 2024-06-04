@@ -1,0 +1,6 @@
+#!/bin/submit
+
+echo Salut
+
+chain /bin/mainarg.sub 1 2
+
