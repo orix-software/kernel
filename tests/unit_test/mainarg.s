@@ -1,9 +1,9 @@
 ; Code to test XMAINARGS
 
 .include "telestrat.inc"
-.include "../../dependencies/orix-sdk/macros/SDK_mainargs.mac"
-.include "../../dependencies/orix-sdk/macros/SDK_print.mac"
-.include "../../dependencies/orix-sdk/macros/SDK_conio.mac"
+.include "dependencies/orix-sdk/macros/SDK_mainargs.mac"
+.include "dependencies/orix-sdk/macros/SDK_print.mac"
+.include "dependencies/orix-sdk/macros/SDK_conio.mac"
 
 .segment "STARTUP"
 .segment "INIT"

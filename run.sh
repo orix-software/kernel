@@ -29,9 +29,9 @@ cat  tests/unit_test/start.sub >> $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
 
 cp  tests/unit_test/mainarg.sub $ORICUTRON_PATH/sdcard/bin/mainarg.sub
 
-cl65 -ttelestrat tests/unit_test/mainarg.s -o 1000 --start-addr 2048
-cl65 -ttelestrat tests/unit_test/mainarg.s -o 1256 --start-addr 2304
-dependencies/orix-sdk/bin/relocbin.py3 -o mainarg -2 1000 1256
+# cl65 -ttelestrat tests/unit_test/mainarg.s -o 1000 --start-addr 2048
+# cl65 -ttelestrat tests/unit_test/mainarg.s -o 1256 --start-addr 2304
+# dependencies/orix-sdk/bin/relocbin.py3 -o mainarg -2 1000 1256
 
 
 cp mainarg $ORICUTRON_PATH/sdcard/bin/mainarg
