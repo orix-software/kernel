@@ -55,7 +55,7 @@ kernel: $(SOURCE)
 unittest:
 	@$(CC) $(CFLAGS) tests/mkdir.c -o tmkdir
 	@$(CC) $(CFLAGS) tests/fwrite.c -o tfwrite
-	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I  -o 1000 --start-addr 2048
+	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o 1000 --start-addr 2048
 	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o 1256 --start-addr 2304
 
 memmap:
