@@ -1,5 +1,8 @@
 .define WHO_AM_IAM        $01
 .define MALLOC_TABLE_COPY $02
 
+.define KERNEL_BANK_NETWORK $01
+.define KERNEL_BANK_UNDEFINED $FF
+
 
 

@@ -51,6 +51,8 @@
 ;         de la puissance de 2 > au rayon est infinie, idem si le rayon est 128.
 ;         Il aurait suffit d'incrémenter le rayon avant le calcul...
 
+.export XCIRCL_ROUTINE
+
 .proc XCIRCL_ROUTINE
   lda      HRSX                    ; on sauve HRSX
   pha

@@ -1,3 +1,5 @@
+.export charset_text
+
 charset_text:
   ; ' '
   .byte   $00,$00,$00,$00,$00,$00,$00,$00

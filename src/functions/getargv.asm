@@ -10,6 +10,8 @@
 .out     .sprintf("|MODIFY:RES:XGETARGV_ROUTINE")
 .out     .sprintf("|MODIFY:RESB:XGETARGV_ROUTINE")
 
+.export XGETARGV_ROUTINE
+
 .proc XGETARGV_ROUTINE
 
    ; lda     RES

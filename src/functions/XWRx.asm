@@ -1,3 +1,5 @@
+.export XWR0_ROUTINE
+
 XWR0_ROUTINE:
 
    .out     .sprintf("|CALL:XWR0:XCOSCR")

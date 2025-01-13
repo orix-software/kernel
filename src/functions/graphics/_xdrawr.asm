@@ -19,6 +19,7 @@
 
 ; NOERROR
 
+.export XDRAWR_ROUTINE
 
 .proc XDRAWR_ROUTINE
   lda     HRSPAT         ;   sauve le pattern

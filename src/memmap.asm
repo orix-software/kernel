@@ -1,3 +1,38 @@
+
+.out     "=================================================================="
+.out     "File memory"
+.out     "=================================================================="
+.out     .sprintf("_KERNEL_FILE size (One fp struct) : $%X bytes",  .sizeof(_KERNEL_FILE))
+
+.out     .sprintf("kernel_one_process_struct size (struct for one process)  : $%X bytes", .sizeof(kernel_one_process_struct))
+.out   .sprintf("With all the parameter all process could use %s bytes in memory, if it's allocated", .string(.sizeof(kernel_one_process_struct)*KERNEL_MAX_PROCESS+.sizeof(kernel_process_struct)))
+
+.out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
+.out     .sprintf("KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): %s", .string(KERNEL_MAX_FP_PER_PROCESS))
+.out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s bytes", .string(KERNEL_USERZP_SAVE_LENGTH))
+.out     .sprintf("KERNEL_LENGTH_MAX_CMDLINE                                : %s", .string(KERNEL_LENGTH_MAX_CMDLINE))
+
+.out     .sprintf("kernel_process_struct size (struct init process)         : $%X bytes", .sizeof(kernel_process_struct))
+.out .sprintf("int MALLOC_BUSY_SIZE_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low)
+.out .sprintf("int MALLOC_BUSY_SIZE_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high)
+.out .sprintf("int MALLOC_BUSY_BEGIN_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high)
+.out .sprintf("int MALLOC_BUSY_END_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high)
+.out .sprintf("int MALLOC_BUSY_BEGIN_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low)
+.out .sprintf("int MALLOC_BUSY_END_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low)
+.out .sprintf("int KERNEL_MAX_NUMBER_OF_MALLOC=0x%x;",KERNEL_MAX_NUMBER_OF_MALLOC)
+
+
+.out .sprintf("int MALLOC_FREE_SIZE_HIGH=0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high)
+.out .sprintf("int MALLOC_FREE_SIZE_LOW=0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low)
+
+.out .sprintf("int MALLOC_FREE_BEGIN_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high)
+.out .sprintf("int MALLOC_FREE_BEGIN_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low)
+
+.out .sprintf("int MALLOC_FREE_END_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high)
+.out .sprintf("int MALLOC_FREE_END_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low)
+
+.out .sprintf("int KERNEL_MALLOC_FREE_CHUNK_MAX=0x%x;",KERNEL_MALLOC_FREE_CHUNK_MAX)
+
 .out     .sprintf("|#MEMMAP: Memmap")
 .out     .sprintf("|##MEMMAP: Page 0")
 .out              "|MEMMAP:Type     | Name                          | Range       | Size |"
@@ -39,10 +74,10 @@
 .out     .sprintf("|MEMMAP:RAM|SCRNB                          | $%02X-$%02X     |  2   |", SCRNB,SCRNB+1)
 .out     .sprintf("|MEMMAP:RAM|ADKBD                          | $%02X-$%02X     |  2   |", ADKBD,ADKBD+1)
 .out     .sprintf("|MEMMAP:RAM|PTR_READ_DEST                  | $%02X-$%02X     |  2   |", PTR_READ_DEST,PTR_READ_DEST+1)
-.out     .sprintf("|MEMMAP:RAM|FREE                           | $%02X-$%02X     |      |", PTR_READ_DEST+2,ptr1-1)
-.out     .sprintf("|MEMMAP:RAM|ptr1                           | $%02X-$%02X     |  2   |", ptr1,ptr1+1)
-.out     .sprintf("|MEMMAP:RAM|tmp1                           | $%02X-$%02X     |  1   |", tmp1,tmp1)
-.out     .sprintf("|MEMMAP:RAM|FREE                           | $%02X-$%02X     |      |", tmp1+1,ADCLK-1)
+.out     .sprintf("|MEMMAP:RAM|FREE                           | $%02X-$%02X     |      |", PTR_READ_DEST+2,ADDRESS_READ_BETWEEN_BANK-1)
+.out     .sprintf("|MEMMAP:RAM|ADDRESS_READ_BETWEEN_BANK      | $%02X-$%02X     |  2   |", ADDRESS_READ_BETWEEN_BANK,ADDRESS_READ_BETWEEN_BANK+1)
+.out     .sprintf("|MEMMAP:RAM|BNKCIB_DOUBLON                 | $%02X-$%02X     |  1   |", BNKCIB_DOUBLON,BNKCIB_DOUBLON)
+.out     .sprintf("|MEMMAP:RAM|FREE                           | $%02X-$%02X     |      |", BNKCIB_DOUBLON+1,ADCLK-1)
 .out     .sprintf("|MEMMAP:RAM|ADCLK                          | $%02X-$%02X     |  2   |", ADCLK,ADCLK+1)
 .out     .sprintf("|MEMMAP:RAM|TIMEUS                         | $%02X-$%02X     |  2   |", TIMEUS,TIMEUS+1)
 .out     .sprintf("|MEMMAP:RAM|TIMEUD (used in cc65 clock function)| $%02X-$%02X     |  2   |", TIMEUD,TIMEUD+1)
@@ -210,9 +245,9 @@
 .out     .sprintf("|##MEMMAP: Bank 0")
 .out              "|MEMMAP: Type      | Name                         | Range   | Size |"
 .out              "|MEMMAP: --------  | ---------------------------- | ------- |-----|"
-.out     .sprintf("|MEMMAP:BANK0|BUFBUF                        | $%x-$%x |  %d   |", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER,BUFBUF+12*KERNEL_NUMBER_BUFFER-BUFBUF)
-.out     .sprintf("|MEMMAP:BANK0|BUFROU                        | $%x-$%x |     |", BUFROU,BUFROU+(end_BUFROU-data_to_define_4))
-.out     .sprintf("|MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $%x-$%x |     |", TELEMON_KEYBOARD_BUFFER_BEGIN,TELEMON_KEYBOARD_BUFFER_END)
+;.out     .sprintf("|MEMMAP:BANK0|BUFBUF                        | $%x-$%x |  %d   |", BUFBUF,BUFBUF+12*KERNEL_NUMBER_BUFFER,BUFBUF+12*KERNEL_NUMBER_BUFFER-BUFBUF)
+;.out     .sprintf("|MEMMAP:BANK0|BUFROU                        | $%x-$%x |     |", BUFROU,BUFROU+(end_BUFROU-data_to_define_4))
+;.out     .sprintf("|MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $%x-$%x |     |", TELEMON_KEYBOARD_BUFFER_BEGIN,TELEMON_KEYBOARD_BUFFER_END)
 .out     .sprintf("|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $%x-$%x |     |", ramoverlay_xmalloc,ramoverlay_xmalloc_end )
 .out     .sprintf("|MEMMAP:BANK0|XFREE (copy from kernel)      | $%x-$%x |     |", ramoverlay_xfree,ramoverlay_xfree_end )
 

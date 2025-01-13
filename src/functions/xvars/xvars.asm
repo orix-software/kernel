@@ -1,12 +1,37 @@
 
 .include "include/xvars.inc"
 
+.export XVARS_ROUTINE
+
+; .export XVARS_TABLE_LOW
+; .export XVARS_TABLE_HIGH
+
 .proc XVARS_ROUTINE
   lda     XVARS_TABLE_LOW,x
   ldy     XVARS_TABLE_HIGH,x
   ldx     #$00
   rts
 .endproc
+
+
+; .export XVALUES_ROUTINE
+
+; .include "telestrat.inc"
+
+; .include   "../../include/kernel.inc"
+; .include   "../../include/process.inc"
+; .include   "../../include/memory.inc"
+; .include   "../../include/files.inc"
+
+; .include   "../../kernel.inc"
+
+; .import XVARS_TABLE_HIGH
+; .import XVARS_TABLE_LOW
+
+; .import XMALLOC_ROUTINE
+; .import kernel_get_struct_process_ptr
+; .import compute_fp_struct
+
 
 .proc XVALUES_ROUTINE
   cpx     #KERNEL_XVALUES_FREE_MALLOC_TABLE
@@ -110,12 +135,10 @@
 
   rts
 
-; @xvalues_get_filesize:
-;   rts
 
 @xvalues_get_osname:
-  lda     #<5
-  ldy     #>5
+  lda     #<$05
+  ldy     #>$05
   jsr     XMALLOC_ROUTINE
   sta     RES
   sty     RES+1
@@ -135,6 +158,7 @@
   ldy     RES+1
 
   rts
+
 @xvalues_get_time:
   ror     FLGCLK
   lda     TIMES
@@ -187,6 +211,8 @@
 
 .endproc
 
+
+
 .proc xvalues_get_free_ram_bank_routine
 
   ; Y contains if the type of bank
@@ -194,6 +220,28 @@
   ; Y=1 ROM
   cpy     #$01 ; Is rom ?
   beq     @not_managed
+
+
+  ; Aller lire 
+  ; lda #<KERNEL_BANK_MANAGEMENT
+  ; sta ADDRESS_READ_BETWEEN_BANK
+  ; lda #>KERNEL_BANK_MANAGEMENT-
+  ; sta ADDRESS_READ_BETWEEN_BANK+1
+  ; ldy #$00
+  ; jsr $4AF
+ ; See code_adress_get
+
+
+
+  ; Puis incrémenter
+
+; code_adress_4AF:
+;   lda     VIA2::PRA
+;   and     #%11111000                     ; switch to RAM overlay
+;   ora     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
+;   sta     VIA2::PRA
+;   lda     (ADDRESS_READ_BETWEEN_BANK),y  ; Read byt
+
 
   ldx     #$00
   lda     BUSY_BANK_TABLE_RAM
@@ -257,49 +305,7 @@
     tax
     rts
 
-set:
-    ; Rom
-    .byt 0
-    .byte    0,0,0,0
-    .byte    4,4,4,4
-    .byte    1,1,1,1
-    .byte    5,5,5,5
-    .byte    2,2,2,2
-    .byte    6,6,6,6
-    .byte    3,3,3,3
-    .byte    7,7,7,7
-
-    ; Ram
-    .byte    0,0,0,0
-    .byte    1,1,1,1
-    .byte    2,2,2,2
-    .byte    3,3,3,3
-    .byte    4,4,4,4
-    .byte    5,5,5,5
-    .byte    6,6,6,6
-    .byte    7,7,7,7
-
-bank:
-    .byt 0
-    ; Rom
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-
-    ; Ram
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
-    .byte    1,2,3,4
+.include "set_bank_mapping_values.s"
 
 .endproc
 
@@ -450,7 +456,6 @@ bank:
 @loop_copy_busy_chunk_begin_low:
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
-
   beq     @busy_slot_not_used      ; Begin low is equal to 0 ? Yes, it's empty
 
   sta     (RES),y
@@ -530,6 +535,11 @@ bank:
   sta     RES
   rts
 .endproc
+
+
+; osname:
+;   .asciiz "Orix"
+
 
 XVARS_TABLE_VALUE_LOW:
   .byt     <KERNEL_ERRNO

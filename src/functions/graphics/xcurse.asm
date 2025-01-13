@@ -1,4 +1,6 @@
-           ;                    ROUTINE CURSET
+.export XCURSE_ROUTINE
+
+;                    ROUTINE CURSET
 .proc XCURSE_ROUTINE
   ldx      HRS1      ;  X=HRSX                FIXME
   ldy      HRS2     ;   Y=HRSY                FIXME

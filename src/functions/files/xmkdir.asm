@@ -2,14 +2,14 @@
   ; [IN] AY contains the pointer of the path
   ; FIXME
     .out     .sprintf("|MODIFY:RES:XMKDIR_ROUTINE")
-    .out     .sprintf("|MODIFY:ptr1:XMKDIR_ROUTINE")
+    .out     .sprintf("|MODIFY:ADDRESS_READ_BETWEEN_BANK_DOUBLON:XMKDIR_ROUTINE")
     .out     .sprintf("|MODIFY:TR7:XMKDIR_ROUTINE")
-    sta     ptr1
-    sty     ptr1+1
+    sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
 
     ; is it an absolute path ?
     ldy     #$00
-    lda     (ptr1),y
+    lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
     cmp     #"/"
     beq     @isabsolute
 
@@ -35,7 +35,7 @@
     sta     CH376_COMMAND
     ldy     #$00
 @mloop:
-    lda     (ptr1),y
+    lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
     beq     @mend
     cmp     #"/"
     beq     @launch_xopen
@@ -78,9 +78,9 @@
 @isabsolute:
     rts
 
-    lda     ptr1
+    lda     ADDRESS_READ_BETWEEN_BANK_DOUBLON
     ldy     #O_RDONLY
-    ldx     ptr1+1
+    ldx     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
 
     jmp     XOPEN_ROUTINE
 
@@ -102,10 +102,11 @@
     ldx     #$00
 @next_char:
     iny
-    lda     (ptr1),y
+    lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
     beq     @end
     cmp     #"/"
     beq     @create_dir
+    ; FIXME XMINMA
     cmp     #"a"                        ; 'a'
     bcc     @skip
     cmp     #$7B                        ; 'z'

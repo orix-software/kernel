@@ -41,12 +41,6 @@
   ;kernel_max_process_value             .res 1
 .endstruct
 
-.out     .sprintf("KERNEL_MAX_PROCESS (Max process in the system)           : %s", .string(KERNEL_MAX_PROCESS))
-.out     .sprintf("KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): %s", .string(KERNEL_MAX_FP_PER_PROCESS))
-.out     .sprintf("KERNEL_USERZP_SAVE_LENGTH                                : %s bytes", .string(KERNEL_USERZP_SAVE_LENGTH))
-.out     .sprintf("KERNEL_LENGTH_MAX_CMDLINE                                : %s", .string(KERNEL_LENGTH_MAX_CMDLINE))
-
-.out     .sprintf("kernel_process_struct size (struct init process)         : $%X bytes", .sizeof(kernel_process_struct))
 
 .if     .sizeof(kernel_process_struct) > 255
   .error  "kernel_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
@@ -73,10 +67,10 @@
   .endif
 .endstruct
 
-.out     .sprintf("kernel_one_process_struct size (struct for one process)  : $%X bytes", .sizeof(kernel_one_process_struct))
+
 
 .if     .sizeof(kernel_one_process_struct) > 255
   .error  "kernel_one_process_struct size is greater than 255. It's impossible because code does not handle a struct greater than 255"
 .endif
 
-.out   .sprintf("With all the parameter all process could use %s bytes in memory, if it's allocated", .string(.sizeof(kernel_one_process_struct)*KERNEL_MAX_PROCESS+.sizeof(kernel_process_struct)))
+

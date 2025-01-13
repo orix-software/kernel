@@ -37,3 +37,53 @@ here is the list of available "compile option"
 * Kernel tries to start binary set in his rom label 'str_binary_to_start'
 * it allocates a process struct (first malloc)
 * and register it in processlist
+
+
+## generate .inc
+
+MEMORY {
+      #...
+
+       KRNL1: file = "kernel.rom", start = $C000, size = $3FFF;
+       KRNL2: file = "kernel2.rom", start =$C000, size = $3FFF;
+       INCL: file="kernel2.inc", start=$0000, size = $FFFF;
+}
+SEGMENTS {
+      # ...
+      KERNEL: load = KRNL1, type = ro, define = yes, optional = yes;
+      EXTEND: load = KRNL2, type = ro, define = yes, optional = yes;
+      INCLUDE: load = INCL, optional = yes;
+}
+
+
+
+
+.feature org_per_seg
+.pushseg
+    .segment "EXTEND"
+        .org $C000          ;  
+
+
+    ; .segment "KERNEL"
+   ; .org $C000
+
+
+.popseg
+Macro
+
+
+.macro addsym symbole
+    .pushseg
+        .segment "INCLUDE"
+            .byte .sprintf("%s = $%x", .string(symbole), symbole)
+    .popseg
+.endmacro
+
+Et enfin, pour ajouter un symbole dans le fichier .inc:
+
+.proc xvalue_routine
+     lda #$00
+    ....
+.endproc
+
+addsym xvalue_routine

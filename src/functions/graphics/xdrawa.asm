@@ -4,6 +4,8 @@
 ; Action:on calcule dX et dY les deplacements dans HRS1 et HRS2 et on trace en
 ; relatif. En entr?e, comme ADRAW dans HRSx.
 
+.export XDRAWA_ROUTINE
+
 .proc XDRAWA_ROUTINE
   ldx     HRS1                   ;   X=colonne
   ldy     HRS2                   ;   Y=ligne du curseur

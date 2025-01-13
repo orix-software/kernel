@@ -1,3 +1,5 @@
+.export _xeffhi
+
 .proc _xeffhi
   lda     #<$A000
   ldy     #>$A000

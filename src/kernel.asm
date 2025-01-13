@@ -1,26 +1,23 @@
-.FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments
+.FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments, org_per_seg
 
-.macro  STZ_ABS    arg             ; Define macro ldax
-        lda     #$00
-        sta     arg
-.endmacro
 
-.macro  STZ_ABS_X    arg             ; Define macro ldax
-        lda     #$00
-        sta     arg,x
-.endmacro
+.define VERSION "2025.1"
 
-.macro  INCA
-        clc
-        adc     #$01
-.endmacro
+.export VEXBNK
+;.export KERNEL_SAVE_XEXEC_CURRENT_SET
 
-.define VERSION "2024.3"
 
-XMALLOC_ROUTINE_TO_RAM_OVERLAY = 39
+.import XMINMA_ROUTINE
 
-ADIODB_LENGTH = $08
-.define KERNEL_SIZE_IOTAB $04
+; Network
+.import XNETWORK_START_ROUTINE
+
+; Import from bank0
+.import TELEMON_KEYBOARD_BUFFER_END
+.import TELEMON_KEYBOARD_BUFFER_BEGIN
+.import BUFROU
+.import KERNEL_CONF_BEGIN
+.import KERNEL_BANK_MANAGEMENT
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -28,14 +25,48 @@ ADIODB_LENGTH = $08
 .include   "errno.inc"              ; from cc65
 .include   "cpu.mac"                ; from cc65
 .include   "signal.inc"             ; from cc65
+
 .include   "libs/ch376-lib/include/ch376.inc"
 .include   "include/kernel.inc"
 .include   "include/process.inc"
-;.include   "include/process_bss.inc"
+.include   "include/network.inc"
 .include   "include/memory.inc"
 .include   "include/files.inc"
 .include   "include/ori2.inc"
 .include   "versions/versions.inc"
+
+.import  KERNEL_ERRNO
+.import  KERNEL_CH376_MOUNT
+.import  KERNEL_XFREE_TMP
+.import  KERNEL_XKERNEL_CREATE_PROCESS_TMP
+.import  KERNEL_TMP_XEXEC
+.import  KERNEL_KERNEL_XEXEC_BNKOLD
+.import  KERNEL_MALLOC_TYPE
+.import  KERNEL_SAVE_XEXEC_CURRENT_SET
+.import  KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM
+.import  KERNEL_END_PROCESS_VARIABLES
+.import  SCRFX_KERNEL
+.import  IOTAB
+.import  KERNEL_ADIOB
+.import  kernel_malloc_free_chunk_size
+.import  kernel_xmalloc_call
+.import  KERNEL_ADIOB_END
+.import  READ_BYTE_FROM_OVERLAY_RAM
+.import  FIXME_DUNNO
+.import  STACK_BANK
+;.import  BUFNOM
+.import  kernel_malloc
+.import  KERNEL_DRIVER_MEMORY
+.import  kernel_process
+.import  BUSY_BANK_TABLE_RAM
+.import  kernel_end_of_memory_for_kernel
+
+
+.import KERNEL_NETWORK_FLAG
+
+.import XBANK_ROUTINE
+
+
 
 .out   "=================================================================="
 .out   "Resume"
@@ -47,9 +78,10 @@ ADIODB_LENGTH = $08
 .endif
 
 .include   "orix.mac"
-.include   "kernel.inc"
+;.include   "kernel.inc"
 .include   "build.inc"
 
+;.import KERNEL_BANK_MANAGEMENT
 ; Used for HRS, but we use it also for XOPEN primitive, there is no probability to have graphics could opens HRS values (For instance)
 
 .org $04
@@ -72,42 +104,6 @@ RESI:
 RESCONCAT:
   .res 2  ; ACC1S+1 $66
 
-RES5                       := $0A
-
-;RESC                       := DECDEB  ; $04
-;RESD                       := DECFIN  ; $06
-;RESE                       := DECCIB  ;
-;RESF                       := DECTRV  ;
-;RESG                       := ACCPS   ;
-;RESH                       := ACC1E
-
-KERNEL_XOPEN_PTR1          := $04 ; DECBIN
-KERNEL_XOPEN_PTR2          := $06 ; DECFIN
-
-KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y := $51 ; DECBIN
-KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X := $52 ; DECBIN
-
-KERNEL_XFSEEK_SAVE_RES  := $06; DECBIN
-KERNEL_XFSEEK_SAVE_RESB := $4D ; DECBIN
-;KERNEL_XOPEN_PTR2          := $06 ; DECFIN
-
-
-KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
-XOPEN_RES                := $4D ; Also HRS1 2 bytes
-XOPEN_RESB               := $4F ; Also HRS2 2 bytes
-XOPEN_RES_SAVE           := $51 ; Also HRS3 2 bytes
-XOPEN_RESB_SAVE          := $53 ; Also HRS4 2 bytes
-XOPEN_SAVEY              := $55 ; Also HRS4 2 bytes
-XOPEN_SAVEA              := $56 ; Also HRS4 2 bytes
-XOPEN_FLAGS              := $57 ; also HRSFB 1 byte
-TELEMON_UNKNWON_LABEL_62 := $62
-TELEMON_UNKNWON_LABEL_70 := $70
-TELEMON_UNKNWON_LABEL_71 := $71
-TELEMON_UNKNWON_LABEL_72 := $72
-TELEMON_UNKNWON_LABEL_7F := $7F
-TELEMON_UNKNWON_LABEL_86 := $86
-FLPOLP                   := $85
-FLPO0                    := $87
 
 ; PARSE_VECTOR:=$FFF1
 
@@ -117,22 +113,14 @@ FLPO0                    := $87
 ; 3- Launch mount on the device but don't test the result, because we don't care at this step : it's a quick hack to mount quickly mass storage gadget
 
 
-.segment "BANK8"
-; .bss
-.res 100
-
-.segment "BANK0"
-; .bss
-.res 100
-
 .segment "BANK7"
-
 .org      $C000
 
 start_rom:
 .proc _main
 
   sei
+
   cld
   ldx     #$FF
   txs                         ; init stack
@@ -176,6 +164,9 @@ start_rom:
 
   sta     KERNEL_CH376_MOUNT
 
+
+  ;jsr     init_network
+
   ; BUSY_BANK_TABLE_RAM is used to know if a ram bank is empty or not
 
   lda     #$03  ; bank 33 and 34 are reserved (loader/network)
@@ -196,34 +187,20 @@ start_rom:
   lda     #$07 ; Kernel bank
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
-.ifdef WITH_DEBUG_BOARD
-  lda     #'M'
-  sta     $bb80+13
-  .endif
-
   jsr     init_screens
 
-.ifdef WITH_DEBUG_BOARD
-  lda     #'N'
-  sta     $bb80+14
-.endif
 
 
   jsr     XLOADCHARSET_ROUTINE
 
-.ifdef WITH_DEBUG_BOARD
-  lda     #'O'
-  sta     $bb80+15
-.endif
+
 
   jsr     XALLKB_ROUTINE
 
-.ifdef WITH_DEBUG_BOARD
-  lda     #'P'
-  sta     $bb80+16
-.endif
+
 
   ldx     #$00
+
 @myloop:
 
   lda     page2_xmalloc_call,x
@@ -233,27 +210,11 @@ start_rom:
 
   bne     @myloop
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'Q'
-  sta     $bb80+17
-  .endif
-
   jsr     init_via
-
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'R'
-  sta     $bb80+18
-  .endif
-
   jsr     init_printer
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'S'
-  sta     $bb80+19
-  .endif
-
-
   ldx     #(KERNEL_SIZE_IOTAB-1)
+
 @loop:
   lsr     IOTAB,x ; init channels (0 to 3)
   dex
@@ -277,7 +238,6 @@ next1:
   bpl     @loop
 
 set_todefine6:
-
 
   ldx     #$00
 
@@ -305,10 +265,6 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'T'
-  sta     $bb80+20
-  .endif
 
 ; Just fill ram with BUFROU
   jsr     $0600
@@ -320,15 +276,11 @@ loading_vectors_telemon:
   inx                                 ; loop until 256 bytes are filled
   bne     @loop2
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'U'
-  sta     $bb80+21
-  .endif
 
 
 set_buffers:
 ; this code sets buffers
-  ldx     #$00   ; Start from 0
+  ;ldx     #$00   ; Start from 0
   jsr     XDEFBU_ROUTINE
 
 
@@ -346,49 +298,29 @@ skip:
   dex
   bpl     @loop
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'B'
-  sta     $bb80+1
-  .endif
+
 
   jsr     init_keyboard
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'C'
-  sta     $bb80+2
-  .endif
+
 
 next5:
-
   lda     KBDCOL+4 ;
   and     #$90
   beq     @skip
   lda     FLGTEL
   ora     #$40
   sta     FLGTEL
+
 @skip:
 
-.ifdef WITH_DEBUG_BOARD
-  lda     #'D'
-  sta     $bb80+3
-.endif
+
 
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'E'
-  sta     $bb80+4
-  .endif
-
   lda     #$82 ; Setup screen !  on channel 0
   BRK_TELEMON XOP0
-
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'F'
-  sta     $bb80+5
-  .endif
-
 
   BRK_TELEMON XRECLK  ; Don't know this vector
 
@@ -402,38 +334,39 @@ next5:
   ; it's similar to lda #10 brk xwr0 lda #13 brk XWR0
   RETURN_LINE
 
-
   PRINT str_KOROM
 
-
 telemon_hot_reset:
-
 
 don_t_display_telemon_signature:
   lda     #<str_tofix
   ldy     #>str_tofix
   BRK_TELEMON XWSTR0
 
-  ;JSR $0600 ; CORRECTME
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'V'
-  sta     $bb80+22
-  .endif
 
 don_t_display_signature:
   jsr     routine_to_define_19
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'W'
-  sta     $bb80+23
-  .endif
 
-display_cursor:
 
+  lda     #64
+  sta     RES+1
+
+  ; Initialize banks states to Empty
+@L1:
+  lda     #$00 ; value to store
+  ldx     #$00 ; BANK
+  ldy     #$00 ; Offset to write
+  MEMORY_PUT_VALUE_TO_BANK KERNEL_BANK_MANAGEMENT
+  dec     RES+1
+  bne     @L1
+
+  ; Displays cursor
   ldx     #$00
-  BRK_KERNEL XCSSCR ; display cursors
-; initialize
+  BRK_KERNEL XCSSCR
+
+  ; initialize
   ; Init PID tables and structs
 
 
@@ -537,12 +470,27 @@ init_malloc_busy_table:
   dex
   bpl     @loop
 
+  ; ****************************************************************************
+  ; *                        Start init for network chip                       *
+  ; ****************************************************************************
+  ; Set stage for kernel init
+
+  lda     #KERNEL_NETWORK_STATE_NOT_INITIALIZED
+  ldy     #$00
+  ldx     #$00
+  MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_FLAG
+
+
+  lda     #KERNEL_START_NETWORK
+  jsr     XNETWORK_START_ROUTINE
+
 .ifdef WITH_SYSTEMD_AT_BOOT_TIME
 launch_systemd:
   lda     #<str_binary_systemd
   sta     RES
   lda     #>str_binary_systemd
   sta     RES+1
+
   ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
   ldy     #$00
 @L1:
@@ -648,10 +596,6 @@ init_via:
   rts
 
 loading_code_to_page_6:
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'Y'
-  sta     $bb80+25
-  .endif
 
   ; At this step we will copy into ram overlay
   lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
@@ -681,13 +625,13 @@ loading_code_to_page_6:
   bne     @loop ; copy 256 bytes to BUFROU in OVERLAY RAM
     ; Becare full, each time shell is executed it launch it
 
+  ; lda     #ORIX_FIRST_FREE_RAM_BANK
+  ; sta     KERNEL_BANK_MANAGEMENT
+
 
 end_proc_init_rams:
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'Z'
-  sta     $bb80+26
-  .endif
+
 
   lda     VIA2::PRA ; 3 bytes ; switch to overlay ram ?
   ora     #%00000111 ; Bank 7
@@ -739,7 +683,7 @@ str_tofix:
 
 
 XDEFBU_ROUTINE:
-  stx     RESB ; store the id of the buffer to set
+  ;stx     RESB ; store the id of the buffer to set
 
   lda     #<TELEMON_KEYBOARD_BUFFER_BEGIN
   sta     RES
@@ -749,7 +693,7 @@ XDEFBU_ROUTINE:
   lda     #<TELEMON_KEYBOARD_BUFFER_END
   ldy     #>TELEMON_KEYBOARD_BUFFER_END
 
-  ldx     RESB
+  ldx     #$00
 
 XINIBU_ROUTINE:
   bit     XLISBU_ROUTINE
@@ -883,6 +827,7 @@ code_adress_47E:  ; brk gestion
   ora     #$07
   sta     VIA2::PRA
   jmp     brk_management
+
 code_adress_493:
   lda     VIA2::PRA
   and     #$F8
@@ -902,7 +847,7 @@ code_adress_4A1:
 
 ; this routine read a value in a bank
 ;
-code_adress_4AF:
+code_adress_4AF: ; $04AF
   lda     VIA2::PRA
   and     #%11111000                     ; switch to RAM overlay
   ora     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
@@ -917,19 +862,22 @@ code_adress_4AF:
   ; Stack used to switch from any bank
   ; let this res !!!
 ;.res 1   ; Let this res because, it's FIXME_DUNNO var here
-code_adress_get:
-; used in bank command in Oric
+code_adress_4C7:
+;code_adress_get:
+; used in bank command in shell rom + Used in bank 8 (kernel)
   lda     VIA2::PRA
   and     #%11111000                     ; switch to RAM overlay
 ; switch to RAM overlay
-  ora     tmp1                           ; but select a bank in $410
+  ora     BNKCIB_DOUBLON ; FIXME                           ; but select a bank in $410
   sta     VIA2::PRA
   cpx     #$00
   beq     @read
   lda     RES
-  sta     (ptr1),y
+  sta     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
+
 @read:
-  lda     (ptr1),y                       ; Read byte
+  lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y                       ; Read byte
+
 @exit:
   pha
   lda     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
@@ -1074,7 +1022,7 @@ routine_to_define_16:
   lda     IRQSVP
   rts
 
-
+;.include "functions/xvars/xvalues.s"
 .include  "functions/xcrlf.asm"
 .include  "functions/XWRx.asm"
 .include  "functions/XWSTRx.asm"
@@ -1152,7 +1100,7 @@ brk_management:
   and     #%00010000 ; test B flag B flag means an that we reach a brk commands
   beq     next200 ; is it a break ?
   tsx     ; yes we get Stack pointer
-  pla     ; we pull pointer program +2
+  pla     ; we pull pointer program + 2
 
   bne     @skip
   dec     BUFTRV+2,x ; CORRECTME
@@ -1164,9 +1112,9 @@ reset115_labels:
   sta     ADDRESS_READ_BETWEEN_BANK
   lda     BUFTRV+2,x
   sta     ADDRESS_READ_BETWEEN_BANK+1
-  lda     BNKOLD
-  sta     BNK_TO_SWITCH
-  ldy     #$00
+  lda     BNKOLD   ; On regarde la ROM appelante
+  sta     BNK_TO_SWITCH ; On stocke pour cette banque pour pouvoir aller lire  $XX après le brk
+  ldy     #$00 ; On prend la 1ère valeur
   jsr     ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY
   asl
   tax
@@ -1427,9 +1375,11 @@ telemon_display_clock_chars:
   ; table des vecteurs du brk
 vectors_telemon:
 ;0
+
+
   .byt     <XOP0_ROUTINE,>XOP0_ROUTINE ; $00
-  .byt     <$00,>$00 ; $1
-  .byt     <$00,>$00 ; 2
+  .byt     <XBANK_ROUTINE,>XBANK_ROUTINE; $1
+  .byt     $00,$00 ; 2
   .byt     <$00,>$00
 
   .byt     $00,$00   ; 4 Was XCL in telemon
@@ -1774,10 +1724,7 @@ XCHECK_VERIFY_USBDRIVE_READY_ROUTINE:
 
 
 .include  "functions/process/kernel_get_struct_process_ptr.asm"
-
-.include  "functions/strings/xminma.asm"
-
-
+;.include  "functions/strings/xminma.asm"
 .include  "functions/xdecal.asm"
 
 .include  "functions/sound/xepsg.asm"
@@ -1939,6 +1886,7 @@ XKBDAS_ROUTINE:
   lda     (ADKBD),y
   bit     FLGKBD
   bpl     @skip5
+  ; XMINMA FIXME
   cmp     #$61
   bcc     @skip5
   cmp     #$7B
@@ -2508,12 +2456,15 @@ LDD14:
   cmp     SCRDX     ;  interdite ?                                      I
   bcs     @S1       ;  non                                               I
   jmp     CTRL_M_START     ;  I  oui,on en sort                                    I
+
 @S1:
   rts   ;  <---                                                    I
+
 @S2:
-  dec     SCRDX   ;   on autorise colonne 0 et 1 <----------------------
+  dec     SCRDX     ;   on autorise colonne 0 et 1 <----------------------
   dec     SCRDX
   rts
+
 LDD43:
   dec     SCRX    ;  on ramène le curseur un cran à gauche  <----------
   rts  ;                                                           I
@@ -2524,7 +2475,7 @@ LDD43:
 CTRL_H_START:
   lda     SCRX   ; est-on déja au début de la fenêtre ?             I
   cmp     SCRDX  ;                                                  I
-  bne     LDD43    ; non, on ramène à gauche --------------------------
+  bne     LDD43  ; non, on ramène à gauche --------------------------
   lda     SCRFX  ; oui, on se place à la fin de la fenètre
   sta     SCRX
 
@@ -2539,10 +2490,12 @@ CTRL_K_START:
   ldy     SCRFY             ;  fin de la fentre X                              I
   tax                       ;                                                  I
   jsr     XSCROB_ROUTINE    ; on scrolle l'écran vers le bas ligne X à Y       I
+
 CTRL_M_START:
   lda     SCRDX           ;  on place début de la fenêtre dans X              I
   sta     SCRX            ;                                                   I
   rts                       ;                                                   I
+
 LDD6E:
   dec     SCRY            ; on remontre le curseur <--------------------------
   jmp     LDE07             ;  et on ajuste ADSCR
@@ -2653,11 +2606,12 @@ CTRL_HOME_START:
   sta     SCRX     ;  dans SCRX
   lda     SCRDY    ;  la première ligne dans
   sta     SCRY     ;  SCRY
+
 LDE07:
   lda     SCRY     ;  et on calcule l'adresse
   jsr     LDE12    ;  de la ligne
   sta     ADSCR    ;  dans ADSCR
-  sty     ADSCR+1  ;
+  sty     ADSCR + 1  ;
   rts
 
 ;  CALCULE L'ADRESSE DE LA LIGNE A
@@ -2754,8 +2708,8 @@ XSCRSE_ROUTINE ; init window
 ROUTINE_TO_DEFINE_7:
   clc
   php
-  sta     ADDRESS_READ_BETWEEN_BANK   ; CORRECTME
-  sty     ADDRESS_READ_BETWEEN_BANK+1 ; CORRECTME
+  sta     ADDRESS_READ_BETWEEN_BANK     ; CORRECTME
+  sty     ADDRESS_READ_BETWEEN_BANK + 1 ; CORRECTME
   txa
   clc
   adc     #$18
@@ -2835,24 +2789,6 @@ next15:
   and     #$1F
   rts
 
-; Le19f:
-;   clc
-;   php
-;   stx     VABKP1
-;   ldx     #$00
-;   jsr     XECRBU_ROUTINE
-;   lda     #$08
-;   plp
-;   bcs     Le1af
-;   lda     #$20
-; Le1af:
-;   ldx     #$00
-;   jsr     XECRBU_ROUTINE
-;   ldx     VABKP1
-;   rts
-; Le1b7:
-;   sec
-;   rts
 
 XHCHRS_ROUTINE:
   rts
@@ -2875,17 +2811,21 @@ test_if_prompt_is_on_beginning_of_the_line:
   bne     @skip
   tya
   cmp     SCRDX
+
 @skip:
   rts
+
 Le2f9:
   ldy     SCRDX
   lda     (RES),y
   cmp     #$7F
   rts
+
 LE301:
   ldx     SCRNB
   lda     SCRY
   sta     ACC1M
+
 Le2ed:
   lda     ACC1M
   jsr     LDE12
@@ -2898,10 +2838,12 @@ Le2ed:
   beq     @S2
   dec     ACC1M
   bcs     Le2ed
+
 @S1:
   clc
   iny
   sty     ACC1E
+
 @S2:
   rts
 
@@ -2979,6 +2921,7 @@ Le390:
   cmp     #$20
   bcs     Le398
   ora     #$80
+
 Le398:
   ldx     MENX
   bit     ACC1EX
@@ -3024,6 +2967,7 @@ display_bufedt_content:
   sty     RES+1
   ldx     SCRNB
   ldy     SCRX
+
 Le3e3:
   ldx     MENX
 
@@ -3042,6 +2986,7 @@ Le3e3:
   bit     FLGTEL ; Minitel ?
   bvc     Le405
   jsr     LE656
+
 Le405:
   tya
   iny
@@ -3052,6 +2997,7 @@ Le405:
   ldy     #$00
   jsr     XADRES_ROUTINE
   ldy     SCRDX
+
 Le418:
   inc     MENX
   bne     Le3e3
@@ -3072,7 +3018,6 @@ Le42a:
 Le45a:
 Le479:
   rts
-
 
 manage_code_control:
   cmp     #$08
@@ -4942,11 +4887,13 @@ LF9C7:
   lda     RESB+1
   bmi     LF9E1
   bpl     LF9E4
+
 LF9CD:
   pha
   bit     FLDT2
   bpl     LF9D4
   inc     ACC4M
+
 LF9D4:
   jsr     Lf242
   pla
@@ -4957,6 +4904,7 @@ LF9D4:
 
 LF9E1:
   jsr     XNA1_ROUTINE
+
 LF9E4:
   ldx     #$00
   jmp     XAA1_ROUTINE
@@ -4971,8 +4919,10 @@ LF9E9:
   sta     ACCPS
   ldx     ACC1E
   jmp     XA1PA2_ROUTINE
+
 LF9FC:
   inc     RESB
+
 LF9FE:
   ldy     RESB
   lda     (RES),y
@@ -5163,8 +5113,10 @@ Lff00:
   bcc     Lff00
   inc     ADDRESS_READ_BETWEEN_BANK+1
   bcs     Lff00
+
 Lff26:
   rts
+
 read_a_code_in_15_and_y:
   bit     RES
   bpl     @skip
@@ -5267,8 +5219,9 @@ signature:
   .byt     $00
 
 free_bytes: ; 26 bytes
-  .res     $FFF0-*
-  .org     $FFF0
+
+.segment "ORIXVECT7"
+
   .byt     $01 ; Kernel type
 
   .res     7
@@ -5276,8 +5229,11 @@ free_bytes: ; 26 bytes
   .byt     <signature
   .byt     >signature
 
+; .segment "CPUVECT"
+
 END_ROM:
 ; fffa
+.segment "CPUVECT7"
 NMI:
   .byt     <start_rom,>start_rom
 ; fffc
@@ -5287,4 +5243,4 @@ RESET:
 BRK_IRQ:
   .byt     <IRQVECTOR,>IRQVECTOR
 ; Displays map
-.include "memmap.asm"
+;.include "memmap.asm"

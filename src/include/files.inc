@@ -11,10 +11,6 @@
 .endstruct
 
 
-.out     "=================================================================="
-.out     "File memory"
-.out     "=================================================================="
-.out     .sprintf("_KERNEL_FILE size (One fp struct) : $%X bytes",  .sizeof(_KERNEL_FILE))
 
 .struct _EXT_FILE
         f_flags     .byte ; Fopen, closed etc

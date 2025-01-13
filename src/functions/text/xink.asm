@@ -1,3 +1,4 @@
+.export XINK_ROUTINE
 
 .proc XINK_ROUTINE
   sec

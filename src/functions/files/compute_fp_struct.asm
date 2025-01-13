@@ -1,3 +1,5 @@
+.export compute_fp_struct
+
 .proc compute_fp_struct
 
   ; A contains the fd id

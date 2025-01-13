@@ -5,6 +5,9 @@
 ;         Pas très optimisé en temps tout cela, il aurait été plus simple de
 ;         de tracer directement en relatif !!!
 ;         Le rectangle est tracé comme ABOX avec les paramètres dans HRSx.
+
+.export XBOX_ROUTINE
+
 .proc XBOX_ROUTINE
   clc              ;   C=0
   lda     HRSX     ;   on place les coordonées actuelles

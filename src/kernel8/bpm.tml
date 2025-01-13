@@ -1,0 +1,26 @@
+[package]
+name = "kernel8"
+version = "2024.4"
+authors = [ "nobody@nobody.fr",]
+license = "MIT OR Apache-2.0"
+edition = "2018"
+cpu = "6502"
+readme = ""
+repository = ""
+documentation = ""
+description = ""
+homepage = ""
+buildfolder = "build"
+packagetype = "tgz"
+codetype = "rom"
+templatecode = ""
+pathsrc = "src"
+oricutron_replace_autoboot_run = "True"
+asm_bin_tpl_version = "alpha"
+asm_rom_tpl_version = "alpha"
+orixsdk_version = "2023.3.0"
+orix_minimal_kernel_version = "2024.1"
+
+[dependencies]
+ch395 = "2024.4"
+ksocket = "2025.1"

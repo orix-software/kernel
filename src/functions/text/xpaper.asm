@@ -1,3 +1,4 @@
+.export XPAPER_ROUTINE
 
 .proc XPAPER_ROUTINE
   clc

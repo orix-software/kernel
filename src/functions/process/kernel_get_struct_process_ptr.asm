@@ -1,3 +1,5 @@
+.export kernel_get_struct_process_ptr
+
 .proc kernel_get_struct_process_ptr
   ; X contains the pid to get
   ; Returns in A and Y ptr

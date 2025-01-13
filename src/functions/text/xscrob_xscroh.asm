@@ -1,4 +1,6 @@
 
+.export XSCROH_ROUTINE
+
 .proc XSCROH_ROUTINE
 ;                     SCROLLE UNE FENETRE VERS LE BAS
 ;Action:scrolle vers le bas de la ligne X à la ligne Y la fenêtre courante.
