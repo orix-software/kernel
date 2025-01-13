@@ -1,229 +1,35 @@
-KERNEL_MAX_PATH_LENGTH                                   : 49 bytes 
+kernel_end_of_variables_before_BUFNOM : 503
+kernel_end_of_variables_before_BUFEDT : 58f
+kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a1
+==================================================================
+File memory
+==================================================================
+_KERNEL_FILE size (One fp struct) : $38 bytes
+kernel_one_process_struct size (struct for one process)  : $76 bytes
+With all the parameter all process could use 494 bytes in memory, if it's allocated
 KERNEL_MAX_PROCESS (Max process in the system)           : 4
 KERNEL_MAX_FP_PER_PROCESS  (Max file pointer per process): 2
 KERNEL_USERZP_SAVE_LENGTH                                : 16 bytes
 KERNEL_LENGTH_MAX_CMDLINE                                : 37
 kernel_process_struct size (struct init process)         : $16 bytes
-kernel_one_process_struct size (struct for one process)  : $76 bytes
-With all the parameter all process could use 494 bytes in memory, if it's allocated
-==================================================================
-Memory
-==================================================================
-KERNEL_MAX_NUMBER_OF_MALLOC (max malloc for all process) : 9
-kernel_malloc_struct size (malloc table)                 : $54 bytes
-XMAINARGS_STRUCT size               : $31 bytes
-==================================================================
-File memory
-==================================================================
-_KERNEL_FILE size (One fp struct) : $38 bytes
-==================================================================
-Resume
-==================================================================
-System will need almost 578 bytes in memory, if we reached KERNEL_MAX_PROCESS, KERNEL_MAX_NUMBER_OF_MALLOC and KERNEL_MALLOC_FREE_CHUNK_MAX allocated
-kernel_end_of_variables_before_BUFNOM : 503
-kernel_end_of_variables_before_BUFEDT : 58f
-kernel_end_of_memory_for_kernel (malloc will start at this adress) : 6a1
-int MALLOC_BUSY_SIZE_LOW=0x570;
-int MALLOC_BUSY_SIZE_HIGH=0x567;
-int MALLOC_BUSY_BEGIN_HIGH=0x539;
-int MALLOC_BUSY_END_HIGH=0x54b;
-int MALLOC_BUSY_BEGIN_LOW=0x542;
-int MALLOC_BUSY_END_LOW=0x554;
-int KERNEL_MAX_NUMBER_OF_MALLOC=0x9;
-int MALLOC_FREE_SIZE_HIGH=0x2ba;
-int MALLOC_FREE_SIZE_LOW=0x2bf;
+int MALLOC_BUSY_SIZE_LOW = 0x570;
+int MALLOC_BUSY_SIZE_HIGH = 0x567;
+int MALLOC_BUSY_BEGIN_HIGH = 0x539;
+int MALLOC_BUSY_END_HIGH = 0x54b;
+int MALLOC_BUSY_BEGIN_LOW = 0x542;
+int MALLOC_BUSY_END_LOW = 0x554;
+int KERNEL_MAX_NUMBER_OF_MALLOC = 0x9;
+int MALLOC_FREE_SIZE_HIGH =0x2ba;
+int MALLOC_FREE_SIZE_LOW =0x2bf;
 int MALLOC_FREE_BEGIN_HIGH=0x52a;
 int MALLOC_FREE_BEGIN_LOW=0x525;
 int MALLOC_FREE_END_HIGH=0x534;
 int MALLOC_FREE_END_LOW=0x52f;
 int KERNEL_MALLOC_FREE_CHUNK_MAX=0x5;
-|CALL:XCRLF:XWR0
-|CALL:XWR0:XCOSCR
-|MODIFY:work_channel:XWR0
-|MODIFY:i_o_save:XWR0
-|MODIFY:i_o_counter:XWR0
-|MODIFY:ADIODB_VECTOR:XWR0
-|MODIFY:SCRNB:XWR0
-|MODIFY:ADSCR:XWR0
-|MODIFY:FLGCUR:XWR0
-|MODIFY:FLGCUR_STATE:XWR0
-|MODIFY:CURSCR:XWR0
-|MODIFY:ADSCRL:XWR0
-|MODIFY:ADSCRH:XWR0
-|MODIFY:FLGSCR:XWR0
-|MODIFY:i_o_save:XWSTR0
-|MODIFY:work_channel:XWSTR0
-|MODIFY:ADDRESS_READ_BETWEEN_BANK:XWSTR0
-|MODIFY:i_o_save:XWR0
-|MODIFY:i_o_counter:XWR0
-|MODIFY:ADIODB_VECTOR:XWR0
-|MODIFY:SCRNB:XWR0
-|MODIFY:ADSCR:XWR0
-|MODIFY:FLGCUR:XWR0
-|MODIFY:FLGCUR_STATE:XWR0
-|MODIFY:CURSCR:XWR0
-|MODIFY:ADSCRL:XWR0
-|MODIFY:ADSCRH:XWR0
-|MODIFY:FLGSCR:XWR0
-|MODIFY:work_channel:XRD0
-|MODIFY:i_o_counter:XRD0
-|MODIFY:ADDRESS_VECTOR_FOR_ADIOB:XRD0
-|MODIFY:ADIODB_VECTOR:XRD0
-|MODIFY:KEYBOARD_COUNTER:XRD0
-|MODIFY:KBDKEY:XRD0
-|MODIFY:KBDSHT:XRD0
-|MODIFY:$1B:XRDW0
-|MODIFY:work_channel:XRD0
-|MODIFY:i_o_counter:XRD0
-|MODIFY:ADDRESS_VECTOR_FOR_ADIOB:XRD0
-|MODIFY:ADIODB_VECTOR:XRD0
-|MODIFY:KEYBOARD_COUNTER:XRD0
-|MODIFY:KBDKEY:XRD0
-|MODIFY:KBDSHT:XRD0
-|MODIFY:IOTAB:XOP0
-|MODIFY:work_channel:XOP0
-|MODIFY:RES:_create_file_pointer
-|MODIFY:KERNEL_ERRNO:_create_file_pointer
-|CALL:XMALLOC:_create_file_pointer
-|MODIFY:RES:checking_fp_exists
-|MODIFY:RESB:checking_fp_exists
-|MODIFY:TR5:checking_fp_exists
-|MODIFY:RES:_set_to_value_seek_file
-|MODIFY:RES:kernel_create_process
-|MODIFY:RESB:kernel_create_process
-|MODIFY:TR4:kernel_create_process
-|MODIFY:TR5:kernel_create_process
-|MODIFY:KERNEL_ERRNO:kernel_create_process
-|MODIFY:KERNEL_MALLOC_TYPE:kernel_create_process
-|MODIFY:KERNEL_XKERNEL_CREATE_PROCESS_TMP:kernel_create_process
-|MODIFY:RES:kernel_kill_process
-|MODIFY:TR5:kernel_kill_process via XFREE_ROUTINE
-|MODIFY:RES:kernel_kill_process via XFREE_ROUTINE
-|MODIFY:RESB:ZADCHA
-|MODIFY:RES:XDECAY
-|MODIFY:RESB:XDECAY
-|MODIFY:TR0:XBINDX
-|MODIFY:TR1:XBINDX
-|MODIFY:TR2:XBINDX
-|MODIFY:TR3:XBINDX
-|MODIFY:TR4:XBINDX
-|MODIFY:TR5:XBINDX
-|CALL:XDECIM:XBINDX
-|CALL:XDECIM:XWR0
-|MODIFY:TR4:XDECIM
-|MODIFY:TR5:XDECIM
-|MODIFY:TR6:XDECIM
-|MODIFY:RES:XADRESS
-|MODIFY:TR0:XDIVIS
-|MODIFY:TR1:XDIVIS
-|MODIFY:RES:XDIVIS
-|MODIFY:RESB:XDIVIS
-|MODIFY:RESB:XCLOSE_ROUTINE
-|MODIFY:TR7:XCLOSE_ROUTINE
-|MODIFY:PTR_READ_DEST:XREADBYTES_ROUTINE
-|MODIFY:RES:XREADBYTES_ROUTINE
-|MODIFY:TR0:XREADBYTES_ROUTINE
-|MODIFY:RESB:XGETCWD_ROUTINE
-|MODIFY:RES:XPUTCWD_ROUTINE
-|MODIFY:RESB:XPUTCWD_ROUTINE
-|MODIFY:PTR_READ_DEST:XWRITEBYTES_ROUTINE
-|MODIFY:RES:XWRITEBYTES_ROUTINE
-|MODIFY:RESB:XWRITEBYTES_ROUTINE
-|MODIFY:TR0:XFSEEK_ROUTINE
-|MODIFY:TR6:XFSEEK_ROUTINE
-|MODIFY:TR7:XFSEEK_ROUTINE
-|MODIFY:TR4:XFSEEK_ROUTINE
-|MODIFY:RESB:XFSEEK_ROUTINE
-|MODIFY:RES:XFSEEK_ROUTINE
-|MODIFY:KERNEL_XOPEN_PTR1:XFSEEK_ROUTINE
-|MODIFY:RES:XMKDIR_ROUTINE
-|MODIFY:ptr1:XMKDIR_ROUTINE
-|MODIFY:TR7:XMKDIR_ROUTINE
-|MODIFY:RES:XRM_ROUTINE
-CALL:_ch376_file_erase:XRM_ROUTINE
-CALL:XCLOSE:XRM_ROUTINE
-CALL:XOPEN:XRM_ROUTINE
-|MODIFY:RES:XOPENDIR
-|MODIFY:RESB:XOPENDIR
-|MODIFY:RESC:XOPENDIR
-|MODIFY:TR0:XOPENDIR
-|MODIFY:TR7:XOPENDIR
-|MODIFY:RESB:compute_path_relative
-|MODIFY:RESC:compute_path_relative
-|MODIFY:RESD:compute_path_relative
-|MODIFY:RESE:compute_path_relative
-|MODIFY:RESF:compute_path_relative
-|MODIFY:DECTRV:XDECAL
-|MODIFY:DECCIB:XDECAL
-|MODIFY:DECFIN:XDECAL
-|MODIFY:DECDEB:XDECAL
-|MODIFY:RES:XFILLM
-|MODIFY:RESB:XFILLM
-|MODIFY:HRSPAT:XHIRES
-|CALL:XTEXT:XCSSCR
-|MODIFY:FLGTEL:XTEXT
-|MODIFY:RES:_XEXEC
-|MODIFY:TR0:_XEXEC
-|MODIFY:TR1:_XEXEC
-|MODIFY:BUFEDT:_XEXEC
-|MODIFY:BNKOLD:_XEXEC
-|MODIFY:BNK_TO_SWITCH:_XEXEC
-|MODIFY:KERNEL_TMP_XEXEC:_XEXEC
-|MODIFY:KERNEL_KERNEL_XEXEC_BNKOLD:_XEXEC
-|MODIFY:HRS2:_XEXEC
-|MODIFY:HRS3:_XEXEC
-|MODIFY:VEXBNK:_XEXEC
-|MODIFY:RESB:_XEXEC
-|MODIFY:RES:_XFORK
-|MODIFY:TR0:_XFORK
-|MODIFY:TR1:_XFORK
-|MODIFY:RES:_XFORK via kernel_create_process
-|MODIFY:RESB:_XFORK via kernel_create_process
-|MODIFY:TR4:_XFORK via kernel_create_process
-|MODIFY:TR5:_XFORK via kernel_create_process
-|MODIFY:TR0:XMAINARGS_ROUTINE
-|MODIFY:TR1:XMAINARGS_ROUTINE
-|MODIFY:TR2:XMAINARGS_ROUTINE
-|MODIFY:TR3:XMAINARGS_ROUTINE
-|MODIFY:TR4:XMAINARGS_ROUTINE
-|MODIFY:RES:XMAINARGS_ROUTINE
-|MODIFY:REB:XMAINARGS_ROUTINE
-|MODIFY:KERNEL_ERRNO:XMAINARGS_ROUTINE
-|MODIFY:RES:XGETARGV_ROUTINE
-|MODIFY:RESB:XGETARGV_ROUTINE
-|MODIFY:RESB:getFileLength
-|MODIFY:ADHRS:XHRSCB
-|MODIFY:ADHRS:XHRSCH
-|MODIFY:HRSX40:XHRSCD
-|MODIFY:HRSX6:XHRSCD
-|MODIFY:HRSX40:XHRSCG
-|MODIFY:HRSX6:XHRSCG
-|MODIFY:RES:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESB:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESC:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESD:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESE:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESF:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESG:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESH:kernel_try_to_find_command_in_bin_path
-|MODIFY:RESI:kernel_try_to_find_command_in_bin_path
-|MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path
-|MODIFY:RES:XOPEN_ROUTINE
-|MODIFY:RESB:XOPEN_ROUTINE
-|MODIFY:TR5:XOPEN_ROUTINE
-|MODIFY:TR7:XOPEN_ROUTINE
-|MODIFY:XOPEN_SAVE:XOPEN_ROUTINE
-|MODIFY:XOPEN_FLAGS:XOPEN_ROUTINE
-|MODIFY:XOPEN_RES_SAVE:XOPEN_ROUTINE
-|MODIFY:XOPEN_SAVEA:XOPEN_ROUTINE
-|MODIFY:KERNEL_ERRNO:XOPEN_ROUTINE
-|MODIFY:KERNEL_XOPEN_PTR1:XOPEN_ROUTINE
-|MODIFY:TR7:XMALLOC_ROUTINE
-|MODIFY:KERNEL_ERRNO:XMALLOC_ROUTINE
-|MODIFY:RES:XFREE_ROUTINE
-|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE
 |#MEMMAP: Memmap
+MEMMAP:
 |##MEMMAP: Page 0
+MEMMAP:
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:RAM|RES                            | $00-$01     |  2   |
@@ -263,9 +69,9 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|SCRNB                          | $28-$29     |  2   |
 |MEMMAP:RAM|ADKBD                          | $2A-$2B     |  2   |
 |MEMMAP:RAM|PTR_READ_DEST                  | $2C-$2D     |  2   |
-|MEMMAP:RAM|FREE                           | $2E-$31     |      |
-|MEMMAP:RAM|ptr1                           | $32-$33     |  2   |
-|MEMMAP:RAM|tmp1                           | $34-$34     |  1   |
+|MEMMAP:RAM|FREE                           | $2E-$14     |      |
+|MEMMAP:RAM|ADDRESS_READ_BETWEEN_BANK      | $15-$16     |  2   |
+|MEMMAP:RAM|BNKCIB_DOUBLON                 | $34-$34     |  1   |
 |MEMMAP:RAM|FREE                           | $35-$3F     |      |
 |MEMMAP:RAM|ADCLK                          | $40-$41     |  2   |
 |MEMMAP:RAM|TIMEUS                         | $42-$43     |  2   |
@@ -299,7 +105,8 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|KERNEL_MALLOC_TYPE           | $0206-$0206 |  1   |
 |MEMMAP:RAM|KERNEL_SAVE_XEXEC_CURRENT_SET| $0207-$0207 |  1   |
 |MEMMAP:RAM|KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM| $0208-$0209 |  1   |
-|MEMMAP:RAM|FREE                           | $0209-$020F |  6   |
+|MEMMAP:RAM|FREE                           | $0209-$020C |  4   |
+|MEMMAP:RAM|FLGTEL                          | $020D-$020D |  1   |
 |MEMMAP:RAM|TIMED                           | $0210-$0210 |  1   |
 |MEMMAP:RAM|TIMES                           | $0211-$0211 |  1   |
 |MEMMAP:RAM|TIMEM                           | $0212-$0212 |  1   |
@@ -359,7 +166,6 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
 |MEMMAP:RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0414 |  3  |
-|MEMMAP:RAM|page4 overlay_access       | $0419-$0436 |  54  |
 |##MEMMAP: Page 5&6
 |MEMMAP:Type     | Name                          | Range       | Size |
 |MEMMAP: :------- |:----------------------------- |:----------- |:-----|
@@ -368,15 +174,3 @@ CALL:XOPEN:XRM_ROUTINE
 |MEMMAP:RAM|main kernel process struct     | $0579-$058F |  22    |
 |MEMMAP:RAM|BUFEDT                         | $0590-$05FE |   110   |
 |MEMMAP:RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A1 |   163   |
-|##MEMMAP: Kernel bank 7
-|MEMMAP: Type      | Name                         | Range   | Size |
-|MEMMAP: :-------- |:---------------------------- |:------- |:-----|
-|MEMMAP:ROM|FREE                         |$ff0e-$fff0|   226   |
-|##MEMMAP: Bank 0
-|MEMMAP: Type      | Name                         | Range   | Size |
-|MEMMAP: --------  | ---------------------------- | ------- |-----|
-|MEMMAP:BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
-|MEMMAP:BANK0|BUFROU                        | $c500-$c54e |     |
-|MEMMAP:BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|MEMMAP:BANK0|XMALLOC (copy from kernel)    | $fbc0-$fc6c |     |
-|MEMMAP:BANK0|XFREE (copy from kernel)      | $fc6c-$fef1 |     |

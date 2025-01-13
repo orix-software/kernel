@@ -1,3 +1,2 @@
 # XGETCWD_ROUTINE
 
-* RESB

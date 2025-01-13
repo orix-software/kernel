@@ -1,3 +1,1 @@
 # RESD
-* compute_path_relative
-* kernel_try_to_find_command_in_bin_path

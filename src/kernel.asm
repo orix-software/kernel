@@ -1,23 +1,6 @@
-.FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments, org_per_seg
-
+.FEATURE labels_without_colons, pc_assignment, loose_char_term,  org_per_seg
 
 .define VERSION "2025.1"
-
-.export VEXBNK
-;.export KERNEL_SAVE_XEXEC_CURRENT_SET
-
-
-.import XMINMA_ROUTINE
-
-; Network
-.import XNETWORK_START_ROUTINE
-
-; Import from bank0
-.import TELEMON_KEYBOARD_BUFFER_END
-.import TELEMON_KEYBOARD_BUFFER_BEGIN
-.import BUFROU
-.import KERNEL_CONF_BEGIN
-.import KERNEL_BANK_MANAGEMENT
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -35,6 +18,26 @@
 .include   "include/ori2.inc"
 .include   "versions/versions.inc"
 
+
+
+.export code_adress_419
+.export VEXBNK
+.export code_adress_436
+
+
+.import XMINMA_ROUTINE
+
+; Network
+.import XNETWORK_START_ROUTINE
+
+; Import from bank0
+.import TELEMON_KEYBOARD_BUFFER_END
+.import TELEMON_KEYBOARD_BUFFER_BEGIN
+.import BUFROU
+.import KERNEL_CONF_BEGIN
+.import KERNEL_BANK_MANAGEMENT
+
+; Import main memory
 .import  KERNEL_ERRNO
 .import  KERNEL_CH376_MOUNT
 .import  KERNEL_XFREE_TMP
@@ -61,11 +64,19 @@
 .import  BUSY_BANK_TABLE_RAM
 .import  kernel_end_of_memory_for_kernel
 
-
 .import KERNEL_NETWORK_FLAG
 
 .import XBANK_ROUTINE
 
+
+; .import  RESC
+; .import  RESD
+; .import  RESE
+; .import  RESF
+; .import  RESG
+; .import  RESH
+; .import  RESI
+; .import  RESCONCAT
 
 
 .out   "=================================================================="
@@ -137,6 +148,7 @@ start_rom:
   stz     $500,x
   inx
   bne     @nloopc02
+  stz     KERNEL_BANK_AVAILABLE
 .p02
 .else
   inx
@@ -151,8 +163,8 @@ start_rom:
   sta     $500,x
   inx
   bne     @nloop
+  sta     KERNEL_BANK_AVAILABLE
 .endif
-
 
   ; Trying to mount
 
@@ -188,16 +200,8 @@ start_rom:
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
   jsr     init_screens
-
-
-
   jsr     XLOADCHARSET_ROUTINE
-
-
-
   jsr     XALLKB_ROUTINE
-
-
 
   ldx     #$00
 
@@ -343,12 +347,8 @@ don_t_display_telemon_signature:
   ldy     #>str_tofix
   BRK_TELEMON XWSTR0
 
-
-
 don_t_display_signature:
   jsr     routine_to_define_19
-
-
 
   lda     #64
   sta     RES+1

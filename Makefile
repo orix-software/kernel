@@ -42,7 +42,6 @@ kernel: $(SOURCE)
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank.s -o tmp/kernel_free_bank.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank_by_pid.s -o tmp/kernel_free_bank_by_pid.o
 	@$(AR) r tmp/kernel.lib tmp/xminma.o
-	@$(AR) r tmp/kernel.lib tmp/xminma.o
 	@$(AR) r tmp/kernel.lib tmp/switch_to_kernel_extended.o
 	@$(AR) r tmp/kernel.lib tmp/kernel_restore_banking_states.o
 	@$(AR) r tmp/kernel.lib tmp/xbank_routine.o
@@ -55,12 +54,15 @@ kernel: $(SOURCE)
 	@$(AR) r tmp/kernel_bank8.lib tmp/xsend.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/xclose_socket.o
 
-	@$(AS) --verbose -s -tnone --debug-info  --cpu 6502 -tnone src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS)  > output.log
+
+	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
+	@$(AS) --verbose -s -tnone --debug-info --cpu 6502 -tnone src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
 	@$(AS) --verbose -s -tnone --debug-info -o kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
-	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS)  > output.log
+	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_bank0.s -o tmp/kernel_bank0.ld65 --debug-info > memmap.md
 	@$(LD) -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
+
 
 	@cp kernel.rom kernelsd.rom
 	#@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym > output.log
@@ -79,14 +81,17 @@ kernel: $(SOURCE)
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 
 unittest:
-	@$(CC) $(CFLAGS) tests/mkdir.c -o tmkdir
-	@$(CC) $(CFLAGS) tests/fwrite.c -o tfwrite
-	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o 1000 --start-addr 2048
-	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o 1256 --start-addr 2304
+	@$(CC) $(CFLAGS) tests/mkdir.c -o tmp/tmkdir
+	@$(CC) $(CFLAGS) tests/fwrite.c -o tmp/tfwrite
+	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o tmp/1000 --start-addr 2048
+	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o tmp/1256 --start-addr 2304
 
 memmap:
-	@$(AS) --verbose -s -tnone --debug-info -o kernel-telestrat.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > memmap.md
-	@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
+	@echo "########################################################"
+	@echo "#       Build memmap.md                                #"
+	@echo "########################################################"
+	@$(AS) --cpu 6502 -DMEMMAP_GENERATE=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65 > memmap.md
+	#@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 	@sh generate_memmap.sh
 
 test:

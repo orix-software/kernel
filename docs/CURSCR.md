@@ -1,3 +1,1 @@
 # CURSCR
-* XWR0
-* XWR0
