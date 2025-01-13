@@ -150,7 +150,7 @@ jobs:
           bash tests/unit_test/verify.sh ${GITHUB_WORKSPACE}/oricutron/sdcard/
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.job_vars.outputs.REPO_NAME }}
           path: |
@@ -161,8 +161,6 @@ jobs:
         run: |
           mv ../cc65 . && mv ../orix-software . && mv ../orix-sdk . && mv ../md2hlp .
           ls -l
-
- 
 
   upload:
     needs: build
