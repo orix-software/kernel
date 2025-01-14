@@ -68,6 +68,7 @@
 
 .import XBANK_ROUTINE
 
+.import KERNEL_BANK_AVAILABLE
 
 ; .import  RESC
 ; .import  RESD

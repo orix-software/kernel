@@ -5,7 +5,10 @@ ASFLAGS=-ttelestrat
 LDFILES=
 
 all : init kernel memmap unittest
-.PHONY : all
+.PHONY : prepare_tmp all
+
+prepare_tmp:
+	@mkdir -p tmp/
 
 SOURCE=src/kernel.asm
 

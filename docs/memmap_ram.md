@@ -77,7 +77,7 @@
 |RAM|KERNEL_MALLOC_TYPE           | $0206-$0206 |  1   |
 |RAM|KERNEL_SAVE_XEXEC_CURRENT_SET| $0207-$0207 |  1   |
 |RAM|KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM| $0208-$0209 |  1   |
-|RAM|<span style="color:green">FREE</span>                           | $0209-$020C |  4   |
+|RAM|<span style="color:green">FREE</span>                           | $020A-$020C |  3   |
 |RAM|FLGTEL                          | $020D-$020D |  1   |
 |RAM|TIMED                           | $0210-$0210 |  1   |
 |RAM|TIMES                           | $0211-$0211 |  1   |
