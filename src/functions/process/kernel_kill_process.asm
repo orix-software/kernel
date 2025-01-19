@@ -32,6 +32,8 @@
   cmp     #128
   bne     @do_not_destroy_socket
 
+
+
   lda     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK
   jsr     XNETWORK_START_ROUTINE
 

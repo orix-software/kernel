@@ -188,8 +188,8 @@ start_rom:
   lda     #$03  ; bank 33 and 34 are reserved (loader/network)
   sta     BUSY_BANK_TABLE_RAM ; Set BUSY BANK_table
   lda     #$00
-  sta     BUSY_BANK_TABLE_RAM+1 ; Set BUSY BANK_table
-  sta     BUSY_BANK_TABLE_RAM+2 ; Set BUSY BANK_table
+  sta     BUSY_BANK_TABLE_RAM + 1 ; Set BUSY BANK_table
+  sta     BUSY_BANK_TABLE_RAM + 2 ; Set BUSY BANK_table
 
 
 @usb_controler_not_detected:
@@ -342,7 +342,7 @@ don_t_display_signature:
   jsr     routine_to_define_19
 
   lda     #64
-  sta     RES+1
+  sta     RES + 1
 
   ; Initialize banks states to Empty
 @L1:
@@ -350,7 +350,7 @@ don_t_display_signature:
   ldx     #$00 ; BANK
   ldy     #$00 ; Offset to write
   MEMORY_PUT_VALUE_TO_BANK KERNEL_BANK_MANAGEMENT
-  dec     RES+1
+  dec     RES + 1
   bne     @L1
 
   ; Displays cursor
@@ -477,7 +477,7 @@ init_malloc_busy_table:
 	ldy     #>($FFF0+1)
 
   sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-  sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+  sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
 
   ldx     #$04
   ldy     #$00

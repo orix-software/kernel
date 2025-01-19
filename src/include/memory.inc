@@ -94,7 +94,6 @@
   KERNEL_BANK_PROCESS_ID             .res 64
 .endstruct
 
-
 .macro  MEMORY_PUT_VALUE_TO_BANK address
   ; Put a value into ank
   ; X the id of the bank where the value will be written

@@ -11,6 +11,7 @@
 .import kernel_process
 
 .include   "../../kernel8/orixlibs/ch395/usr/include/asm/ch395.inc"
+.include   "../../kernel8/orixlibs/ksocket/usr/include/asm/socket.inc"
 .include   "../../include/kernel.inc"
 .include   "../../include/process.inc"
 .include   "../../include/network.inc"
@@ -26,14 +27,15 @@
     sta     TR1
 
 @restart:
-	lda     #<KERNEL_NETWORK_SOCKET_PID
+	lda     #<KERNEL_NETWORK_SOCKET_PID ; D393
 	ldy     #>KERNEL_NETWORK_SOCKET_PID
 
-    sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
 
-    ldx     TR1
-    ldy     #$00
+    sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
+
+    ldx     #$00
+    ldy     TR1 ; Offset of the socket
     MEMORY_GET_VALUE_FROM_BANK ; A contains the value
 
     cmp     kernel_process + kernel_process_struct::kernel_current_process
@@ -42,13 +44,14 @@
 @compute:
     inc     TR1
     lda     TR1
-    cmp     #$08
+
+    cmp     #NETWORK_MAX_SOCKET
     beq     @exit
     bne     @restart
 
-
 @close_socket:
     lda     TR1 ; Socket ID
+
     jsr     ch395_close_socket_sn
 
     ; Set to 0

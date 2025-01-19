@@ -38,8 +38,11 @@ init:
 	@mkdir -p build/usr/src/kernel/
 
 kernel: $(SOURCE)
+	@mkdir -p tmp/
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
-	@echo Build kernelsd.rom for Twilighte board
+	@echo "########################################################"
+	@echo "#  Build kernelsd.rom for Twilighte board              #"
+	@echo "########################################################"
 	@$(AS) --cpu 6502 -tnone src/functions/strings/xminma.asm -o tmp/xminma.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/search_free_bank.s -o tmp/search_free_bank.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank.s -o tmp/kernel_free_bank.o

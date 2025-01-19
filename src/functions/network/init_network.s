@@ -23,6 +23,7 @@
 .include   "../../include/memory.inc"
 
 .proc init_network
+    ; Returns KERNEL_NETWORK_FULLY_STARTED if network is started
 
 	lda     #<KERNEL_NETWORK_FLAG
 	ldy     #>KERNEL_NETWORK_FLAG
@@ -33,6 +34,11 @@
     ldx     #$00
     ldy     #$00
     MEMORY_GET_VALUE_FROM_BANK ; A contains the value
+    cmp     #KERNEL_NETWORK_FULLY_STARTED
+    bne     @check_all
+    rts
+
+@check_all:
     cmp     KERNEL_NETWORK_STATE_NOT_INITIALIZED
     bne     @ch395_found
 
@@ -44,6 +50,7 @@
     rts
 
 @ch395_found:
+    ; FIXME SHould not be done here
 	lda     #<KERNEL_NETWORK_FLAG
 	ldy     #>KERNEL_NETWORK_FLAG
 

@@ -6,23 +6,30 @@ ORICUTRON_PATH="/mnt/c/Users/plifp/OneDrive/oric/projets/jedeoric/oricutron_assi
 CA65_INC=/usr/share/cc65/asminc/
 # -DWITH_DEBUG=1
 
+
+build_file() {
+    local file="$1"
+    local path="$2"
+    #echo Build $file
+    ca65 --cpu 6502 -tnone $path/$file.s -o tmp/$file.o
+    RET=$?
+    if [ $RET != 0 ]
+    then
+        echo Error
+        exit
+    fi
+}
+
 ca65 --cpu 6502 -tnone src/functions/strings/xminma.asm -o tmp/xminma.o
 ca65 --cpu 6502 -tnone src/functions/bank_mng/switch_to_kernel_extended.s -o tmp/switch_to_kernel_extended.o
 ca65 --cpu 6502 -tnone src/functions/bank_mng/kernel_restore_banking_states.s -o tmp/kernel_restore_banking_states.o
 ca65 --cpu 6502 -tnone src/functions/lib_mng/XBANK_ROUTINE.s -o tmp/xbank_routine.o
 ca65 --cpu 6502 -tnone src/functions/network/init_network.s -o tmp/init_network.o
 ca65 --cpu 6502 -tnone src/functions/network/xsocket.s -o tmp/xsocket.o
-ca65 --cpu 6502 -tnone src/functions/network/close_sockets_by_pid.s -o tmp/close_sockets_by_pid.o
+build_file "close_sockets_by_pid" "src/functions/network"
+build_file "xconnect" "src/functions/network"
+build_file "xsend" "src/functions/network"
 
-RET=$?
-if [ $RET != 0 ]
-then
-    echo Error
-    exit
-fi
-
-ca65 --cpu 6502 -tnone src/functions/network/xconnect.s -o tmp/xconnect.o
-ca65 --cpu 6502 -tnone src/functions/network/xsend.s -o tmp/xsend.o
 ca65 --cpu 6502 -tnone src/functions/network/xclose_socket.s -o tmp/xclose_socket.o
 
 RET=$?

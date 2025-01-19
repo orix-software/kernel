@@ -35,7 +35,6 @@ start_rom:
     jmp     XBANK
 
 XBANK:
-
     cmp     #KERNEL_ALLOCATE_BANK
     beq     @allocate_bank
 

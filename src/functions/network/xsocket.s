@@ -4,12 +4,14 @@
 .include   "../../include/kernel.inc"
 .include   "../../include/process.inc"
 .include   "../../include/memory.inc"
+.include   "../../include/network.inc"
 
 .include "telestrat.inc"
 
 .import KERNEL_NETWORK_SOCKET_LIST
 .import KERNEL_NETWORK_SOCKET_DOMAIN
 
+.import init_network
 
 .export XSOCKET_ROUTINE
 
@@ -32,7 +34,7 @@
     ;;@modifyMEM_TR6
     ;;@modifyMEM_TR5
     ;;@returnsX The socket id
-    ;;@returnsA if != -1 then it returns socket id. -1 is return if all socket are used
+    ;;@returnsA if != -1 then it returns socket id. -1 is return if all socket are used, or network is not started or unavailable
 
     ; sock = socket(AF_INET, SOCK_STREAM, 0);
     ;;@```ca65
@@ -58,6 +60,16 @@
     stx     domain ; domain
     sty     type ; Save type
 
+
+    ; Checking if network is started
+    jsr     init_network
+    cmp     #KERNEL_NETWORK_FULLY_STARTED
+    beq     @continue
+;   Error, return INVALID
+    lda     #INVALID_SOCKET
+    rts
+
+@continue:
     ; Looking for available socket
     lda     #$00
     sta     socket
@@ -81,7 +93,6 @@
     bne     @search_free_socket
 
 ;   Error, return INVALID
-
     lda     #INVALID_SOCKET
     rts
 
@@ -105,6 +116,7 @@
     ldy     socket ; Get socket id (index)
     lda     kernel_process + kernel_process_struct::kernel_current_process
     ldx     #$00  ; BANK
+
     MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_SOCKET_PID  ; ADDRESS_READ_BETWEEN_BANK_DOUBLON is already set previously : FIXME
 
     ; Setting CH395
