@@ -44,10 +44,19 @@ kernel: $(SOURCE)
 	@echo "#  Build kernelsd.rom for Twilighte board              #"
 	@echo "########################################################"
 	@$(AS) --cpu 6502 -tnone src/functions/strings/xminma.asm -o tmp/xminma.o
+	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/switch_to_kernel_extended.s -o tmp/switch_to_kernel_extended.o
+	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_restore_banking_states.s -o tmp/kernel_restore_banking_states.o
+	@$(AS) --cpu 6502 -tnone src/functions/lib_mng/XBANK_ROUTINE.s -o tmp/xbank_routine.o
+	@$(AS) --cpu 6502 -tnone src/functions/network/init_network.s -o tmp/init_network.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/search_free_bank.s -o tmp/search_free_bank.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank.s -o tmp/kernel_free_bank.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank_by_pid.s -o tmp/kernel_free_bank_by_pid.o
 	@$(AS) --cpu 6502 -tnone src/functions/network/close_sockets_by_pid.s -o tmp/close_sockets_by_pid.o
+	@$(AS) --cpu 6502 -tnone src/functions/network/xsocket.s -o tmp/xsocket.o
+	@$(AS) --cpu 6502 -tnone src/functions/network/xconnect.s -o tmp/xconnect.o
+	@$(AS) --cpu 6502 -tnone src/functions/network/xsend.s -o tmp/xsend.o
+	@$(AS) --cpu 6502 -tnone src/functions/network/xclose_socket.s -o tmp/xclose_socket.o
+
 	@$(AR) r tmp/kernel.lib tmp/xminma.o
 	@$(AR) r tmp/kernel.lib tmp/switch_to_kernel_extended.o
 	@$(AR) r tmp/kernel.lib tmp/kernel_restore_banking_states.o
