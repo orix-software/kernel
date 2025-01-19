@@ -26,6 +26,18 @@
 
   jsr     close_all_fp_from_current_process
 
+  ; Destroy socket attached to the process
+
+  lda     KERNEL_BANK_EXTENDED_AVAILABLE
+  cmp     #128
+  bne     @do_not_destroy_socket
+
+  lda     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK
+  jsr     XNETWORK_START_ROUTINE
+
+
+@do_not_destroy_socket:
+
   ; destroy process memory chunks
   ; Try to find all malloc from this process
 
@@ -47,16 +59,16 @@
   lda     (RES),y   ; A contains the PPID
 
   ; X contains the current PID to kill here clear struct
-  sta     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process + kernel_process_struct::kernel_current_process
 
 
   ; remove reference of process struct in the main struct
   lda     #$00
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_high,x
 
   ; remove pid from ps list
-  sta     kernel_process+kernel_process_struct::kernel_pid_list,x   ; Flush pidlist to 0 for the current index
+  sta     kernel_process + kernel_process_struct::kernel_pid_list,x   ; Flush pidlist to 0 for the current index
 
   lda     RES
   ldy     RES+1

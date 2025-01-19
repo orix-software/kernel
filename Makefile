@@ -44,6 +44,7 @@ kernel: $(SOURCE)
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/search_free_bank.s -o tmp/search_free_bank.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank.s -o tmp/kernel_free_bank.o
 	@$(AS) --cpu 6502 -tnone src/functions/bank_mng/kernel_free_bank_by_pid.s -o tmp/kernel_free_bank_by_pid.o
+	@$(AS) --cpu 6502 -tnone src/functions/network/close_sockets_by_pid.s -o tmp/close_sockets_by_pid.o
 	@$(AR) r tmp/kernel.lib tmp/xminma.o
 	@$(AR) r tmp/kernel.lib tmp/switch_to_kernel_extended.o
 	@$(AR) r tmp/kernel.lib tmp/kernel_restore_banking_states.o
@@ -56,6 +57,7 @@ kernel: $(SOURCE)
 	@$(AR) r tmp/kernel_bank8.lib tmp/xconnect.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/xsend.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/xclose_socket.o
+	@$(AR) r tmp/kernel_bank8.lib tmp/close_sockets_by_pid.o
 
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65

@@ -12,6 +12,15 @@ ca65 --cpu 6502 -tnone src/functions/bank_mng/kernel_restore_banking_states.s -o
 ca65 --cpu 6502 -tnone src/functions/lib_mng/XBANK_ROUTINE.s -o tmp/xbank_routine.o
 ca65 --cpu 6502 -tnone src/functions/network/init_network.s -o tmp/init_network.o
 ca65 --cpu 6502 -tnone src/functions/network/xsocket.s -o tmp/xsocket.o
+ca65 --cpu 6502 -tnone src/functions/network/close_sockets_by_pid.s -o tmp/close_sockets_by_pid.o
+
+RET=$?
+if [ $RET != 0 ]
+then
+    echo Error
+    exit
+fi
+
 ca65 --cpu 6502 -tnone src/functions/network/xconnect.s -o tmp/xconnect.o
 ca65 --cpu 6502 -tnone src/functions/network/xsend.s -o tmp/xsend.o
 ca65 --cpu 6502 -tnone src/functions/network/xclose_socket.s -o tmp/xclose_socket.o
@@ -41,19 +50,29 @@ ar65 r tmp/kernel_bank8.lib tmp/kernel_free_bank_by_pid.o
 ar65 r tmp/kernel_bank8.lib tmp/xsocket.o
 ar65 r tmp/kernel_bank8.lib tmp/xconnect.o
 ar65 r tmp/kernel_bank8.lib tmp/xsend.o
-ar65 r tmp/kernel_bank8.lib tmp/xclose_socket.o
+ar65 r tmp/kernel_bank8.lib tmp/close_sockets_by_pid.o
+
 
 
 ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
 ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel.asm -o tmp/kernelsd.ld65 --debug-info > memmap.md
+
+RET=$?
+if [ $RET != 0 ]
+then
+    echo Error
+    exit
+fi
+
 ca65 --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_bank0.s -o tmp/kernel_bank0.ld65 --debug-info > memmap.md
 ca65 --cpu 6502 -tnone src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65  > memmap.md
 RET=$?
 if [ $RET != 0 ]
 then
-echo Error
-exit
+    echo Error
+    exit
 fi
+
 
 #ld65  -tnone -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65  tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
 echo "##########"

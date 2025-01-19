@@ -44,6 +44,8 @@
 .export  RESCONCAT
 
 
+.export KERNEL_BANK_EXTENDED_AVAILABLE
+
 .import code_adress_419
 .import code_adress_436
 
@@ -90,7 +92,7 @@ KERNEL_SAVE_XEXEC_CURRENT_SET:
 KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM:
     .res 1
 ; KERNEL_BANK_AVAILABLE is used to know if a bank is available or not (example : Kernel extended)
-KERNEL_BANK_AVAILABLE:
+KERNEL_BANK_EXTENDED_AVAILABLE:
     .res 1
 
 KERNEL_FREE1_MEMORY:

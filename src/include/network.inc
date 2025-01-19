@@ -7,11 +7,9 @@
 .define KERNEL_BIND_NETWORK              $06
 .define KERNEL_CONNECT_NETWORK           $07
 .define KERNEL_RECV_NETWORK              $08
-.define KERNEL_SEND_NETWORK              $09
-.define KERNEL_SOCKET_CLOSE_NETWORK      $0A
-
-
-
+.define KERNEL_SEND_NETWORK                       $09
+.define KERNEL_SOCKET_CLOSE_NETWORK               $0A
+.define KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK      $0B
 
 
 .define KERNEL_NETWORK_STATE_NOT_INITIALIZED  $00

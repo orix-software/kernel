@@ -21,7 +21,7 @@
     type    := TR3
 
     sty     ip
-    stx     ip+1
+    stx     ip + 1
 	lda     #<KERNEL_NETWORK_SOURCE_PORT
     sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
 
@@ -49,7 +49,7 @@
 	ldy     #>KERNEL_NETWORK_SOCKET_LIST
 
     sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
 
     ldx     #$00
     ldy     socket

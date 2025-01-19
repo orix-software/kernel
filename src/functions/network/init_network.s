@@ -48,7 +48,7 @@
 	ldy     #>KERNEL_NETWORK_FLAG
 
     sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
 
     ldx     #$00
     ldy     #$00

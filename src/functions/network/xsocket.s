@@ -17,7 +17,8 @@
 .import ch395_set_proto_type_sn
 .import ch395_get_socket_status_sn
 .import ch395_close_socket_sn
-
+.import kernel_process
+.import KERNEL_NETWORK_SOCKET_PID
 ;.import socket_state
 ;.export socket_sour_port
 
@@ -68,7 +69,7 @@
 	ldy     #>KERNEL_NETWORK_SOCKET_LIST
 
     sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
     ldy     socket
     MEMORY_GET_VALUE_FROM_BANK ; A contains the value
     cmp     #$00
@@ -85,26 +86,29 @@
     rts
 
 @socketfound:
-;     ; A contains the id of the socket
+;    A contains the id of the socket
 
 
     ; save TYPE (SOCK_STREAM etc)
     ldy     socket ; Get socket id (index)
-    lda     type ; Type
-    ldx     #$00  ; BANK
-
+    lda     type   ; Type sock_stream
+    ldx     #$00   ; BANK
     MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_SOCKET_LIST  ; ADDRESS_READ_BETWEEN_BANK_DOUBLON is already set previously : FIXME
 
     ; Store domain
     ldy     socket ; Get socket id (index)
     lda     domain ; Domain
     ldx     #$00  ; BANK
-
     MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_SOCKET_DOMAIN  ; ADDRESS_READ_BETWEEN_BANK_DOUBLON is already set previously : FIXME
+
+    ; Store pid
+    ldy     socket ; Get socket id (index)
+    lda     kernel_process + kernel_process_struct::kernel_current_process
+    ldx     #$00  ; BANK
+    MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_SOCKET_PID  ; ADDRESS_READ_BETWEEN_BANK_DOUBLON is already set previously : FIXME
 
     ; Setting CH395
     lda     type
-
     cmp     #SOCK_RAW
     beq     @is_ip_raw
 

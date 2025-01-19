@@ -27,6 +27,7 @@
 .import ksocket_close
 .import xconnect
 .import XSOCKET_CLOSE_ROUTINE
+.import close_sockets_by_pid
 
    ; .segment "BANK8"
     .org $C000
@@ -65,6 +66,9 @@ XBANK:
     cmp     #KERNEL_SOCKET_CLOSE_NETWORK
     beq     @kernel_socket_close_network
 
+    cmp     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK
+    beq     @kernel_sockets_close_by_pid_network
+
     rts
 
 @allocate_bank:
@@ -96,6 +100,12 @@ XBANK:
 
 @kernel_socket_close_network:
     jmp     XSOCKET_CLOSE_ROUTINE
+
+@kernel_sockets_close_by_pid_network:
+    jmp     close_sockets_by_pid
+
+
+
 
 signature:
     .asciiz "Kernel Extended v2025.X"

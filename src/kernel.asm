@@ -64,12 +64,15 @@
 .import  BUSY_BANK_TABLE_RAM
 .import  kernel_end_of_memory_for_kernel
 
-.import KERNEL_NETWORK_FLAG
+.import  KERNEL_NETWORK_FLAG
 
-.import XBANK_ROUTINE
+.import  XBANK_ROUTINE
 
-.import KERNEL_BANK_AVAILABLE
+.import  KERNEL_BANK_EXTENDED_AVAILABLE
 
+.import  switch_to_kernel_extended_fill_register
+.import  kernel_restore_banking_states
+.import   kernel_restore_banking_states_register
 ; .import  RESC
 ; .import  RESD
 ; .import  RESE
@@ -149,7 +152,7 @@ start_rom:
   stz     $500,x
   inx
   bne     @nloopc02
-  stz     KERNEL_BANK_AVAILABLE
+  stz     KERNEL_BANK_EXTENDED_AVAILABLE
 .p02
 .else
   inx
@@ -164,7 +167,7 @@ start_rom:
   sta     $500,x
   inx
   bne     @nloop
-  sta     KERNEL_BANK_AVAILABLE
+  sta     KERNEL_BANK_EXTENDED_AVAILABLE
 .endif
 
   ; Trying to mount
@@ -288,12 +291,6 @@ set_buffers:
   ;ldx     #$00   ; Start from 0
   jsr     XDEFBU_ROUTINE
 
-
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'A'
-  sta     $bb80
-  .endif
-
 skip:
 
   ldx     #$0B                            ; copy to $2F4 12 bytes
@@ -303,11 +300,7 @@ skip:
   dex
   bpl     @loop
 
-
-
   jsr     init_keyboard
-
-
 
 next5:
   lda     KBDCOL+4 ;
@@ -318,9 +311,6 @@ next5:
   sta     FLGTEL
 
 @skip:
-
-
-
   lda     #XKBD ; Setup keyboard on channel 0
   BRK_TELEMON XOP0
 
@@ -386,7 +376,7 @@ don_t_display_signature:
   lda     #$FF  ; Init
   ; Set process foreground
 
-  sta     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process + kernel_process_struct::kernel_current_process
   ; register init process
   lda     #$01
   sta     kernel_process+kernel_process_struct::kernel_pid_list ; COMMENT TO HAVE WORKING MAX PROCESS
@@ -471,10 +461,9 @@ init_malloc_busy_table:
   dex
   bpl     @loop
 
-  ; ****************************************************************************
-  ; *                        Start init for network chip                       *
-  ; ****************************************************************************
-  ; Set stage for kernel init
+  ; Checking of extended ROM is here
+  ;KERNEL_BANK_AVAILABLE
+
 
   lda     #KERNEL_NETWORK_STATE_NOT_INITIALIZED
   ldy     #$00
@@ -482,9 +471,39 @@ init_malloc_busy_table:
   MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_FLAG
 
 
+  jsr     switch_to_kernel_extended_fill_register
+
+	lda     #<($FFF0+1) ; Offset magic token
+	ldy     #>($FFF0+1)
+
+  sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
+  sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+
+  ldx     #$04
+  ldy     #$00
+
+
+  MEMORY_GET_VALUE_FROM_BANK ; A contains the value
+  cmp     #'x' ; Magic token for bank 8
+  bne     @not_extended_bank_found
+  lda     #128
+  sta     KERNEL_BANK_EXTENDED_AVAILABLE
+
+  ; ****************************************************************************
+  ; *                        Start init for network chip                       *
+  ; ****************************************************************************
+  ; Set stage for kernel init
+
   lda     #KERNEL_START_NETWORK
   jsr     XNETWORK_START_ROUTINE
 
+
+@not_extended_bank_found:
+  jsr     kernel_restore_banking_states_register
+  cli
+
+
+@not_extended_bank:
 .ifdef WITH_SYSTEMD_AT_BOOT_TIME
 launch_systemd:
   lda     #<str_binary_systemd
@@ -510,17 +529,12 @@ launch_systemd:
   jsr     _XEXEC ; start shell
 .endif
 
-  .ifdef WITH_DEBUG_BOARD
-  lda     #'X'
-  sta     $bb80+24
-  .endif
-
 launch_command:
   jsr     XCRLF_ROUTINE
   lda     #<str_binary_to_start
   sta     RES
   lda     #>str_binary_to_start
-  sta     RES+1
+  sta     RES + 1
 
   ; kernel_end_of_memory_for_kernel is used it will start XEXEC, but it will be erased after the system stat but we don't care because XEXEC starts
   ldy     #$00
@@ -689,7 +703,7 @@ XDEFBU_ROUTINE:
   lda     #<TELEMON_KEYBOARD_BUFFER_BEGIN
   sta     RES
   lda     #>TELEMON_KEYBOARD_BUFFER_BEGIN ; Get high adress of the buffer
-  sta     RES+1
+  sta     RES + 1
 
   lda     #<TELEMON_KEYBOARD_BUFFER_END
   ldy     #>TELEMON_KEYBOARD_BUFFER_END
@@ -909,13 +923,13 @@ data_to_define_4:
   rts
 LC5FE:
   sta     RESB
-  sty     RESB+1
+  sty     RESB + 1
 
   sec
   sbc     RES
   sta     BUFBUF+$0A,x
   tya
-  sbc     RES+1
+  sbc     RES + 1
   sta     BUFBUF+$0B,x
   txa
   adc     #$03
@@ -1016,7 +1030,7 @@ routine_to_define_16:
   sbc     BUFBUF+3,x
   bcc     @S1
   lda     BUFBUF,x
-  ldy     BUFBUF+1,x
+  ldy     BUFBUF + 1,x
   sta     IRQSVP
 @S1:
   sty     FIXME_PAGE0_0 ; FIXME
