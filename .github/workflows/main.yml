@@ -14,7 +14,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   setup-sdk:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Cache sdk
@@ -27,7 +27,8 @@ jobs:
              md2hlp/**/*
              orix-software/**/*
              oricutron/**/*
-          key: ${{ secrets.CACHE_ID }}-orix-sdk_
+             bpm/**/*
+          key: ${{ secrets.CACHE_ID }}-orix-sdk
 
       - name: Checkout cc65
         if: steps.cache-sdk.outputs.cache-hit != 'true'
@@ -35,6 +36,13 @@ jobs:
         with:
           repository: cc65/cc65
           path: cc65
+
+      - name: Checkout bpm
+        #if: steps.cache-sdk.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          repository: orix-software/bpm
+          path: bpm
 
       - name: Checkout orix-sdk
         if: steps.cache-sdk.outputs.cache-hit != 'true'
@@ -94,10 +102,11 @@ jobs:
   build:
     # The type of runner that the job will run on
     needs: setup-sdk
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.job_vars.outputs.VERSION }}
       repo_name: ${{ steps.job_vars.outputs.REPO_NAME }}
+      bpm_found: ${{ steps.bpm_upload.outputs.BPM_FOUND }}
 
     steps:
       - uses: actions/checkout@v2
@@ -123,8 +132,12 @@ jobs:
 
       - name: Prepare environment for project
         run: |
+          mkdir ~/bin
+          cd bpm && pip install -r requirements.txt && cd ..
+          # cp bpm/src/bpm ~/bin
+          # chmod 755 ~/bin/bpm && export PATH=$PATH:~/bin
           ls -l && ls -l ../
-          mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../
+          mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../ && mv bpm ../
 
       - name: Compile project
         run: CC65_HOME=${GITHUB_WORKSPACE}/../cc65 make
@@ -164,7 +177,7 @@ jobs:
 
   upload:
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
@@ -172,6 +185,7 @@ jobs:
       hash: ${{ secrets.HASH }}
       version: ${{ needs.build.outputs.version }}
       repo_name: ${{ needs.build.outputs.repo_name }}
+      BPM_FOUND: ${{ needs.build.outputs.bpm_found }}
 
     steps:
       - name: Get branch name
