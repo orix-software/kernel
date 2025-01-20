@@ -39,6 +39,7 @@ init:
 
 kernel: $(SOURCE)
 	@mkdir -p tmp/
+	@cd src/kernel8 &&  bpm update && cd ..
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@echo "########################################################"
 	@echo "#  Build kernelsd.rom for Twilighte board              #"
