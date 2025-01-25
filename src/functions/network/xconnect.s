@@ -15,6 +15,7 @@
 .import KERNEL_NETWORK_SOCKET_LIST
 
 .proc xconnect
+    ;;@returnsA  A = $FF if it's impossible to connect (SOCKET_ERROR) for instance or 0 if it's OK
     socket  := TR0
     ip      := DECFIN
     srcport := DECDEB ; Don't change it, DECDEB is used in kconnect
@@ -72,4 +73,5 @@
     ldx     ip+1
 
     jmp     kconnect
+
 .endproc
