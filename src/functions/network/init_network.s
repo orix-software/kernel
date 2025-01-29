@@ -11,6 +11,7 @@
 .import ch395_dhcp_enable
 
 .import ch395_get_ip_inf
+.import kch395_get_ip_inf
 
 .import KERNEL_NETWORK_FLAG
 .import KERNEL_NETWORK_SOCKET_LIST
@@ -63,14 +64,19 @@
 
     cmp     #KERNEL_NETWORK_STATE_NOT_INITIALIZED
     beq     @initialize
+
     cmp     #KERNEL_NETWORK_STATE_CHIP_INITIALIZED
     beq     @checking_cable
+
     cmp     #KERNEL_NETWORK_CABLE_DISCONNECTED
     beq     @checking_cable
+
     cmp     #KERNEL_NETWORK_CABLE_CONNECTED
     beq     @start_dhcp
+
     cmp     #KERNEL_NETWORK_STARTING_DHCP
     beq     @start_dhcp
+
     rts
 
 @initialize:
@@ -107,8 +113,8 @@
     ; Check IP
     lda     #<RES
     ldx     #>RES
-    jsr     ch395_get_ip_inf
-
+    ;jsr     ch395_get_ip_inf
+    jsr     kch395_get_ip_inf
     lda     RES
     cmp     #$00
     beq     @dhcp_not_started

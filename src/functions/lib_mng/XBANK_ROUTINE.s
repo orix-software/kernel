@@ -15,6 +15,8 @@ XNETWORK_START_ROUTINE := XBANK_ROUTINE
 .segment "BANK7"
 
 .proc XBANK_ROUTINE
+
+
     pha
     lda     #<$C000
     sta     VEXBNK+1

@@ -85,7 +85,7 @@ fi
 echo "##########"
 echo "# Bank 8 #"
 echo "##########"
-ld65 -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib  src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
+ld65 -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib src/kernel8/orixlibs/kch395/usr/share/kch395/2025.1/kch395.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
 
 RET=$?
 if [ $RET != 0 ]
@@ -112,6 +112,7 @@ ld65  -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_ba
 # dependencies/orix-sdk/bin/relocbin.py3 -o tmp/sfbtest -2 tmp/1000 tmp/1256
 # cp tmp/sfbtest $ORICUTRON_PATH/sdcard/bin/
 
+echo Build autoboot
 cl65 -ttelestrat tests/functions/network/netchk.s -o tmp/1000 --start-addr 2048
 cl65 -ttelestrat tests/functions/network/netchk.s -o tmp/1256 --start-addr 2304
 dependencies/orix-sdk/bin/relocbin.py3 -o tmp/netchk -2 tmp/1000 tmp/1256

@@ -176,6 +176,7 @@ start_rom:
 	lda     #CH376_SET_USB_MODE_CODE_SDCARD
 .else
   lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
+  .out "Building usb device kernel"
 .endif
 
   sta     KERNEL_CH376_MOUNT
@@ -493,6 +494,7 @@ init_malloc_busy_table:
   ; *                        Start init for network chip                       *
   ; ****************************************************************************
   ; Set stage for kernel init
+
 
   lda     #KERNEL_START_NETWORK
   jsr     XNETWORK_START_ROUTINE

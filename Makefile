@@ -93,8 +93,8 @@ kernel: $(SOURCE)
 	@echo "########################################################"
 	@$(AS) --verbose -s -tnone --debug-info -o kernel_bank0.ld65 -DWITH_TWILIGHTE_BOARD=1 src/kernel_bank0.s $(ASFLAGS) > output.log
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
-	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65  $(SOURCE) $(ASFLAGS) > output.log
-	@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -DWITH_TWILIGHTE_BOARD=1 -Ln kernelus.sym > output.log
+	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65 $(SOURCE) $(ASFLAGS) > output.log
+	@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -DWITH_TWILIGHTE_BOARD=1 -Ln kernelus.sym  > output.log
 	@cp kernel.rom kernelus.rom
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 

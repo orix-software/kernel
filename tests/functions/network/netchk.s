@@ -63,7 +63,6 @@ ptr_recv := userzp + 5
 
 
 start_adress:
-
     malloc #4096
     cmp     #$00
     beq     @not_oom
@@ -72,6 +71,7 @@ start_adress:
     print str_oom
     crlf
     rts
+
 @not_oom:
     sta     ptr_recv
     sty     ptr_recv+1
@@ -85,7 +85,7 @@ start_adress:
 @start:
     dec     retry
     beq     @end
-
+    nop
     ; print str_bank_id_given
     lda     #KERNEL_START_NETWORK    ; Mode
     BRK_TELEMON $01 ; Get network state
@@ -112,12 +112,13 @@ start_adress:
     crlf
     rts
 
-
+nop
 
 @fully_started:
+    crlf
     print str_fully_started
     crlf
-    jmp     @socket
+    rts
 
 @disconnected:
     print str_cable_disconnected
@@ -127,12 +128,12 @@ start_adress:
 @connected:
     print str_cable_connected
     crlf
-    jmp     @waiting
+    print str_starting_dhcp
+    jmp     @start
 
 @dhcp_starting:
-    print str_starting_dhcp
-    crlf
-    jmp     @waiting
+    print #'.'
+    jmp     @start
 
 @dhcp_started:
     print str_started_dhcp
@@ -151,6 +152,12 @@ start_adress:
 @socket:
 
 @loop_socket:
+    ;lda     ip ; 12
+    ;ldy     #00 ; 0 because the number is 12 (from A)
+    ;print_int  ,2, 2 ; an arg is skipped because the number is from register
+   ; lda     #' '
+;    BRK_TELEMON XWR0
+    nop
     print str_socket
 
 
@@ -202,7 +209,7 @@ start_adress:
     sta     RES + 1
     ldy     #18
     ldx     #$00
-
+    nop
     lda     #KERNEL_SEND_NETWORK ; Connect
     BRK_TELEMON $01
     cmp     #$00
@@ -287,6 +294,7 @@ str_socket_error:
     .byte $81, "Socket open error",0
 
 ip:
+    ;.byte 213,186,33,19
     .byte 192,168,1,77
 
 str_invalid_socket:
@@ -299,7 +307,7 @@ str_waiting:
     .asciiz "Waiting ..."
 
 str_started_dhcp:
-    .asciiz "Started dhcp !!"
+    .asciiz "Dhcp Started !"
 
 str_starting_dhcp:
     .asciiz "Starting dhcp"
@@ -312,7 +320,7 @@ str_cable_disconnected:
 
 str_cable_connected:
     .asciiz "Cable connected"
-
+nop
 
     ; sta     tmp1
     ; stx     tmp2

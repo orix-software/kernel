@@ -1,11 +1,13 @@
 #! /bin/bash
 #make
-NAME_TO_BUILD=k2023-2.r64
+NAME_TO_BUILD=k2025-1.r64
+
+make
 
 cp ../../shell/develop/shell.rom $NAME_TO_BUILD
 cat basicus2.rom >> $NAME_TO_BUILD
 cat kernelus.rom >> $NAME_TO_BUILD
-cat ../../empty-rom/empty-rom.rom  >> $NAME_TO_BUILD
+cat kernel8.rom >> $NAME_TO_BUILD
 
 cp $NAME_TO_BUILD /mnt/s/devus.r64
 # NAME_TO_BUILD2=k2023-1.r64
