@@ -26,8 +26,10 @@ test_debug:
     sta     RESB+1
 ; d15E
     ldx     #$00
+
 read_command_from_bank_driver_mloop:
     ldy     #$00
+
 read_command_from_bank_driver_next_char:
     lda     (RES),y          ; RES contains the ptr of the string typed by the user when XEXEC is launched
     cmp     (RESB),y         ; Same character? RESB contains the ptr of the command in the rom
@@ -65,7 +67,7 @@ command_not_found_no_inc:
     clc
     adc     RESB
     bcc     read_command_from_bank_driver_do_not_inc
-    inc     RESB+1
+    inc     RESB + 1
 
 read_command_from_bank_driver_do_not_inc:
     sta     RESB
@@ -88,19 +90,19 @@ read_command_from_bank_driver_command_found:
     lda     $FFF3
     sta     RES
     lda     $FFF4
-    sta     RES+1
+    sta     RES + 1
     txa
     asl
     tay
     lda     (RES),y
 
 read_command_from_bank_driver_patch1:
-    sta     VEXBNK+1           ; Will store in read_command_from_bank_driver_to_patch
+    sta     VEXBNK + 1           ; Will store in read_command_from_bank_driver_to_patch
     iny
     lda     (RES),y
 
 read_command_from_bank_driver_patch2:
-    sta     VEXBNK+2           ; Will store in read_command_from_bank_driver_to_patch
+    sta     VEXBNK + 2           ; Will store in read_command_from_bank_driver_to_patch
 
     lda     #$07              ; Return to telemon
     jsr     $46A

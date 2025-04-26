@@ -30,19 +30,19 @@
     ldx     #$00
 
     ldy     #KERNEL_FIRST_FREE_RAM_BANK  ; First bank
-    sty     RES+1
+    sty     RES + 1
 
 	lda     #<KERNEL_BANK_MANAGEMENT
 	ldy     #>KERNEL_BANK_MANAGEMENT
 
     sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
 
 @not_found:
 
-    ldy     RES+1
+    ldy     RES + 1
 
-    cpy     #(KERNEL_LAST_RAM_BANK+1)
+    cpy     #(KERNEL_LAST_RAM_BANK + 1)
     beq     @oob ; Out Of Bank
 
     MEMORY_GET_VALUE_FROM_BANK ; A contains the value
@@ -50,19 +50,19 @@
     cmp     #$00
     beq     @found
 
-    inc     RES+1
+    inc     RES + 1
     bne     @not_found
 
 
 @found:
     ; Set busy flag
     lda     #$01 ; Type
-    ldy     RES+1 ; Offset
+    ldy     RES + 1 ; Offset
     ldx     #$00  ; BANK
 
     MEMORY_PUT_VALUE_TO_BANK KERNEL_BANK_MANAGEMENT
 
-    lda     RES+1 ; Offset
+    lda     RES + 1 ; Offset
     clc
     adc     #kernel_bank_management_struct::KERNEL_BANK_PROCESS_ID
     tay

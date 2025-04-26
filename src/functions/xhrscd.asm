@@ -1,7 +1,7 @@
 ;                      DEPLACE LE CURSEUR VERS LA DROITE (hires)
 .proc     XHRSCD_ROUTINE
-   .out     .sprintf("|MODIFY:HRSX40:XHRSCD")
-   .out     .sprintf("|MODIFY:HRSX6:XHRSCD")
+  .out     .sprintf("|MODIFY:HRSX40:XHRSCD")
+  .out     .sprintf("|MODIFY:HRSX6:XHRSCD")
 
   ldx     HRSX6      ;   on déplace d'un pixel
   inx

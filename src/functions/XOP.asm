@@ -24,7 +24,7 @@ XOP0_ROUTINE:
     rts
 
 skip129:
-    ldy     #(KERNEL_SIZE_IOTAB-1)
+    ldy     #(KERNEL_SIZE_IOTAB - 1)
 
 @loop:
     cmp     IOTAB,y

@@ -20,6 +20,7 @@
 .proc XSOCKET_CLOSE_ROUTINE
     ; X contains the id of the socket
     ; Remove socket id
+    .out     .sprintf("|MODIFY:TR0:XSOCKET_CLOSE_ROUTINE")
 
     txa
     sta     TR0

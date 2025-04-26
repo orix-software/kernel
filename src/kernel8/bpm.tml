@@ -25,3 +25,5 @@ orix_minimal_kernel_version = "2024.1"
 ch395 = "2024.4"
 ksocket = "2025.1"
 kch395 = "2025.1"
+
+[srcfolders]

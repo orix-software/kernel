@@ -18,3 +18,4 @@ If you set a mac address maybe will refuse to attribute a mac address
 * Quand le cable est débranché, l'ip est persistante dans la stack. En revanche, les serveurs DNS fournis par le dhcp smeblent être eux resettés quand le cable est débranché.
 * Quand on teste le cable, il est toujours déconnecté après l'initialisation de la stack. Il faut faire une boucle avec des compteurs sur le get_phy_status pour vraiment détecter si oui on non le cable est débranché
 * Il ne faut pas fermer une socket quand la connexion TCP est toujours en established. Il faut attendre le disconnect TCP (et bien tcp, et non pas le statut de la socket en SUCCESS) avant d'envoyer l'ordre de stop de la socket
+* Si le cable est branché, mais le ch395 n'est pas initialisé, jamais le cable apparaitra branché sur le ch395

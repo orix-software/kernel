@@ -104,8 +104,6 @@ XBANK:
     jmp     close_sockets_by_pid
 
 
-
-
 signature:
     .asciiz "Kernel Extended v2025.X"
 

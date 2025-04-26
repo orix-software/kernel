@@ -252,11 +252,12 @@ open_binary_and_exec:
     lda     RESD
     sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741
     iny
-    lda     RESD+1
+    lda     RESD + 1
     sta     (KERNEL_CREATE_PROCESS_PTR1),y
 
     ; Read 20 bytes in the header
 
+    ; A is the number of byte to read (20 for 20 bytes in the header)
     lda     #20
     ldy     #$00
     ldx     RESF     ; FP
@@ -293,8 +294,8 @@ open_binary_and_exec:
 
     lda     RESD
     sta     RESI
-    lda     RESD+1
-    sta     RESI+1
+    lda     RESD + 1
+    sta     RESI + 1
 
     jmp     shebang_management
 
@@ -351,7 +352,7 @@ open_binary_and_exec:
     ldx     kernel_process+kernel_process_struct::kernel_current_process
     jsr     kernel_get_struct_process_ptr
     sta     KERNEL_CREATE_PROCESS_PTR1
-    sty     KERNEL_CREATE_PROCESS_PTR1+1
+    sty     KERNEL_CREATE_PROCESS_PTR1 + 1
 
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
@@ -385,13 +386,13 @@ open_binary_and_exec:
 
     ldy     #19
     lda     (RESD),y ; fixme 65c02
-    sta     RESE+1
+    sta     RESE + 1
 
     ; Checking if RESD is equal or below than the loading address
 
     ldy     #15
     lda     (RESD),y   ; Does high byte for malloc ptr is  $08
-    cmp     RESD+1     ; greater than the loading adress $7f
+    cmp     RESD + 1     ; greater than the loading adress $7f
     bcc     @error     ; Yes error, can't not start
     bcs     @start_to_read
     ; it's equal
@@ -417,21 +418,21 @@ open_binary_and_exec:
     sta     RESD
     iny
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
-    sta     RESD+1
+    sta     RESD + 1
     ; free the length of the binary
     lda     RESD
-    ldy     RESD+1
+    ldy     RESD + 1
     jsr     XFREE_ROUTINE
 
     ldy     #EOK
     pla     ; get return code
-    ldx     HRS2+1
+    ldx     HRS2 + 1
     rts
 
 @error:
     ; free the length of the binary
     lda     RESD
-    ldy     RESD+1
+    ldy     RESD + 1
     jsr     XFREE_ROUTINE
     jsr     process_kill_and_exit
 
@@ -441,19 +442,19 @@ open_binary_and_exec:
 @clean_before_execute:
     ; save RES
     lda     RES
-    ldy     RES+1
+    ldy     RES + 1
 
     sta     RESG
-    sty     RESG+1
+    sty     RESG + 1
 
     ; send cmdline ptr
 
     lda     RESF
-    ldy     RESF+1
+    ldy     RESF + 1
     jsr     XCLOSE_ROUTINE
 
     lda     RESG
-    ldy     RESG+1
+    ldy     RESG + 1
     rts
 
 @execute:
@@ -507,7 +508,7 @@ str_root_bin:
     ; $94D
 
     sta     RESE            ;  RESE contains the malloc /bin/path
-    sty     RESE+1
+    sty     RESE + 1
     rts
 .endproc
 
@@ -533,7 +534,7 @@ str_root_bin:
     clc
     adc     RESD
     bcc     @advance_ptr_resd
-    inc     RESD+1
+    inc     RESD + 1
 
 @advance_ptr_resd:
     sta     RESD
@@ -578,7 +579,7 @@ str_root_bin:
     ; RESD Free here (and RESI)
     ; On désalloue RESI qui est juste le ptr RESD après malloc, avec cette opération on libère ces 2 offsets
     lda     RESI
-    ldy     RESI+1 ; $842
+    ldy     RESI + 1 ; $842
     jsr     XFREE_ROUTINE
 
     ; Nous allons donc changer la ligne de commande pour écrire submit + le processname
@@ -589,13 +590,14 @@ str_root_bin:
     jsr     kernel_get_struct_process_ptr
 
     sta     KERNEL_CREATE_PROCESS_PTR1
-    sty     KERNEL_CREATE_PROCESS_PTR1+1
+    sty     KERNEL_CREATE_PROCESS_PTR1 + 1
 
     lda     KERNEL_CREATE_PROCESS_PTR1
     clc
     adc     #kernel_one_process_struct::cmdline
     bcc     @S7
-    inc     KERNEL_CREATE_PROCESS_PTR1+1
+    inc     KERNEL_CREATE_PROCESS_PTR1 + 1
+
 @S7:
     sta     KERNEL_CREATE_PROCESS_PTR1
 
@@ -610,7 +612,7 @@ str_root_bin:
 
     lda     KERNEL_CREATE_PROCESS_PTR1
     sta     RESCONCAT
-    lda     KERNEL_CREATE_PROCESS_PTR1+1
+    lda     KERNEL_CREATE_PROCESS_PTR1 + 1
     sta     RESCONCAT+1
 
     lda     RESE
@@ -629,7 +631,7 @@ str_root_bin:
     clc
     adc     RESCONCAT
     bcc     @S100
-    inc     RESCONCAT+1
+    inc     RESCONCAT + 1
 @S100:
     sta     RESCONCAT
 
@@ -646,7 +648,7 @@ str_root_bin:
     clc
     adc     RESCONCAT
     bcc     @S10000
-    inc     RESCONCAT+1
+    inc     RESCONCAT + 1
 @S10000:
     sta     RESCONCAT
 
@@ -702,7 +704,7 @@ str_bin:
 
 .proc kernel_concat_from_RESB_to_RESCONCAT
     sta     RESB
-    sty     RESB+1
+    sty     RESB + 1
 
     ldy     #$00
 

@@ -33,7 +33,6 @@
   bne     @do_not_destroy_socket
 
 
-
   lda     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK
   jsr     XNETWORK_START_ROUTINE
 
@@ -133,7 +132,7 @@
 .endproc
 
 .proc erase_all_chunk_from_current_process
-  ; A contains the process id 
+  ; A contains the process id
 
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 ; Try to find all malloc from this process
@@ -141,7 +140,6 @@
 @L2:
 
   lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-
   beq     @skip             ; is it 0 ? Yes it's a free chunk
 
   cmp     KERNEL_XKERNEL_CREATE_PROCESS_TMP
@@ -152,6 +150,7 @@
   cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @L2
   beq     @all_chunk_are_free
+
 @erase_chunk:
   txa
   pha

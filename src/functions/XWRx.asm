@@ -39,8 +39,8 @@ XWSTR0_re_enter_from_XDECAL:
 	tax                     ;
 	lda     KERNEL_ADIOB,x  ; GET vectors
 	sta     ADIODB_VECTOR+1
-	lda     KERNEL_ADIOB+1,x
-	sta     ADIODB_VECTOR+2 ;
+	lda     KERNEL_ADIOB + 1,x
+	sta     ADIODB_VECTOR + 2 ;
 	lda     i_o_save        ; Get Byte to write
 @loop:
 	bit     @loop

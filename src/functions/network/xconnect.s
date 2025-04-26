@@ -15,6 +15,11 @@
 .import KERNEL_NETWORK_SOCKET_LIST
 
 .proc xconnect
+    .out     .sprintf("|MODIFY:TR0:xconnect")
+    .out     .sprintf("|MODIFY:DECFIN:xconnect")
+    .out     .sprintf("|MODIFY:DECDEB:xconnect")
+    .out     .sprintf("|MODIFY:TR3:xconnect")
+
     ;;@returnsA  A = $FF if it's impossible to connect (SOCKET_ERROR) for instance or 0 if it's OK
     socket  := TR0
     ip      := DECFIN
@@ -70,7 +75,7 @@
     ;;@` jsr     kconnect
 
     ldy     ip
-    ldx     ip+1
+    ldx     ip + 1
 
     jmp     kconnect
 

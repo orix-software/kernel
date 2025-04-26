@@ -7,9 +7,6 @@
 
 .include "telestrat.inc"
 
-
-
-
 .export XSEND_ROUTINE
 
 .import ksend

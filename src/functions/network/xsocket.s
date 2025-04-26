@@ -94,6 +94,7 @@
 
 ;   Error, return INVALID
     lda     #INVALID_SOCKET
+
     rts
 
 @socketfound:

@@ -2,8 +2,8 @@
 ;                     DEPLACE LE CURSEUR VERS LA GAUCHE (hires)
 
 .proc XHRSCG_ROUTINE
-   .out     .sprintf("|MODIFY:HRSX40:XHRSCG")
-   .out     .sprintf("|MODIFY:HRSX6:XHRSCG")
+  .out     .sprintf("|MODIFY:HRSX40:XHRSCG")
+  .out     .sprintf("|MODIFY:HRSX6:XHRSCG")
   ldx     HRSX6
   dex             ;   on déplace à gauche
   bpl     @skip   ;   si on sort

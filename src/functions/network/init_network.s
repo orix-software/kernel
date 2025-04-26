@@ -110,11 +110,11 @@
     rts
 
 @start_dhcp:
+
     ; Check IP
-    lda     #<RES
-    ldx     #>RES
-    ;jsr     ch395_get_ip_inf
-    jsr     kch395_get_ip_inf
+
+    jsr     kch395_get_ip_inf ; Fill RES to RES + 20
+
     lda     RES
     cmp     #$00
     beq     @dhcp_not_started

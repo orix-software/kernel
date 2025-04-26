@@ -17,6 +17,9 @@
 .include   "../../include/network.inc"
 .include   "../../include/memory.inc"
 
+.out     .sprintf("|MODIFY:TR1:close_sockets_by_pid")
+.out     .sprintf("|MODIFY:ADDRESS_READ_BETWEEN_BANK_DOUBLON:close_sockets_by_pid")
+
 .import ch395_close_socket_sn
 
 .proc close_sockets_by_pid
