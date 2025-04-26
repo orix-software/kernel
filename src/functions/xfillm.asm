@@ -7,7 +7,7 @@
 	sbc     RES
 	tay
 	txa
-	sbc     RES+1
+	sbc     RES + 1
 	tax
 	sty     RESB
 	pla
@@ -35,7 +35,7 @@ loop:
 	sta     (RES),y
 	iny
 	bne     @L1
-	inc     RES+1
+	inc     RES + 1
 	dex
 	bne     @L1
 

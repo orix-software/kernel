@@ -58,6 +58,7 @@ ar65 r tmp/kernel_bank8.lib tmp/xsocket.o
 ar65 r tmp/kernel_bank8.lib tmp/xconnect.o
 ar65 r tmp/kernel_bank8.lib tmp/xsend.o
 ar65 r tmp/kernel_bank8.lib tmp/close_sockets_by_pid.o
+ar65 r tmp/kernel_bank8.lib tmp/xclose_socket.o
 
 
 
@@ -80,11 +81,10 @@ then
     exit
 fi
 
-
 #ld65  -tnone -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65  tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
-echo "##########"
-echo "# Bank 8 #"
-echo "##########"
+echo "#####################"
+echo "# Generating Bank 8 #"
+echo "#####################"
 ld65 -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib src/kernel8/orixlibs/kch395/usr/share/kch395/2025.1/kch395.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
 
 RET=$?
@@ -94,9 +94,9 @@ echo Error
 exit
 fi
 
-echo "##########"
-echo "# Bank 7 #"
-echo "##########"
+echo "#####################"
+echo "# Generating Bank 7 #"
+echo "#####################"
 
 ld65  -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
 

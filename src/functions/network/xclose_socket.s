@@ -7,8 +7,11 @@
 
 .include "telestrat.inc"
 
+
+
 .import KERNEL_NETWORK_SOCKET_LIST
 .import KERNEL_NETWORK_SOCKET_DOMAIN
+.import KERNEL_NETWORK_SOCKET_PID
 
 .export XSOCKET_CLOSE_ROUTINE
 
@@ -17,13 +20,20 @@
 .proc XSOCKET_CLOSE_ROUTINE
     ; X contains the id of the socket
     ; Remove socket id
-    sta     TR0
+
     txa
+    sta     TR0
+
     tay     ; Contains socket id
-    lda     #$00 ; Type
+    lda     #$00  ; Type
     ldx     #$00  ; BANK
     MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_SOCKET_LIST  ; ADDRESS_READ_BETWEEN_BANK_DOUBLON is already set previously : FIXME
 
+
+    ldy     TR0     ; Contains socket id
+    lda     #$00  ; Type
+    ldx     #$00  ; BANK
+    MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_SOCKET_PID  ; ADDRESS_READ_BETWEEN_BANK_DOUBLON is already set previously : FIXME
 
     ; Flush buffers
     lda     TR0 ; Load socket id

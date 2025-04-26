@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term,  org_per_seg
 
-.define VERSION "2025.1"
+.define VERSION "2025.2"
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -1059,6 +1059,7 @@ routine_to_define_16:
 .include  "functions/xdecay.asm"
 .include  "functions/xinteg.asm"
 .include  "functions/exe/ori2.asm"
+.include  "functions/exe/relocate_ORI2.asm"
 
 .include  "common/strcpy_RESI.asm"
 

@@ -50,8 +50,8 @@
     bne     @restart
 
 @close_socket:
-    lda     TR1 ; Socket ID
 
+    lda     TR1 ; Socket ID
     jsr     ch395_close_socket_sn
 
     ; Set to 0

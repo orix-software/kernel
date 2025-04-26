@@ -47,14 +47,14 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     ; Get the struct og the process
     jsr     kernel_get_struct_process_ptr
     sta     RES
-    sty     RES+1
+    sty     RES + 1
 
     ; Compute cmdline offset
     lda     RES ; FIXME A is already populated
     clc
     adc     #kernel_one_process_struct::cmdline ; 1 : number of args
     bcc     @S7
-    inc     RES+1
+    inc     RES + 1
 
 @S7:
     sta     RES
@@ -81,7 +81,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
 @continue:
     ; Save malloc
     sta     RESB
-    sty     RESB+1
+    sty     RESB + 1
 
     lda     XMAINARGS_MODE
     beq     @parse
@@ -114,13 +114,13 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     sta     (RESB),y
 
     lda     RESB+1
-    sta     XMAINARGSV+1
+    sta     XMAINARGSV + 1
 
     lda     #XMAINARGS_STRUCT::argv_value_ptr
     clc
     adc     RESB
     bcc     @S3
-    inc     XMAINARGSV+1
+    inc     XMAINARGSV + 1
 
 @S3:
     sta     XMAINARGSV ; TR2 contains the first offset
@@ -158,7 +158,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     clc
     adc     #$01
     bcc     @no_inc
-    inc     RES+1
+    inc     RES + 1
 
 @no_inc:
     sta     RES
@@ -182,7 +182,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     ldx     XMAINARGSC
     ; return ptr
     lda     RESB
-    ldy     RESB+1
+    ldy     RESB + 1
     rts
 
 @new_arg:

@@ -5,6 +5,7 @@ LE25E:
   dex
   bne     LE25E
   stx     TR0
+
 LE269:
   ldx     #$06
 LE26B:
@@ -12,6 +13,7 @@ LE26B:
 LE276:
   lda     #$05
   sta     TR2
+
 LE27A:
   lda     TR0
   asl
@@ -26,6 +28,7 @@ LE27A:
   lda     #$08
   sta     TR4
   ldy     TR1
+
 LE290:
   lda     (TR5),Y
   tax
@@ -34,12 +37,15 @@ LE290:
   txa
   and     #$80
   tax
+
 LE29B:
   txa
   bpl     LE2A0
   eor     #$3F
+
 LE2A0:
   ldx     TR2
+
 LE2A2:
   lsr
   dex
@@ -53,6 +59,6 @@ LE2A2:
   inc     TR6
 LE2B1:
 
-LE2D0!
+LE2D0:
 
   rts

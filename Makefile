@@ -10,6 +10,8 @@ all : init kernel memmap unittest
 prepare_tmp:
 	@mkdir -p tmp/
 
+KCH395_LIB_VERSION=2025.1
+
 SOURCE=src/kernel.asm
 
 PROGRAM_NAME=kernel
@@ -79,7 +81,7 @@ kernel: $(SOURCE)
 	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_bank0.s -o tmp/kernel_bank0.ld65 --debug-info > memmap.md
-	@$(LD) -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
+	@$(LD) -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib  src/kernel8/orixlibs/kch395/usr/share/kch395/$(KCH395_LIB_VERSION)/kch395.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
 
 
 	@cp kernel.rom kernelsd.rom

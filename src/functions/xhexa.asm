@@ -8,11 +8,13 @@
 	lsr
 	lsr
 	lsr
+
 Lce60:
 	ora     #$30
 	cmp     #$3A
 	bcc     @skip
 	adc     #$06
+
 @skip:
 	rts
 
