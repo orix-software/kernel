@@ -29,6 +29,7 @@
     sta     KERNEL_CREATE_PROCESS_PTR1 + 1
 
 
+
     ; Get execution address low
     ldy     #18
     clc
@@ -43,6 +44,8 @@
     ldy     #15             ; Get execution address high
     lda     (RESD),y
     sta     RESE            ; Use RESE as temp value
+
+    ; FIXME ICI
 
     ldy     #19             ; Get execution address high
     lda     (RESD),y

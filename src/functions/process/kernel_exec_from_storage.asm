@@ -111,7 +111,7 @@
     clc
     adc     RESC
     bcc     @S20
-    inc     RESC+1
+    inc     RESC + 1
 @S20:
     sta     RESC
 
@@ -229,24 +229,26 @@ open_binary_and_exec:
 
 
 @not_null2:
+
     ; $0A05
     ; RESD contains pointer to header and the length is equal to the file to load
     sta     RESD
-    sty     RESD+1 ; $842
+    sty     RESD + 1 ; $842 $3B23
 
     sta     PTR_READ_DEST
-    sty     PTR_READ_DEST+1
+    sty     PTR_READ_DEST + 1
     ; Save in order to compute nb_bytes_read
     sta     RESC
-    sty     RESC+1
+    sty     RESC + 1
 
     ; save RESD
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ; Get current process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
 
     jsr     kernel_get_struct_process_ptr
 
     sta     KERNEL_CREATE_PROCESS_PTR1
-    sty     KERNEL_CREATE_PROCESS_PTR1+1
+    sty     KERNEL_CREATE_PROCESS_PTR1 + 1
 
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     RESD
@@ -331,11 +333,11 @@ open_binary_and_exec:
     rts
 @free:
     lda     RESD
-    ldy     RESD+1
+    ldy     RESD + 1
     jsr     XFREE_ROUTINE
 
     lda     RESF
-    ldy     RESF+1
+    ldy     RESF + 1
     jsr     XCLOSE_ROUTINE
 
     jmp     @kill_and_exit
@@ -349,20 +351,21 @@ open_binary_and_exec:
 
     ; Now get the execution address
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
     jsr     kernel_get_struct_process_ptr
     sta     KERNEL_CREATE_PROCESS_PTR1
     sty     KERNEL_CREATE_PROCESS_PTR1 + 1
 
     ldy     #kernel_one_process_struct::kernel_process_addr
+    ; $3AB1
+
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
+    ; Ici c'est transformé en $1F
     sta     RESE
     iny
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
-    sta     RESE+1
+    sta     RESE + 1
 ;
-
-
     jmp     @run
 
 ; Format 1 : static adress
@@ -379,7 +382,6 @@ open_binary_and_exec:
     sta     PTR_READ_DEST
 
     ; init RES to start code
-
     ldy     #18
     lda     (RESD),y ; fixme 65c02
     sta     RESE
@@ -410,7 +412,7 @@ open_binary_and_exec:
 
     jsr     @execute
 
-    stx     HRS2+1
+    stx     HRS2 + 1
     pha     ; Save return code $91e
 
     ldy     #kernel_one_process_struct::kernel_process_addr

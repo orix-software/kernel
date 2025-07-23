@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-main () {
+int main () {
     unsigned char buf[]={'a','b','c','d'};
     FILE *fp;
     unsigned int nb;

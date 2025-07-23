@@ -15,7 +15,7 @@
 
 .proc kernel_free_bank
   ;;@brief Free bank with id bank. PID is cleared in kernel bank
-  ;;@inputA Contains the id of the bank to free
+  ;;@inputX Contains the id of the bank to free
   ;;@modifyA
   ;;@modifyX
   ;;@modifyY
@@ -24,7 +24,7 @@
   ;;@returnsX
   ;;@returnsY
 
-  stx     TR2 ; Save
+  stx     TR2 ; Save bank to free in TR2
   ldy     TR2
   lda     #$00
   ldx     #$00
@@ -38,6 +38,8 @@
   lda     #$00
   ldx     #$00
   MEMORY_PUT_VALUE_TO_BANK KERNEL_BANK_MANAGEMENT
+
+  lda     #$00 ; Success since kernel 2025.3
 
   rts
 .endproc

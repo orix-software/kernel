@@ -57,7 +57,7 @@
     jsr     kdebug_restore
 .endif
 
-    cpy     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
+    cpy     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
     bcc     @allocate
 
 @exit_null:                                      ; If yes, then we have no memory left, return NULL
@@ -78,7 +78,7 @@
 
 @looking_for_busy_chunck_available:
     ; Try to find a place to set the pid value
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list,x
     ;cmp     #$FF ; UNCOMMENT MAX_PROCESS
     beq     @found
     inx
@@ -90,64 +90,64 @@
 
     lda     TR7 ; get low byte of size (store the size)
     ; Store the size in the busy table
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
 
     tya     ; Get high byte of the size and store
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
 
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
 
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
 
 
     ; Compute the end of the busy address
     clc
-    adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+    adc     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
     bcc     @skip2
-    inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+    inc     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
  @skip2:
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
 
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low                ; update of the next chunk available
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low                ; update of the next chunk available
 
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
     clc
-    adc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+    adc     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
     ; FIXME for 32 bits mode in the future
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 
     ; update now the memory available in the chunk memory free
 ;
-    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
+    lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $566 $BE $45 $30
     sec
-    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x ; X=3 X=4 $24 $EB
+    sbc     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x ; X=3 X=4 $24 $EB
     bcs     @skip3
-    dec     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $561
+    dec     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $561
 @skip3:
-    sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $45 $24
+    sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low ; $45 $24
 
-    lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $561 $84 $84
+    lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $561 $84 $84
     sec
-    sbc     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x ; $557 X=3
+    sbc     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x ; $557 X=3
 
     ; FIXME 32 bits
-    sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $84 ; $84
+    sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high ; $84 ; $84
 
     ; Ok now inc the next free memory offset
-    inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
+    inc     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
     bne     @skip4
-    inc     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
+    inc     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 
 @skip4:
-    lda     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process + kernel_process_struct::kernel_current_process
 @store:
-    sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list,x
 
     ; Restore type
 
@@ -159,17 +159,17 @@
 .ifdef WITH_DEBUG
     jsr     kdebug_save
 
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
-    ldx     #3
+    ldx     #$03
 
     jsr     xdebug_print_with_ay
 
     jsr     kdebug_restore
 .endif
-    lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+    ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     rts
 .endproc
 

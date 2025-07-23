@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term,  org_per_seg
 
-.define VERSION "2025.2"
+.define VERSION "2025.X"
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -17,8 +17,6 @@
 .include   "include/files.inc"
 .include   "include/ori2.inc"
 .include   "versions/versions.inc"
-
-
 
 .export code_adress_419
 .export VEXBNK

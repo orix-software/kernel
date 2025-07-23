@@ -6,6 +6,7 @@
 ; .import ORI2_PROGRAM_ADRESS
 
 .proc relocate_ORI2
+	;jmp relocate_ORI2
 	; Relocalise le programme en fonction de la MAP et de la page de chargement
     ; On suppose que A = page de chargement du programme (chargé en début de page)
     ; On suppose également que z02-z05 ont été mis à jour par l'appelant (adresse et longueur de la bitmap)

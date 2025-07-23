@@ -4,25 +4,31 @@ CFLAGS=-ttelestrat
 ASFLAGS=-ttelestrat
 LDFILES=
 
-all : init kernel memmap unittest
+all : init kernel memmap
 .PHONY : prepare_tmp all
 
 prepare_tmp:
 	@mkdir -p tmp/
 
 KCH395_LIB_VERSION=2025.1
-
 SOURCE=src/kernel.asm
-
 PROGRAM_NAME=kernel
 
+ifeq ($(strip $(GITHUB_WORKSPACE)),)
+    WORKSPACE = $(ORICUTRON_PATH)
+else
+    WORKSPACE = $(GITHUB_WORKSPACE)/oricutron/
+endif
+
 ifeq ($(CC65_HOME),)
-    CC = cl65
+    CL = cl65
+    CC = cc65
     AS = ca65
     LD = ld65
     AR = ar65
 else
-    CC = $(CC65_HOME)/bin/cl65
+    CL = $(CC65_HOME)/bin/cl65
+    CC = $(CC65_HOME)/bin/cc65
     AS = $(CC65_HOME)/bin/ca65
     LD = $(CC65_HOME)/bin/ld65
     AR = $(CC65_HOME)/bin/ar65
@@ -41,7 +47,7 @@ init:
 
 kernel: $(SOURCE)
 	@mkdir -p tmp/
-	@cd src/kernel8 &&  bpm update && cd ..
+	@cd src/kernel8 && bpm update && cd ..
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@echo "########################################################"
 	@echo "#  Build kernelsd.rom for Twilighte board              #"
@@ -77,18 +83,19 @@ kernel: $(SOURCE)
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
 	@$(AS) --verbose -s -tnone --debug-info --cpu 6502 -tnone src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
-	@$(AS) --verbose -s -tnone --debug-info -o kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
-	@$(AS) --verbose -s -tnone --debug-info -o kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
+	@$(AS) --verbose -s -tnone --debug-info -o tmp/kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
+	@$(AS) --verbose -s -tnone --debug-info -o tmp/kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
+	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
+	@cp kernel.rom kernelsd.rom
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_bank0.s -o tmp/kernel_bank0.ld65 --debug-info > memmap.md
 	@$(LD) -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib  src/kernel8/orixlibs/kch395/usr/share/kch395/$(KCH395_LIB_VERSION)/kch395.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
 
 
-	@cp kernel.rom kernelsd.rom
-	#@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym > output.log
+	@#@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym > output.log
 	@cp kernelsd.rom $(PATH_PACKAGE_ROM)/
-	#@cp kernelsd.sym $(PATH_PACKAGE_ROM)/
-	#@cp kernelsd.map $(PATH_PACKAGE_ROM)/
+	@#@cp kernelsd.sym $(PATH_PACKAGE_ROM)/
+	@#@cp kernelsd.map $(PATH_PACKAGE_ROM)/
 
 	@echo "########################################################"
 	@echo "#       Build kernelus.rom for Twilighte board         #"
@@ -96,22 +103,59 @@ kernel: $(SOURCE)
 	@$(AS) --verbose -s -tnone --debug-info -o kernel_bank0.ld65 -DWITH_TWILIGHTE_BOARD=1 src/kernel_bank0.s $(ASFLAGS) > output.log
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
 	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65 $(SOURCE) $(ASFLAGS) > output.log
-	@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -DWITH_TWILIGHTE_BOARD=1 -Ln kernelus.sym  > output.log
+
+
+
+compile_cc65:
+	@echo "########################################################"
+	@echo "#       Compile C file with cc65                        #"
+	@echo "########################################################"
+	@echo "FILE_TO_COMPILE: $(FILE_TO_COMPILE) FINAL_BIN: $(FINAL_BIN) "
+	@$(CC) $(CFLAGS) $(FILE_TO_COMPILE) -o tmp/$(FINAL_BIN)_1000.s
+	@$(CC) $(CFLAGS) $(FILE_TO_COMPILE) -o tmp/$(FINAL_BIN)_2304.s
+
+	@$(AS) $(CFLAGS) tmp/$(FINAL_BIN)_1000.s -o tmp/$(FINAL_BIN)_1000.o
+	@$(AS) $(CFLAGS) tmp/$(FINAL_BIN)_2304.s -o tmp/$(FINAL_BIN)_2304.o
+
+	@$(LD) $(CFLAGS) tmp/$(FINAL_BIN)_1000.o -o tmp/$(FINAL_BIN)_1000 --start-addr 2048 telestrat.lib
+	@$(LD) $(CFLAGS) tmp/$(FINAL_BIN)_2304.o -o tmp/$(FINAL_BIN)_2304 --start-addr 2304 telestrat.lib
+	@dependencies/orix-sdk/bin/relocbin.py3 -o tmp/$(FINAL_BIN) -2 tmp/$(FINAL_BIN)_1000 tmp/$(FINAL_BIN)_2304
+
+prepare-unit-test:
+	@cp build/usr/share/kernel/kernelsd.rom ${WORKSPACE}/roms/kernel.rom
+	@cat tests/unit_test/xopen.sub > ${WORKSPACE}/sdcard/ETC/AUTOBOOT
+	@cat tests/file_operations/file_operations.sub >> ${WORKSPACE}/sdcard/ETC/AUTOBOOT
+	@cat tests/unit_test/xrm.sub >> ${WORKSPACE}/sdcard/ETC/AUTOBOOT
+	@cat tests/unit_test/tail.sub >> ${WORKSPACE}/sdcard/ETC/AUTOBOOT
+	@cp tmp/tfseek ${WORKSPACE}/sdcard/BIN
+	cat ${WORKSPACE}/sdcard/ETC/AUTOBOOT
+
+launch-unit-test: build-unit-test prepare-unit-test execute-oricutron
+	@echo "########################################################"
+	@echo "#       Launch unit test                              #"
+	@echo "########################################################"
+
+execute-oricutron:
+	@cp kernelsd.rom ${WORKSPACE}/roms/kernel.rom
+	@cp kernel8.rom ${WORKSPACE}/roms/
+	@cd ${WORKSPACE} && ./oricutron
+
+memmap:
 	@cp kernel.rom kernelus.rom
 	@cp kernelus.rom $(PATH_PACKAGE_ROM)/
 
-unittest:
-	@$(CC) $(CFLAGS) tests/mkdir.c -o tmp/tmkdir
-	@$(CC) $(CFLAGS) tests/fwrite.c -o tmp/tfwrite
-	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o tmp/1000 --start-addr 2048
-	@$(CC) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o tmp/1256 --start-addr 2304
+build-unit-test:
+	@$(MAKE) compile_cc65 FILE_TO_COMPILE="tests/file_operations/fseek_test.c" FINAL_BIN="tfseek"
+	@#$(CL) $(CFLAGS) tests/file_operations/mkdir.c -o tmp/tmkdir
+	@$(CL) $(CFLAGS) tests/file_operations/fwrite.c -o tmp/tfwrite
+	@$(CL) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o tmp/1000 --start-addr 2048
+	@$(CL) $(CFLAGS) tests/unit_test/mainarg.s -I dependencies/orix-sdk/macros/ -o tmp/1256 --start-addr 2304
 
-memmap:
 	@echo "########################################################"
 	@echo "#       Build memmap.md                                #"
 	@echo "########################################################"
 	@$(AS) --cpu 6502 -DMEMMAP_GENERATE=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65 > memmap.md
-	#@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
+	@#@$(LD) -C cfg/kernel.cfg tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -m kernelus.map -o kernel-telestrat.ld65.rom -DWITH_ACIA=2 -DWITH_SDCARD_FOR_ROOT=1 -Ln kernel-telestrat.ca.sym
 	@sh generate_memmap.sh
 
 test:

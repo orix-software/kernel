@@ -2,8 +2,6 @@
     ; X fp to find
     ; Save A & X
 
-
-
     .out     .sprintf("|MODIFY:RES:checking_fp_exists")
     .out     .sprintf("|MODIFY:RESB:checking_fp_exists")
     .out     .sprintf("|MODIFY:TR5:checking_fp_exists")
@@ -57,7 +55,7 @@
 
     jsr     send_0_to_ch376_and_open
 
-    ldy     #_KERNEL_FILE::f_path+1 ; Skip first '/'
+    ldy     #_KERNEL_FILE::f_path + 1 ; Skip first '/'
 
 @set_filename:
     lda     #CH376_SET_FILE_NAME        ;$2F
@@ -76,16 +74,6 @@
     ldy     TR5
     jmp     @set_filename
 
-;     lda     (KERNEL_XOPEN_PTR1),y
-
-;     beq     @send_end_out
-;     cmp     #'/'
-;     beq     @send
-;     jsr     XMINMA_ROUTINE
-;     sta     CH376_DATA
-;     iny
-;     bne     @loop_next_byte
-;     ; Here we should not reach this part except if there is an overflow
 
 @doesnot_exists:
 

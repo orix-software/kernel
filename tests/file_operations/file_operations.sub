@@ -1,0 +1,15 @@
+#! /bin/submit
+touch tfseek.sta
+
+echo ^[TTest FSEEK (.c), seek (asm), ftell (.c)^[Tand ftell (asm)
+
+tfseek
+echo "err = $errorlevel"
+if errorlevel=0 goto fseeknext
+
+:fseekerr
+echo " ^[ANOK"
+goto egeneral
+
+:fseeknext
+echo Fseek ok ^[B [OK]

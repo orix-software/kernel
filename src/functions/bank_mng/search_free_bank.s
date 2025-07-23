@@ -67,7 +67,7 @@
     adc     #kernel_bank_management_struct::KERNEL_BANK_PROCESS_ID
     tay
     ; At this step, Y contains the offset of kernel_bank_management_struct::KERNEL_BANK_PROCESS_ID to store process id
-    lda     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process + kernel_process_struct::kernel_current_process
     ldx     #$00  ; BANK 0 to store process into KERNEL_BANK_MANAGEMENT and kernel_bank_management_struct::KERNEL_BANK_PROCESS_ID offset
 
     MEMORY_PUT_VALUE_TO_BANK KERNEL_BANK_MANAGEMENT
