@@ -150,6 +150,8 @@ jobs:
       - name: Compile project
         run:  |
           PATH=$PATH:~/bin
+          bpm --force-update
+          bpm update
           CC65_HOME=${GITHUB_WORKSPACE}/../cc65 make
 
       - name: List build directory content
