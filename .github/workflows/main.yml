@@ -141,6 +141,9 @@ jobs:
           ls -l && ls -l ../
           echo ls ~/bin
           ls -l ~/bin
+          echo $PATH
+          PATH=$PATH:~/bin
+          echo $PATH
           mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../ && mv bpm ../
 
       - name: Compile project
