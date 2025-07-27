@@ -150,7 +150,7 @@ jobs:
       - name: Compile project
         run:  |
           PATH=$PATH:~/bin
-          bpm --force-update
+          bpm --force-update --replace-for-new-project
           bpm update
           CC65_HOME=${GITHUB_WORKSPACE}/../cc65 make
 
