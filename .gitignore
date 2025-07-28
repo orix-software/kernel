@@ -14,3 +14,4 @@ tmp/
 *.log
 build.inc
 *.bin
+src/kernel8/orixlibs/*

@@ -1,6 +1,8 @@
 #!/bin/submit
+echo start
 
-echo Salut
+netchk
 
-chain /bin/mainarg.sub 1 2
+
+#exit
 
