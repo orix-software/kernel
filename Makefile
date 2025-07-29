@@ -82,9 +82,14 @@ kernel: $(SOURCE)
 
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
-	@$(AS) --verbose -s -tnone --debug-info --cpu 6502 -tnone src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
-	@$(AS) --verbose -s -tnone --debug-info -o tmp/kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
-	@$(AS) --verbose -s -tnone --debug-info -o tmp/kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
+
+	echo ici
+	@$(AS) --verbose -s --debug-info --cpu 6502 src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
+	echo ici2
+	@$(AS) --verbose -s --debug-info -o tmp/kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
+	@$(AS) --verbose -s --debug-info -o tmp/kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
+
+	echo ici3
 	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
 	@cp kernel.rom kernelsd.rom
 
@@ -100,9 +105,9 @@ kernel: $(SOURCE)
 	@echo "########################################################"
 	@echo "#       Build kernelus.rom for Twilighte board         #"
 	@echo "########################################################"
-	@$(AS) --verbose -s -tnone --debug-info -o kernel_bank0.ld65 -DWITH_TWILIGHTE_BOARD=1 src/kernel_bank0.s $(ASFLAGS) > output.log
+	@$(AS) --verbose -s --debug-info -o kernel_bank0.ld65 -DWITH_TWILIGHTE_BOARD=1 src/kernel_bank0.s $(ASFLAGS) > output.log
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
-	@$(AS) --verbose -s -tnone --debug-info -o kernelus.ld65 $(SOURCE) $(ASFLAGS) > output.log
+	@$(AS) --verbose -s --debug-info -o kernelus.ld65 $(SOURCE) $(ASFLAGS) > output.log
 
 
 

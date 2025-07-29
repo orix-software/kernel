@@ -54,3 +54,10 @@ export ORICUTRON_PATH
 
 2) make launch-unit-test
 
+
+## Test github action
+
+An docker image in tests/Dockerfile is available to test some stuff into Dockerenvironnement (in order to simulate github action behavior)
+
+docker build --no-cache  -t kernelorix .
+
