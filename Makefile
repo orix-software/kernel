@@ -79,17 +79,10 @@ kernel: $(SOURCE)
 	@$(AR) r tmp/kernel_bank8.lib tmp/xsend.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/xclose_socket.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/close_sockets_by_pid.o
-
-
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
-
-	echo ici
 	@$(AS) --verbose -s --debug-info --cpu 6502 src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
-	echo ici2
 	@$(AS) --verbose -s --debug-info -o tmp/kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
 	@$(AS) --verbose -s --debug-info -o tmp/kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
-
-	echo ici3
 	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
 	@cp kernel.rom kernelsd.rom
 
@@ -113,8 +106,11 @@ compile_cc65:
 	@echo "########################################################"
 	@echo "#       Compile C file with cc65                        #"
 	@echo "########################################################"
-	@echo "FILE_TO_COMPILE: $(FILE_TO_COMPILE) FINAL_BIN: $(FINAL_BIN) "
+	@echo "FILE_TO_COMPILE: $(FILE_TO_COMPILE) FINAL_BIN: $(FINAL_BIN)"
+	@mkdir tmp/
+	@echo Build $(FILE_TO_COMPILE) to tmp/$(FINAL_BIN)_1000.s
 	@$(CC) $(CFLAGS) $(FILE_TO_COMPILE) -o tmp/$(FINAL_BIN)_1000.s
+	@echo Build $(FILE_TO_COMPILE) to tmp/$(FINAL_BIN)_2304.s
 	@$(CC) $(CFLAGS) $(FILE_TO_COMPILE) -o tmp/$(FINAL_BIN)_2304.s
 
 	@$(AS) $(CFLAGS) tmp/$(FINAL_BIN)_1000.s -o tmp/$(FINAL_BIN)_1000.o
