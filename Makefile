@@ -109,8 +109,6 @@ kernel: $(SOURCE)
 	@echo "WITH_TWILIGHTE_BOARD">$(PATH_PACKAGE_ROM)/kernelus.lst
 	@$(AS) --verbose -s --debug-info -o kernelus.ld65 $(SOURCE) $(ASFLAGS) > output.log
 
-
-
 compile_cc65:
 	@echo "########################################################"
 	@echo "#       Compile C file with cc65                        #"
