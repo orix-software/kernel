@@ -136,15 +136,8 @@ jobs:
         run: |
           mkdir ~/bin
           cd bpm && pip install -r requirements.txt && cd ..
-          echo cp bpm/src/bpm ~/bin
           cp bpm/src/bpm ~/bin
           chmod 755 ~/bin/bpm && export PATH=$PATH:~/bin
-          ls -l && ls -l ../
-          echo ls ~/bin
-          ls -l ~/bin
-          echo $PATH
-          #PATH=$PATH:~/bin
-          #echo $PATH
           mv cc65 ../ && mv orix-software ../ && mv orix-sdk ../ && mv md2hlp ../ && mv bpm ../
 
       - name: Compile project
@@ -161,6 +154,7 @@ jobs:
         run: |
           git clone https://github.com/orix-software/docker-unit-test.git
           cd docker-unit-test && bash install.sh ${GITHUB_WORKSPACE} && cd ..
+          CC65_HOME=${GITHUB_WORKSPACE}/../cc65 
           make build-unit-test
           make prepare-unit-test
           cd ${GITHUB_WORKSPACE}/oricutron
