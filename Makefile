@@ -107,7 +107,6 @@ compile_cc65:
 	@echo "#       Compile C file with cc65                        #"
 	@echo "########################################################"
 	@echo "FILE_TO_COMPILE: $(FILE_TO_COMPILE) FINAL_BIN: $(FINAL_BIN)"
-	@mkdir tmp/
 	@echo Build $(FILE_TO_COMPILE) to tmp/$(FINAL_BIN)_1000.s
 	@$(CC) $(CFLAGS) $(FILE_TO_COMPILE) -o tmp/$(FINAL_BIN)_1000.s
 	@echo Build $(FILE_TO_COMPILE) to tmp/$(FINAL_BIN)_2304.s
