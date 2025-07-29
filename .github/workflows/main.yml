@@ -154,7 +154,7 @@ jobs:
         run: |
           git clone https://github.com/orix-software/docker-unit-test.git
           cd docker-unit-test && bash install.sh ${GITHUB_WORKSPACE} && cd ..
-          CC65_HOME=${GITHUB_WORKSPACE}/../cc65 
+          CC65_HOME=${GITHUB_WORKSPACE}/../cc65
           make build-unit-test
           make prepare-unit-test
           cd ${GITHUB_WORKSPACE}/oricutron
