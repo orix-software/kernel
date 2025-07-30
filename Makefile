@@ -117,6 +117,7 @@ compile_cc65:
 
 	@$(LD) $(CFLAGS) tmp/$(FINAL_BIN)_1000.o -o tmp/$(FINAL_BIN)_1000 --start-addr 2048 telestrat.lib
 	@$(LD) $(CFLAGS) tmp/$(FINAL_BIN)_2304.o -o tmp/$(FINAL_BIN)_2304 --start-addr 2304 telestrat.lib
+	@chmod +x dependencies/orix-sdk/bin/relocbin.py3
 	@dependencies/orix-sdk/bin/relocbin.py3 -o tmp/$(FINAL_BIN) -2 tmp/$(FINAL_BIN)_1000 tmp/$(FINAL_BIN)_2304
 
 prepare-unit-test:
