@@ -77,6 +77,7 @@
   beq     @go_beginning
   ;lda     #EINVAL ; Return error
 
+@returns_minus_1:
   lda     #$FF
   tax
   sta     RES
@@ -109,19 +110,13 @@
   ; Send A X Y RES (from getFileLength)
   jsr     _set_to_value_seek_file
 
-  jsr     returns_position
+  jmp     returns_position
 
-  rts
 
 @error_bad_seek:
  ; lda     #$FF ; EBADSEEK
+  jmp     @returns_minus_1
 
-  lda     #$FF
-  tax
-  sta     RES
-  sta     RES + 1
-
-  rts
 
 ; SEEK_CUR : Seek from the current position
 @move:
@@ -166,9 +161,8 @@
   cmp     #$14
   bne     @error_bad_seek
 
-  jsr     returns_position
+  jmp    returns_position
 
-  rts
 
 ; SEEK_SET : Seek from the beginning of the file
 @go_beginning:
@@ -223,9 +217,7 @@
   adc     RES5+1
   sta     (KERNEL_XOPEN_PTR1),y
 
-  jsr     returns_position
-
-  rts
+  ; Don't RTS here , we execute returns position
 
 returns_position:
   ldy     #_KERNEL_FILE::f_seek_file + 3
@@ -233,17 +225,19 @@ returns_position:
   ; Get the position of the file pointer
   ;; Store it in RES for from 16 to 31 bits
   lda     (KERNEL_XOPEN_PTR1),y
-  sta     RES
+  sta     RES + 1
   dey
   ; Store it in AX for from 0 to 15 bits
   lda     (KERNEL_XOPEN_PTR1),y
-  sta     RES + 1
+  sta     RES
   dey
   lda     (KERNEL_XOPEN_PTR1),y
   tax
   dey
   lda     (KERNEL_XOPEN_PTR1),y
+  ; FIXME REMOVE ME !!!!!
 
+  ldy     #EOK
   rts
 
 

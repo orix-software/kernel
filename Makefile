@@ -4,6 +4,9 @@ CFLAGS=-ttelestrat
 ASFLAGS=-ttelestrat
 LDFILES=
 
+FILES_KERNEL7="tmp/xminma.o"
+
+
 all : init kernel memmap
 .PHONY : prepare_tmp all
 
@@ -48,6 +51,10 @@ init:
 kernel: $(SOURCE)
 	@mkdir -p tmp/
 	@cd src/kernel8 && bpm update && cd ..
+
+	#echo "Building xdebug.lib"
+	#@$(AS) --cpu 6502 -tnone src/functions/xdebug.asm -o tmp/xdebug.o
+
 	@echo Rom are built in $(PATH_PACKAGE_ROM)
 	@echo "########################################################"
 	@echo "#  Build kernelsd.rom for Twilighte board              #"
@@ -64,12 +71,24 @@ kernel: $(SOURCE)
 	@$(AS) --cpu 6502 -tnone src/functions/network/xsocket.s -o tmp/xsocket.o
 	@$(AS) --cpu 6502 -tnone src/functions/network/xconnect.s -o tmp/xconnect.o
 	@$(AS) --cpu 6502 -tnone src/functions/network/xsend.s -o tmp/xsend.o
+	@$(AS) --cpu 6502 -tnone src/functions/xloadcharset.asm -o tmp/xloadcharset.o
+	@$(AS) --cpu 6502 -tnone src/functions/charsets/charset.asm -o tmp/charset.o
+
 	@$(AS) --cpu 6502 -tnone src/functions/network/xclose_socket.s -o tmp/xclose_socket.o
+
+
+
+
 
 	@$(AR) r tmp/kernel.lib tmp/xminma.o
 	@$(AR) r tmp/kernel.lib tmp/switch_to_kernel_extended.o
 	@$(AR) r tmp/kernel.lib tmp/kernel_restore_banking_states.o
 	@$(AR) r tmp/kernel.lib tmp/xbank_routine.o
+# 	@$(AR) r tmp/kernel.lib tmp/charset.o
+# 	@$(AR) r tmp/kernel.lib tmp/xloadcharset.o
+
+
+
 	@$(AR) r tmp/kernel_bank8.lib tmp/init_network.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/search_free_bank.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/kernel_free_bank.o
@@ -79,11 +98,14 @@ kernel: $(SOURCE)
 	@$(AR) r tmp/kernel_bank8.lib tmp/xsend.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/xclose_socket.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/close_sockets_by_pid.o
+# 	@$(AR) r tmp/kernel_bank8.lib tmp/charset.o
+# 	@$(AR) r tmp/kernel_bank8.lib tmp/xloadcharset.o
+
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
 	@$(AS) --verbose -s --debug-info --cpu 6502 src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
 	@$(AS) --verbose -s --debug-info -o tmp/kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
 	@$(AS) --verbose -s --debug-info -o tmp/kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
-	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm
+	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib tmp/charset.o tmp/xloadcharset.o -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm || exit 1
 	@cp kernel.rom kernelsd.rom
 
 	@echo Build kernel bank 8

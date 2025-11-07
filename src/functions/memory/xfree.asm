@@ -2,6 +2,10 @@
 ; DBF1
  ; 6c6 b3ff ac3c
 
+.import   kdebug_save
+.import   xdebug_lsmem
+.import   kdebug_restore
+
 .proc XFREE_ROUTINE
   ; A & Y
   ;@brief free memory routine
@@ -13,7 +17,9 @@
   sta     KERNEL_XFREE_TMP    ; Save A (low)
   sty     HRS1
 
-.ifdef WITH_DEBUG
+;.define  WITH_DEBUG_FREE 
+
+.ifdef WITH_DEBUG_TOTO
   jsr     kdebug_save
 
   lda     KERNEL_XFREE_TMP
@@ -91,6 +97,7 @@
 
   ; Looking for Free chunk available
   ldy     #$01
+
 @find_a_free_chunk:
   lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
   beq     @free_chunk_is_available
@@ -135,7 +142,7 @@ out:
   ; trying to merge with main chunk
 
 @exit:
-.ifdef WITH_DEBUG
+.ifdef WITH_DEBUG_FREE
   jsr     kdebug_save
   jsr     xdebug_lsmem
   jsr     kdebug_restore
@@ -240,22 +247,22 @@ out:
   ; X contient l'index du chunk busy qu'on va recopier dans libre
   ; On arrive ici parce qu'on n'a pas pu recoller avec un chunk déjà existant, donc on le popule
 
-  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x ; 0
   sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
 
-  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x ; 4
   sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
 
-  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x ; C4
   sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
-  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x ; 72
   sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
 
-  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x ; 00
   sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
-  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x ; 00
   sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
   jsr     xfree_clear_busy_chunk
@@ -552,6 +559,7 @@ out:
 
 str_can_not_find_any_free_chunk_available:
   .asciiz "Free chunk slot error"
+
 str_kernel_panic:
   .byte $0D
   .byte "KPANIC!"

@@ -7,7 +7,7 @@
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [IN] X contains the fd id
 
-; Modify : RES, PTR_READ_DEST, TR0
+
 
 ; Modify : RES, PTR_READ_DEST, TR0
 
@@ -19,12 +19,14 @@
 ; Save PTR_READ_DEST to compute bytes
 
 
+
+
   pha
   lda     PTR_READ_DEST
   sta     RES
 ;
   lda     PTR_READ_DEST+1
-  sta     RES+1
+  sta     RES + 1
 
   ; Checking if fp exists
   jsr     checking_fp_exists
@@ -36,6 +38,7 @@
   rts
 
 @continue_xfread:
+
   pla
   jsr     _ch376_set_bytes_read
 
@@ -96,7 +99,7 @@
   clc                               ;
   adc     PTR_READ_DEST
   bcc     @next
-  inc     PTR_READ_DEST+1
+  inc     PTR_READ_DEST + 1
 
 @next:
   sta     PTR_READ_DEST

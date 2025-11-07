@@ -161,6 +161,7 @@ BUFNOM_END:
 
 kernel_malloc:
     .tag    kernel_malloc_struct
+.out     .sprintf("kernel_malloc_struct : 0x%x", kernel_malloc)
 
 kernel_malloc_end:
 kernel_process:

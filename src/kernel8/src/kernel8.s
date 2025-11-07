@@ -1,5 +1,7 @@
 
-;.FEATURE labels_without_colons, pc_assignment, loose_char_term, c_comments, org_per_seg
+; See README.md for more details for bank 8
+
+
 .FEATURE org_per_seg
 
 .include   "telestrat.inc"
@@ -14,6 +16,7 @@
 .include   "../../versions/versions.inc"
 
 
+;.import XLOADCHARSET_ROUTINE
 .import KERNEL_BANK_MANAGEMENT
 .import search_free_bank
 .import kernel_free_bank
@@ -30,7 +33,8 @@
 .import close_sockets_by_pid
 
    ; .segment "BANK8"
-    .org $C000
+    .org    $C000
+
 start_rom:
     jmp     XBANK
 
@@ -65,8 +69,12 @@ XBANK:
     cmp     #KERNEL_SOCKET_CLOSE_NETWORK
     beq     @kernel_socket_close_network
 
-    cmp     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK
+    cmp     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK ; $0B
     beq     @kernel_sockets_close_by_pid_network
+
+    cmp     #KERNEL_LOAD_QWERTY_CHARSET           ; $0C
+
+    beq     @load_qwerty_charset_routine
 
     rts
 
@@ -102,6 +110,10 @@ XBANK:
 
 @kernel_sockets_close_by_pid_network:
     jmp     close_sockets_by_pid
+
+@load_qwerty_charset_routine:
+   ; jmp     XLOADCHARSET_ROUTINE
+
 
 
 signature:

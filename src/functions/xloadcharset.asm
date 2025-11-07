@@ -1,4 +1,12 @@
+
+.import charset_text
+
+.export XLOADCHARSET_ROUTINE
+
+.segment "BANK7"
+
 .proc XLOADCHARSET_ROUTINE
+
     ldx     #$00
 
 @loop:

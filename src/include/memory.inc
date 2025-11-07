@@ -8,6 +8,8 @@
 
 .define KERNEL_RAM_BANK_APPLICATION_TYPE $01 ; The bank won't be destroyed when the process stops (example : bank)
 
+.define KERNEL_LOAD_QWERTY_CHARSET       $0C  ; New function in bank 8 to load qwerty charset Called with XBANK
+
 
 ; If struct is changed see xvars.
 

@@ -60,7 +60,7 @@
   stx     RES+1
   ; Save ptr
   sta     XOPEN_RES_SAVE
-  stx     XOPEN_RES_SAVE+1
+  stx     XOPEN_RES_SAVE + 1
   ; save flag
 
   sty     XOPEN_FLAGS
@@ -77,7 +77,7 @@
 @open_new_file:
 .ifdef WITH_DEBUG2
   jsr     kdebug_save
-  ldy     XOPEN_RES_SAVE+1
+  ldy     XOPEN_RES_SAVE + 1
   ldx     #XDEBUG_XOPEN_ENTER
   jsr     xdebug_print_with_ay_string
   jsr     kdebug_restore

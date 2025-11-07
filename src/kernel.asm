@@ -1,4 +1,4 @@
-.FEATURE labels_without_colons, pc_assignment, loose_char_term,  org_per_seg
+.FEATURE labels_without_colons, pc_assignment, loose_char_term, org_per_seg
 
 .define VERSION "2025.X"
 
@@ -18,6 +18,8 @@
 .include   "include/ori2.inc"
 .include   "versions/versions.inc"
 
+.import charset_text
+.import XLOADCHARSET_ROUTINE
 .export code_adress_419
 .export VEXBNK
 .export code_adress_436
@@ -68,9 +70,10 @@
 
 .import  KERNEL_BANK_EXTENDED_AVAILABLE
 
-.import  switch_to_kernel_extended_fill_register
+.import  switch_to_kernel_extended_fill_register_bank8
 .import  kernel_restore_banking_states
-.import   kernel_restore_banking_states_register
+.import  kernel_restore_banking_states_register
+;.import  XLOADCHARSET_ROUTINE
 ; .import  RESC
 ; .import  RESD
 ; .import  RESE
@@ -203,6 +206,13 @@ start_rom:
   sta     RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM
 
   jsr     init_screens
+
+; @me:
+;     jmp     @me
+
+ ; lda     #KERNEL_LOAD_QWERTY_CHARSET
+ ; jsr     XBANK_ROUTINE
+
   jsr     XLOADCHARSET_ROUTINE
   jsr     XALLKB_ROUTINE
 
@@ -470,7 +480,7 @@ init_malloc_busy_table:
   MEMORY_PUT_VALUE_TO_BANK KERNEL_NETWORK_FLAG
 
 
-  jsr     switch_to_kernel_extended_fill_register
+  jsr     switch_to_kernel_extended_fill_register_bank8
 
 	lda     #<($FFF0 + 1) ; Offset magic token
 	ldy     #>($FFF0 + 1)
@@ -3411,6 +3421,7 @@ XSCHAR_ROUTINE:
   lda     #$40
   sta     HRSFB
   ldy     #$00
+
 @L1:
   sty     HRS2 + 1
   cpy     HRS2
@@ -3441,14 +3452,18 @@ LEAB5:
   cmp     #$08
   bne     Leacf
   lda     #$00
+
 Leacf:
   tay
+
 Lead0:
   jsr     hires_put_coordinate
+
 Lead3:
   pla
   jsr     ZADCHA_ROUTINE
   ldy     #$00
+
 Lead9:
   sty     RES
   lda     HRSX40
@@ -3457,16 +3472,19 @@ Lead9:
   pha
   lda     (RESB),y
   asl
+
 Leae4:
   asl
   beq     Leaf3
   pha
   bpl     Leaed
   jsr     LE79C
+
 Leaed:
   jsr     XHRSCD_ROUTINE
   pla
   bne     Leae4
+
 Leaf3:
   jsr     XHRSCB_ROUTINE
   pla
@@ -3533,6 +3551,7 @@ LECB9:
   jsr     LECB4
   bcs     LECB9
   rts
+
 Lecbf:
   sec
   .byt    $24
@@ -3576,6 +3595,7 @@ add_0_5_A_ACC1:
   lda     #<const_zero_dot_half
   ldy     #>const_zero_dot_half
   jmp     AY_add_acc1 ; AY+acc1
+
 Lef97:
   rts
 
@@ -3599,6 +3619,7 @@ XA1PA2_ROUTINE:
 ACC2_ADD_ACC1:
   bne     @L1
   jmp     XA2A1_ROUTINE
+
 @L1:
   tsx
   stx     FLSVS
@@ -3606,6 +3627,7 @@ ACC2_ADD_ACC1:
   stx     TELEMON_UNKNWON_LABEL_7F
   ldx     #$68
   lda     ACC2E
+
 LEFC2:
   tay
   beq     Lef97
@@ -3626,14 +3648,15 @@ LEFC2:
 @next801:
   ldy     #$00
   sty     ACC1EX
+
 @L2:
   cmp     #$F9
   bmi     mantisse_A
   tay
   lda     ACC1EX
   lsr     RES + 1,x
-
   jsr     LF0FC
+
 next802:
   bit     ACCPS
   bpl     Lf049
@@ -3641,6 +3664,7 @@ next802:
   cpx     #$68
   beq     LEFFA
   ldy     #$68
+
 LEFFA:
   sec
   eor     #$FF
@@ -3658,17 +3682,18 @@ LEFFA:
   lda     $0001,y ; FIXME
   sbc     RES + 1,x
   sta     ACC1M
+
 LF01D:
   bcs     Lf022
-
   jsr     Lf090
+
 Lf022:
   ldy     #$00
   tya
   clc
+
 LF026:
   ldx     ACC1M
-
   bne     LF074
   ldx     TELEMON_UNKNWON_LABEL_62 ; FIXME
   stx     ACC1M
@@ -3687,14 +3712,16 @@ LF026:
   adc     #$08
   cmp     #$28
   bne     LF026
+
 Lf042:
   lda     #$00          ; FIXME 65C02
   sta     ACC1E
+
 LF046:
   sta     ACC1S
   rts
-Lf049:
 
+Lf049:
   adc     TELEMON_UNKNWON_LABEL_7F
   sta     ACC1EX
   lda     MENX
@@ -3711,6 +3738,7 @@ Lf049:
   adc     ACC2M
   sta     ACC1M
   jmp     Lf081
+
 Ld068:
   adc     #$01
   asl     ACC1EX
@@ -3718,6 +3746,7 @@ Ld068:
   rol     MENDFY
   rol     TELEMON_UNKNWON_LABEL_62
   rol     ACC1M
+
 LF074:
   bpl     Ld068
 
@@ -3728,23 +3757,26 @@ LF074:
   eor     #$FF
   adc     #$01
   sta     ACC1E
+
 Lf081:
   bcc     Lf08f
+
 LF083:
   inc     ACC1E
-
   beq     LF0C7
   ror     ACC1M
   ror     TELEMON_UNKNWON_LABEL_62
   ror     MENDFY
   ror     MENX
+
 Lf08f:
   rts
-Lf090:
 
+Lf090:
   lda     ACC1S
   eor     #$FF
   sta     ACC1S
+
 LF096:
   lda     ACC1M
   eor     #$FF
@@ -3763,6 +3795,7 @@ LF096:
   sta     ACC1EX
   inc     ACC1EX
   bne     LF0C6
+
 LF0B8:
   inc     MENX
   bne     LF0C6
@@ -3771,11 +3804,13 @@ LF0B8:
   inc     TELEMON_UNKNWON_LABEL_62
   bne     LF0C6
   inc     ACC1M
+
 LF0C6:
   rts
 
 LF0C7:
   lda     #$01
+
 LF0C9:
   sta     FLERR
   ldx     FLSVS
@@ -3784,6 +3819,7 @@ LF0C9:
 
 justify__to_the_right_with_A_and_X:
   ldx     #$6E
+
 LF0D1:
   ldy     DECDEB,x
   sty     ACC1EX
@@ -3795,6 +3831,7 @@ LF0D1:
   sty     RESB,x
   ldy     ACC1J
   sty     RES + 1,x
+
 LF0E5:
   adc     #$08
   bmi     LF0D1
@@ -3803,13 +3840,16 @@ LF0E5:
   tay
   lda     ACC1EX
   bcs     LF106
+
 LF0F2:
   asl     RES + 1,x
   bcc     LF0F8
   inc     RES + 1,x
+
 LF0F8:
   ror     RES + 1,x
   ror     RES + 1,x
+
 LF0FC:
   ror     RESB,x
   ror     RESB + 1,x
@@ -3817,16 +3857,17 @@ LF0FC:
   ror
   iny
   bne     LF0F2
+
 LF106:
   clc
   rts
-
 
 const_negative_zero_dot_five:
   .byt    $80,$80,$00,$00,$00 ; -0.5
 
 LF140:
   rts
+
 LF141:
   lda     #$02
   jmp     LF0C9
@@ -3859,11 +3900,13 @@ LF184:
   jsr     LF1EC
   beq     LF140
   bne     LF190
+
 XA1MA2_ROUTINE:
   beq     LF140
 
   tsx
   stx     FLSVS
+
 LF190:
   jsr     LF217
   lda     #$00
@@ -3992,6 +4035,7 @@ Lf242
   beq     Lf23c
 Lf258:
   rts
+
 ten_in_floating_point:
   .byt     $84,$20,$00,$00,$00 ; Ten in floating point
 Lf25e:
@@ -4006,7 +4050,11 @@ LF267
   jsr     XAYA1_ROUTINE
   jmp     XA2DA1_ROUTINE
 
-XLOG_ROUTINE:
+.export XA1A2_ROUTINE
+.export XAYA1_ROUTINE
+.export XA2DA1_ROUTINE
+
+.proc XLOG_ROUTINE
   ;tsx
   stx     FLSVS
   jsr     LF149
@@ -4019,11 +4067,14 @@ display_divide_per_0:
   lda     #$03
   sta     FLERR ; FLERR
   rts
+.endproc
+
+
 Lf287:
   jsr     LF1EC
 
 XA2DA1_ROUTINE:
-  beq     display_divide_per_0
+  beq     XLOG_ROUTINE::display_divide_per_0
   tsx
   stx     FLSVS
   jsr     XAA1_ROUTINE
@@ -4141,6 +4192,7 @@ XAYA1_ROUTINE:
   sta     ACC1E
   sty     ACC1EX
   rts
+
 LF348:
   ldx     #$73
   .byt    $2C
@@ -4963,120 +5015,117 @@ LFA10:
 
 .include "functions/charsets/charset_qwerty.asm"
 
-.ifdef WITH_CHARSET_AZERTY
-.include "functions/charsets/charset_azerty.asm"
-.endif
+;.include "functions/charsets/charset.asm"
+;.include "functions/xloadcharset.asm"
 
-.include "functions/charsets/charset.asm"
-.include "functions/xloadcharset.asm"
+; codes_for_calc_alternates:
+;   .byt     $00,$38,$07,$3F
 
-codes_for_calc_alternates:
-  .byt     $00,$38,$07,$3F
+; XGOKBD_ROUTINE:
 
-XGOKBD_ROUTINE:
-  lda     #$B9 ;  index of alternate chars
-.ifdef WITH_TWILIGHTE_BOARD
-.else
-  bit     FLGTEL
-  bpl     @L1
-  lda     #$9D ; FILL CHARSET ?
-@L1:
-.endif
-  ldy     #$00
-  sty     RES
-  sta     RES + 1
-  tya
+;   lda     #$B9 ;  index of alternate chars
+; .ifdef WITH_TWILIGHTE_BOARD
+; .else
+;   bit     FLGTEL
+;   bpl     @L1
+;   lda     #$9D ; FILL CHARSET ?
+; @L1:
+; .endif
+;   ldy     #$00
+;   sty     RES
+;   sta     RES + 1
+;   tya
 
-@loop:
-  pha
-  jsr      put_an_alternate_char_in_memory
-  pla
-  clc
-  adc     #$01
-  cmp     #$40
-  bne     @loop
+; @loop:
+;   pha
+;   jsr      put_an_alternate_char_in_memory
+;   pla
+;   clc
+;   adc     #$01
+;   cmp     #$40
+;   bne     @loop
 
-  lda     RES + 1
-  sbc     #$03
-  sta     TR0
-  sbc     #$04
-  sta     RES + 1
-  lda     #<charset_text
-  ldy     #>charset_text
-  sta     RESB
-  sty     RESB + 1
-  ldy     #$00
+;   lda     RES + 1
+;   sbc     #$03
+;   sta     TR0
+;   sbc     #$04
+;   sta     RES + 1
+;   lda     #<charset_text
+;   ldy     #>charset_text
+;   sta     RESB
+;   sty     RESB + 1
+;   ldy     #$00
 
-loop70:
-  ldx     #$00
-  lda     (RESB,x)
-  tax
-  inc     RESB
-  bne     @L1
-  inc     RESB + 1
-@L1:
-  jsr     routine_to_define_23
+; loop70:
+;   ldx     #$00
+;   lda     (RESB,x)
+;   tax
+;   inc     RESB
+;   bne     @L1
+;   inc     RESB + 1
+; @L1:
+;   jsr     routine_to_define_23
 
-  txa
-  and     #$C0
-  beq     loop70
-  cmp     #$C0
-  beq     @S1
-  cmp     #$40
-  beq     next76
-  jsr     routine_to_define_23
+;   txa
+;   and     #$C0
+;   beq     loop70
+;   cmp     #$C0
+;   beq     @S1
+;   cmp     #$40
+;   beq     next76
+;   jsr     routine_to_define_23
 
-  .byt    $2c
-@S1:
-  ldx     #$00
+;   .byt    $2c
+; @S1:
+;   ldx     #$00
 
-next76:
-  jsr     routine_to_define_23
-  bne     loop70
+; next76:
+;   jsr     routine_to_define_23
+;   bne     loop70
 
 
-routine_to_define_23:
-  txa
-  and     #$3F
-  sta     (RES),y
-  iny
-  bne     @skip
-  inc     RES + 1
-  lda     RES + 1
-  cmp     TR0
-  bne     @skip
-  pla
-  pla
-@skip:
-  rts
+; routine_to_define_23:
+;   txa
+;   and     #$3F
+;   sta     (RES),y
+;   iny
+;   bne     @skip
+;   inc     RES + 1
+;   lda     RES + 1
+;   cmp     TR0
+;   bne     @skip
+;   pla
+;   pla
+; @skip:
+;   rts
 
-put_an_alternate_char_in_memory:
-  ldx     #$03
-  stx     RESB
-next81:
-  pha
-  and     #$03
-  tax
-  lda     codes_for_calc_alternates,x
-  sta     (RES),y
-  iny
-  sta     (RES),y
-  iny
-  ldx     RESB
-  cpx     #$02
-  beq     @skip
-  sta     (RES),y
-  iny
-  bne     @skip
-  inc     RES + 1
+; put_an_alternate_char_in_memory:
+;   ldx     #$03
+;   stx     RESB
+; next81:
+;   pha
+;   and     #$03
+;   tax
+;   lda     codes_for_calc_alternates,x
+;   sta     (RES),y
+;   iny
+;   sta     (RES),y
+;   iny
+;   ldx     RESB
+;   cpx     #$02
+;   beq     @skip
+;   sta     (RES),y
+;   iny
+;   bne     @skip
+;   inc     RES + 1
 
-@skip:
-  pla
-  lsr
-  lsr
-  dec     RESB
-  bne     next81
-  rts
+; @skip:
+;   pla
+;   lsr
+;   lsr
+;   dec     RESB
+;   bne     next81
+;   rts
 
 move_chars_text_to_hires:
   ldy     #$05
@@ -5193,15 +5242,7 @@ copy_ramoverlay_end:
   .error  "XFREE can't be copied into RAMOVERLAY"
 .endif
 
-.ifdef WITH_SDCARD_FOR_ROOT
-  KERN_SDCARD_FOR_ROOT_CONFIG=2
-.else
-  KERN_SDCARD_FOR_ROOT_CONFIG=0
-.endif
 
-; Byte for compile options
-kernel_compile_option:
-  .byt    KERN_SDCARD_FOR_ROOT_CONFIG
 
 
 

@@ -1,7 +1,7 @@
 .include "telestrat.inc"
 
 .export switch_to_kernel_extended
-.export switch_to_kernel_extended_fill_register
+.export switch_to_kernel_extended_fill_register_bank8
 
 
 .import KERNEL_SAVE_XEXEC_CURRENT_SET
@@ -10,14 +10,13 @@
 .segment "BANK7"
 
 .proc switch_to_kernel_extended
-    jsr     switch_to_kernel_extended_fill_register
+    jsr     switch_to_kernel_extended_fill_register_bank8
     jmp     $40C
 .endproc
 
-.proc switch_to_kernel_extended_fill_register
-
+.proc switch_to_kernel_extended_fill_register_bank8
+    ; Switch to bank 8 (extended mode)
     pha
-
     lda     $343
     sta     KERNEL_SAVE_XEXEC_CURRENT_SET
 

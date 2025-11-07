@@ -2,6 +2,19 @@
 
 .proc XMALLOC_ROUTINE
 
+    ;;@brief Perform a malloc in the kernel memory space (48K). Return NULL if no memory available
+    ;;@inputA contains the low byte of the length to allocate
+    ;;@inputX contains the high nbyte of the length to allocate
+    ;;@modifyMEM_TR6
+    ;;@modifyMEM_TR7
+    ;;@```asm
+    ;;@` lda #<5
+    ;;@` ldy #>5
+    ;;@` BRK_TELEMON XMALLOC
+    ;;@` rts
+    ;;@```
+
+
 ; $fb64
 
 .out     .sprintf("|MODIFY:TR7:XMALLOC_ROUTINE")
@@ -56,11 +69,12 @@
 @O1:
     jsr     kdebug_restore
 .endif
-
-    cpy     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high     ; Does High value of the number of the malloc is greater than the free memory ?
+    ; Does High value of the number of the malloc is greater than the free memory ?
+    cpy     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
     bcc     @allocate
 
-@exit_null:                                      ; If yes, then we have no memory left, return NULL
+    ; If yes, then we have no memory left, return NULL
+@exit_null:
     ; we don't fix #ENOMEM, because null is returned already means OOM by default
     lda     #ENOMEM
     sta     KERNEL_ERRNO
@@ -73,6 +87,7 @@
 @allocate:
     ; found first available busy table
     sta     TR7                                  ; Save A (low value of the malloc), Y is not saved because we don't modify it
+    sty     TR6                                  ; Save Y (high value of the malloc)
 
     ldx     #$00
 
@@ -87,23 +102,83 @@
     bne     @looking_for_busy_chunck_available
 
 @found:
+    ; X contains the PID position to keep PID of the current malloc
+    ; TR6 contains the high byte of the size to allocate
+    ; TR7 contains the low byte of the size to allocate
+    ; Trying to look if we have free slot available which is not used
+    ldy     #$01
 
+@looking_for_free_chunk_available:
+
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y ; Check if begin high is busy, if it's zero, this slot is not used
+    beq     @is_greater ; Not used we check nest free chunk
+
+    lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ;
+    cmp     TR6 ; High
+    bcc     @is_greater ; if freater than size (high byte), we can not use this chunk
+    ; Check low now
+    lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y ;
+    cmp     TR7 ; Low
+    bcc     @is_greater ; if greater or equal than size (low byte),
+    ; we can use this chunk, here we go, change it to busy chunk
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+
+    lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+
+    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+
+    ; Free slot now
+    lda     #$00
+    sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+    jmp     @return_pointer
+
+    ; lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+    ; sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+
+    ; lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+    ; sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+
+    ; lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+    ; sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+
+    ; lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+    ; sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+
+    ; lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+
+
+@is_greater:
+    iny
+    cpy     #KERNEL_MALLOC_FREE_CHUNK_MAX
+    bne     @looking_for_free_chunk_available
+
+
+@malloc_from_first_free_chunk_main_memory:
     lda     TR7 ; get low byte of size (store the size)
     ; Store the size in the busy table
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
-
-    tya     ; Get high byte of the size and store
+    lda     TR6
+   ; tya     ; Get high byte of the size and store
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x  ; store the length (low)
 
     lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
-
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
 
     lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
-
 
     ; Compute the end of the busy address
     clc
@@ -144,6 +219,7 @@
     bne     @skip4
     inc     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 
+
 @skip4:
     lda     kernel_process + kernel_process_struct::kernel_current_process
 @store:
@@ -168,6 +244,7 @@
 
     jsr     kdebug_restore
 .endif
+@return_pointer:
     lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     rts

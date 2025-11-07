@@ -113,7 +113,7 @@ CA65_INC=/usr/share/cc65/asminc/
 # # dependencies/orix-sdk/bin/relocbin.py3 -o tmp/sfbtest -2 tmp/1000 tmp/1256
 # # cp tmp/sfbtest $ORICUTRON_PATH/sdcard/bin/
 
-make unittest
+make
 
 echo Build autoboot
 cl65 -ttelestrat tests/functions/network/netchk.s -o tmp/1000 --start-addr 2048

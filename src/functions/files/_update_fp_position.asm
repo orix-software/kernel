@@ -5,8 +5,8 @@
   lda     PTR_READ_DEST
   sbc     RES
   tay
-  lda     PTR_READ_DEST+1
-  sbc     RES+1
+  lda     PTR_READ_DEST + 1
+  sbc     RES + 1
   tax
   tya
 
@@ -16,7 +16,7 @@
   ; Save length
 
   sta     XOPEN_RES
-  stx     XOPEN_RES+1
+  stx     XOPEN_RES + 1
 
   ; compute fp
   lda     KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X
@@ -42,11 +42,10 @@
   jsr     inc_byte_superior
   bcc     @no_inc_byte2
 
-
 @no_inc_byte2:
   ldy     #(_KERNEL_FILE::f_seek_file+1)
   lda     (KERNEL_XOPEN_PTR1),y
-  adc     XOPEN_RES+1
+  adc     XOPEN_RES + 1
   sta     (KERNEL_XOPEN_PTR1),y  ; update byte 2 of the file position
   bcc     @no_inc_byte3
 
@@ -59,7 +58,7 @@
 
 @no_inc_byte3:
   lda     XOPEN_RES
-  ldx     XOPEN_RES+1
+  ldx     XOPEN_RES + 1
   rts
 
 inc_byte_superior:
