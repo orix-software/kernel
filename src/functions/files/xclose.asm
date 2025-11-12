@@ -10,12 +10,7 @@
     sta     RESB
     sty     RESB + 1 ; save fp
 
-.ifdef WITH_DEBUG
-    pha
-    ldx     #XDEBUG_FCLOSE_ENTER
-    jsr     xdebug_print_with_a
-    pla
-.endif
+
 
   ; Try to found FP
   ; kernel_process+kernel_process_struct::kernel_fd contient un tableau où la position 0 est le FD 3 (car on commence à 3 avec stin- 0 , stdout, stderr)
@@ -34,25 +29,13 @@
     lda     kernel_process + kernel_process_struct::kernel_fd,x ; A contient l'id du process, X contient l'id du FD retranché de 3
     bne     @found_fp_slot
 
-.ifdef WITH_DEBUG
-    jsr     kdebug_save
-    txa
-    ldx     #XDEBUG_XCLOSE_FD_NOT_FOUND
-    jsr     xdebug_print_with_a
-    jsr     kdebug_restore
-.endif
+
 @exit:
     rts
 
 @found_fp_slot:
     ; Process should be called here
-.ifdef WITH_DEBUG
-    pha
-    lda     RESB
-    ldx     #XDEBUG_XCLOSE_FD_FOUND
-    jsr     xdebug_print
-    pla
-.endif
+
 
     txa ; Transfert fd 'id slot'
     asl ; Multiply * 2
@@ -98,7 +81,11 @@
     jsr     XFREE_ROUTINE
 
     ; Clear fp in current process
-    ldy     #kernel_one_process_struct::fp_ptr
+    lda     TR7
+    asl
+    clc
+    adc     #kernel_one_process_struct::fp_ptr
+    tay
     lda     #$00
     sta     (RESB),y
     iny
