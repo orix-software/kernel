@@ -7,6 +7,7 @@
 .import   kdebug_restore
 
 .proc XFREE_ROUTINE
+ ; $f941 ; 52A
   ; A & Y
   ;@brief free memory routine
 
@@ -14,30 +15,10 @@
   .out     .sprintf("|MODIFY:HRS1:XFREE_ROUTINE")
   .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
 
+
+
   sta     KERNEL_XFREE_TMP    ; Save A (low)
   sty     HRS1
-
-;.define  WITH_DEBUG_FREE 
-
-.ifdef WITH_DEBUG_TOTO
-  jsr     kdebug_save
-
-  lda     KERNEL_XFREE_TMP
-  ldx     #XDEBUG_XFREE_ENTER_PRINT
-  jsr     xdebug_print_with_ay
-
-  jsr     kdebug_restore
-.endif
-
-; [A & Y] the first adress of the pointer.
-
-;.ifdef WITH_DEBUG
-  ;jsr     kdebug_save
-  ;jsr     xdebug_lsmem
-  ;jsr     kdebug_restore
-;.endif
-
-
 
   ; **************************************************************************************
   ; Try to find chunk
@@ -65,16 +46,6 @@
 
 @busy_chunk_found:
   ; X contains the id of the busy chunk
-
-
-
-.ifdef WITH_DEBUG2
-  jsr     kdebug_save
-
-  jsr     xdebug_send_ay_to_printer
-
-  jsr     kdebug_restore
-.endif
 
 
   ; Free now
@@ -120,13 +91,6 @@
   jsr     xfree_merge_table
   ; Y contains the current free chunk found, we destroy it now
 
-.ifdef WITH_DEBUG
-  jsr     kdebug_save
-  jsr     xdebug_lsmem
-  jsr     kdebug_restore
-.endif
-
-
 @main_free_no_action:
 
 out:
@@ -142,11 +106,7 @@ out:
   ; trying to merge with main chunk
 
 @exit:
-.ifdef WITH_DEBUG_FREE
-  jsr     kdebug_save
-  jsr     xdebug_lsmem
-  jsr     kdebug_restore
-.endif
+
 
   lda     #$01
   rts
@@ -275,11 +235,11 @@ out:
 
 .proc xfree_clear_busy_chunk
   lda     #$00
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
   rts
 .endproc
 
@@ -294,12 +254,13 @@ out:
   rts
 
 @try_another_free_chunk:
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  ; $fa5E
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   beq     @next_free
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   beq     @next_free
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
   INCA    ; macro inca
 
@@ -307,47 +268,49 @@ out:
   inc     RES
   ; X contains the index of the busy chunk found
 @skip_inc_high:
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
-  beq     @compare_high
+  cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  beq     @compare_high ; REmove me !
   bne     @next_free
 
 @compare_high:
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   clc
   adc     RES
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+  cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
   bne     @not_same
 
   ; concat
+; $fb5A
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
   ; Compute size
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
 
   clc
-  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
+  adc     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
 
   pha
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
   INCA
 
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   pla
 @do_not_inc:
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   clc
-  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  adc     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
 
   jsr     xfree_clear_free_chunk
@@ -365,6 +328,9 @@ out:
   bne     @try_another_free_chunk
 
   rts
+
+
+
 .endproc
 
 
@@ -380,13 +346,13 @@ out:
 
   STZ_ABS RES
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
 
   beq     @next_free
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   beq     @next_free
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
 
 @continue:
@@ -396,49 +362,49 @@ out:
   inc     RES
   ; X contains the index of the busy chunk found
 @skip_inc_high:
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
   beq     @compare_high
   bne     @next_free
 
 @compare_high:
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   clc
   adc     RES
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+  cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
   bne     @not_same
 
   ; concat
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
   ; Compute size
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
 
   clc
-  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
+  adc     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
   bcc     @do_not_inc
 
 
   pha
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ; It should be better here but inc does not manage inc $xx,y	
   INCA
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
   pla
 @do_not_inc:
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
 
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   clc
-  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  adc     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
 
   ; X and Y must be set
   jsr     xfree_clear_free_chunk
@@ -462,20 +428,20 @@ out:
 
 .proc xfree_garbage_from_end_for_main
 
-  ldx     #$00
+  ldx     #$01 ; Corrected because bmslib program test crashes otherwise when we launch 3 times xfree in a row
 
   ; FR : on essaie de trouver un chunk libre
-  ldy     #$01
+  ldy     #$02
 
 @try_another_free_chunk:
   STZ_ABS   RES
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   beq     @next_free
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   beq     @next_free
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,y
 
 @continue:
 
@@ -485,46 +451,47 @@ out:
   inc     RES
   ; X contains the index of the busy chunk found
 @skip_inc_high:
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x ; X main memory
-  beq     @compare_high
+  cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x ; X main memory
+;  beq     @compare_high
   bne     @not_same
 
 @compare_high:
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,y
   clc
   adc     RES
-  cmp     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+  cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
   bne     @not_same
 
   ; concat
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
 
   ; Compute size
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y
   clc
-  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  adc     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
   bcc     @do_not_inc
 
 
   pha
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x ; It should be better here but inc does not manage inc $xx,y	
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x ; It should be better here but inc does not manage inc $xx,y	
   INCA
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
 
   pla
 @do_not_inc:
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
   clc
-  adc     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  adc     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
 
 
   tya
@@ -545,14 +512,14 @@ out:
 .proc xfree_clear_free_chunk
   ; Clear the free chunk FIXME 6502
   lda     #$00
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
 
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
-  sta     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
 
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
-  sta     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  sta     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
   rts
 .endproc
 
