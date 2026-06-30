@@ -28,11 +28,11 @@
   ; don't move kernel_pid_list in an other line because it breaks ps and lsmem
   kernel_pid_list                      .res KERNEL_MAX_PROCESS ; list of PID when the byte is equal to 0, it means that this is free, it store the index
   kernel_current_process               .res 1                  ; id of the current pid (French, contient l'index et non pas la valeur, l'index sur la table kernel_pid_list)
-  kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS
+  kernel_one_process_struct_ptr_low    .res KERNEL_MAX_PROCESS ; Ptr of the proccess
   kernel_one_process_struct_ptr_high   .res KERNEL_MAX_PROCESS
   ;kernel_init_string                   .res .strlen("init")+1
   kernel_cwd_str                       .res .strlen("/")+1
-  fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS*2 ; fp for init for instance, only shell could be in it
+  fp_ptr                               .res KERNEL_MAX_FP_PER_PROCESS * 2 ; contains struct of fp ptr, fp for init for instance, only shell could be in it
   ; kernel_fd contains ...
   kernel_fd                            .res KERNEL_MAX_FP ; Va contenir l'id du process qui possède ce FD
   kernel_fd_opened                     .res 1 ; the id of the current fd opened
@@ -48,10 +48,10 @@
 
 ; This struct is used with a malloc. Each proces has this struct, and the pointer of this struct is in kernel_process_struct struct
 .struct kernel_one_process_struct
-  process_name               .res KERNEL_MAX_LENGTH_COMMAND+1 ; don't move it in the struct, because code handle process_name when it's at the first position. If it moves, the code will generate bugs
+  process_name               .res KERNEL_MAX_LENGTH_COMMAND + 1 ; don't move it in the struct, because code handle process_name when it's at the first position. If it moves, the code will generate bugs
   cwd_str                    .res KERNEL_MAX_PATH_LENGTH
  ; child_pid                  .res KERNEL_NUMBER_OF_CHILD_PER_PROCESS
-  fp_ptr                     .res KERNEL_MAX_FP_PER_PROCESS*2
+  fp_ptr                     .res KERNEL_MAX_FP_PER_PROCESS * 2
   zp_save_userzp             .res KERNEL_USERZP_SAVE_LENGTH
   cmdline                    .res KERNEL_LENGTH_MAX_CMDLINE
   ppid                       .res 1

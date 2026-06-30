@@ -20,10 +20,13 @@ asm_bin_tpl_version = "alpha"
 asm_rom_tpl_version = "alpha"
 orixsdk_version = "2023.3.0"
 orix_minimal_kernel_version = "2024.1"
+enable_publish = "True"
+enable_build = "True"
+lib = "True"
+rom_compatible = "False"
+web_doc_command = "mkdocs build"
+mike_management = "False"
 
 [dependencies]
-ch395 = "2024.4"
-ksocket = "2025.1"
-kch395 = "2025.1"
 
 [srcfolders]

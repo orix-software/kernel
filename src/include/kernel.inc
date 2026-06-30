@@ -38,9 +38,6 @@
 
 .define KERNEL_MAX_PATH_LENGTH                    9*PATH_CURRENT_MAX_LEVEL+MAX_LENGTH_OF_FILES ;
 
-
-
-
 .define KERNEL_MAX_LENGTH_BUFEDT    ORIX_MAX_PATH_LENGTH+9
 
 ; command line

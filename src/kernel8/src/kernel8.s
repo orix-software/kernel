@@ -16,7 +16,7 @@
 .include   "../../versions/versions.inc"
 
 
-;.import XLOADCHARSET_ROUTINE
+.import XLOADCHARSET_ROUTINE
 .import KERNEL_BANK_MANAGEMENT
 .import search_free_bank
 .import kernel_free_bank
@@ -39,6 +39,7 @@ start_rom:
     jmp     XBANK
 
 XBANK:
+
     cmp     #KERNEL_ALLOCATE_BANK
     beq     @allocate_bank
 
@@ -73,7 +74,6 @@ XBANK:
     beq     @kernel_sockets_close_by_pid_network
 
     cmp     #KERNEL_LOAD_QWERTY_CHARSET           ; $0C
-
     beq     @load_qwerty_charset_routine
 
     rts
@@ -112,7 +112,7 @@ XBANK:
     jmp     close_sockets_by_pid
 
 @load_qwerty_charset_routine:
-   ; jmp     XLOADCHARSET_ROUTINE
+    jmp     XLOADCHARSET_ROUTINE
 
 
 
