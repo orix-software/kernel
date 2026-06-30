@@ -15,8 +15,8 @@
 .proc XGETARGV_ROUTINE
 
    ; lda     RES
-    sty     RES+1
-    sty     RESB+1
+    sty     RES + 1
+    sty     RESB + 1
     sta     RES
 
     txa
@@ -26,9 +26,9 @@
     clc
     adc     RES
     bcc     @S1
-    inc     RESB+1
+    inc     RESB + 1
 @S1:
-    ldy     RESB+1
+    ldy     RESB + 1
     ; A & Y return ptr of the param
 
 	rts

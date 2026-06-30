@@ -1,6 +1,6 @@
 .export charset_text
 
-.segment "BANK7"
+;:.segment "BANK7"
 charset_text:
   ; ' '
   .byte   $00,$00,$00,$00,$00,$00,$00,$00

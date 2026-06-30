@@ -43,7 +43,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     sta     XMAINARGS_MODE
 
     ; Get current process
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
     ; Get the struct og the process
     jsr     kernel_get_struct_process_ptr
     sta     RES
@@ -59,8 +59,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
 @S7:
     sta     RES
 
-    lda     #KERNEL_XMAINARG_MALLOC_TYPE
-    sta     KERNEL_MALLOC_TYPE
+
     lda     #<.sizeof(XMAINARGS_STRUCT)
     ldy     #>.sizeof(XMAINARGS_STRUCT)
 
@@ -101,7 +100,7 @@ XMAINARGS_DOUBLE_QUOTE := TR5 ; 1 byte
     sta     (RESB),y
 
     lda     RESB
-    ldy     RESB+1
+    ldy     RESB + 1
 
     rts
 

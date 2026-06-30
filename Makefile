@@ -48,6 +48,7 @@ init:
 	@mkdir -p build/usr/include/kernel/
 	@mkdir -p build/usr/src/kernel/
 
+
 kernel: $(SOURCE)
 	@mkdir -p tmp/
 	@cd src/kernel8 && bpm update && cd ..
@@ -73,11 +74,7 @@ kernel: $(SOURCE)
 	@$(AS) --cpu 6502 -tnone src/functions/network/xsend.s -o tmp/xsend.o
 	@$(AS) --cpu 6502 -tnone src/functions/xloadcharset.asm -o tmp/xloadcharset.o
 	@$(AS) --cpu 6502 -tnone src/functions/charsets/charset.asm -o tmp/charset.o
-
 	@$(AS) --cpu 6502 -tnone src/functions/network/xclose_socket.s -o tmp/xclose_socket.o
-
-
-
 
 
 	@$(AR) r tmp/kernel.lib tmp/xminma.o
@@ -86,8 +83,6 @@ kernel: $(SOURCE)
 	@$(AR) r tmp/kernel.lib tmp/xbank_routine.o
 # 	@$(AR) r tmp/kernel.lib tmp/charset.o
 # 	@$(AR) r tmp/kernel.lib tmp/xloadcharset.o
-
-
 
 	@$(AR) r tmp/kernel_bank8.lib tmp/init_network.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/search_free_bank.o
@@ -98,19 +93,19 @@ kernel: $(SOURCE)
 	@$(AR) r tmp/kernel_bank8.lib tmp/xsend.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/xclose_socket.o
 	@$(AR) r tmp/kernel_bank8.lib tmp/close_sockets_by_pid.o
-# 	@$(AR) r tmp/kernel_bank8.lib tmp/charset.o
-# 	@$(AR) r tmp/kernel_bank8.lib tmp/xloadcharset.o
+	@$(AR) r tmp/kernel_bank8.lib tmp/charset.o
+	@$(AR) r tmp/kernel_bank8.lib tmp/xloadcharset.o
 
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_main_memory.s -o tmp/kernel_main_memory.ld65
 	@$(AS) --verbose -s --debug-info --cpu 6502 src/kernel8/src/kernel8.s -o tmp/kernel_bank8.ld65 $(ASFLAGS) > output.log
 	@$(AS) --verbose -s --debug-info -o tmp/kernel_bank0.ld65 -DWITH_SDCARD_FOR_ROOT=1 src/kernel_bank0.s $(ASFLAGS) > output.log
 	@$(AS) --verbose -s --debug-info -o tmp/kernelsd.ld65 -DWITH_SDCARD_FOR_ROOT=1 $(SOURCE) $(ASFLAGS) > output.log
-	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib tmp/charset.o tmp/xloadcharset.o -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm || exit 1
+	@$(LD) -C cfg/kernel.cfg -DWITH_SDCARD_FOR_ROOT=1 tmp/kernelsd.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel.lib -Ln tmp/kernelsd.sym -m tmp/memmap.txt -vm || exit 1
 	@cp kernel.rom kernelsd.rom
 
 	@echo Build kernel bank 8
 	@$(AS) --cpu 6502 -DWITH_SDCARD_FOR_ROOT=1 --verbose -s -ttelestrat src/kernel_bank0.s -o tmp/kernel_bank0.ld65 --debug-info > memmap.md
-	@$(LD) -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib  src/kernel8/orixlibs/kch395/usr/share/kch395/$(KCH395_LIB_VERSION)/kch395.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm
+	@$(LD) -C cfg/rom.cfg tmp/kernel_bank8.ld65 tmp/kernel_bank0.ld65 tmp/kernel_main_memory.ld65 tmp/kernel_bank8.lib src/kernel8/orixlibs/ksocket/usr/share/ksocket/2025.1/ksocket.lib  src/kernel8/orixlibs/kch395/usr/share/kch395/$(KCH395_LIB_VERSION)/kch395.lib src/kernel8/orixlibs/ch395/usr/share/ch395/2024.4/ch395.lib -o kernel8.rom -Ln tmp/kernel8sd.sym -m tmp/memmap8.txt -vm || exit 1
 	@cp kernel8.rom  $(PATH_PACKAGE_ROM)/
 
 	@#@sed -re 's/al 00(.{4}) \.(.+)$$/\1 \2/' kernelsd.sym| sort > kernelsd2.sym > output.log

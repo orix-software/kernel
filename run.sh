@@ -131,7 +131,7 @@ cp kernel8.rom $ORICUTRON_PATH/roms
 #cp tests/kopened $ORICUTRON_PATH/sdcard/bin/
 
 #cat  tests/unit_test/xopen.sub > $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
-cat  tests/unit_test/start.sub > $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
+#cat  tests/unit_test/start.sub > $ORICUTRON_PATH/sdcard/etc/AUTOBOOT
 
 # cp  tests/unit_test/mainarg.sub $ORICUTRON_PATH/sdcard/bin/mainarg.sub
 

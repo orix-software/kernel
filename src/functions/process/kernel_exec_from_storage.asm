@@ -13,6 +13,7 @@
     .out     .sprintf("|MODIFY:PTR_READ_DEST:kernel_try_to_find_command_in_bin_path")
 
 
+
     ; A & Y contains the command
 	; here we found no command, let's go trying to find it in /bin
     ; Malloc
@@ -218,7 +219,7 @@ open_binary_and_exec:
 
 @out_not_found:
     lda     RESF
-    ldy     RESF+1
+    ldy     RESF + 1
 
     jsr     XCLOSE_ROUTINE
 
@@ -331,6 +332,7 @@ open_binary_and_exec:
     ldy     #ENOEXEC
     sty     KERNEL_ERRNO
     rts
+
 @free:
     lda     RESD
     ldy     RESD + 1
@@ -366,6 +368,7 @@ open_binary_and_exec:
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESE + 1
 ;
+
     jmp     @run
 
 ; Format 1 : static adress
@@ -408,6 +411,9 @@ open_binary_and_exec:
     jsr     @read_program
 
 @run:
+
+
+
     jsr     @clean_before_execute
 
     jsr     @execute
@@ -460,9 +466,13 @@ open_binary_and_exec:
     rts
 
 @execute:
+
     jmp     (RESE) ; jmp : it means that if program launched do an rts, it returns to interpreter
 
 @read_program:
+
+
+
     lda     #$FF ; read all the binary
     ldy     #$FF
     ldx     RESF     ; FP

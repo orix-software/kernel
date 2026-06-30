@@ -4,7 +4,7 @@ XSCROH_ROUTINE:
 ;Action:scrolle vers le bas de la ligne X à la ligne Y la fenêtre courante.
 
   lda     #$00     ;  on prend $0028, soit 40 FIXME 65c02
-  sta     DECFIN+1
+  sta     DECFIN + 1
   lda     #$28
   bne     LDE62    ;  inconditionnel
 
@@ -14,7 +14,7 @@ XSCROH_ROUTINE:
 
 XSCROB_ROUTINE:
   lda     #$FF       ;    on prend $FFD8, soit -40 en complement a 2
-  sta     DECFIN+1
+  sta     DECFIN + 1
   lda     #$D8
 LDE62:
   sta     DECFIN     ;   $06-07 contiennent le déplacement
@@ -36,13 +36,13 @@ LDE62:
   iny
 @skip2:
   sta     DECCIB     ;  est dans $08-09
-  sty     DECCIB+1
+  sty     DECCIB + 1
   clc            ; on ajoute le deplacement
   adc     DECFIN
   sta     DECDEB
   tya
-  adc     DECFIN+1
-  sta     DECDEB+1   ;   dans $04-05
+  adc     DECFIN + 1
+  sta     DECDEB + 1 ;   dans $04-05
   pla                ;   on sort le nombre de lignes
   sta     RES        ;   dans RES
   beq     LDEC4      ;   si nul on fait n'importe quoi ! on devrait sortir!
@@ -51,9 +51,9 @@ LDE62:
   ldx     SCRNB      ;                                                   I
   lda     SCRFX    ; la largeur de la fenètre                          I
   sbc     SCRDX    ;                                                   I
-  sta     RES+1      ;  dans RES+1                                       I
+  sta     RES + 1      ;  dans RES+1                                       I
 LDE9D:
-  ldy     RES+1
+  ldy     RES + 1
 LDE9F:            ;                                                   I
   lda     (DECDEB),y ;   on transfère une ligne                          I
   sta     (DECCIB),y ;                                                   I
@@ -63,20 +63,20 @@ LDE9F:            ;                                                   I
   lda     DECDEB     ;   on ajoute le déplacement                        I
   adc     DECFIN     ;   à l'adresse de base                             I
   sta     DECDEB     ;                                                   I
-  lda     DECDEB+1   ;                                                   I
-  adc     DECFIN+1   ;                                                   I
-  sta     DECDEB+1   ;                                                   I
+  lda     DECDEB + 1   ;                                                   I
+  adc     DECFIN + 1   ;                                                   I
+  sta     DECDEB + 1   ;                                                   I
   clc                ;                                                   I
   lda     DECCIB     ;   et à l'adresse d'arrivée                        I
   adc     DECFIN     ;                                                   I
   sta     DECCIB     ;                                                   I
-  lda     DECCIB+1   ;                                                   I
-  adc     DECFIN+1   ;                                                   I
-  sta     DECCIB+1   ;                                                   I
+  lda     DECCIB + 1   ;                                                   I
+  adc     DECFIN + 1   ;                                                   I
+  sta     DECCIB + 1   ;                                                   I
   dec     RES        ;  on décompte une ligne de faite                   I
   bne     LDE9D      ;  et on fait toutes les lignes                     I
 LDEC4
-  ldy     RES+1      ;  on remplit la dernière ligne                     I
+  ldy     RES + 1      ;  on remplit la dernière ligne                     I
   lda     #$20       ;                                                   I
 @L1:
   sta     (DECCIB),Y ;  avec de espaces                                  I

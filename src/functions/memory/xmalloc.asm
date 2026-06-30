@@ -28,47 +28,6 @@
 ; Verify if there is enough memory
 ;
 
-.ifdef WITH_DEBUG
-    jsr     kdebug_save
-
-    ldx     #XDEBUG_XMALLOC_ENTER_AY
-
-    jsr     xdebug_print_with_ay
-
-    ldx     #XDEBUG_TYPE
-    jsr     xdebug_print
-
-
-    lda     KERNEL_MALLOC_TYPE
-    cmp     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE
-    bne     @O2
-    ldx     #XDEBUG_TYPE_PROCESSSTRUCT
-    jsr     xdebug_print
-    jmp     @O1
-@O2:
-    cmp     #KERNEL_UNKNOWN_MALLOC_TYPE
-    bne     @O4
-    ldx     #XDEBUG_UNKNOWN
-    jsr     xdebug_print
-
-    jmp     @O1
-@O4:
-    cmp     #KERNEL_XMAINARG_MALLOC_TYPE
-    bne     @O3
-    ldx     #XDEBUG_TYPE_MAINARGS
-    jsr     xdebug_print
-    jmp     @O1
-@O3:
-    cmp     #KERNEL_FP_MALLOC_TYPE
-    bne     @O5
-    ldx     #XDEBUG_TYPE_FPSTRUCT
-    jsr     xdebug_print
-    jmp     @O1
-@O5:
-    ; others
-@O1:
-    jsr     kdebug_restore
-.endif
     ; Does High value of the number of the malloc is greater than the free memory ?
     cpy     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high
     bcc     @allocate
@@ -219,32 +178,16 @@
     bne     @skip4
     inc     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high
 
-
+@return_pointer:
 @skip4:
     lda     kernel_process + kernel_process_struct::kernel_current_process
 @store:
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list,x
 
-    ; Restore type
-
-    lda     #KERNEL_UNKNOWN_MALLOC_TYPE
-    sta     KERNEL_MALLOC_TYPE
 
     ; Debug
 
-.ifdef WITH_DEBUG
-    jsr     kdebug_save
 
-    lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-    ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
-
-    ldx     #$03
-
-    jsr     xdebug_print_with_ay
-
-    jsr     kdebug_restore
-.endif
-@return_pointer:
     lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
     ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
     rts

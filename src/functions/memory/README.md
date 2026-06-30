@@ -1,0 +1,1 @@
+if lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y is equal to 0, it means that the slot is not allocated

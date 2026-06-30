@@ -18,6 +18,7 @@
     beq     @it_s_dot_slash
     cmp     #'.'
     beq     @it_s_dot_dot_slash
+
 @error_relative:
     ldx     #$01 ; Error
     rts

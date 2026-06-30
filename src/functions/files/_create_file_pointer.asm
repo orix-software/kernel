@@ -64,7 +64,7 @@
   clc
   adc     KERNEL_XOPEN_PTR2
   bcc     @S1
-  inc     KERNEL_XOPEN_PTR2+1
+  inc     KERNEL_XOPEN_PTR2 + 1
 @S1:
   sta     KERNEL_XOPEN_PTR2
 
@@ -87,7 +87,7 @@
 
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1 ; $7c3
-  ldy     KERNEL_XOPEN_PTR1+1
+  ldy     KERNEL_XOPEN_PTR1 + 1
 
   rts
 .endproc

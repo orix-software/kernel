@@ -7,7 +7,7 @@
     .out     .sprintf("|MODIFY:RESB:XPUTCWD_ROUTINE")
 
     sta     RES
-    sty     RES+1
+    sty     RES + 1
     ; let's trim
     jsr     _trim
 
@@ -56,7 +56,7 @@
     clc
     adc     RESB
     bcc     @S4
-    inc     RESB+1
+    inc     RESB + 1
 @S4:
     sta     RESB
 
@@ -76,7 +76,7 @@
 
 
 @compute:
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
 
     jsr     kernel_get_struct_process_ptr
 
@@ -90,7 +90,7 @@
     clc
     adc     RESB
     bcc     @S1
-    inc     RESB+1
+    inc     RESB + 1
 @S1:
     sta     RESB
     rts

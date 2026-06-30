@@ -207,14 +207,7 @@ start_rom:
 
   jsr     init_screens
 
-; @me:
-;     jmp     @me
 
- ; lda     #KERNEL_LOAD_QWERTY_CHARSET
- ; jsr     XBANK_ROUTINE
-
-  jsr     XLOADCHARSET_ROUTINE
-  jsr     XALLKB_ROUTINE
 
   ldx     #$00
 
@@ -341,6 +334,17 @@ next5:
   PRINT str_KOROM
 
 telemon_hot_reset:
+
+; @me:
+;     jmp     @me
+
+  ;   @me:
+  ;       jmp    @me
+   lda     #KERNEL_LOAD_QWERTY_CHARSET
+   jsr     XBANK_ROUTINE
+
+  ;jsr     XLOADCHARSET_ROUTINE
+  jsr     XALLKB_ROUTINE
 
 don_t_display_telemon_signature:
   lda     #<str_tofix
@@ -1400,11 +1404,9 @@ telemon_display_clock_chars:
   ; table des vecteurs du brk
 vectors_telemon:
 ;0
-
-
-  .byt     <XOP0_ROUTINE,>XOP0_ROUTINE ; $00
-  .byt     <XBANK_ROUTINE,>XBANK_ROUTINE; $1
-  .byt     $00,$00 ; 2
+  .byt     <XOP0_ROUTINE,>XOP0_ROUTINE         ; $00
+  .byt     <XBANK_ROUTINE,>XBANK_ROUTINE       ; $01
+  .byt     <XREALLOC_ROUTINE,>XREALLOC_ROUTINE ; $02
   .byt     <$00,>$00
 
   .byt     $00,$00   ; 4 Was XCL in telemon
@@ -1959,6 +1961,7 @@ Ld882:
   lda     FLGKBD
   eor     #$20
   bcs     @S12
+
 @S10:
   cmp     #$1B
   bne     @S13
@@ -1968,11 +1971,14 @@ Ld882:
   pla
   lda     #$00
   pha
+
 @S11:
   lda     FLGKBD
   eor     #$80
+
 @S12:
   sta     FLGKBD
+
 @S13:
   pla
   ldx     #$00
@@ -5231,6 +5237,9 @@ ramoverlay_xfree:
 .include  "functions/memory/xfree.asm"
 ramoverlay_xfree_end:
 copy_ramoverlay_end:
+.include  "functions/memory/xrealloc.asm"
+
+
 
 ; end of COPY_OVERLAY8RAM
 
@@ -5280,6 +5289,8 @@ signature:
   .byt     $00
 
 free_bytes: ; 26 bytes
+
+.out     .sprintf("BANK7 number of free bytes               : %x", free_bytes)
 
 .segment "ORIXVECT7"
 

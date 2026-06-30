@@ -52,7 +52,7 @@
   lda     #$00              ;  <----------------------------------------------+-- FIXME 65C02
   ldx     #$A0              ;                                                 I
   sta     RES               ;  RES=$A000 , adresse HIRES                      I
-  stx     RES+1             ;                                                  I
+  stx     RES + 1           ;                                                  I
   ldx     #$C8              ;   X=200 pour 200 lignes                          I
   lda     #$00              ;   A=0 pour colonne de début = colonne 0          I
 @S5:
@@ -68,7 +68,7 @@
   adc     #$28    ;I  (donc une ligne)
   sta     RES     ;I
   bcc     @S6  ; I
-  inc     RES+1    ; I
+  inc     RES + 1    ; I
 @S6:
   pla        ; I  on sort le code
   dex        ; I  on compte X lignes

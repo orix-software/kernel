@@ -6,7 +6,7 @@
     ;;@inputY high position 0 to 15 bits
     ;;@inputMEM_RESB RESB position 0 to 31 (2 bytes)
     ;;@inputMEM_RES fd
-    ;;@modifyMEM_RES5 (2 bytes)
+    ;;@modifyMEM_RES5 (2 bytes) $0A & $0B
     ;;@modifyMEM_TR0
     ;;@modifyMEM_TR4
     ;;@modifyMEM_TR7
@@ -30,7 +30,7 @@
   lda     RES
   sta     KERNEL_XFSEEK_SAVE_RES
   lda     RES + 1
-  sta     KERNEL_XFSEEK_SAVE_RES+1
+  sta     KERNEL_XFSEEK_SAVE_RES + 1
 
   lda     RESB
   sta     RES5
@@ -236,8 +236,8 @@ returns_position:
   dey
   lda     (KERNEL_XOPEN_PTR1),y
   ; FIXME REMOVE ME !!!!!
-
-  ldy     #EOK
+  ldy      #EOK
+ ; lda     #EOK
   rts
 
 

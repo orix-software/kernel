@@ -1,4 +1,5 @@
 .export XFREE_ROUTINE
+.export search_busy_chunk_with_address
 ; DBF1
  ; 6c6 b3ff ac3c
 
@@ -6,23 +7,20 @@
 .import   xdebug_lsmem
 .import   kdebug_restore
 
-.proc XFREE_ROUTINE
- ; $f941 ; 52A
-  ; A & Y
-  ;@brief free memory routine
+.proc search_busy_chunk_with_address
+  ;;@brief This search the busy chunk with the address passed in A and Y, if found, it return the index of the busy chunk in X
+  ;;@inputA Low byte of the address to find
+  ;;@inputY High byte of the address to find
+  ;;@returnsA contains the error = 1 found
+  ;;@returnsX the id of the busy chunk
 
-  .out     .sprintf("|MODIFY:RES:XFREE_ROUTINE")
-  .out     .sprintf("|MODIFY:HRS1:XFREE_ROUTINE")
-  .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
-
-
-
-  sta     KERNEL_XFREE_TMP    ; Save A (low)
-  sty     HRS1
 
   ; **************************************************************************************
   ; Try to find chunk
   ; Search which chunck is used
+
+  sta     KERNEL_XFREE_TMP ; 202
+
   ldx     #$00
 
 @search_busy_chunk:
@@ -38,11 +36,62 @@
   cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @search_busy_chunk
 
-  ; We did not found2 this busy chunk, return 0 in A
+  ; We did not found this busy chunk, return 0 in A
 
   lda     #NULL
+  ldy     #NULL
 
   rts
+
+@busy_chunk_found:
+  lda     #$01 ; found
+  rts
+.endproc
+
+
+.proc XFREE_ROUTINE
+ ; $f941 ; 52A
+  ; A & Y
+  ;@brief free memory routine
+
+  .out     .sprintf("|MODIFY:RES:XFREE_ROUTINE")
+  .out     .sprintf("|MODIFY:HRS1:XFREE_ROUTINE")
+  .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
+
+
+ ; sta     KERNEL_XFREE_TMP    ; Save A (low)
+  sty     HRS1
+
+  ; **************************************************************************************
+  ; Try to find chunk
+  ; Search which chunck is used
+
+  jsr     search_busy_chunk_with_address
+  cmp     #NULL
+  bne     @busy_chunk_found
+  ; A contains NULL : we did not found the busy chunk, we can not free, return error
+  rts
+
+;   ldx     #$00
+
+; @search_busy_chunk:
+;   lda     KERNEL_XFREE_TMP
+;   cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x ; Looking if low is available.
+;   bne     @next_chunk
+;   tya
+;   cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+;   beq     @busy_chunk_found
+
+; @next_chunk:
+;   inx
+;   cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
+;   bne     @search_busy_chunk
+
+;   ; We did not found this busy chunk, return 0 in A
+
+;   lda     #NULL
+
+;   rts
 
 @busy_chunk_found:
   ; X contains the id of the busy chunk

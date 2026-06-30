@@ -176,18 +176,6 @@ hex_table:
     rts
 .endproc
 
-.proc xdebug_enter_XFREE_new_freechunk
-    rts
-    jsr     xdebug_save
-    lda     #<str_enter_free
-    ldy    #>str_enter_free
-    sta    RES
-    sty    RES+1
-    jmp    xdebug_enter
-
-str_enter_free:
-    .byte $0D,"[XFREE] new free chunk",0
-.endproc
 
 .proc xdebug_end
     rts

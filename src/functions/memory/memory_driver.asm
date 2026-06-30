@@ -104,7 +104,7 @@ read_command_from_bank_driver_patch1:
 read_command_from_bank_driver_patch2:
     sta     VEXBNK + 2           ; Will store in read_command_from_bank_driver_to_patch
 
-    lda     #$07              ; Return to telemon
+    lda     #$07                 ; Return to telemon
     jsr     $46A
     jsr     _XFORK
 

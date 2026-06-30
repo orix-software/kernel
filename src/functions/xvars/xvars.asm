@@ -13,28 +13,8 @@
   rts
 .endproc
 
-
-; .export XVALUES_ROUTINE
-
-; .include "telestrat.inc"
-
-; .include   "../../include/kernel.inc"
-; .include   "../../include/process.inc"
-; .include   "../../include/memory.inc"
-; .include   "../../include/files.inc"
-
-; .include   "../../kernel.inc"
-
-; .import XVARS_TABLE_HIGH
-; .import XVARS_TABLE_LOW
-
-; .import XMALLOC_ROUTINE
-; .import kernel_get_struct_process_ptr
-; .import compute_fp_struct
-
-
 .proc XVALUES_ROUTINE
-  cpx     #KERNEL_XVALUES_FREE_MALLOC_TABLE
+  cpx     #KERNEL_XVALUES_FREE_MALLOC_TABLE ; $02
   beq     @malloc_table_copy    ; Used by lsmem
 
   cpx     #KERNEL_XVALUES_BUSY_MALLOC_TABLE
@@ -101,8 +81,8 @@
   sta     RES
   sta     RESB
 
-  sty     RES+1
-  sty     RESB+1
+  sty     RES + 1
+  sty     RESB + 1
 
   jsr     XMALLOC_COPY_TABLE_FREE
 
@@ -118,32 +98,32 @@
   jmp   xvars_get_fd_list
 
 @malloc_table_busy_copy:
-  lda     #<(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
-  ldy     #>(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  lda     #<(.sizeof(kernel_malloc_struct) + .sizeof(kernel_malloc_free_chunk_size_struct)) ;+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  ldy     #>(.sizeof(kernel_malloc_struct) + .sizeof(kernel_malloc_free_chunk_size_struct)) ;+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
   jsr     XMALLOC_ROUTINE
 
   sta     RES
   sta     RESB
 
-  sty     RES+1
-  sty     RESB+1
+  sty     RES + 1
+  sty     RESB + 1
 
   jsr     XMALLOC_COPY_TABLE_BUSY2
 
   lda     RESB
-  ldy     RESB+1
+  ldy     RESB + 1
 
   rts
-
 
 @xvalues_get_osname:
   lda     #<$05
   ldy     #>$05
   jsr     XMALLOC_ROUTINE
   sta     RES
-  sty     RES+1
+  sty     RES + 1
 
   ldy     #$00
+
 @loop_osname:
   lda     osname,y
   beq     @eos_osname
@@ -179,6 +159,7 @@
   bne     @rom
   lda     #32
   sta     RES
+
 @rom:
   lda     $343
   beq     @do_not_compute
@@ -212,7 +193,6 @@
 .endproc
 
 
-
 .proc xvalues_get_free_ram_bank_routine
 
   ; Y contains if the type of bank
@@ -221,26 +201,6 @@
   cpy     #$01 ; Is rom ?
   beq     @not_managed
 
-
-  ; Aller lire 
-  ; lda #<KERNEL_BANK_MANAGEMENT
-  ; sta ADDRESS_READ_BETWEEN_BANK
-  ; lda #>KERNEL_BANK_MANAGEMENT-
-  ; sta ADDRESS_READ_BETWEEN_BANK+1
-  ; ldy #$00
-  ; jsr $4AF
- ; See code_adress_get
-
-
-
-  ; Puis incrémenter
-
-; code_adress_4AF:
-;   lda     VIA2::PRA
-;   and     #%11111000                     ; switch to RAM overlay
-;   ora     BNK_TO_SWITCH                  ; but select a bank in BNK_TO_SWITCH
-;   sta     VIA2::PRA
-;   lda     (ADDRESS_READ_BETWEEN_BANK),y  ; Read byt
 
 
   ldx     #$00
@@ -293,17 +253,17 @@
 .endproc
 
 .proc get_registers_from_id_bank
-    cmp     #$00
-    beq     @bank0
-    tay
-    lda     set,y
-    tax
-    lda     bank,y
-    rts
+  cmp     #$00
+  beq     @bank0
+  tay
+  lda     set,y
+  tax
+  lda     bank,y
+  rts
 @bank0:
-    ; Impossible to have bank 0
-    tax
-    rts
+  ; Impossible to have bank 0
+  tax
+  rts
 
 .include "set_bank_mapping_values.s"
 
@@ -351,7 +311,7 @@
   lda     (KERNEL_XOPEN_PTR1),y   ; RES
   sta     RES
   lda     RESB
-  ldy     RESB+1
+  ldy     RESB + 1
   rts
 .endproc
 
@@ -368,7 +328,7 @@
 
   lda     kernel_process+kernel_process_struct::fp_ptr,x
   sta     RES
-  lda     kernel_process+kernel_process_struct::fp_ptr+1,x
+  lda     kernel_process+kernel_process_struct::fp_ptr + 1,x
   beq     @no_ptr
   sta     RES+1
 
@@ -402,30 +362,30 @@
   ldx     #$00
 
 @loop_copy_free_chunk_begin_low:
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,x
   beq     @free_slot_not_used      ; Begin low is equal to 0 ? Yes, it's empty
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,x
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
-  sta     (RES),y
-  iny
-
-
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
-  sta     (RES),y
-  iny
-
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_high,x
   sta     (RES),y
   iny
 
 
-  lda     kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_end_low,x
+  sta     (RES),y
+  iny
+
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,x
+  sta     (RES),y
+  iny
+
+
+  lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,x
   sta     (RES),y
   iny
 
@@ -455,30 +415,30 @@
 
 @loop_copy_busy_chunk_begin_low:
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
   beq     @busy_slot_not_used      ; Begin low is equal to 0 ? Yes, it's empty
 
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high,x
   sta     (RES),y
   iny
 
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low,x
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
   sta     (RES),y
   iny
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
   sta     (RES),y
   iny
 
@@ -499,14 +459,14 @@
 .proc XVARS_GET_PROCESS_NAME_PTR
   ; Y contains the chunk
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,y
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list,y
   cmp     #$FF    ; is init ?
   beq     @init
 
   tax
 
-  jsr     kernel_get_struct_process_ptr
-  rts
+  jmp     kernel_get_struct_process_ptr
+
 
 @init:
   lda     #$00 ; Return null if it's init
@@ -519,7 +479,7 @@
   clc
   adc     #KERNEL_MALLOC_FREE_CHUNK_MAX
   bcc     @S1
-  inc     RES+1
+  inc     RES + 1
 @S1:
   sta     RES
   rts
@@ -530,7 +490,8 @@
   clc
   adc     #KERNEL_MAX_NUMBER_OF_MALLOC
   bcc     @S1
-  inc     RES+1
+  inc     RES + 1
+
 @S1:
   sta     RES
   rts

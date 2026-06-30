@@ -19,7 +19,7 @@ CH376_DIR_INFO_READ = $37
    ; A&Y ptr of str
    ; Do do : check if it's a DIR
    sta     RES
-   sty     RES+1
+   sty     RES + 1
 
    ; Add /* at the end
    ldy     #$00
@@ -97,8 +97,8 @@ CH376_DIR_INFO_READ = $37
     sta     RES
     sty     RES+1
     ; FD
-    lda     #<(.sizeof(_READDIR_STRUCT)*READDIR_MAX_LINE)
-    ldy     #>(.sizeof(_READDIR_STRUCT)*READDIR_MAX_LINE)
+    lda     #<(.sizeof(_READDIR_STRUCT) * READDIR_MAX_LINE)
+    ldy     #>(.sizeof(_READDIR_STRUCT) * READDIR_MAX_LINE)
     jsr     XMALLOC_ROUTINE
     cmp     #$00
     bne     @continue
@@ -201,7 +201,7 @@ display_catalog:
     pla
 
 @not_space:
-    cmp     #'Z'+1 ;
+    cmp     #'Z' + 1 ;
     bcs     @skip
 
     cmp     #'A'
@@ -291,7 +291,7 @@ display_catalog:
     clc
     adc     #.sizeof(_READDIR_STRUCT)
     bcc     @do_not_inc
-    inc     RESC+1
+    inc     RESC + 1
 @do_not_inc:
     sta     RESC
 

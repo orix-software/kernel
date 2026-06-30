@@ -3,7 +3,7 @@
 
 .export XLOADCHARSET_ROUTINE
 
-.segment "BANK7"
+;.segment "BANK7"
 
 .proc XLOADCHARSET_ROUTINE
 

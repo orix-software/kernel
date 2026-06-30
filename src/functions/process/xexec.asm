@@ -150,7 +150,7 @@ out1:
 
 skip_sta_hrs2:
 
-    lda     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process + kernel_process_struct::kernel_current_process
     cmp     #$01 ; Dans le cas d'exec, il y a 2 kill qui se font FIXME bug
     beq     @no_kill
     jsr     kernel_kill_process

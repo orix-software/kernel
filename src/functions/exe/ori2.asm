@@ -63,9 +63,10 @@
     adc     RESE
     sta     (KERNEL_CREATE_PROCESS_PTR1),y
 
-
     ldy     RESD + 1	; the ptr of the address allocated
     iny
+
+
 
     sty     ORI2_PROGRAM_ADRESS + 1 ; addr $62: $0B
     sty     ORI2_MAP_ADRESS + 1     ; Prepare adresse map but does not compute yet ; $0B

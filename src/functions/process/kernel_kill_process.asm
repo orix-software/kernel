@@ -79,7 +79,7 @@
 
   ; restore zp of the PPID
 
-  ldx     kernel_process+kernel_process_struct::kernel_current_process ; $57D
+  ldx     kernel_process + kernel_process_struct::kernel_current_process ; $57D
   jsr     kernel_get_struct_process_ptr
   sta     RES
   sty     RES+1
@@ -111,7 +111,7 @@
   ldx     #$00
 
 @init_fp:
-  cmp     kernel_process+kernel_process_struct::kernel_fd,x
+  cmp     kernel_process + kernel_process_struct::kernel_fd,x
   bne     @next
 
   txa
@@ -139,7 +139,7 @@
   ldx     #$00
 @L2:
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list,x
   beq     @skip             ; is it 0 ? Yes it's a free chunk
 
   cmp     KERNEL_XKERNEL_CREATE_PROCESS_TMP
@@ -155,8 +155,8 @@
   txa
   pha
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-  ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
   jsr     XFREE_ROUTINE
 

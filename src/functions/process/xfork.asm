@@ -36,10 +36,10 @@
 
   ; At this step we replace the process
   ; Let's free all memory from this process
-  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     kernel_process + kernel_process_struct::kernel_current_process
 
   jsr     kernel_get_struct_process_ptr
-  sty     KERNEL_CREATE_PROCESS_PTR1+1
+  sty     KERNEL_CREATE_PROCESS_PTR1 + 1
   sta     KERNEL_CREATE_PROCESS_PTR1
 
   clc
@@ -57,7 +57,7 @@
   beq     @S8
   sta     (KERNEL_CREATE_PROCESS_PTR1),y
   iny
-  cpy     #(KERNEL_LENGTH_MAX_CMDLINE-1)
+  cpy     #(KERNEL_LENGTH_MAX_CMDLINE - 1)
   bne     @L10
   lda     #$00    ; Store 0
 
@@ -68,7 +68,7 @@
   rts
 
 @perform_fork:
-  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     kernel_process + kernel_process_struct::kernel_current_process
   cpx     #$FF ; is it init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
 
@@ -91,8 +91,7 @@
   lda     TR0
   ldy     TR1
 
-  jsr     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
+  jmp     kernel_create_process ; returns null if we reached max process or KERNEL_ERRNO is filled too
 
-  rts
 
 .endproc
