@@ -18,7 +18,7 @@
 	; here we found no command, let's go trying to find it in /bin
     ; Malloc
     sta     RESG
-    sty     RESG+1
+    sty     RESG + 1
 
     jsr     _XFORK
     cmp     #EOK
@@ -34,8 +34,8 @@
     lda     RESG
     sta     RES
 
-    ldy     RESG+1
-    sty     RES+1
+    ldy     RESG + 1
+    sty     RES + 1
 
     ldy     #$00
     lda     (RESG),y
@@ -52,10 +52,10 @@
 
 @is_relative:
     lda     RESG
-    ldy     RESG+1
+    ldy     RESG + 1
     jsr     compute_path_relative ; Use RESE
     sta     RESE
-    sty     RESE+1
+    sty     RESE + 1
 
     ; Y contains the length of the final path
     jmp     @is_absolute_no_concat_bin
@@ -63,8 +63,8 @@
 @is_absolute:
     lda     RESG
     sta     RESE
-    lda     RESG+1
-    sta     RESE+1
+    lda     RESG + 1
+    sta     RESE + 1
     ; place 0 when we reached a space
 
     ldy     #$00
@@ -91,7 +91,7 @@
 
 @malloc_ok:
     sta     RESC
-    sty     RESC+1
+    sty     RESC + 1
 
 @concat_bin:
 
@@ -143,13 +143,13 @@ open_binary_and_exec:
     lda     RESE
     sta     RESC
 
-    lda     RESE+1
-    sta     RESC+1
+    lda     RESE + 1
+    sta     RESC + 1
 
 @S1:
     ldy     #O_RDONLY
     lda     RESE            ; Path of the binary
-    ldx     RESE+1
+    ldx     RESE + 1
 
     jsr     XOPEN_ROUTINE
 
@@ -161,7 +161,7 @@ open_binary_and_exec:
 
     ; Free string used for the strcat
     lda     RESE
-    ldy     RESE+1
+    ldy     RESE + 1
     jsr     XFREE_ROUTINE
 
 
@@ -170,7 +170,7 @@ open_binary_and_exec:
 
 @not_null:
     sta     RESF       ; save fp
-    stx     RESF+1     ; save fp
+    stx     RESF + 1     ; save fp
 
     ; When the command is an absolute path, the malloc for path had not been done, in that case, we did not call XFREE
     ldy     #$00
@@ -178,7 +178,7 @@ open_binary_and_exec:
     beq     @is_absolute_no_free
 
     lda     RESE
-    ldy     RESE+1
+    ldy     RESE + 1
 
     jsr     XFREE_ROUTINE
 
@@ -244,16 +244,22 @@ open_binary_and_exec:
 
     ; save RESD
     ; Get current process
-    ldx     kernel_process + kernel_process_struct::kernel_current_process
+    jsr     kernel_init_KERNEL_CREATE_PROCESS_PTR1_with_kernel_current_process
 
-    jsr     kernel_get_struct_process_ptr
+    ; ldx     kernel_process + kernel_process_struct::kernel_current_process
 
-    sta     KERNEL_CREATE_PROCESS_PTR1
-    sty     KERNEL_CREATE_PROCESS_PTR1 + 1
+    ; jsr     kernel_get_struct_process_ptr
+
+    ; sta     KERNEL_CREATE_PROCESS_PTR1
+    ; sty     KERNEL_CREATE_PROCESS_PTR1 + 1
+
+
+
+
 
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     RESD
-    sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741
+    sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741 ; Id 3 : 40F8
     iny
     lda     RESD + 1
     sta     (KERNEL_CREATE_PROCESS_PTR1),y
@@ -288,7 +294,7 @@ open_binary_and_exec:
     sty     RESI
     ; CLose fp used to load script
     lda     RESF     ; FP
-    ldy     RESF+1
+    ldy     RESF + 1
     jsr     XCLOSE_ROUTINE
 
     ; At this step RESF can be used
@@ -345,6 +351,8 @@ open_binary_and_exec:
     jmp     @kill_and_exit
 
 @relocate_ORI2:
+
+
     jsr     compute_all_offset_ORI2
 
     jsr     @read_program
@@ -353,30 +361,20 @@ open_binary_and_exec:
 
     ; Now get the execution address
 
-    ldx     kernel_process + kernel_process_struct::kernel_current_process
-    jsr     kernel_get_struct_process_ptr
-    sta     KERNEL_CREATE_PROCESS_PTR1
-    sty     KERNEL_CREATE_PROCESS_PTR1 + 1
-
-    ldy     #kernel_one_process_struct::kernel_process_addr
-    ; $3AB1
-
-    lda     (KERNEL_CREATE_PROCESS_PTR1),y
-    ; Ici c'est transformé en $1F
+    ; Get execution adress computed from reloc
+    lda     HRS2
     sta     RESE
-    iny
-    lda     (KERNEL_CREATE_PROCESS_PTR1),y
-    sta     RESE + 1
+    lda     HRS2 + 1
+    sta     RESE + 1 
 ;
 
     jmp     @run
 
 ; Format 1 : static adress
 @static_file:
-
     ldy     #15             ; Get the loading address
     lda     (RESD),y        ; fixme 65c02
-    sta     PTR_READ_DEST+1 ; 08
+    sta     PTR_READ_DEST + 1 ; 08
 
 @continue_loading:
 
@@ -412,14 +410,19 @@ open_binary_and_exec:
 
 @run:
 
-
-
     jsr     @clean_before_execute
 
     jsr     @execute
 
-    stx     HRS2 + 1
-    pha     ; Save return code $91e
+    stx     HRS2 + 1 ; save return value from program (HRS2+1)
+    pha     ; Save return from program
+
+
+
+    jsr     kernel_init_KERNEL_CREATE_PROCESS_PTR1_with_kernel_current_process
+
+    ; Get malloc
+
 
     ldy     #kernel_one_process_struct::kernel_process_addr
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
@@ -428,20 +431,29 @@ open_binary_and_exec:
     lda     (KERNEL_CREATE_PROCESS_PTR1),y
     sta     RESD + 1
     ; free the length of the binary
-    lda     RESD
-    ldy     RESD + 1
-    jsr     XFREE_ROUTINE
+    ; lda     RESD
+    ; ldy     RESD + 1
+    ; jsr     XFREE_ROUTINE
+    jsr     @free_RESD
+
 
     ldy     #EOK
     pla     ; get return code
     ldx     HRS2 + 1
     rts
 
-@error:
-    ; free the length of the binary
+@free_RESD:
     lda     RESD
     ldy     RESD + 1
     jsr     XFREE_ROUTINE
+    rts
+
+@error:
+    ; free the length of the binary
+    jsr     @free_RESD
+    ; lda     RESD
+    ; ldy     RESD + 1
+    ; jsr     XFREE_ROUTINE
     jsr     process_kill_and_exit
 
     ldy     #ENOEXEC   ; Return format error
@@ -498,10 +510,22 @@ str_root_bin:
 
 .endproc
 
+
+.proc kernel_init_KERNEL_CREATE_PROCESS_PTR1_with_kernel_current_process
+
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
+
+    jsr     kernel_get_struct_process_ptr
+    sta     KERNEL_CREATE_PROCESS_PTR1
+    sty     KERNEL_CREATE_PROCESS_PTR1 + 1
+    rts
+.endproc
+
+
 .proc kernel_exec_from_storage_malloc_path_store_RESE
 
-    lda     #<(.strlen("/bin/")+8+1+39) ; 8 for the length of the command, 1 for \0 39 for extra args
-    ldy     #>(.strlen("/bin/")+8+1+39)
+    lda     #<(.strlen("/bin/") + 8 + 1 + 39) ; 8 for the length of the command, 1 for \0 39 for extra args
+    ldy     #>(.strlen("/bin/") + 8 + 1 + 39)
 
     jsr     XMALLOC_ROUTINE
     cmp     #NULL
@@ -597,7 +621,7 @@ str_root_bin:
     ; Nous allons donc changer la ligne de commande pour écrire submit + le processname
 
     ; On calcule le ptr de la structure du process
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
 
     jsr     kernel_get_struct_process_ptr
 
@@ -625,10 +649,10 @@ str_root_bin:
     lda     KERNEL_CREATE_PROCESS_PTR1
     sta     RESCONCAT
     lda     KERNEL_CREATE_PROCESS_PTR1 + 1
-    sta     RESCONCAT+1
+    sta     RESCONCAT + 1
 
     lda     RESE
-    ldy     RESE+1
+    ldy     RESE + 1
     jsr     kernel_concat_from_RESB_to_RESCONCAT
 
 ;     ; Puis on ajouter un espace pour avoir "/bin/submit|_|""
@@ -661,12 +685,13 @@ str_root_bin:
     adc     RESCONCAT
     bcc     @S10000
     inc     RESCONCAT + 1
+
 @S10000:
     sta     RESCONCAT
 
 
     lda     RESG
-    ldy     RESG+1
+    ldy     RESG + 1
     jsr     kernel_concat_from_RESB_to_RESCONCAT
 
 ; ; For debug
@@ -705,7 +730,7 @@ str_bin:
 
 .proc process_kill_and_exit
 
-    lda     kernel_process+kernel_process_struct::kernel_current_process
+    lda     kernel_process + kernel_process_struct::kernel_current_process
     jsr     kernel_kill_process
 
     lda     KERNEL_ERRNO

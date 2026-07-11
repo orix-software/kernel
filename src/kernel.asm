@@ -1,6 +1,6 @@
 .FEATURE labels_without_colons, pc_assignment, loose_char_term, org_per_seg
 
-.define VERSION "2025.X"
+.define VERSION "2026.X"
 
 .include   "telestrat.inc"          ; from cc65
 .include   "fcntl.inc"              ; from cc65
@@ -5307,12 +5307,12 @@ END_ROM:
 ; fffa
 .segment "CPUVECT7"
 NMI:
-  .byt     <start_rom,>start_rom
+  .byt     <start_rom, >start_rom
 ; fffc
 RESET:
-  .byt     <start_rom,>start_rom
+  .byt     <start_rom, >start_rom
 ; fffe
 BRK_IRQ:
-  .byt     <IRQVECTOR,>IRQVECTOR
+  .byt     <IRQVECTOR, >IRQVECTOR
 ; Displays map
 ;.include "memmap.asm"

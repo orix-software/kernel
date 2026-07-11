@@ -70,19 +70,21 @@
 @looking_for_free_chunk_available:
 
     lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_high,y ; Check if begin high is busy, if it's zero, this slot is not used
-    beq     @is_greater ; Not used we check nest free chunk
+    beq     @is_greater ; os isedwe check next free chunk
 
     lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y ;
-    cmp     TR6 ; High
+    cmp     TR6 ; check high byte of the size to allocate
     bcc     @is_greater ; if freater than size (high byte), we can not use this chunk
     ; Check low now
     lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low,y ;
     cmp     TR7 ; Low
     bcc     @is_greater ; if greater or equal than size (low byte),
     ; we can use this chunk, here we go, change it to busy chunk
+    lda     TR7 ; get low byte of size (store the size)
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low,x
 
-    lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+    ;lda     kernel_malloc_free_chunk_size + kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high,y
+    lda     TR6
     sta     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high,x
 
     lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_free_chunk_begin_low,y

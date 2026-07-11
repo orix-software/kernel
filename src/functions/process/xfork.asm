@@ -36,6 +36,10 @@
 
   ; At this step we replace the process
   ; Let's free all memory from this process
+
+
+
+
   ldx     kernel_process + kernel_process_struct::kernel_current_process
 
   jsr     kernel_get_struct_process_ptr
@@ -45,7 +49,7 @@
   clc
   adc     #kernel_one_process_struct::cmdline
   bcc     @S7
-  inc     KERNEL_CREATE_PROCESS_PTR1+1
+  inc     KERNEL_CREATE_PROCESS_PTR1 + 1
 
 @S7:
   sta     KERNEL_CREATE_PROCESS_PTR1
@@ -68,13 +72,16 @@
   rts
 
 @perform_fork:
+
+
+
   ldx     kernel_process + kernel_process_struct::kernel_current_process
   cpx     #$FF ; is it init ?
   beq     @skip_save_zp  ; For instance, we don't save init zp because all are reserved
 
   jsr     kernel_get_struct_process_ptr
   sta     RES
-  sty     RES+1
+  sty     RES + 1
 
   ldx     #$00
   ldy     #kernel_one_process_struct::zp_save_userzp

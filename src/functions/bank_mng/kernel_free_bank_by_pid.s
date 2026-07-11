@@ -37,7 +37,7 @@
 	ldy     #>KERNEL_BANK_MANAGEMENT
 
     sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
-    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON + 1
 
 @check_next_bank:
     ldy     TR1

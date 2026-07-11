@@ -15,8 +15,8 @@
   adc     HRS1     ;   et les coordonnées (X+dX,Y+dY)
   sta     DECCIB
   lda     HRSY
-  sta     DECFIN+1
+  sta     DECFIN + 1
   adc     HRS2
-  sta     DECCIB+1 ;   dans DECCIB-09
+  sta     DECCIB + 1 ;   dans DECCIB-09
   bcc     LE83A    ;   inconditionnel
 .endproc

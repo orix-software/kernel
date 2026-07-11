@@ -4,7 +4,7 @@
   lda     #<$A000
   ldy     #>$A000
   sta     RES
-  sty     RES+1
+  sty     RES + 1
   ldy     #<$BF68
   ldx     #>$BF68
   lda     #$40

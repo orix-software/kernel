@@ -3,7 +3,7 @@
 
 ; At the beginning of this routine, we already swapped into the a bank to check
 ; Bank and twilighte_banking_register are managed in the kernel and call this routines located in the main ram
-kernel_memory_driver_to_copy
+kernel_memory_driver_to_copy:
     sei
     lda     VIA2::PRA
     and     KERNEL_TMP_XEXEC               ; But select a bank in BNK_TO_SWITCH
@@ -23,7 +23,7 @@ test_debug:
     lda     $FFF6  ; List command
     cmp     #$C0
     bcc     exit_to_kernel_ENOENT
-    sta     RESB+1
+    sta     RESB + 1
 ; d15E
     ldx     #$00
 

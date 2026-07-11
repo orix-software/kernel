@@ -180,7 +180,7 @@ CH376_DIR_INFO_READ = $37
     sta     (RESC),y
 
     lda     RESB
-    ldx     RESB+1
+    ldx     RESB + 1
     rts
 
 display_catalog:
@@ -234,7 +234,7 @@ display_catalog:
     cpy     #.sizeof(_READDIR_STRUCT)
     bne     @loop3
 
-    ldy     #11+1
+    ldy     #11 + 1
     lda     (RESC),y
     cmp     #$10
     beq     @skip_point

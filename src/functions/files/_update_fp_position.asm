@@ -49,11 +49,11 @@
   sta     (KERNEL_XOPEN_PTR1),y  ; update byte 2 of the file position
   bcc     @no_inc_byte3
 
-  ldy     #(_KERNEL_FILE::f_seek_file+2)
+  ldy     #(_KERNEL_FILE::f_seek_file + 2)
   jsr     inc_byte_superior ; Byte 3
   bcc     @no_inc_byte3
 
-  ldy     #(_KERNEL_FILE::f_seek_file+3)
+  ldy     #(_KERNEL_FILE::f_seek_file + 3)
   jsr     inc_byte_superior ; byte 4
 
 @no_inc_byte3:

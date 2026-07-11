@@ -18,6 +18,9 @@
 .define KERNEL_FREE_BANK_BY_PID          $03
 .define KERNEL_STUB_1_BANK               $04 ; Offset used for start network
 
+
+
+; For malloc : $27F to $2A4 = 25 bytes
 .struct kernel_malloc_struct
   kernel_malloc_free_chunk_begin_low        .res KERNEL_MALLOC_FREE_CHUNK_MAX
   kernel_malloc_free_chunk_begin_high       .res KERNEL_MALLOC_FREE_CHUNK_MAX
@@ -46,12 +49,9 @@
   kernel_malloc_free_chunk_size_low         .res KERNEL_MALLOC_FREE_CHUNK_MAX
 .endstruct
 
-; .if     .sizeof(kernel_malloc_free_chunk_size_struct) > 8
-;   .error  "kernel_malloc_free_chunk_size_struct can not be greater than 8 or else it overlap kernel_xmalloc_call."
-; .endif
-
+; Not used for instance
 .struct kernel_malloc_busy_chunk_size_struct
-  ;kernel_malloc_busy_chunk_size_high        .res KERNEL_MAX_NUMBER_OF_MALLOC
+  kernel_malloc_busy_chunk_size_high        .res KERNEL_MAX_NUMBER_OF_MALLOC
   kernel_malloc_busy_chunk_size_low         .res KERNEL_MAX_NUMBER_OF_MALLOC
 .endstruct
 
@@ -79,7 +79,7 @@
 
 .struct XMAINARGS_STRUCT
     argv_ptr          .res     KERNEL_MAX_ARGS_COMMAND_LINE
-    argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE+KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
+    argv_value_ptr    .res     KERNEL_LENGTH_MAX_CMDLINE + KERNEL_MAX_ARGS_COMMAND_LINE ; add 0 to string
 .endstruct
 
 .ifdef DISPLAY_INFO

@@ -74,8 +74,8 @@
   jmp     xvalues_get_free_ram_bank_routine
 
 @malloc_table_copy:
-  lda     #<(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
-  ldy     #>(.sizeof(kernel_malloc_struct)+.sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  lda     #<(.sizeof(kernel_malloc_struct) + .sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
+  ldy     #>(.sizeof(kernel_malloc_struct) + .sizeof(kernel_malloc_free_chunk_size_struct));+.sizeof(kernel_malloc_busy_begin_struct)+.sizeof(kernel_malloc_free_chunk_size_struct))
   jsr     XMALLOC_ROUTINE
 
   sta     RES
@@ -286,8 +286,8 @@
 .endproc
 
 .proc  xvalues_get_process_id_list
-  lda     #<kernel_process+kernel_process_struct::kernel_pid_list
-  ldy     #>kernel_process+kernel_process_struct::kernel_pid_list
+  lda     #<kernel_process + kernel_process_struct::kernel_pid_list
+  ldy     #>kernel_process + kernel_process_struct::kernel_pid_list
   rts
 .endproc
 
@@ -326,9 +326,9 @@
   asl
   tax
 
-  lda     kernel_process+kernel_process_struct::fp_ptr,x
+  lda     kernel_process + kernel_process_struct::fp_ptr,x
   sta     RES
-  lda     kernel_process+kernel_process_struct::fp_ptr + 1,x
+  lda     kernel_process + kernel_process_struct::fp_ptr + 1,x
   beq     @no_ptr
   sta     RES+1
 
@@ -520,8 +520,8 @@ XVARS_TABLE_LOW:
   .byt     $00 ; Table low malloc 7
   .byt     KERNEL_MAX_PROCESS   ; 8 Used in pstree
   .byt     <osname              ; 9
-  .byt     <kernel_process+kernel_process_struct::kernel_pid_list ; $0A
-  .byt     <kernel_process+kernel_process_struct::kernel_pid_list ; $0A
+  .byt     <kernel_process + kernel_process_struct::kernel_pid_list ; $0A
+  .byt     <kernel_process + kernel_process_struct::kernel_pid_list ; $0A
 
 XVARS_TABLE_HIGH:
   .byt     >kernel_process ; 0
@@ -534,5 +534,5 @@ XVARS_TABLE_HIGH:
   .byt     $00 ; ; Table high
   .byt     KERNEL_MAX_FP       ; 8  KERNEL_MAX _PROCESS for low, MAX FP for high
   .byt     >osname             ; 9
-  .byt     >kernel_process+kernel_process_struct::kernel_pid_list ; $0A
+  .byt     >kernel_process + kernel_process_struct::kernel_pid_list ; $0A
 

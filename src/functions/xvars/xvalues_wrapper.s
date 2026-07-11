@@ -9,9 +9,9 @@
     sta     KERNEL_BACKUP_SET
 
     lda     #<$c006
-    sta     VEXBNK+1
+    sta     VEXBNK + 1
     lda     #>$c006
-    sta     VEXBNK+2
+    sta     VEXBNK + 2
     lda     #$01
     sta     BNKCIB
 

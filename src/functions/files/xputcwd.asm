@@ -82,7 +82,7 @@
 
     ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
     sta     RESB
-    sty     RESB+1
+    sty     RESB + 1
     ;lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
     ;sta     RESB+1
 

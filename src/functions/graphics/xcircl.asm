@@ -59,7 +59,7 @@
   lda      HRSY                    ;  et HRSY
   pha
   lda      HRSPAT                  ;  et on met le pattern dans $56
-  sta      HRS5+1                  ;  car le tracé du cercle en tient compte
+  sta      HRS5 + 1                  ;  car le tracé du cercle en tient compte
   lda      HRSY                    ;  on prend HRSY
   sec
   sbc      HRS1                    ;  -rayon

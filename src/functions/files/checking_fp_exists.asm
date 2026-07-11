@@ -96,7 +96,7 @@
     lda     KERNEL_XFSEEK_SAVE_RESB
     sta     RES
 
-    lda     KERNEL_XFSEEK_SAVE_RESB+1
+    lda     KERNEL_XFSEEK_SAVE_RESB + 1
     sta     RES+1
 
     jmp     @do_not_seek

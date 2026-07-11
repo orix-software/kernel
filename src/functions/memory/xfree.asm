@@ -8,23 +8,18 @@
 .import   kdebug_restore
 
 .proc search_busy_chunk_with_address
-  ;;@brief This search the busy chunk with the address passed in A and Y, if found, it return the index of the busy chunk in X
+  ;;@brief Try to find the busy chunk with the address passed in A and Y, if it found, it returns the index of the busy chunk in X
   ;;@inputA Low byte of the address to find
   ;;@inputY High byte of the address to find
   ;;@returnsA contains the error = 1 found
   ;;@returnsX the id of the busy chunk
 
-
-  ; **************************************************************************************
-  ; Try to find chunk
-  ; Search which chunck is used
-
-  sta     KERNEL_XFREE_TMP ; 202
+  sta     RES
 
   ldx     #$00
 
 @search_busy_chunk:
-  lda     KERNEL_XFREE_TMP
+  lda     RES
   cmp     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x ; Looking if low is available.
   bne     @next_chunk
   tya
@@ -37,10 +32,8 @@
   bne     @search_busy_chunk
 
   ; We did not found this busy chunk, return 0 in A
-
   lda     #NULL
-  ldy     #NULL
-
+  tay ; Let Y with NULL, because XREALLOC will returns the value directly
   rts
 
 @busy_chunk_found:
@@ -59,17 +52,21 @@
   .out     .sprintf("|MODIFY:KERNEL_XFREE_TMP:XFREE_ROUTINE")
 
 
+
  ; sta     KERNEL_XFREE_TMP    ; Save A (low)
-  sty     HRS1
+ ; sty     HRS1
 
   ; **************************************************************************************
   ; Try to find chunk
   ; Search which chunck is used
 
   jsr     search_busy_chunk_with_address
+
   cmp     #NULL
   bne     @busy_chunk_found
   ; A contains NULL : we did not found the busy chunk, we can not free, return error
+  ; Not found
+
   rts
 
 ;   ldx     #$00
@@ -155,8 +152,6 @@ out:
   ; trying to merge with main chunk
 
 @exit:
-
-
   lda     #$01
   rts
 .endproc

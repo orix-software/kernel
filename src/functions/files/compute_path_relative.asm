@@ -88,7 +88,7 @@
     jsr     get_xgetcwd_and_store_to_RESC
 
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
     jsr     kernel_get_struct_process_ptr
     sta     RESD
     sty     RESD + 1

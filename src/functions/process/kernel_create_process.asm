@@ -31,7 +31,7 @@
 ; Try to find the next PID available
 
 ; Get first pid
-  ldx     #$00   ; Because the first is init (
+  ldx     #$00   ; Because the first is init 
 
 @L3:
   lda     kernel_process + kernel_process_struct::kernel_pid_list,x
@@ -51,9 +51,10 @@
 
 
 @found:
-  ; At this step KERNEL_XKERNEL_CREATE_PROCESS_TMP contains the current PID
+  ; At this step KERNEL_XKERNEL_CREATE_PROCESS_TMP contains the current PID (the PID which will be allocated)
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
+  ; Store pid list FIXME : Should be a value to store instead of only 1
   lda     #$01
   sta     kernel_process + kernel_process_struct::kernel_pid_list,x
 
@@ -79,12 +80,13 @@
 
 @S2:
   ; now register ptr adress of process
-  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
+
+  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; 40F8 for pid 3
   sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
-  tya
+  tya     ; Get High byte from malloc
   sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  sty     RES+1
+  sty     RES + 1
 
   ; prepare to copy 'process' string
 
@@ -108,7 +110,7 @@
   sta     (RES),y
 
   iny
-  cpy     #(KERNEL_MAX_LENGTH_COMMAND+1)
+  cpy     #(KERNEL_MAX_LENGTH_COMMAND + 1)
   bne     @L2
 @S1:
   lda     #$00
@@ -119,7 +121,7 @@
 ; ***********************************************************************************************************************
 
 save_command_line:
-  lda     RES+1
+  lda     RES + 1
   sta     TR5
 
   lda     RES
@@ -141,7 +143,7 @@ save_command_line:
   beq     @S8
   sta     (TR4),y
   iny
-  cpy     #(KERNEL_LENGTH_MAX_CMDLINE-1)
+  cpy     #(KERNEL_LENGTH_MAX_CMDLINE - 1)
   bne     @L10
   ldy     #EINVAL
   rts
@@ -156,7 +158,7 @@ save_command_line:
 @L5:
   sta     (RES),y
   iny
-  cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS * 2 )
+  cpy     #(kernel_one_process_struct::fp_ptr + KERNEL_MAX_FP_PER_PROCESS * 2 )
   bne     @L5
 
   ; Set to "/" cwd of init process

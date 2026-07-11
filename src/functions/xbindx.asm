@@ -13,6 +13,7 @@
 	lda     #$00 ; 65c02
 	sta     TR3
 	sta     TR4
+
 @L5:
 	lda     #$FF
 	sta     TR0

@@ -74,7 +74,7 @@ next_bank:
     lda     TR0
     ldy     TR1
     sta     RES
-    sty     RES+1
+    sty     RES + 1
 
     jsr     KERNEL_DRIVER_MEMORY
 
@@ -146,7 +146,7 @@ out1:
     ; At this step, the binary passed in XEXEC had been executed
 
     sta     HRS2   ; Save in HRS2 the value of A (return value of the previous process)
-    stx     HRS2+1
+    stx     HRS2 + 1
 
 skip_sta_hrs2:
 
@@ -170,7 +170,7 @@ exit:
     sta     $343
 
     lda     HRS2        ; Return code
-    ldx     HRS2+1
+    ldx     HRS2 + 1
 
     rts
 .endproc

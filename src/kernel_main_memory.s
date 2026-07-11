@@ -2,10 +2,10 @@
 .include "include/kernel.inc"
 .include "include/process.inc"
 .include "include/memory.inc"
-.include   "include/network.inc"
-.include   "include/files.inc"
-.include   "include/ori2.inc"
-.include   "versions/versions.inc"
+.include "include/network.inc"
+.include "include/files.inc"
+.include "include/ori2.inc"
+.include "versions/versions.inc"
 
 
 .export  KERNEL_ERRNO
@@ -136,7 +136,7 @@ KERNEL_ADIOB_END:
 .res 1 ;Was before FIXME_DUNNO, it could remove when READ_BYTE_FROM_OVERLAY_RAM will be aligned correctly with kernel load
 
 READ_BYTE_FROM_OVERLAY_RAM:
-; this contains a routine length : 20 bytew
+; this contains a routine length : 20 bytes
 .res 20
 .org $4FF
 FIXME_DUNNO:
@@ -162,9 +162,10 @@ BUFNOM_END:
 
 kernel_malloc:
     .tag    kernel_malloc_struct
-    .out     .sprintf("kernel_malloc_struct : 0x%x", kernel_malloc)
-
 kernel_malloc_end:
+
+    .out     .sprintf("kernel_malloc_struct : 0x%x size : 0x%x", kernel_malloc, kernel_malloc_end)
+
 kernel_process:
     .tag    kernel_process_struct
 
@@ -225,18 +226,19 @@ kernel_end_of_variables_after_BUFEDT:
 
 
 
-.out .sprintf("int MALLOC_BUSY_SIZE_LOW = 0x%x;",  kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low)
-.out .sprintf("int MALLOC_BUSY_SIZE_HIGH = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high)
-.out .sprintf("int MALLOC_BUSY_BEGIN_HIGH = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high)
-.out .sprintf("int MALLOC_BUSY_END_HIGH = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high)
-.out .sprintf("int MALLOC_BUSY_BEGIN_LOW = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low)
-.out .sprintf("int MALLOC_BUSY_END_LOW = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low)
-.out .sprintf("int KERNEL_MAX_NUMBER_OF_MALLOC = 0x%x;", KERNEL_MAX_NUMBER_OF_MALLOC)
+.out    .sprintf("int kernel_malloc_busy_pid_list = 0x%x;",  kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list)
+.out    .sprintf("int MALLOC_BUSY_SIZE_LOW = 0x%x;",  kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_low)
+.out    .sprintf("int MALLOC_BUSY_SIZE_HIGH = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_size_high)
+.out    .sprintf("int MALLOC_BUSY_BEGIN_HIGH = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high)
+.out    .sprintf("int MALLOC_BUSY_END_HIGH = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_high)
+.out    .sprintf("int MALLOC_BUSY_BEGIN_LOW = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low)
+.out    .sprintf("int MALLOC_BUSY_END_LOW = 0x%x;", kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_end_low)
+.out    .sprintf("int KERNEL_MAX_NUMBER_OF_MALLOC = 0x%x;", KERNEL_MAX_NUMBER_OF_MALLOC)
 
 
 
-.out .sprintf("int MALLOC_FREE_SIZE_HIGH =0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high)
-.out .sprintf("int MALLOC_FREE_SIZE_LOW =0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low)
+.out .sprintf("int MALLOC_FREE_SIZE_HIGH=0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_high)
+.out .sprintf("int MALLOC_FREE_SIZE_LOW=0x%x;",kernel_malloc_free_chunk_size+kernel_malloc_free_chunk_size_struct::kernel_malloc_free_chunk_size_low)
 
 .out .sprintf("int MALLOC_FREE_BEGIN_HIGH=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_high)
 .out .sprintf("int MALLOC_FREE_BEGIN_LOW=0x%x;",kernel_malloc+kernel_malloc_struct::kernel_malloc_free_chunk_begin_low)

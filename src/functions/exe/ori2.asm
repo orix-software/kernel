@@ -19,23 +19,17 @@
     .out     .sprintf("|MODIFY:PTR_READ_DEST:compute_all_offset_ORI2")
 
 
-    ; RESD contains header
+    ; RESD contains header and is the ptr to malloc for the size of the file loaded from storage
 
     ; Set the adress in the kernel struct
-    ldx     kernel_process + kernel_process_struct::kernel_current_process
-    lda     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_low,x
-    sta     KERNEL_CREATE_PROCESS_PTR1
-    lda     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_high,x
-    sta     KERNEL_CREATE_PROCESS_PTR1 + 1
-
+    ; FIXME, this block coule be removed because it's already set when we load program into memiory
 
 
     ; Get execution address low
     ldy     #18
     clc
     lda     (RESD),y        ; Get execution address low
-    ldy     #kernel_one_process_struct::kernel_process_addr
-    sta     (KERNEL_CREATE_PROCESS_PTR1),y ; $741
+    sta     HRS2
 
     ; Gère le cas de l'adresse d'éxecution <> loading adress
     ; Dans ce cas on prend l'execution adress, et on soustrait
@@ -53,21 +47,17 @@
     sbc     RESE
     sta     RESE
 
+    ; Get the ptr of the program 
 
-    ldy     #kernel_one_process_struct::kernel_process_addr + 1
-
-    ldx     RESD + 1
-    inx
-    txa
+    lda     RESD + 1
     clc
+    adc     #$01
     adc     RESE
-    sta     (KERNEL_CREATE_PROCESS_PTR1),y
+    sta     HRS2 + 1
+
 
     ldy     RESD + 1	; the ptr of the address allocated
     iny
-
-
-
     sty     ORI2_PROGRAM_ADRESS + 1 ; addr $62: $0B
     sty     ORI2_MAP_ADRESS + 1     ; Prepare adresse map but does not compute yet ; $0B
     sty     RESE + 1                ; Set address execution   ; 0B
@@ -128,6 +118,7 @@
     clc
     adc     ORI2_MAP_ADRESS + 1
     sta     ORI2_MAP_ADRESS + 1
+
 
 
 	rts
