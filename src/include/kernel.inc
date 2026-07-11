@@ -1,10 +1,10 @@
 .define XVARS_KERNEL_PROCESS              0
 .define XVARS_KERNEL_MALLOC               1
-.define XVARS_KERNEL_CH376_MOUNT          2
-.define XVARS_KERNEL_CONF                 3
-.define XVARS_KERNEL_ERRNO                4
-.define XVARS_KERNEL_BINARY_VERSION       6 ; used in untar version
-.define XVARS_KERNEL_MAX_PROCESS          8
+.define XVARS_KERNEL_CH376_MOUNT                         2
+.define XVARS_KERNEL_CONF                                3
+.define XVARS_KERNEL_ERRNO                               4
+.define XVARS_KERNEL_BINARY_VERSION                      6 ; used in untar version
+.define XVARS_KERNEL_MAX_PROCESS                         8
 .define KERNEL_XVARS_MAX_NUMBER_OF_MALLOC_AND_FREE_CHUNK $05
 .define KERNEL_XVARS_CURRENT_VERSION_BINARY              $06
 .define KERNEL_XVARS_KERNEL_MAX_PROCESS                  $08
@@ -38,8 +38,6 @@
 
 .define KERNEL_MAX_PATH_LENGTH                    9*PATH_CURRENT_MAX_LEVEL+MAX_LENGTH_OF_FILES ;
 
-.out     .sprintf("KERNEL_MAX_PATH_LENGTH                                   : %s bytes ", .string(KERNEL_MAX_PATH_LENGTH))
-
 .define KERNEL_MAX_LENGTH_BUFEDT    ORIX_MAX_PATH_LENGTH+9
 
 ; command line
@@ -53,23 +51,117 @@
 ;.define KERNEL_PATH_CURRENT_MAX_LEVEL  PATH_CURRENT_MAX_LEVEL
 
 ; 4 systems Buffers 6 for user (telemon historical)
-.define KERNEL_NUMBER_BUFFER 4+6
-
-TELEMON_KEYBOARD_BUFFER_BEGIN    = $C5C4
-TELEMON_KEYBOARD_BUFFER_END      = $C680
-TELEMON_ACIA_BUFFER_INPUT_BEGIN  = $C680
-TELEMON_ACIA_BUFFER_INPUT_END    = $C800
-
-TELEMON_ACIA_BUFFER_OUTPUT_BEGIN = $C800
-TELEMON_ACIA_BUFFER_OUTPUT_END   = $CA00
-TELEMON_PRINTER_BUFFER_BEGIN     = $CA00
-TELEMON_PRINTER_BUFFER_END       = $D200
-
-;HISTORY_BUFFER_BEGIN             =  TELEMON_PRINTER_BUFFER_END+1
-;HISTORY_BUFFER_END               =  TELEMON_PRINTER_BUFFER_END+200
-
-KERNEL_CONF_BEGIN                :=  $D201
-KERNEL_CONF_END                  :=  $D210
+.define KERNEL_NUMBER_BUFFER 4 + 6
 
 KERNEL_FORK_PROCESS              = 0
 KERNEL_NOFORK_PROCESS            = 1 ; Performs an EXEC like unix/linux, it destroy memory from current process
+
+ADDRESS_READ_BETWEEN_BANK_DOUBLON      := $32
+BNKCIB_DOUBLON                         := $34
+RETURN_BANK_READ_BYTE_FROM_OVERLAY_RAM := $78
+
+BASH_MAX_ARGS                           = 3       ;  Number of possible args in the command line
+BASH_MAX_BUFEDT_LENGTH                  = 110
+userzp                                 := VARLNG
+NEXT_STACK_BANK                        := $0418
+MOUSE_JOYSTICK_MANAGEMENT              := $291 ; 12 bytes ?
+i_o_counter                            := $1A ; 1 byte
+i_o_save                               := $1B ; 3 bytes ?
+TRANSITION_RS232                       := $1E;  3 bytes
+FILESYS_BANK                           := $20C
+KEYBOARD_COUNTER                       := $02A6 ; 4 bytes
+VIA_UNKNOWN                            := $028F ; seems tobe a backup of timer  2 bytes
+ORIX_MEMORY_DRIVER_ADDRESS             := $400
+SWITCH_TO_BANK_ID                      := $040C
+;NEXT_STACK_BANK:=$418
+FIXME_PAGE0_0                          := $25
+ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY:= $411 ; .dsb 3
+
+KERNEL_XOPEN_PTR1                      := $04 ; DECBIN
+
+work_channel                           := $19     ; 1 byte
+KBD_UNKNOWN                            := $271  ;FIXME
+
+FUFTRV                                 = $0100; working Buffer
+
+NULL = 0
+;BUFROU                                 := $C500 ; Routines for buffers gestion
+
+SIZE_OF_STACK_BANK = 3
+
+BNKOLD:=$40F
+
+ADDRESS_READ_BETWEEN_BANK := $15
+ADDRESS_VECTOR_FOR_ADIOB  := $17
+BNK_TO_SWITCH             := $410
+
+
+RES5                       := $0A
+
+;RESC                       := DECDEB  ; $04
+;RESD                       := DECFIN  ; $06
+;RESE                       := DECCIB  ;
+;RESF                       := DECTRV  ;
+;RESG                       := ACCPS   ;
+;RESH                       := ACC1E
+
+;KERNEL_XOPEN_PTR1          := $04 ; DECBIN
+KERNEL_XOPEN_PTR2          := $06 ; DECFIN
+
+KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_Y := $51 ; DECBIN
+KERNEL_XWRITE_XCLOSE_XFSEEK_XFREAD_SAVE_X := $52 ; DECBIN
+
+KERNEL_XFSEEK_SAVE_RES  := $06; DECBIN
+KERNEL_XFSEEK_SAVE_RESB := $4D ; DECBIN
+;KERNEL_XOPEN_PTR2          := $06 ; DECFIN
+
+
+KERNEL_CREATE_PROCESS_PTR1 := ACC1E ; $60 & $61
+XOPEN_RES                := $4D ; Also HRS1 2 bytes
+XOPEN_RESB               := $4F ; Also HRS2 2 bytes
+XOPEN_RES_SAVE           := $51 ; Also HRS3 2 bytes
+XOPEN_RESB_SAVE          := $53 ; Also HRS4 2 bytes
+XOPEN_SAVEY              := $55 ; Also HRS4 2 bytes
+XOPEN_SAVEA              := $56 ; Also HRS4 2 bytes
+XOPEN_FLAGS              := $57 ; also HRSFB 1 byte
+TELEMON_UNKNWON_LABEL_62 := $62
+TELEMON_UNKNWON_LABEL_70 := $70
+TELEMON_UNKNWON_LABEL_71 := $71
+TELEMON_UNKNWON_LABEL_72 := $72
+TELEMON_UNKNWON_LABEL_7F := $7F
+TELEMON_UNKNWON_LABEL_86 := $86
+FLPOLP                   := $85
+FLPO0                    := $87
+
+.macro addsym symbole
+  .out .sprintf("%s = $%x", .string(symbole), symbole)
+.endmacro
+
+
+.ifdef DISPLAY_INFO
+        .out     .sprintf("KERNEL_MAX_PATH_LENGTH                                   : %s bytes ", .string(KERNEL_MAX_PATH_LENGTH))
+.endif
+
+
+.define KERNEL_SIZE_IOTAB $04
+
+XMALLOC_ROUTINE_TO_RAM_OVERLAY = 39
+ADIODB_LENGTH = $08
+
+
+.macro  STZ_ABS    arg             ; Define macro ldax
+  lda     #$00
+  sta     arg
+.endmacro
+
+.macro  STZ_ABS_X    arg           ; Define macro ldax
+  lda     #$00
+  sta     arg,x
+.endmacro
+
+.macro  INCA
+  clc
+  adc     #$01
+.endmacro
+
+

@@ -1,5 +1,7 @@
 # Memmap
+
 ## Page 0
+
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
 |RAM|RES                            | $00-$01     |  2   |
@@ -39,9 +41,9 @@
 |RAM|SCRNB                          | $28-$29     |  2   |
 |RAM|ADKBD                          | $2A-$2B     |  2   |
 |RAM|PTR_READ_DEST                  | $2C-$2D     |  2   |
-|RAM|<span style="color:green">FREE</span>                           | $2E-$31     |      |
-|RAM|ptr1                           | $32-$33     |  2   |
-|RAM|tmp1                           | $34-$34     |  1   |
+|RAM|<span style="color:green">FREE</span>                           | $2E-$14     |      |
+|RAM|ADDRESS_READ_BETWEEN_BANK      | $15-$16     |  2   |
+|RAM|BNKCIB_DOUBLON                 | $34-$34     |  1   |
 |RAM|<span style="color:green">FREE</span>                           | $35-$3F     |      |
 |RAM|ADCLK                          | $40-$41     |  2   |
 |RAM|TIMEUS                         | $42-$43     |  2   |
@@ -75,7 +77,8 @@
 |RAM|KERNEL_MALLOC_TYPE           | $0206-$0206 |  1   |
 |RAM|KERNEL_SAVE_XEXEC_CURRENT_SET| $0207-$0207 |  1   |
 |RAM|KERNEL_SAVE_XEXEC_CURRENT_ROM_RAM| $0208-$0209 |  1   |
-|RAM|<span style="color:green">FREE</span>                           | $0209-$020F |  6   |
+|RAM|<span style="color:green">FREE</span>                           | $020A-$020C |  3   |
+|RAM|FLGTEL                          | $020D-$020D |  1   |
 |RAM|TIMED                           | $0210-$0210 |  1   |
 |RAM|TIMES                           | $0211-$0211 |  1   |
 |RAM|TIMEM                           | $0212-$0212 |  1   |
@@ -134,8 +137,7 @@
 ## Page 4
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
-|RAM|page4 overlay_access       | $0419-$0436 |  54  |
-|RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0411 |  3  |
+|RAM|page4 ORIX_VECTOR_READ_VALUE_INTO_RAM_OVERLAY       | $0411-$0414 |  3  |
 ## Page 5&6
 |Type     | Name                          | Range       | Size |
 | :------- |:----------------------------- |:----------- |:-----|
@@ -144,15 +146,3 @@
 |RAM|main kernel process struct     | $0579-$058F |  22    |
 |RAM|BUFEDT                         | $0590-$05FE |   110   |
 |RAM|KERNEL_MEMORY_DRIVER           | $05FE-$06A1 |   163   |
-## Kernel bank 7
-| Type      | Name                         | Range   | Size |
-| :-------- |:---------------------------- |:------- |:-----|
-|ROM|<span style="color:green">FREE</span>                         |$feee-$fff0|   258   |
-## Bank 0
-| Type      | Name                         | Range   | Size |
-| --------  | ---------------------------- | ------- |-----|
-|BANK0|BUFBUF                        | $c080-$c0b6 |  54   |
-|BANK0|BUFROU                        | $c500-$c54e |     |
-|BANK0|TELEMON_KEYBOARD_BUFFER_BEGIN | $c5c4-$c680 |     |
-|BANK0|XMALLOC (copy from kernel)    | $fba0-$fc4c |     |
-|BANK0|X<span style="color:green">FREE</span> (copy from kernel)      | $fc4c-$fed1 |     |

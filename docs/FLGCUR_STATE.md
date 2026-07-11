@@ -1,3 +1,1 @@
 # FLGCUR_STATE
-* XWR0
-* XWR0

@@ -1,3 +1,1 @@
 # KBDSHT
-* XRD0
-* XRD0

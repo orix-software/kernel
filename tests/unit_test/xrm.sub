@@ -9,4 +9,5 @@ exit
 
 :error_rm
 echo ^[A il y a un dysfonctionnement avec rm, le fichier n'a pas été supprimé
-exit
+goto egeneral
+

@@ -14,7 +14,7 @@
   .out     .sprintf("|CALL:XMALLOC:_create_file_pointer")
 
   sta     RES
-  sty     RES+1
+  sty     RES + 1
 
 .ifdef WITH_DEBUG2
   jsr     kdebug_save
@@ -42,10 +42,10 @@
 
 @not_null_2:
   sta     KERNEL_XOPEN_PTR1            ; save ptr
-  sty     KERNEL_XOPEN_PTR1+1
+  sty     KERNEL_XOPEN_PTR1 + 1
 
   sta     KERNEL_XOPEN_PTR2            ; save ptr
-  sty     KERNEL_XOPEN_PTR2+1
+  sty     KERNEL_XOPEN_PTR2 + 1
 
 
   ldy     #_KERNEL_FILE::f_flags       ; get Offset
@@ -64,7 +64,7 @@
   clc
   adc     KERNEL_XOPEN_PTR2
   bcc     @S1
-  inc     KERNEL_XOPEN_PTR2+1
+  inc     KERNEL_XOPEN_PTR2 + 1
 @S1:
   sta     KERNEL_XOPEN_PTR2
 
@@ -87,7 +87,7 @@
 
   ; return fp or null
   lda     KERNEL_XOPEN_PTR1 ; $7c3
-  ldy     KERNEL_XOPEN_PTR1+1
+  ldy     KERNEL_XOPEN_PTR1 + 1
 
   rts
 .endproc

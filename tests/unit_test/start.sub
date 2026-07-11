@@ -1,0 +1,8 @@
+#!/bin/submit
+echo start
+
+netchk
+
+
+#exit
+

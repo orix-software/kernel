@@ -1,3 +1,1 @@
 # ADSCR
-* XWR0
-* XWR0

@@ -1,4 +1,5 @@
 .export  XCOS_ROUTINE
+
 .proc     XCOS_ROUTINE
   jsr     LF8B1
   lda     #<CONST_PI_DIVIDED_BY_TWO
@@ -6,6 +7,7 @@
   jsr     AY_add_acc1
   jmp     LF791
 .endproc
+
 LF8B1
   jsr     test_if_degree_mode
   beq     LF8CC

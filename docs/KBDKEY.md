@@ -1,3 +1,1 @@
 # KBDKEY
-* XRD0
-* XRD0

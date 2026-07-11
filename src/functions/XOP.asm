@@ -1,5 +1,5 @@
 ; A contains channel
-XOP0_ROUTINE:
+.proc XOP0_ROUTINE
    .out     .sprintf("|MODIFY:IOTAB:XOP0")
    .out     .sprintf("|MODIFY:work_channel:XOP0")
 
@@ -7,24 +7,24 @@ XOP0_ROUTINE:
     pha
 
 
-@loop:
+@L1:
     pla
     cmp     IOTAB,x    ; Already open with the same IO ?
-    beq     @skip2     ; Yes exit
+    beq     @S1     ; Yes exit
     ldy     IOTAB,x
-    bpl     skip129
+    bpl     @skip129
     inx
     pha
     txa
     and     #$03
-    bne     @loop
+    bne     @L1
     pla
 
-  @skip2:
+@S1:
     rts
 
-skip129:
-    ldy     #(KERNEL_SIZE_IOTAB-1)
+@skip129:
+    ldy     #(KERNEL_SIZE_IOTAB - 1)
 
 @loop:
     cmp     IOTAB,y
@@ -42,7 +42,9 @@ skip129:
 
     ldx     work_channel
     pla
-  @skip2:
+
+@skip2:
     sta     IOTAB,x
     clc
     rts
+.endproc

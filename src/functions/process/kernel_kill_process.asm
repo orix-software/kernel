@@ -26,6 +26,19 @@
 
   jsr     close_all_fp_from_current_process
 
+  ; Destroy socket attached to the process
+
+  lda     KERNEL_BANK_EXTENDED_AVAILABLE
+  cmp     #128
+  bne     @do_not_destroy_socket
+
+
+  lda     #KERNEL_SOCKET_CLOSE_FROM_PID_NETWORK
+  jsr     XNETWORK_START_ROUTINE
+
+
+@do_not_destroy_socket:
+
   ; destroy process memory chunks
   ; Try to find all malloc from this process
 
@@ -40,36 +53,36 @@
   jsr     kernel_get_struct_process_ptr
 
   sta     RES
-  sty     RES+1
+  sty     RES + 1
 
   ldy     #kernel_one_process_struct::ppid
 
   lda     (RES),y   ; A contains the PPID
 
   ; X contains the current PID to kill here clear struct
-  sta     kernel_process+kernel_process_struct::kernel_current_process
+  sta     kernel_process + kernel_process_struct::kernel_current_process
 
 
   ; remove reference of process struct in the main struct
   lda     #$00
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_high,x
 
   ; remove pid from ps list
-  sta     kernel_process+kernel_process_struct::kernel_pid_list,x   ; Flush pidlist to 0 for the current index
+  sta     kernel_process + kernel_process_struct::kernel_pid_list,x   ; Flush pidlist to 0 for the current index
 
   lda     RES
-  ldy     RES+1
+  ldy     RES + 1
   jsr     XFREE_ROUTINE ; We remove reference of the memory but it's still in RES
 
   ; at this step process struct is clear and does not exists again
 
   ; restore zp of the PPID
 
-  ldx     kernel_process+kernel_process_struct::kernel_current_process ; $57D
+  ldx     kernel_process + kernel_process_struct::kernel_current_process ; $57D
   jsr     kernel_get_struct_process_ptr
   sta     RES
-  sty     RES+1
+  sty     RES + 1
   ; lda     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,y
   ; sta     RES
 
@@ -98,7 +111,7 @@
   ldx     #$00
 
 @init_fp:
-  cmp     kernel_process+kernel_process_struct::kernel_fd,x
+  cmp     kernel_process + kernel_process_struct::kernel_fd,x
   bne     @next
 
   txa
@@ -119,15 +132,14 @@
 .endproc
 
 .proc erase_all_chunk_from_current_process
-  ; A contains the process id 
+  ; A contains the process id
 
   sta     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 ; Try to find all malloc from this process
   ldx     #$00
 @L2:
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_pid_list,x
-
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_pid_list,x
   beq     @skip             ; is it 0 ? Yes it's a free chunk
 
   cmp     KERNEL_XKERNEL_CREATE_PROCESS_TMP
@@ -138,12 +150,13 @@
   cpx     #KERNEL_MAX_NUMBER_OF_MALLOC
   bne     @L2
   beq     @all_chunk_are_free
+
 @erase_chunk:
   txa
   pha
 
-  lda     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
-  ldy     kernel_malloc+kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
+  lda     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_low,x
+  ldy     kernel_malloc + kernel_malloc_struct::kernel_malloc_busy_chunk_begin_high,x
 
   jsr     XFREE_ROUTINE
 

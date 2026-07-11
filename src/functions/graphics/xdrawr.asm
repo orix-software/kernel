@@ -19,21 +19,22 @@
 
 ; NOERROR
 
+.export XDRAWR_ROUTINE
 
 .proc XDRAWR_ROUTINE
   lda     HRSPAT         ;   sauve le pattern
-  sta     HRS5+1         ;   FIXME Jede : Erreur entre le commentaire et la valeur (avant $56) dans HRS1+1
+  sta     HRS5 + 1         ;   FIXME Jede : Erreur entre le commentaire et la valeur (avant $56) dans HRS1+1
   jsr     check_relative_parameters          ;   vérifie la validité de dX et dY
   stx     HRSX           ;   X et Y contiennent HRSX+dX et HRSY+dY
   sty     HRSY           ;   dans HRSX et HRSY
-  bit     HRS1+1         ;   dX négatif ?
+  bit     HRS1 + 1         ;   dX négatif ?
   bpl     @S1            ;   non ----------------------------------------------
   lda     HRS1           ;   oui, on complèmente                              I
   eor     #$FF           ;   dX                                               I
   sta     HRS1           ;                                                    I
   inc     HRS1           ;   à 2                                              I
 @S1:
-  bit     HRS2+1         ;   dY négatif ? <------------------------------------
+  bit     HRS2 + 1         ;   dY négatif ? <------------------------------------
   bpl     @S2            ;   non ----------------------------------------------
   lda     HRS2           ;   oui on complèmente                               I
   eor     #$FF           ;   dY                                               I
@@ -53,7 +54,7 @@
   lda     #$FF           ;   dX=dY, la tangente est 1                 I  I    I
   sta     RES            ;   en fait, -1, mais c'est la même chose    I  I    I
 LE8C0:
-  bit     HRS1+1         ; I
+  bit     HRS1 + 1         ; I
   bpl     @S2            ; I dX>0 -------------------------------------  I    I
   jsr     XHRSCG_ROUTINE ; I dX<0, on d?place le curseur à gauche     I  I    I
   jmp     @S3            ; I---                                       I  I    I
@@ -98,7 +99,7 @@ LE903:
   adc     RESB
   sta     RESB       ;   (dans RESB)
   bcc     LE919      ;   non ----------------------------------------------
-  bit     HRS1+1     ;                                                    I
+  bit     HRS1 + 1     ;                                                    I
   bpl     LE916      ;   dX>0 ------------------------------------        I
   jsr     XHRSCG_ROUTINE   ;   dX<0, on déplace vers                   I        I
   jmp     LE919            ; ---la gauche                               I        I

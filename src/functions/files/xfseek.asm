@@ -1,8 +1,20 @@
 .proc XFSEEK_ROUTINE
-; [IN] X whence
-; [IN] AY position 0 to 15
-; [IN] RESB position 0 to 31
-; [IN] RES fd
+    ;;@brief perform a seek on a file
+    ;;@description This function performs a seek operation on a file, adjusting the file pointer based on the specified whence and offset.
+    ;;@inputA low position 0 to 15 bits
+    ;;@inputX whence
+    ;;@inputY high position 0 to 15 bits
+    ;;@inputMEM_RESB RESB position 0 to 31 (2 bytes)
+    ;;@inputMEM_RES fd
+    ;;@modifyMEM_RES5 (2 bytes) $0A & $0B
+    ;;@modifyMEM_TR0
+    ;;@modifyMEM_TR4
+    ;;@modifyMEM_TR7
+    ;;@returnsA  EOK if successful, EBADF if the file descriptor is invalid, or EINVAL if the whence is invalid, Return A=$FF if something is wrong when seek has performed
+    ;;@returnsA position 0 to 7 (1 byte)
+    ;;@returnsA position 8 to 15 (1 byte)
+    ;;@returnsMEM_RES position 16 to 31 (2 bytes)
+
   .out     .sprintf("|MODIFY:TR0:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:TR6:XFSEEK_ROUTINE")
   .out     .sprintf("|MODIFY:TR7:XFSEEK_ROUTINE")
@@ -17,14 +29,14 @@
   sta     TR0 ; 09
   lda     RES
   sta     KERNEL_XFSEEK_SAVE_RES
-  lda     RES+1
-  sta     KERNEL_XFSEEK_SAVE_RES+1
+  lda     RES + 1
+  sta     KERNEL_XFSEEK_SAVE_RES + 1
 
   lda     RESB
   sta     RES5
 
-  lda     RESB+1
-  sta     RES5+1
+  lda     RESB + 1
+  sta     RES5 + 1
 
   sty     TR7                     ; save Y $02
   stx     TR4
@@ -34,7 +46,13 @@
   jsr     checking_fp_exists
   bcc     @continue_xfseek
 
-  lda     #EBADF
+ ; lda     #EBADF
+
+  lda     #$FF
+  tax
+  sta     RES
+  sta     RES + 1
+
   rts
 
 @continue_xfseek:
@@ -43,13 +61,13 @@
 
   lda     KERNEL_XFSEEK_SAVE_RES
   sta     RES
-  lda     KERNEL_XFSEEK_SAVE_RES+1
-  sta     RES+1
+  lda     KERNEL_XFSEEK_SAVE_RES + 1
+  sta     RES + 1
 
   lda     KERNEL_XFSEEK_SAVE_RESB
   sta     RESB
-  lda     KERNEL_XFSEEK_SAVE_RESB+1
-  sta     RESB+1
+  lda     KERNEL_XFSEEK_SAVE_RESB + 1
+  sta     RESB + 1
 
   cpx     #SEEK_CUR
   beq     @move
@@ -57,9 +75,17 @@
   beq     @go_end
   cpx     #SEEK_SET
   beq     @go_beginning
-  lda     #EINVAL ; Return error
+  ;lda     #EINVAL ; Return error
+
+@returns_minus_1:
+  lda     #$FF
+  tax
+  sta     RES
+  sta     RES + 1
+
   rts
 
+; SEEK_END : Seek from the end of the file
 @go_end:
   lda     CH376_DATA
   ldx     CH376_DATA
@@ -79,25 +105,24 @@
 
   jsr     compute_fp_struct
 
-  jsr     getFileLength    ; return A,X,Y RES : 4 bytes values
+  jsr     getFileLength    ; return A, X, Y RES : 4 bytes values
 
   ; Send A X Y RES (from getFileLength)
   jsr     _set_to_value_seek_file
 
-  lda     #EOK ; Return ok
-  rts
+  jmp     returns_position
+
 
 @error_bad_seek:
+ ; lda     #$FF ; EBADSEEK
+  jmp     @returns_minus_1
 
-  lda     #$FF ; EBADSEEK
-  rts
 
+; SEEK_CUR : Seek from the current position
 @move:
   ; A  : TR0
   ; Y  : TR7
   ; 16 to 31  : RES5 (2 bytes)
-
-
 
   lda     KERNEL_XFSEEK_SAVE_RES
 
@@ -117,7 +142,6 @@
   sta     (KERNEL_XOPEN_PTR1),y
   sta     TR7
 
-
   iny
   lda     (KERNEL_XOPEN_PTR1),y
   adc     RES5
@@ -126,7 +150,7 @@
 
   iny
   lda     (KERNEL_XOPEN_PTR1),y
-  adc     RES5+1
+  adc     RES5 + 1
   sta     (KERNEL_XOPEN_PTR1),y
   sta     RESB
 
@@ -137,9 +161,10 @@
   cmp     #$14
   bne     @error_bad_seek
 
-  lda     #EOK ; Return ok
-  rts
+  jmp    returns_position
 
+
+; SEEK_SET : Seek from the beginning of the file
 @go_beginning:
   ;sta     TR6
   ; Seek from the beginning of the file
@@ -152,7 +177,7 @@
   bne     @error_bad_seek
 
   ; And seek with offset now
-  lda     RES5+1
+  lda     RES5 + 1
   sta     RESB
 
   ldy     TR7 ; Get Y
@@ -192,6 +217,28 @@
   adc     RES5+1
   sta     (KERNEL_XOPEN_PTR1),y
 
-  lda     #EOK ; Return ok
+  ; Don't RTS here , we execute returns position
+
+returns_position:
+  ldy     #_KERNEL_FILE::f_seek_file + 3
+
+  ; Get the position of the file pointer
+  ;; Store it in RES for from 16 to 31 bits
+  lda     (KERNEL_XOPEN_PTR1),y
+  sta     RES + 1
+  dey
+  ; Store it in AX for from 0 to 15 bits
+  lda     (KERNEL_XOPEN_PTR1),y
+  sta     RES
+  dey
+  lda     (KERNEL_XOPEN_PTR1),y
+  tax
+  dey
+  lda     (KERNEL_XOPEN_PTR1),y
+  ; FIXME REMOVE ME !!!!!
+  ldy      #EOK
+ ; lda     #EOK
   rts
+
+
 .endproc

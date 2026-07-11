@@ -6,7 +6,7 @@
     sta     RES
     iny
     lda     (KERNEL_XOPEN_PTR1),y
-    sta     RES+1
+    sta     RES + 1
     iny
     lda     (KERNEL_XOPEN_PTR1),y
     tax
@@ -15,7 +15,7 @@
     sta     RESB
 
     lda     RES
-    ldy     RES+1
+    ldy     RES + 1
 
     jmp     _ch376_seek_file32
 

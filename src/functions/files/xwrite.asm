@@ -15,8 +15,8 @@
   lda     PTR_READ_DEST
   sta     RES
 
-  lda     PTR_READ_DEST+1
-  sta     RES+1
+  lda     PTR_READ_DEST + 1
+  sta     RES + 1
 
   ; Checking if fp exists
   jsr     checking_fp_exists
@@ -81,7 +81,7 @@
   clc                               ;
   adc     PTR_READ_DEST
   bcc     @next
-  inc     PTR_READ_DEST+1
+  inc     PTR_READ_DEST + 1
 @next:
   sta     PTR_READ_DEST
 

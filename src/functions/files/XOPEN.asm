@@ -1,9 +1,11 @@
 .proc XOPEN_ROUTINE
 
+; $ed31
 .out     .sprintf("|MODIFY:RES:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:RESB:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:TR5:XOPEN_ROUTINE")
-.out     .sprintf("|MODIFY:TR7:XOPEN_ROUTINE")
+.out     .sprintf("|MODIFY:TR6:XOPEN_ROUTINE (used by XMALLOC)")
+.out     .sprintf("|MODIFY:TR7:XOPEN_ROUTINE (used by XMALLOC)")
 .out     .sprintf("|MODIFY:XOPEN_SAVE:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:XOPEN_FLAGS:XOPEN_ROUTINE")
 .out     .sprintf("|MODIFY:XOPEN_RES_SAVE:XOPEN_ROUTINE")
@@ -57,17 +59,17 @@
   ; O_CREAT            |    Yes      | open and return FD
 
   sta     RES
-  stx     RES+1
+  stx     RES + 1
   ; Save ptr
   sta     XOPEN_RES_SAVE
-  stx     XOPEN_RES_SAVE+1
+  stx     XOPEN_RES_SAVE + 1
   ; save flag
 
   sty     XOPEN_FLAGS
 
   ;
   ; Close current file if we already open a file
-  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
+  lda     kernel_process + kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
   cmp     #$FF
   bne     @open_new_file
 
@@ -75,13 +77,6 @@
   jsr     _ch376_file_close
 
 @open_new_file:
-.ifdef WITH_DEBUG2
-  jsr     kdebug_save
-  ldy     XOPEN_RES_SAVE+1
-  ldx     #XDEBUG_XOPEN_ENTER
-  jsr     xdebug_print_with_ay_string
-  jsr     kdebug_restore
-.endif
 
   lda     #EOK
   sta	    KERNEL_ERRNO
@@ -97,9 +92,8 @@
   ldx     #$FF
   txa
   rts
+
 @L1:
-
-
   ldy     #$00
   lda     (RES),y
   ;
@@ -126,8 +120,9 @@
   rts
 
 @not_null_2:
+
   sta     KERNEL_XOPEN_PTR1
-  sty     KERNEL_XOPEN_PTR1+1
+  sty     KERNEL_XOPEN_PTR1 + 1
   ; now concat
   ; reach the end of string in the pointer
   ldy     #_KERNEL_FILE::f_path
@@ -135,7 +130,7 @@
   lda     (KERNEL_XOPEN_PTR1),y
   beq     @end_of_string_found
   iny
-  cpy     #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
+  cpy     #KERNEL_MAX_PATH_LENGTH + _KERNEL_FILE::f_path
   bne     @L3
 
   ; at this step, we cannot detect the end of string : BOF, return null
@@ -143,7 +138,7 @@
 
 @end_of_string_found:
   ; This solution avoid to compute pointer and to create another zp address
-  cpy    #_KERNEL_FILE::f_path+$01 ; is it slash "/",0 ?
+  cpy    #_KERNEL_FILE::f_path + $01 ; is it slash "/",0 ?
   beq    @don_t_add_slash  ; yes
   ; it's a relative path and we are still in a folder (except /)
   ; add slash then
@@ -172,7 +167,7 @@
   ; Be careful BOF can occurs if
   iny
   sty    RES
-  cpy    #KERNEL_MAX_PATH_LENGTH+_KERNEL_FILE::f_path
+  cpy    #KERNEL_MAX_PATH_LENGTH + _KERNEL_FILE::f_path
 
   bne     @L4
   ; Bof return NULL
@@ -189,7 +184,7 @@
   ; Pass arg to createfile_pointer
 
   lda     RES
-  ldy     RES+1
+  ldy     RES + 1
   ; and XOPEN_FLAGS too at this step
 
   jsr     _create_file_pointer
@@ -203,7 +198,7 @@
 
 @not_null_1:
   sta     KERNEL_XOPEN_PTR1
-  sty     KERNEL_XOPEN_PTR1+1
+  sty     KERNEL_XOPEN_PTR1 + 1
 
 @open_from_device:
   ; Reset flag to say that end of string is reached
@@ -218,7 +213,7 @@
 
   jsr     send_0_to_ch376_and_open
 
-  ldy     #_KERNEL_FILE::f_path+1 ; skip /
+  ldy     #_KERNEL_FILE::f_path + 1 ; skip /
 
 @next_filename:
   lda     #CH376_SET_FILE_NAME        ;$2F
@@ -256,7 +251,7 @@
   iny
   lda     (KERNEL_XOPEN_PTR1),y
   bne     @next_filename
-  cpy     #_KERNEL_FILE::f_path+1
+  cpy     #_KERNEL_FILE::f_path + 1
   beq     @open_and_register_fp
 
   bne     @next_filename
@@ -282,9 +277,15 @@
   beq     @exit_open_with_null ; yes, return NULL
 
 
+  ; save   KERNEL_XOPEN_PTR1 (modifued by open_full_filename)
+  lda     KERNEL_XOPEN_PTR1
+  sta     TR6
+  lda     KERNEL_XOPEN_PTR1 + 1
+  sta     TR7
+
   ; Le fichier n'a pas été trouvé,
   ; On va vérifier qu'on avait un fichier ouvert avant
-  lda     kernel_process+kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
+  lda     kernel_process + kernel_process_struct::kernel_fd_opened ; if there is already a file open on ch376 if value <> $FF, if it's equal to $ff, there is no file opened
   cmp     #$FF
   beq     @exit_open_with_null
 
@@ -293,18 +294,14 @@
   jsr     open_full_filename
 
 @exit_open_with_null:
-  lda     KERNEL_XOPEN_PTR1
-  ldy     KERNEL_XOPEN_PTR1+1
+
+  lda     TR6 ; KERNEL_XOPEN_PTR1 restored
+  ldy     TR7 ; KERNEL_XOPEN_PTR1 restored
   jsr     XFREE_ROUTINE
   ; No such file_or_directy
   lda     #ENOENT
   sta     KERNEL_ERRNO
 
-.ifdef    WITH_DEBUG2
-  ldx     #XDEBUG_XOPEN_FILE_NOT_FOUND
-  lda     #$FF
-  jsr     xdebug_print_with_a
-.endif
 
   lda     #$FF
   tax
@@ -319,16 +316,16 @@
 @open_and_register_fp:
   ; Register fp in process struct
   ;       store pointer in process struct
-  ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
+  ldx     kernel_process + kernel_process_struct::kernel_current_process                ; Get current process
   jsr     kernel_get_struct_process_ptr
   sta     RES
-  sty     RES+1
+  sty     RES + 1
 
   ; Fill the address of the fp
   ; Manage only 1 FP for instance FIXME bug
   ldx     #$00
-  ldy     #(kernel_one_process_struct::fp_ptr+1)
-
+  ldy     #(kernel_one_process_struct::fp_ptr + 1)
+; $ee53
 @try_to_find_a_free_fp_for_current_process:
   lda     (RES),y                             ; Load high
   beq     @fp_is_not_busy                     ; If it's equal to $00, it means that it's empty because it's impossible to have a fp registered in zp
@@ -339,14 +336,15 @@
   inx
   cpx     #KERNEL_MAX_FP_PER_PROCESS
   bne     @try_to_find_a_free_fp_for_current_process
+  ; At this step, we did not have any free fp for the current process
 
   lda     #KERNEL_ERRNO_REACH_MAX_FP_FOR_A_PROCESS
   sta     KERNEL_ERRNO
 
-  beq     @exit_open_with_null
+  jmp     @exit_open_with_null
   ;
 @fp_is_not_busy:
-  lda     KERNEL_XOPEN_PTR1+1
+  lda     KERNEL_XOPEN_PTR1 + 1
   sta     (RES),y
   dey
   lda     KERNEL_XOPEN_PTR1
@@ -357,7 +355,7 @@
   ldx     #$00
 
 @init_fp:
-  lda     kernel_process+kernel_process_struct::kernel_fd,x
+  lda     kernel_process + kernel_process_struct::kernel_fd,x
   beq     @found_fp_slot
   inx
   cpx     #KERNEL_MAX_FP
@@ -365,7 +363,7 @@
 
   ; No available fd
   lda     KERNEL_XOPEN_PTR1
-  ldy     KERNEL_XOPEN_PTR1+1
+  ldy     KERNEL_XOPEN_PTR1 + 1
   jsr     XFREE_ROUTINE
 
   lda     #EMFILE
@@ -377,21 +375,25 @@
 
   ; not found
 @found_fp_slot:
-  lda     kernel_process+kernel_process_struct::kernel_current_process ; Get the current process
-  sta     kernel_process+kernel_process_struct::kernel_fd,x            ; and store in fd slot the id of the process
+  lda     kernel_process + kernel_process_struct::kernel_current_process ; Get the current process
+  sta     kernel_process + kernel_process_struct::kernel_fd,x            ; and store in fd slot the id of the process
   txa
   pha ; save Id of the fd
   asl
   tax
 
   ; Store fp in main process
+
+
+
   lda     KERNEL_XOPEN_PTR1
-  sta     kernel_process+kernel_process_struct::fp_ptr,x
+  sta     kernel_process + kernel_process_struct::fp_ptr,x
   inx
-  lda     KERNEL_XOPEN_PTR1+1
-  sta     kernel_process+kernel_process_struct::fp_ptr,x
+  lda     KERNEL_XOPEN_PTR1 + 1
+  sta     kernel_process + kernel_process_struct::fp_ptr,x
   pla   ; restore Id of the fd
-  sta     kernel_process+kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
+  sta     kernel_process + kernel_process_struct::kernel_fd_opened ; Define that it's the new current fd
+
   clc
   adc     #KERNEL_FIRST_FD
 

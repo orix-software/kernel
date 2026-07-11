@@ -7,13 +7,13 @@
   lda     RES
   sta     (KERNEL_XOPEN_PTR1),y
   iny
-  lda     RES+1
+  lda     RES + 1
   sta     (KERNEL_XOPEN_PTR1),y
   iny
   lda     RESB
   sta     (KERNEL_XOPEN_PTR1),y
   iny
-  lda     RESB+1
+  lda     RESB + 1
   sta     (KERNEL_XOPEN_PTR1),y
   rts
 .endproc

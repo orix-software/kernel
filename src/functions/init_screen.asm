@@ -11,6 +11,7 @@
   bpl     @loop
 
   ldy     #$05     ; loop with $12 to fill text definitions and Hires
+
 @L1:
   lda     data_text_window,y ; data_to_define_2
   sta     SCRTXT,y ; thise fill also  SCRHIR

@@ -18,12 +18,12 @@
 @continue:
     ; save fp
     sta     RES
-    stx     RES+1
+    stx     RES + 1
 
     jsr     _ch376_file_erase
 
     lda     RES
-    ldy     RES+1
+    ldy     RES + 1
     jsr     XCLOSE_ROUTINE
     lda     #$00
     rts

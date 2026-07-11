@@ -9,7 +9,7 @@
     .out     .sprintf("|MODIFY:RESF:compute_path_relative")
 
     sta     RESE
-    sty     RESE+1
+    sty     RESE + 1
 
     ; Checking if ./
     ldy     #$01 ; We are looking if it's ./
@@ -18,6 +18,7 @@
     beq     @it_s_dot_slash
     cmp     #'.'
     beq     @it_s_dot_dot_slash
+
 @error_relative:
     ldx     #$01 ; Error
     rts
@@ -87,16 +88,16 @@
     jsr     get_xgetcwd_and_store_to_RESC
 
 
-    ldx     kernel_process+kernel_process_struct::kernel_current_process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process
     jsr     kernel_get_struct_process_ptr
     sta     RESD
-    sty     RESD+1
+    sty     RESD + 1
 
     lda     #kernel_one_process_struct::cmdline
     clc
     adc     RESD
     bcc     @S1
-    inc     RESD+1
+    inc     RESD + 1
 @S1:
     sta     RESD
 
@@ -118,15 +119,15 @@
     sty     RESF ; Backup position for cmdline
 
     ldy     #$02
-    sty     RESF+1 ; backup position for string to copy
+    sty     RESF + 1 ; backup position for string to copy
 
 @copy:
 
-    ldy     RESF+1
+    ldy     RESF + 1
     lda     (RESE),y
     beq     @out2
 
-    inc     RESF+1
+    inc     RESF + 1
     ldy     RESF
     cpy     #KERNEL_LENGTH_MAX_CMDLINE
     beq     @out2
@@ -159,7 +160,7 @@
 @malloc_ok:
     ; Now copy
     sta     RESF
-    sty     RESF+1
+    sty     RESF + 1
 
     ldy     #$00
 
@@ -181,7 +182,7 @@
     sta     RESH ; Malloc is done
 
     lda     RESF
-    ldy     RESF+1
+    ldy     RESF + 1
 
     ; A contains the compute
     rts
@@ -193,6 +194,6 @@
 
     ; Store cwd ptr into RESC
     sta     RESC
-    sty     RESC+1
+    sty     RESC + 1
     rts
 .endproc

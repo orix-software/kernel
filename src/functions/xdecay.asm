@@ -13,10 +13,10 @@
 .out     .sprintf("|MODIFY:RESB:XDECAY")
 
   sta     RES      ;   on sauve l'adresse du nombre
-  sty     RES+1    ;    dans RES
+  sty     RES + 1    ;    dans RES
   ldy     #$00     ;    et on met RESB ? 0
   sty     RESB
-  sty     RESB+1
+  sty     RESB + 1
 loop:
   lda     (RES),Y  ;   on lit le code <------------------------------
   cmp     #$30     ;   inférieur à 0 ?                              I
@@ -26,23 +26,23 @@ loop:
   and     #$0F     ;   on isole le chiffre                          I   I
   pha              ;    dans la pile                                I   I
   asl     RESB     ;    RESB*2                                      I   I
-  rol     RESB+1   ;                                                I   I
+  rol     RESB + 1   ;                                                I   I
   lda     RESB     ;    AX=RESB*2                                   I   I
-  ldx     RESB+1   ;                                                I   I
+  ldx     RESB + 1   ;                                                I   I
   asl     RESB     ;   *4                                           I   I
-  rol     RESB+1   ;                                                I   I
+  rol     RESB + 1   ;                                                I   I
   asl     RESB     ;   *8                                           I   I
-  rol     RESB+1   ;                                                I   I
+  rol     RESB + 1   ;                                                I   I
   adc     RESB     ;   +RESB*2                                      I   I
   sta     RESB     ;                                                I   I
   txa              ;                                                I   I
-  adc     RESB+1   ;                                                I   I
-  sta     RESB+1   ;   = RESB*10                                    I   I
+  adc     RESB + 1   ;                                                I   I
+  sta     RESB + 1   ;   = RESB*10                                    I   I
   pla              ;   plus chiffre lu                              I   I
   adc     RESB     ;                                                I   I
   sta     RESB     ;                                                I   I
   bcc     @S1      ;                                                I   I
-  inc     RESB+1   ;                                                I   I
+  inc     RESB + 1   ;                                                I   I
 @S1:
   iny              ;   on ajoute un chiffre lu                      I   I
   bne     loop     ;     et on recommence  ----------------------------   I
@@ -50,6 +50,6 @@ loop:
   tya              ;     nombre de chiffres lus <--------------------------
   tax              ;     dans X
   lda     RESB     ;     nombre dans AY et RESB
-  ldy     RESB+1   ;
+  ldy     RESB + 1   ;
   rts
 .endproc

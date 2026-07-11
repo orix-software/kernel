@@ -3,13 +3,16 @@
   .out     .sprintf("|MODIFY:PTR_READ_DEST:XREADBYTES_ROUTINE")
   .out     .sprintf("|MODIFY:RES:XREADBYTES_ROUTINE")
   .out     .sprintf("|MODIFY:TR0:XREADBYTES_ROUTINE")
+  .out     .sprintf("|MODIFY:HRS1:XREADBYTES_ROUTINE")
+  .out     .sprintf("|MODIFY:HRS3:XREADBYTES_ROUTINE")
+  
 ; [IN] AY contains the length to read
 ; [IN] PTR_READ_DEST must be set because it's the ptr_dest
 ; [IN] X contains the fd id
 
-; Modify : RES, PTR_READ_DEST, TR0
 
-; Modify : RES, PTR_READ_DEST, TR0
+
+; Modify : RES, PTR_READ_DEST, TR0, HRS1 (update_fp_postion.asm with XOPEN_RES)
 
 ; [OUT]  PTR_READ_DEST updated
 ; Compute with update_position
@@ -23,11 +26,11 @@
   lda     PTR_READ_DEST
   sta     RES
 ;
-  lda     PTR_READ_DEST+1
-  sta     RES+1
+  lda     PTR_READ_DEST + 1
+  sta     RES + 1
 
   ; Checking if fp exists
-  jsr     checking_fp_exists
+  jsr     checking_fp_exists ; Uses HRS3 + 1
   bcc     @continue_xfread
   pla
   ; Error return 0 bytes read
@@ -96,7 +99,7 @@
   clc                               ;
   adc     PTR_READ_DEST
   bcc     @next
-  inc     PTR_READ_DEST+1
+  inc     PTR_READ_DEST + 1
 
 @next:
   sta     PTR_READ_DEST

@@ -18,7 +18,7 @@
   lda     KBDVRR
   jmp     @S5
 @S2:
-  dec     KBDVRL+1
+  dec     KBDVRL + 1
   bne     @S6
   jsr     XKBDAS_ROUTINE
   jmp     @S4
@@ -27,7 +27,7 @@
 @S4:
   lda     KBDVRL
 @S5:
-  sta     KBDVRL+1
+  sta     KBDVRL + 1
 @S6:
   rts
 .endproc

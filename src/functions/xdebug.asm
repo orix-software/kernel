@@ -1,11 +1,22 @@
+.export   kdebug_save
+.export   xdebug_lsmem
+.export   kdebug_restore
+
+.include "../include/kernel.inc"
+.include "../include/debug.inc"
+.include "telestrat.inc"
+
+.import STACK_BANK
+.import FIXME_DUNNO
+
 .proc xdebug_print_with_a
     rts
     pha
 
     lda  #<$c006
-    sta  VEXBNK+1
+    sta  VEXBNK + 1
     lda  #>$c006
-    sta  VEXBNK+2
+    sta  VEXBNK + 2
     lda  #$01
     sta  BNKCIB
 
@@ -22,9 +33,9 @@
     lda  #$00
     sta  $343
     lda  #<$c009
-    sta  VEXBNK+1
+    sta  VEXBNK + 1
     lda  #>$c009
-    sta  VEXBNK+2
+    sta  VEXBNK + 2
     lda  #$01
     sta  BNKCIB
     pla
@@ -59,8 +70,6 @@
     sta  VEXBNK+2
     lda  #$01
     sta  BNKCIB
-
-
     jmp  $40C
 .endproc
 
@@ -157,9 +166,9 @@ hex_table:
     jsr        xdebug_save
     lda        #'#'
     jsr        xdebug_send_printer
-    lda        kernel_debug+kernel_debug_struct::RY
+    lda        kernel_debug + kernel_debug_struct::RY
     jsr        xdebug_binhex
-    lda        kernel_debug+kernel_debug_struct::RA
+    lda        kernel_debug + kernel_debug_struct::RA
     jsr        xdebug_binhex
     lda        #' '
     jsr        xdebug_send_printer
@@ -167,18 +176,6 @@ hex_table:
     rts
 .endproc
 
-.proc xdebug_enter_XFREE_new_freechunk
-    rts
-    jsr     xdebug_save
-    lda     #<str_enter_free
-    ldy    #>str_enter_free
-    sta    RES
-    sty    RES+1
-    jmp    xdebug_enter
-
-str_enter_free:
-    .byte $0D,"[XFREE] new free chunk",0
-.endproc
 
 .proc xdebug_end
     rts
@@ -293,21 +290,19 @@ str_enter_free:
 .endproc
 
 .proc kdebug_save
-
-
-    sta  kernel_debug+kernel_debug_struct::RA
-    stx  kernel_debug+kernel_debug_struct::RX
-    sty  kernel_debug+kernel_debug_struct::RY
+    sta  kernel_debug + kernel_debug_struct::RA
+    stx  kernel_debug + kernel_debug_struct::RX
+    sty  kernel_debug + kernel_debug_struct::RY
     lda  BNKCIB
-    sta  kernel_debug+kernel_debug_struct::BNKCIB
-    lda  VEXBNK+1
-    sta  kernel_debug+kernel_debug_struct::VEXBNK
-    lda  VEXBNK+2
-    sta  kernel_debug+kernel_debug_struct::VEXBNK+1
+    sta  kernel_debug + kernel_debug_struct::BNKCIB
+    lda  VEXBNK + 1
+    sta  kernel_debug + kernel_debug_struct::VEXBNK
+    lda  VEXBNK + 2
+    sta  kernel_debug + kernel_debug_struct::VEXBNK + 1
     lda  BNKOLD
-    sta  kernel_debug+kernel_debug_struct::BNKOLD
+    sta  kernel_debug + kernel_debug_struct::BNKOLD
     lda  FIXME_DUNNO
-    sta  kernel_debug+kernel_debug_struct::FIXME_DUNNO
+    sta  kernel_debug + kernel_debug_struct::FIXME_DUNNO
 
     ldx  NEXT_STACK_BANK
     stx  kernel_debug+kernel_debug_struct::NEXT_STACK_BANK

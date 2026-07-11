@@ -13,8 +13,3 @@ echo -n O_RDONLY & O_WRONLY|O_CREAT
 
 cp started starcop
 if exist /starcop echo ^[B [OK]
-
-
-
-
-

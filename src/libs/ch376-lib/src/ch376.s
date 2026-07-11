@@ -143,7 +143,7 @@ loop:
      .warning "Build for sdcard by default"
 	lda     #CH376_SET_USB_MODE_CODE_SDCARD
 .else
-    .warning "Build by usb key"
+    .warning "[Default] Build for usb key"
     lda     #CH376_SET_USB_MODE_CODE_USB_HOST_SOF_PACKAGE_AUTOMATICALLY
 .endif
     lda     KERNEL_CH376_MOUNT

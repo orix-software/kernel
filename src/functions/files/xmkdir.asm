@@ -2,14 +2,14 @@
   ; [IN] AY contains the pointer of the path
   ; FIXME
     .out     .sprintf("|MODIFY:RES:XMKDIR_ROUTINE")
-    .out     .sprintf("|MODIFY:ptr1:XMKDIR_ROUTINE")
+    .out     .sprintf("|MODIFY:ADDRESS_READ_BETWEEN_BANK_DOUBLON:XMKDIR_ROUTINE")
     .out     .sprintf("|MODIFY:TR7:XMKDIR_ROUTINE")
-    sta     ptr1
-    sty     ptr1+1
+    sta     ADDRESS_READ_BETWEEN_BANK_DOUBLON
+    sty     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
 
     ; is it an absolute path ?
     ldy     #$00
-    lda     (ptr1),y
+    lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
     cmp     #"/"
     beq     @isabsolute
 
@@ -29,13 +29,13 @@
     lda     KERNEL_ERRNO
 
     rts
-@skip2:
 
+@skip2:
     lda     #CH376_SET_FILE_NAME
     sta     CH376_COMMAND
     ldy     #$00
 @mloop:
-    lda     (ptr1),y
+    lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
     beq     @mend
     cmp     #"/"
     beq     @launch_xopen
@@ -78,59 +78,60 @@
 @isabsolute:
     rts
 
-    lda     ptr1
-    ldy     #O_RDONLY
-    ldx     ptr1+1
+    ; lda     ADDRESS_READ_BETWEEN_BANK_DOUBLON
+    ; ldy     #O_RDONLY
+    ; ldx     ADDRESS_READ_BETWEEN_BANK_DOUBLON+1
 
-    jmp     XOPEN_ROUTINE
+    ; jmp     XOPEN_ROUTINE
 
-    lda     #CH376_SET_FILE_NAME        ;$2f
-    sta     CH376_COMMAND
-    lda     #"/"
-    sta     CH376_DATA
+    ; lda     #CH376_SET_FILE_NAME        ;$2f
+    ; sta     CH376_COMMAND
+    ; lda     #"/"
+    ; sta     CH376_DATA
 
-    STZ_ABS CH376_DATA
+    ; STZ_ABS CH376_DATA
 
-    jsr     _ch376_file_open
+    ; jsr     _ch376_file_open
 
-    lda     #CH376_SET_FILE_NAME        ;$2f
-    sta     CH376_COMMAND
+    ; lda     #CH376_SET_FILE_NAME        ;$2f
+    ; sta     CH376_COMMAND
 
-    ldy     #$00                   ; skip /
+    ; ldy     #$00                   ; skip /
 
-@next_folder:
-    ldx     #$00
-@next_char:
-    iny
-    lda     (ptr1),y
-    beq     @end
-    cmp     #"/"
-    beq     @create_dir
-    cmp     #"a"                        ; 'a'
-    bcc     @skip
-    cmp     #$7B                        ; 'z'
-    bcs     @skip
-    sbc     #$1F
-@skip:
-    sta     CH376_DATA
+; @next_folder:
+;     ldx     #$00
+; @next_char:
+;     iny
+;     lda     (ADDRESS_READ_BETWEEN_BANK_DOUBLON),y
+;     beq     @end
+;     cmp     #"/"
+;     beq     @create_dir
+;     ; FIXME XMINMA
+;     cmp     #"a"                        ; 'a'
+;     bcc     @skip
+;     cmp     #$7B                        ; 'z'
+;     bcs     @skip
+;     sbc     #$1F
+; @skip:
+;     sta     CH376_DATA
 
 
-    inx
-    bne     @next_char
-@end:
-    ; Create last folder
-    ; Store 0
-    sta     CH376_DATA
+;     inx
+;     bne     @next_char
+; @end:
+;     ; Create last folder
+;     ; Store 0
+;     sta     CH376_DATA
 
-    jsr     _ch376_dir_create
-    jmp     _ch376_file_close
-    lda     #$00
-    rts
+;     jsr     _ch376_dir_create
+;     jmp     _ch376_file_close
+;     lda     #$00
+;     rts
 
-@create_dir:
-    sta     CH376_DATA
-    sty     TR7               ; Save Y
-    jsr     _ch376_dir_create
-    ldy     TR7
-    jmp     @next_folder      ; FIXME 65c02
+; @create_dir:
+;     sta     CH376_DATA
+;     sty     TR7               ; Save Y
+;     jsr     _ch376_dir_create
+;     ldy     TR7
+;     jmp     @next_folder      ; FIXME 65c02
 .endproc

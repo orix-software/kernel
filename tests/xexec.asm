@@ -17,6 +17,5 @@ __MAIN_START__:
 ;save_return:
  ;   .res 1
 str:
-    .asciiz "lsmem"    
+    .asciiz "lsmem"
 __MAIN_LAST__:
- 

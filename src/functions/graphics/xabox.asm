@@ -30,14 +30,14 @@ LE83A:
   ldx     #$03            ;  on va tracer 4 traits
 
 LE83C:
-  stx     DECDEB+1        ;  dans $05 <----------------------------------------
+  stx     DECDEB + 1        ;  dans $05 <----------------------------------------
   lda     table_for_rect,x   ; on lit le code coordonn?es                       I
   sta     DECDEB          ;  dans $04                                         I
   ldx     #$06            ;  on va extraire 8 bits                            I
 
 LE845:
   lda     #$00            ;  A=0 <----------------------------------------    I
-  sta     HRS1+1,x        ;  poids fort HRSx ? 0 et positif              I    I
+  sta     HRS1 + 1,x        ;  poids fort HRSx ? 0 et positif              I    I
   lsr     DECDEB          ;   on sort 2 bits                              I    I
   rol                     ;   dans A                                      I    I
   lsr     DECDEB          ;                                               I    I
@@ -49,10 +49,10 @@ LE845:
   dex                     ;                                              I    I
   bpl     LE845           ;   on fait les 4 coordonnées ADRAW -------------    I
   jsr     XDRAWA_ROUTINE  ;   on trace le trait en absolu                      I
-  ldx     DECDEB+1        ;                                                     I
+  ldx     DECDEB + 1        ;                                                     I
   dex                     ;                                                     I
   bpl     LE83C           ;   et on fait 4 traits ------------------------------
   rts
 
 table_for_rect:
-  .byt $26,$67,$73,$32
+  .byt $26, $67, $73, $32

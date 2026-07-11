@@ -1,19 +1,16 @@
 .export XCLOSE_ROUTINE
 
 .proc XCLOSE_ROUTINE
+ ; $d046
+  ;  jmp XCLOSE_ROUTINE
     ; A contains FD
     ; Calls XFREE
     .out    .sprintf("|MODIFY:RESB:XCLOSE_ROUTINE")
     .out    .sprintf("|MODIFY:TR7:XCLOSE_ROUTINE")
     sta     RESB
-    sty     RESB+1 ; save fp
+    sty     RESB + 1 ; save fp
 
-.ifdef WITH_DEBUG
-    pha
-    ldx     #XDEBUG_FCLOSE_ENTER
-    jsr     xdebug_print_with_a
-    pla
-.endif
+
 
   ; Try to found FP
   ; kernel_process+kernel_process_struct::kernel_fd contient un tableau où la position 0 est le FD 3 (car on commence à 3 avec stin- 0 , stdout, stderr)
@@ -29,54 +26,46 @@
     bcs     @exit
 
     tax
-    lda     kernel_process+kernel_process_struct::kernel_fd,x ; A contient l'id du process, X contient l'id du FD retranché de 3
+    lda     kernel_process + kernel_process_struct::kernel_fd,x ; A contient l'id du process, X contient l'id du FD retranché de 3
     bne     @found_fp_slot
 
-.ifdef WITH_DEBUG
-    jsr     kdebug_save
-    txa
-    ldx     #XDEBUG_XCLOSE_FD_NOT_FOUND
-    jsr     xdebug_print_with_a
-    jsr     kdebug_restore
-.endif
+
 @exit:
     rts
 
 @found_fp_slot:
     ; Process should be called here
-.ifdef WITH_DEBUG
-    pha
-    lda     RESB
-    ldx     #XDEBUG_XCLOSE_FD_FOUND
-    jsr     xdebug_print
-    pla
-.endif
+
 
     txa ; Transfert fd 'id slot'
-    asl ; Multiply
+    asl ; Multiply * 2
     tax
     ; remove fp from main struct
 
 .IFPC02
 .pc02
-    stz     kernel_process+kernel_process_struct::fp_ptr,x
+    stz     kernel_process + kernel_process_struct::fp_ptr,x
     inx
-    stz     kernel_process+kernel_process_struct::fp_ptr,x
+    stz     kernel_process + kernel_process_struct::fp_ptr,x
 .p02
 .else
     lda     #$00
-    sta     kernel_process+kernel_process_struct::fp_ptr,x
+    sta     kernel_process + kernel_process_struct::fp_ptr,x
     inx
-    sta     kernel_process+kernel_process_struct::fp_ptr,x
+    sta     kernel_process + kernel_process_struct::fp_ptr,x
 .endif
 
 ;       store pointer in process struct
-    ldx     kernel_process+kernel_process_struct::kernel_current_process                ; Get current process
+    ldx     kernel_process + kernel_process_struct::kernel_current_process                ; Get current process
     jsr     kernel_get_struct_process_ptr
-    sta     RESB
-    sty     RESB+1
+    sta     RESB ; $741
+    sty     RESB + 1
 
-    ldy     #kernel_one_process_struct::fp_ptr
+    lda     TR7
+    asl
+    clc
+    adc     #kernel_one_process_struct::fp_ptr
+    tay
 
 @try_to_find_a_free_fp_for_current_process:
     lda     (RESB),y
@@ -88,9 +77,15 @@
     tay
     pla
      ; $7D5
+
     jsr     XFREE_ROUTINE
 
-    ldy     #kernel_one_process_struct::fp_ptr
+    ; Clear fp in current process
+    lda     TR7
+    asl
+    clc
+    adc     #kernel_one_process_struct::fp_ptr
+    tay
     lda     #$00
     sta     (RESB),y
     iny
@@ -101,14 +96,14 @@
 
 .IFPC02
 .pc02
-    stz     kernel_process+kernel_process_struct::kernel_fd,x
+    stz     kernel_process + kernel_process_struct::kernel_fd,x
 .p02
 .else
     lda     #$00
-    sta     kernel_process+kernel_process_struct::kernel_fd,x
+    sta     kernel_process + kernel_process_struct::kernel_fd,x
 .endif
 
-    cpx     kernel_process+kernel_process_struct::kernel_fd_opened ; does the fd sent is the current file opened ? if no, it's already close, then don't close it from ch376
+    cpx     kernel_process + kernel_process_struct::kernel_fd_opened ; does the fd sent is the current file opened ? if no, it's already close, then don't close it from ch376
     beq     close_in_ch376
     rts
 

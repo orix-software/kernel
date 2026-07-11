@@ -13,6 +13,7 @@
 	lda     #$00 ; 65c02
 	sta     TR3
 	sta     TR4
+
 @L5:
 	lda     #$FF
 	sta     TR0
@@ -35,11 +36,11 @@
 	lda     TR0
 	beq     @L2
 	sta     TR3
-	bne     @L3+1
+	bne     @L3 + 1
 
 @L2:
 	ldy     TR3
-	bne     @L3+1
+	bne     @L3 + 1
 	lda     DEFAFF
 @L3:
 	.byt    $2C

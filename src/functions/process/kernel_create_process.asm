@@ -25,22 +25,16 @@
   sta     RESB
   sta     TR4
 
-  sty     RESB+1
+  sty     RESB + 1
   sty     TR5
-
-
-.ifdef WITH_DEBUG
-    ldx     #XDEBUG_CREATE_PROCESS_PRINT
-  ;  jsr     xdebug_print
-.endif
 
 ; Try to find the next PID available
 
 ; Get first pid
-  ldx     #$00   ; Because the first is init (
+  ldx     #$00   ; Because the first is init 
 
 @L3:
-  lda     kernel_process+kernel_process_struct::kernel_pid_list,x
+  lda     kernel_process + kernel_process_struct::kernel_pid_list,x
   beq     @found
   inx
   cpx     #KERNEL_MAX_PROCESS
@@ -57,11 +51,12 @@
 
 
 @found:
-  ; At this step KERNEL_XKERNEL_CREATE_PROCESS_TMP contains the current PID
+  ; At this step KERNEL_XKERNEL_CREATE_PROCESS_TMP contains the current PID (the PID which will be allocated)
   stx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
+  ; Store pid list FIXME : Should be a value to store instead of only 1
   lda     #$01
-  sta     kernel_process+kernel_process_struct::kernel_pid_list,x
+  sta     kernel_process + kernel_process_struct::kernel_pid_list,x
 
   ; Malloc process for init process
   lda     #KERNEL_PROCESS_STRUCT_MALLOC_TYPE
@@ -78,21 +73,20 @@
   cpy     #NULL
   bne     @S2
   ; erreur OOM
-  lda     #KERNEL_UNKNOWN_MALLOC_TYPE
-  sta     KERNEL_MALLOC_TYPE
+
 
   ldy     #ENOMEM
   rts
 
 @S2:
   ; now register ptr adress of process
-  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
 
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_low,x
+  ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP ; 40F8 for pid 3
+  sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_low,x
   sta     RES
-  tya
-  sta     kernel_process+kernel_process_struct::kernel_one_process_struct_ptr_high,x
-  sty     RES+1
+  tya     ; Get High byte from malloc
+  sta     kernel_process + kernel_process_struct::kernel_one_process_struct_ptr_high,x
+  sty     RES + 1
 
   ; prepare to copy 'process' string
 
@@ -102,7 +96,7 @@
 
   ldy     #kernel_one_process_struct::ppid
 
-  lda     kernel_process+kernel_process_struct::kernel_current_process   ; $57A
+  lda     kernel_process + kernel_process_struct::kernel_current_process   ; $57A
   sta     (RES),y ; $6AE
 
 @register_processname:
@@ -116,7 +110,7 @@
   sta     (RES),y
 
   iny
-  cpy     #(KERNEL_MAX_LENGTH_COMMAND+1)
+  cpy     #(KERNEL_MAX_LENGTH_COMMAND + 1)
   bne     @L2
 @S1:
   lda     #$00
@@ -127,7 +121,7 @@
 ; ***********************************************************************************************************************
 
 save_command_line:
-  lda     RES+1
+  lda     RES + 1
   sta     TR5
 
   lda     RES
@@ -149,7 +143,7 @@ save_command_line:
   beq     @S8
   sta     (TR4),y
   iny
-  cpy     #(KERNEL_LENGTH_MAX_CMDLINE-1)
+  cpy     #(KERNEL_LENGTH_MAX_CMDLINE - 1)
   bne     @L10
   ldy     #EINVAL
   rts
@@ -164,7 +158,7 @@ save_command_line:
 @L5:
   sta     (RES),y
   iny
-  cpy     #(kernel_one_process_struct::fp_ptr+KERNEL_MAX_FP_PER_PROCESS*2)
+  cpy     #(kernel_one_process_struct::fp_ptr + KERNEL_MAX_FP_PER_PROCESS * 2 )
   bne     @L5
 
   ; Set to "/" cwd of init process
@@ -174,10 +168,10 @@ save_command_line:
   cpx     #$01  ; First process after init (should be sh) ; COMMENT TO HAVE WORKING MAX PROCESS
   beq     @initialize_to_slash
 
-  ldx     kernel_process+kernel_process_struct::kernel_current_process
+  ldx     kernel_process + kernel_process_struct::kernel_current_process
   jsr     kernel_get_struct_process_ptr
   sta     KERNEL_CREATE_PROCESS_PTR1
-  sty     KERNEL_CREATE_PROCESS_PTR1+1
+  sty     KERNEL_CREATE_PROCESS_PTR1 + 1
 
 
 ; Copy cwd from ppid
@@ -208,7 +202,8 @@ save_command_line:
 @skip:
   ; Set pid number in the struct
   ldx     KERNEL_XKERNEL_CREATE_PROCESS_TMP
-  stx     kernel_process+kernel_process_struct::kernel_current_process
+
+  stx     kernel_process + kernel_process_struct::kernel_current_process
   ldy     #EOK
   rts
 

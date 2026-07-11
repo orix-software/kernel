@@ -1,0 +1,4 @@
+#!/bin/submit
+echo Mainarg test
+mainarg ici "part1 part2"
+#on error echo error

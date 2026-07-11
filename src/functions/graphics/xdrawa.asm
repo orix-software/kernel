@@ -4,6 +4,8 @@
 ; Action:on calcule dX et dY les deplacements dans HRS1 et HRS2 et on trace en
 ; relatif. En entr?e, comme ADRAW dans HRSx.
 
+.export XDRAWA_ROUTINE
+
 .proc XDRAWA_ROUTINE
   ldx     HRS1                   ;   X=colonne
   ldy     HRS2                   ;   Y=ligne du curseur
@@ -14,7 +16,7 @@
   sbc     HRS1                   ;   -X1
   sta     HRS1                   ;   dans HRS1 (DX)
   bcs     @S1                    ;   si DX<0, on inverse le signe de HRS1
-  stx     HRS1+1                 ;   dec $4E aurait été mieux...
+  stx     HRS1 + 1                 ;   dec $4E aurait été mieux...
   sec
 
 @S1:
@@ -22,5 +24,5 @@
   sbc     HRS2                   ;  -Y1
   sta     HRS2                   ;  dans HRS2 (DY)
   bcs     XDRAWR_ROUTINE         ;  et si DY négatif, on met signe -1
-  stx     HRS2+1                 ;   ou dec $50
+  stx     HRS2 + 1                 ;   ou dec $50
 .endproc
